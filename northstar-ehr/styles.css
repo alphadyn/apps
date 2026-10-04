@@ -258,7 +258,8 @@ textarea {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 24px;
+  flex-wrap: wrap;
+  gap: 16px 24px;
   min-height: 62px;
   padding-bottom: 2px;
 }
@@ -283,7 +284,10 @@ textarea {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex: 0 1 auto;
+  flex: 1 1 360px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  min-width: 0;
 }
 
 .search-box {

@@ -19,40 +19,34 @@ The landing page highlights these projects:
 7. [Photo Gallery](photo-gallery/) — Responsive photo gallery
 8. [Meetings](meetings/) — Encrypted video meetings with chat, file sharing, fullscreen mode, and a mobile-friendly interface
 
-## Repository layout
+## App catalog
 
-### Web apps and interactive demos
+Projects are listed alphabetically, matching the catalog on the landing page.
 
-- [Market Curve Lab](market-curve-lab/) — Rank all 500 S&P 500 companies by market cap, search stocks, and inspect selected-ticker all-time performance, trendlines, and concavity.
 - [Architectural Design](architectural-design/) — Architectural concept board and home design presentation.
+- [Atlas Store](atlas-store/) — Storefront mockup with catalog, cart, and checkout flow.
 - [Audio Equalizer](audio-equalizer/) — Browser media player with live waveform and spectrum analysis.
-- [Experiences](experiences/) — Experiences: a Supabase-backed journal with trips, shareable Experience collections, Event maps, precise location picking, and media carousels.
+- [Crawler Indexer](crawler-indexer/) — Domain-scoped crawler and indexer utility.
 - [Earth 3D Explorer](earth-3d-explorer/) — Three.js globe with overlays and inspection interactions.
-- [Northstar EHR](northstar-ehr/) — Responsive electronic health record demo for patient care workflows and encounter documentation.
+- [Experiences](experiences/) — Supabase-backed journal with trips, shareable Experience collections, Event maps, precise location picking, and media carousels.
 - [Fractal Patterns](fractal-patterns/) — Interactive fractal visualizer.
 - [Game Videos](game-videos/) — Gaming video showcase page.
 - [Legal Docketing](legal-docketing/) — Matter and deadline tracking app.
+- [Market Curve Lab](market-curve-lab/) — Rank all 500 S&P 500 companies by market cap, search stocks, and inspect selected-ticker all-time performance, trendlines, and concavity.
+- [Market Lens](market-lens/) — Dashboard for screening and reviewing large-cap equities.
+- [Meetings](meetings/) — Encrypted WebRTC meetings with chat, file sharing, fullscreen mode, and responsive mobile controls.
 - [Multi-Search Engine](multi-search-engine/) — Search comparison page across multiple engines.
 - [Nexus](nexus/) — Content and media management system with browser UI, sample media, filtering, metadata editing, and optional Supabase persistence.
-- [Atlas Store](atlas-store/) — Storefront mockup with catalog, cart, and checkout flow.
+- [Northstar EHR](northstar-ehr/) — Responsive electronic health record demo for patient care workflows and encounter documentation.
 - [Pencil Sketch](pencil-sketch/) — Image-to-pencil-sketch converter.
 - [Photo Gallery](photo-gallery/) — Responsive gallery app.
 - [Postboard](postboard/) — Personal post archive with rich text, uploads, and Supabase integration.
-- [pulse](pulse/) — Social/news-style app with posts, tags, and discussion flows.
+- [Pulse](pulse/) — Social/news-style app with posts, tags, and discussion flows.
 - [Resume](resume/) — Portfolio-style resume page.
-- [Vault](vault/) — Browser-based text and file encryption app; all processing stays on-device.
-- [Market Lens](market-lens/) — Dashboard for screening and reviewing large-cap equities.
-- [vCard Generator](vcard-generator/) — Card generation and QR code output.
-- [Meetings](meetings/) — Encrypted WebRTC meetings with chat, file sharing, fullscreen mode, and responsive mobile controls.
-
-### Reports and presentation pages
-
-- [Top Occupations](top-occupations/) — Income report across top occupations.
-
-### Python utilities and tooling
-
-- [Crawler Indexer](crawler-indexer/) — Domain-scoped crawler and indexer utility.
 - [Signal](signal/) — Focused, searchable news-reading list that captures Google News headlines and related stories and downloads them as structured JSON.
+- [Top Occupations](top-occupations/) — Income report across top occupations.
+- [Vault](vault/) — Browser-based text and file encryption app; all processing stays on-device.
+- [vCard Generator](vcard-generator/) — Card generation and QR code output.
 
 ## Quick start
 

@@ -1037,6 +1037,14 @@ function renderNavigation() {
   });
 }
 
+function scrollToWorkspaceTop() {
+  const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  document.getElementById("main-content")?.scrollIntoView({
+    behavior: reduceMotion ? "auto" : "smooth",
+    block: "start"
+  });
+}
+
 function applyViewState() {
   const visibility = getVisibleSections(currentView);
   Object.entries(visibility).forEach(([sectionId, visible]) => {
@@ -2052,13 +2060,14 @@ function attachEvents() {
     link.addEventListener("click", () => {
       setCurrentView(link.dataset.view);
       render();
+      scrollToWorkspaceTop();
     });
   });
 
   document.getElementById("quickEncounterBtn").addEventListener("click", () => {
     setCurrentView("clinical");
     render();
-    document.getElementById("clinicalSection").scrollIntoView({ behavior: "smooth" });
+    scrollToWorkspaceTop();
   });
 
   document.getElementById("roleSelector").addEventListener("change", (event) => {

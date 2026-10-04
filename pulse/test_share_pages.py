@@ -26,9 +26,9 @@ def test_build_generates_safe_post_metadata_and_jpeg_cover(tmp_path):
     page = (output / POST_ID / 'index.html').read_text()
     assert 'og:title" content="&lt;/title&gt;&lt;script&gt;alert(1)&lt;/script&gt; &amp; Plane"' in page
     assert 'og:description' not in page
-    assert 'og:url" content="https://alphadyn.github.io/ai/pulse/share/' + POST_ID + '/"' in page
+    assert 'og:url" content="https://alphadyn.github.io/apps/pulse/share/' + POST_ID + '/"' in page
     assert 'og:image:type" content="image/jpeg"' in page
-    assert 'location.replace("https://alphadyn.github.io/ai/pulse/?post=' + POST_ID + '")' in page
+    assert 'location.replace("https://alphadyn.github.io/apps/pulse/?post=' + POST_ID + '")' in page
     assert '<script>alert(1)' not in page
     assert 'Flying fast' not in page
     assert page.index('<h1>') < page.index('<img src=') < page.index('<p class="domain">')

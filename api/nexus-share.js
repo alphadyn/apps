@@ -1,7 +1,7 @@
 const SUPABASE_URL = 'https://vftmcftccahjlxbxcnsf.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_I8I-cRDhS60UoUgCvVvwnQ_MyKI9u14';
-const NEXUS_URL = 'https://alphadyn.github.io/ai/nexus/';
-const FALLBACK_IMAGE = 'https://alphadyn.github.io/ai/social-preview.png';
+const NEXUS_URL = 'https://alphadyn.github.io/apps/nexus/';
+const FALLBACK_IMAGE = 'https://alphadyn.github.io/apps/social-preview.png';
 
 function escapeHtml(value) {
   return String(value ?? '')

@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { fetchAnalysis, fetchSp500Companies, normalizeSymbol, normalizeTicker, searchSecurities, ValidationError } from './_lib/market.js';
 
-const DEFAULT_APP_URL = 'https://alphadyn.github.io/ai/market-curve-lab/';
+const DEFAULT_APP_URL = 'https://alphadyn.github.io/apps/market-curve-lab/';
 const FALLBACK_IMAGE = `${DEFAULT_APP_URL}static/social-preview.png`;
 // Same public read-only cache the browser app uses.
 const SUPABASE_URL = 'https://vftmcftccahjlxbxcnsf.supabase.co';

@@ -13,7 +13,7 @@ from urllib.request import Request, urlopen
 
 
 ROOT = Path(__file__).resolve().parent
-APP_URL = 'https://alphadyn.github.io/ai/market-curve-lab/'
+APP_URL = 'https://alphadyn.github.io/apps/market-curve-lab/'
 SHARE_URL = APP_URL + 's/'
 IMAGE_ORIGIN = 'https://ai-orcin-eta-15.vercel.app/s/'
 CONSTITUENTS_URL = 'https://raw.githubusercontent.com/datasets/s-and-p-500-companies/master/data/constituents.csv'

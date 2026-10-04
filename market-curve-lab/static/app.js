@@ -1,6 +1,6 @@
 const VERCEL_API = 'https://ai-orcin-eta-15.vercel.app/api/market-curve-lab';
 const VERCEL_SHARE_URL = 'https://ai-orcin-eta-15.vercel.app/s/';
-const PAGES_APP_URL = 'https://alphadyn.github.io/ai/market-curve-lab/';
+const PAGES_APP_URL = 'https://alphadyn.github.io/apps/market-curve-lab/';
 const API = window.location.hostname.endsWith('github.io') ? VERCEL_API : '/api/market-curve-lab';
 const TICKER_PATTERN = /^[A-Z0-9^][A-Z0-9.^=_-]{0,19}$/;
 const $ = (selector) => document.querySelector(selector);

@@ -1,5 +1,5 @@
-const DEFAULT_APP_URL = "https://alphadyn.github.io/ai/experiences/";
-const FALLBACK_IMAGE = "https://alphadyn.github.io/ai/experiences/assets/experience-pin-photos.png";
+const DEFAULT_APP_URL = "https://alphadyn.github.io/apps/experiences/";
+const FALLBACK_IMAGE = "https://alphadyn.github.io/apps/experiences/assets/experience-pin-photos.png";
 const MAX_PREVIEW_EVENTS = 40;
 
 function appBaseUrl(): string {

@@ -12,7 +12,7 @@ from uuid import UUID
 
 
 ROOT = Path(__file__).resolve().parent
-APP_URL = 'https://alphadyn.github.io/ai/experiences/'
+APP_URL = 'https://alphadyn.github.io/apps/experiences/'
 FALLBACK_IMAGE = APP_URL + 'assets/experience-pin-photos.png'
 PAGE_SIZE = 1000
 BATCH_SIZE = 100

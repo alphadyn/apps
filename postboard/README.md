@@ -19,7 +19,7 @@ Postboard is a small personal activity log for saving short updates with metadat
 1. Open the project in a browser, or serve it locally from this folder:
 
 ```bash
-cd /path/to/ai/postboard
+cd /path/to/apps/postboard
 python3 -m http.server 8000
 ```
 

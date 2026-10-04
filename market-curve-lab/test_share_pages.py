@@ -7,10 +7,10 @@ def test_build_generates_escaped_github_pages_preview(tmp_path):
     output = tmp_path / 's'
     assert previews.build_pages(output, securities, {'BRK-B': 9}, summaries) == 1
     page = (output / 'BRK-B' / 'index.html').read_text()
-    assert 'og:url" content="https://alphadyn.github.io/ai/market-curve-lab/s/BRK-B/"' in page
+    assert 'og:url" content="https://alphadyn.github.io/apps/market-curve-lab/s/BRK-B/"' in page
     assert 'og:image" content="https://ai-orcin-eta-15.vercel.app/s/BRK-B/preview.png"' in page
     assert 'S&amp;P 500 #9): +1,234% adjusted total return since 1996' in page
-    assert 'location.replace("https://alphadyn.github.io/ai/market-curve-lab/?symbol=BRK-B")' in page
+    assert 'location.replace("https://alphadyn.github.io/apps/market-curve-lab/?symbol=BRK-B")' in page
     assert '<script>alert(1)' not in page
 
 

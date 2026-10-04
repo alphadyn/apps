@@ -13,15 +13,15 @@ Page loads read the S&P 500 ranking and each ticker's analysis from a shared Sup
 ## Security URLs and link previews
 
 Every security has its own URL: `?symbol=<TICKER>` (for example
-`https://alphadyn.github.io/ai/market-curve-lab/?symbol=NVDA`). Picking a stock
+`https://alphadyn.github.io/apps/market-curve-lab/?symbol=NVDA`). Picking a stock
 updates the address bar, and the browser's back and forward buttons move between
 securities you've viewed.
 
 The **Share** button copies (or opens the system share sheet for) an Alphadyn
-permalink such as `https://alphadyn.github.io/ai/market-curve-lab/s/NVDA/` for
+permalink such as `https://alphadyn.github.io/apps/market-curve-lab/s/NVDA/` for
 S&P 500 constituents. That ticker-specific page shows Alphadyn as the preview
 domain and redirects visitors to
-`https://alphadyn.github.io/ai/market-curve-lab/?symbol=NVDA`. Other listed
+`https://alphadyn.github.io/apps/market-curve-lab/?symbol=NVDA`. Other listed
 stocks use the Vercel dynamic preview URL because GitHub Pages has no generated
 page for them.
 Link previews don't run JavaScript, and GitHub Pages returns the same static tags

@@ -1,7 +1,7 @@
 const SUPABASE_URL = 'https://vftmcftccahjlxbxcnsf.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_I8I-cRDhS60UoUgCvVvwnQ_MyKI9u14';
-const APP_URL = 'https://alphadyn.github.io/ai/experiences/';
-const FALLBACK_IMAGE = 'https://alphadyn.github.io/ai/experiences/assets/experience-pin-photos.png';
+const APP_URL = 'https://alphadyn.github.io/apps/experiences/';
+const FALLBACK_IMAGE = 'https://alphadyn.github.io/apps/experiences/assets/experience-pin-photos.png';
 const MAX_PREVIEW_EVENTS = 40;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 

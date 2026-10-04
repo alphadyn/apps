@@ -19,7 +19,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps, UnidentifiedImageError
 
 
 ROOT = Path(__file__).resolve().parent
-APP_URL = 'https://alphadyn.github.io/ai/pulse/'
+APP_URL = 'https://alphadyn.github.io/apps/pulse/'
 FALLBACK_IMAGE = APP_URL + 'social-preview-mobile.png'
 PAGE_SIZE = 20  # Attachments can be large; do not load hundreds of posts at once.
 IMAGE_TYPES = {'image/png', 'image/jpeg', 'image/webp', 'image/gif'}

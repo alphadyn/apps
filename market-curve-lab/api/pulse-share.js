@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
-const DEFAULT_APP_URL = 'https://alphadyn.github.io/ai/pulse/';
-const FALLBACK_IMAGE = 'https://alphadyn.github.io/ai/pulse/social-preview-mobile.png';
+const DEFAULT_APP_URL = 'https://alphadyn.github.io/apps/pulse/';
+const FALLBACK_IMAGE = 'https://alphadyn.github.io/apps/pulse/social-preview-mobile.png';
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
 

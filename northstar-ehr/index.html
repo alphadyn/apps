@@ -86,12 +86,15 @@
             </label>
             <span class="demo-badge">Demo data</span>
             <div class="data-exchange" role="group" aria-label="Import and export">
-              <select id="exchangeFormat" aria-label="Export format">
-                <option value="json">JSON</option>
-                <option value="fhir">Epic / FHIR R4</option>
-                <option value="csv">CSV</option>
+              <select id="exchangeFormat" aria-label="Export format" title="Export format">
+                <option value="json">Northstar JSON</option>
+                <optgroup label="FHIR">
+                  <option value="fhir">FHIR R4 (Epic)</option>
+                  <option value="fhir5">FHIR R5</option>
+                </optgroup>
+                <option value="csv">CSV roster</option>
               </select>
-              <select id="exchangeScope" aria-label="Export scope">
+              <select id="exchangeScope" aria-label="Export scope" title="Export scope">
                 <option value="selected">Selected patient</option>
                 <option value="all">All patients</option>
               </select>

@@ -6,7 +6,7 @@ A responsive electronic health record demonstration covering patient charts, eme
 
 ## Features
 
-- Data exchange: export the selected patient or all patients as Northstar JSON, an Epic-compatible HL7 FHIR R4 Bundle (Patient, Condition, AllergyIntolerance, MedicationRequest, Observation, DiagnosticReport, Appointment, DocumentReference), or a CSV roster; import any of these (auto-detected) and upsert by MRN. Import requires the `data:import` permission (Clinician, Admin). File-based only: no live Epic connection or OAuth.
+- Data exchange: export the selected patient or all patients as Northstar JSON, an Epic-compatible HL7 FHIR R4 or R5 Bundle (Patient, Condition, AllergyIntolerance, MedicationRequest, Observation, DiagnosticReport, Appointment, DocumentReference), or a CSV roster; import any of these (auto-detected) and upsert by MRN. Import requires the `data:import` permission (Clinician, Admin). File-based only: no live Epic connection or OAuth.
 - Patient worklist with 23 fictional patient charts, searchable diagnoses, demographics, histories, allergies, medications, labs, and vitals
 - Patient status dashboard with current encounter status, allergy visibility, vital-sign history, imaging/report counts, and latest radiology summary
 - Chronological patient timeline combining clinical notes, workflow updates, vitals, orders, imaging, and appointment activity

@@ -1,11 +1,13 @@
-// Import/export adapters: Northstar JSON, HL7 FHIR R4 (Epic on FHIR compatible) and CSV.
+// Import/export adapters: Northstar JSON, HL7 FHIR R4/R5 (Epic on FHIR compatible) and CSV.
 (function (root) {
   const FORMATS = {
     json: { label: "JSON (Northstar)", extension: "json", mime: "application/json" },
-    fhir: { label: "Epic / FHIR R4 Bundle", extension: "fhir.json", mime: "application/fhir+json" },
+    fhir: { label: "FHIR R4 Bundle (Epic)", extension: "fhir.json", mime: "application/fhir+json" },
+    fhir5: { label: "FHIR R5 Bundle", extension: "fhir-r5.json", mime: "application/fhir+json" },
     csv: { label: "CSV (roster)", extension: "csv", mime: "text/csv" }
   };
 
+  const FHIR_FORMATS = { fhir: "R4", fhir5: "R5" };
   const MRN_SYSTEM = "urn:northstar-ehr:mrn";
   const LOINC = {
     bp: { code: "85354-9", display: "Blood pressure panel" },
@@ -40,7 +42,7 @@
   }
 
   // ---------- FHIR export ----------
-  function patientToFhirEntries(patient) {
+  function patientToFhirEntries(patient, version = "R4") {
     const pid = `pt-${slug(patient.mrn || patient.id)}`;
     const ref = { reference: `Patient/${pid}` };
     const entries = [];
@@ -83,7 +85,9 @@
       id: `${pid}-med-${index}`,
       status: "active",
       intent: "order",
-      medicationCodeableConcept: { text: medication },
+      ...(version === "R5"
+        ? { medication: { concept: { text: medication } } }
+        : { medicationCodeableConcept: { text: medication } }),
       subject: ref
     }));
 
@@ -159,12 +163,15 @@
     return decodeURIComponent(escape(atob(data)));
   }
 
-  function buildFhirBundle(patients) {
+  const FHIR_VERSION_TAG = "urn:northstar-ehr:fhir-version";
+
+  function buildFhirBundle(patients, version = "R4") {
     return {
       resourceType: "Bundle",
+      ...(version === "R5" ? { meta: { tag: [{ system: FHIR_VERSION_TAG, code: "5.0.0" }] } } : {}),
       type: "collection",
       timestamp: new Date().toISOString(),
-      entry: patients.flatMap(patientToFhirEntries)
+      entry: patients.flatMap((patient) => patientToFhirEntries(patient, version))
     };
   }
 
@@ -272,7 +279,11 @@
       } else if (type === "AllergyIntolerance") {
         target.allergies.push(textOf(resource.code));
       } else if (type === "MedicationRequest" || type === "MedicationStatement") {
-        target.medications.push(textOf(resource.medicationCodeableConcept) || refId(resource.medicationReference));
+        const medication = resource.medication;
+        target.medications.push(
+          textOf(resource.medicationCodeableConcept) || textOf(medication?.concept) ||
+          refId(resource.medicationReference || medication?.reference)
+        );
       } else if (type === "Observation") {
         const code = resource.code?.coding?.find((c) => c.system === "http://loinc.org")?.code;
         const key = Object.keys(LOINC).find((k) => LOINC[k].code === code);
@@ -319,7 +330,7 @@
   // ---------- Dispatch ----------
   function buildExport(format, patients, buildJsonPayload) {
     const list = toArray(patients);
-    if (format === "fhir") return JSON.stringify(buildFhirBundle(list), null, 2);
+    if (FHIR_FORMATS[format]) return JSON.stringify(buildFhirBundle(list, FHIR_FORMATS[format]), null, 2);
     if (format === "csv") return buildCsv(list);
     if (format === "json") {
       const payloads = list.map(buildJsonPayload);
@@ -328,12 +339,19 @@
     throw new Error(`Unsupported export format: ${format}`);
   }
 
+  function isFhirR5(data) {
+    const resources = data.resourceType === "Bundle" ? toArray(data.entry).map((entry) => entry?.resource) : [data];
+    const tagged = toArray(data.meta?.tag).some((tag) => tag.system === FHIR_VERSION_TAG && /^5/.test(tag.code));
+    const hasR5Medication = resources.some((resource) => typeof resource?.medication === "object");
+    return tagged || /^5/.test(data.fhirVersion || "") || hasR5Medication;
+  }
+
   function detectFormat(filename, text) {
     const trimmed = String(text || "").trim();
     if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
       try {
         const data = JSON.parse(trimmed);
-        return data?.resourceType ? "fhir" : "json";
+        return data?.resourceType ? (isFhirR5(data) ? "fhir5" : "fhir") : "json";
       } catch (error) {
         throw new Error("File is not valid JSON.");
       }
@@ -349,7 +367,7 @@
     if (format === "csv") patients = parseCsvPatients(text);
     else {
       const data = JSON.parse(text);
-      if (format === "fhir") patients = patientsFromFhir(data);
+      if (FHIR_FORMATS[format]) patients = patientsFromFhir(data);
       else if (Array.isArray(data)) patients = data;
       else if (Array.isArray(data.patients)) patients = data.patients;
       else if (data.patient) patients = [data.patient];

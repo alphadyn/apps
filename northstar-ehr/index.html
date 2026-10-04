@@ -75,26 +75,26 @@
         </header>
 
         <section id="overviewSection" class="stats-grid view-section">
-          <article class="stat-card accent-blue">
+          <button type="button" class="stat-card accent-blue" data-stat-filter="all" aria-pressed="false">
             <p>Patient records</p>
             <strong id="patientsTodayValue">0</strong>
             <span id="patientsTodayMeta">0 records in workspace</span>
-          </article>
-          <article class="stat-card accent-green">
+          </button>
+          <button type="button" class="stat-card accent-green" data-stat-filter="completed" aria-pressed="false">
             <p>Completed charts</p>
             <strong id="completedChartsValue">0</strong>
             <span id="completedChartsMeta">0% completion rate</span>
-          </article>
-          <article class="stat-card accent-amber">
+          </button>
+          <button type="button" class="stat-card accent-amber" data-stat-filter="critical" aria-pressed="false">
             <p>Critical follow-ups</p>
             <strong id="criticalFollowupsValue">0</strong>
             <span id="criticalFollowupsMeta">0 overdue tasks</span>
-          </article>
-          <article class="stat-card accent-purple">
+          </button>
+          <button type="button" class="stat-card accent-purple" data-stat-filter="medrec" aria-pressed="false">
             <p>Medication Reconciliation</p>
             <strong id="medRecValue">0%</strong>
             <span id="medRecMeta">0 patient charts reviewed</span>
-          </article>
+          </button>
         </section>
 
         <section id="clinicalSection" class="clinical-workspace view-section">
@@ -240,6 +240,10 @@
                 <h3>Active records</h3>
               </div>
               <span class="pill" id="patientListCount">23 records</span>
+            </div>
+            <div id="activeFilterBar" class="filter-bar hidden-section">
+              <span id="activeFilterLabel"></span>
+              <button id="clearFilterBtn" class="ghost-btn" type="button">Clear filter</button>
             </div>
             <div id="patientList" class="patient-list"></div>
           </div>

@@ -1083,6 +1083,24 @@ function parseVitalsInput(rawVitals) {
   return nextVitals;
 }
 
+const STAT_FILTERS = {
+  completed: { label: "Completed charts", test: (patient) => patient.chartCompleted },
+  critical: { label: "Critical follow-ups", test: isCriticalFollowup },
+  medrec: { label: "Medication reconciliation reviewed", test: (patient) => patient.medicationReviewed }
+};
+let activeStatFilter = null;
+
+function isCriticalFollowup(patient) {
+  const dueDate = patient.carePlan.followUpDate ? new Date(`${patient.carePlan.followUpDate}T00:00:00`) : null;
+  const isOverdue = dueDate ? dueDate.getTime() < Date.now() : false;
+  return patient.priority === "Urgent" || isOverdue;
+}
+
+function setStatFilter(filter) {
+  activeStatFilter = STAT_FILTERS[filter] && filter !== activeStatFilter ? filter : null;
+  render();
+}
+
 function calculateDashboardStats(patientList) {
   const totalPatients = patientList.length || 1;
   const completedCharts = patientList.filter((patient) => patient.chartCompleted).length;
@@ -1091,11 +1109,7 @@ function calculateDashboardStats(patientList) {
     (count, patient) => count + patient.carePlan.tasks.filter((task) => task.status !== "Done").length,
     0
   );
-  const criticalFollowups = patientList.filter((patient) => {
-    const dueDate = patient.carePlan.followUpDate ? new Date(`${patient.carePlan.followUpDate}T00:00:00`) : null;
-    const isOverdue = dueDate ? dueDate.getTime() < Date.now() : false;
-    return patient.priority === "Urgent" || isOverdue;
-  }).length;
+  const criticalFollowups = patientList.filter(isCriticalFollowup).length;
 
   return {
     patientsToday: patientList.length,
@@ -1427,6 +1441,11 @@ function renderDashboardStats() {
   document.getElementById("criticalFollowupsMeta").textContent = stats.criticalFollowupsMeta;
   document.getElementById("medRecValue").textContent = stats.medicationReconciliation;
   document.getElementById("medRecMeta").textContent = stats.medicationReconciliationMeta;
+  document.querySelectorAll("[data-stat-filter]").forEach((card) => {
+    const active = card.dataset.statFilter === activeStatFilter;
+    card.classList.toggle("selected", active);
+    card.setAttribute("aria-pressed", String(active));
+  });
 }
 
 function renderRoleSummary() {
@@ -1444,12 +1463,22 @@ function renderRoleSummary() {
   roleSelector.value = currentUser.role;
 }
 
+function getFilterDetail(patient) {
+  const openTasks = patient.carePlan.tasks.filter((task) => task.status !== "Done").length;
+  const followUp = patient.carePlan.followUpDate ? formatDisplayDate(patient.carePlan.followUpDate) : "none scheduled";
+  return `Chart ${patient.chartCompleted ? "complete" : "incomplete"} · Meds ${patient.medicationReviewed ? "reconciled" : "pending"} · ${openTasks} open ${openTasks === 1 ? "task" : "tasks"} · Follow-up: ${followUp}`;
+}
+
 function renderPatientList() {
   const searchField = document.getElementById("patientSearch");
   const searchTerm = searchField ? searchField.value.toLowerCase() : "";
+  const statFilter = activeStatFilter ? STAT_FILTERS[activeStatFilter] : null;
   const filtered = patients.filter((patient) =>
+    (!statFilter || statFilter.test(patient)) &&
     `${patient.name} ${patient.mrn} ${patient.priority} ${patient.status} ${patient.diagnosis}`.toLowerCase().includes(searchTerm)
   );
+  document.getElementById("activeFilterBar").classList.toggle("hidden-section", !statFilter);
+  if (statFilter) document.getElementById("activeFilterLabel").textContent = `Filter: ${statFilter.label}`;
 
   const list = document.getElementById("patientList");
   document.getElementById("patientListCount").textContent =
@@ -1468,6 +1497,7 @@ function renderPatientList() {
           <span>${escapeHtml(patient.mrn)} • ${escapeHtml(patient.priority)}</span>
           <span>${escapeHtml(patient.diagnosis)}</span>
           <span>${escapeHtml(patient.status)}</span>
+          ${statFilter ? `<span class="filter-detail">${escapeHtml(getFilterDetail(patient))}</span>` : ""}
         </button>
       `;
     })
@@ -2050,6 +2080,10 @@ function handleDocumentSubmit(event) {
 
 function attachEvents() {
   document.getElementById("patientSearch").addEventListener("input", renderPatientList);
+  document.querySelectorAll("[data-stat-filter]").forEach((card) => {
+    card.addEventListener("click", () => setStatFilter(card.dataset.statFilter));
+  });
+  document.getElementById("clearFilterBtn").addEventListener("click", () => setStatFilter(null));
 
   document.getElementById("patientList").addEventListener("click", (event) => {
     const card = event.target.closest(".patient-card");

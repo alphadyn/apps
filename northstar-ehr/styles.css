@@ -342,6 +342,43 @@ textarea {
   transition: box-shadow 140ms ease, transform 140ms ease;
 }
 
+button.stat-card {
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+}
+
+.stat-card.selected {
+  box-shadow: 0 0 0 2px #4d84e8;
+}
+
+.stat-card:focus-visible {
+  outline: 2px solid #4d84e8;
+  outline-offset: 2px;
+}
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.filter-bar.hidden-section {
+  display: none;
+}
+
+.patient-card .filter-detail {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+  font-size: 0.78rem;
+}
+
 .stat-card:hover {
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
   transform: translateY(-1px);

@@ -3,7 +3,11 @@ const storageKey = "northstar-ehr-state-v3";
 const rolePermissions = {
   clinician: {
     label: "Clinician",
-    actions: ["encounter:create", "appointment:complete", "task:complete", "patient:select", "report:export"]
+    actions: ["encounter:create", "workflow:update", "order:create", "document:create", "appointment:complete", "task:complete", "patient:select", "report:export"]
+  },
+  nurse: {
+    label: "Nurse",
+    actions: ["workflow:update", "order:create", "document:create", "appointment:complete", "task:complete", "patient:select"]
   },
   admin: {
     label: "Admin",
@@ -149,8 +153,22 @@ function formatDisplayDate(isoDate) {
   return parsed.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
 }
 
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[character]);
+}
+
 function createAppointmentId() {
   return `a-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`;
+}
+
+function createRecordId(prefix) {
+  return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
 }
 
 function normalizeTask(task) {
@@ -175,11 +193,42 @@ function normalizeAppointment(appointment) {
 }
 
 function normalizePatient(patient) {
+  const clinical = patient.clinical || {};
   return {
     ...patient,
     chartCompleted: Boolean(patient.chartCompleted),
     medicationReviewed: patient.medicationReviewed !== false,
     appointments: (patient.appointments || []).map(normalizeAppointment),
+    clinical: {
+      arrivalMode: clinical.arrivalMode || "Walk-in",
+      stage: clinical.stage || "Intake",
+      chiefComplaint: clinical.chiefComplaint || "",
+      acuity: clinical.acuity || "",
+      triageNote: clinical.triageNote || "",
+      vitals: { ...(patient.vitals || {}), ...(clinical.vitals || {}) },
+      painScore: clinical.painScore || "",
+      location: clinical.location || patient.room || "Waiting",
+      disposition: clinical.disposition || "",
+      destination: clinical.destination || "",
+      followUpDate: clinical.followUpDate || patient.carePlan?.followUpDate || ""
+    },
+    orders: (patient.orders || []).map((order) => ({
+      id: order.id || createRecordId("order"),
+      category: order.category || "Nursing",
+      priority: order.priority || "Routine",
+      title: order.title || "",
+      details: order.details || "",
+      status: order.status || "Pending",
+      time: order.time || "Previously recorded"
+    })),
+    documents: (patient.documents || patient.notes || []).map((document) => ({
+      id: document.id || createRecordId("document"),
+      type: document.type || "Clinical note",
+      title: document.title || "Untitled note",
+      status: document.status || "Finalized",
+      time: document.time || "Previously recorded",
+      sections: document.sections || { summary: document.summary || "" }
+    })),
     carePlan: {
       followUpDate: patient.carePlan?.followUpDate || "",
       tasks: (patient.carePlan?.tasks || []).map(normalizeTask)
@@ -510,7 +559,8 @@ function getVisibleSections(view) {
     recordsSection: view === "overview" || view === "patients" || view === "labs" || view === "billing",
     operationsSection: view === "overview" || view === "appointments" || view === "billing",
     encounterSection: view === "overview" || view === "patients" || view === "labs",
-    auditSection: view === "overview" || view === "billing" || view === "appointments"
+    auditSection: view === "overview" || view === "billing" || view === "appointments",
+    clinicalSection: ["clinical", "orders", "documents"].includes(view)
   };
 }
 
@@ -526,6 +576,9 @@ function applyViewState() {
     const section = document.getElementById(sectionId);
     if (!section) return;
     section.classList.toggle("hidden-section", !visible);
+  });
+  document.querySelectorAll(".clinical-subview").forEach((panel) => {
+    panel.classList.toggle("hidden-section", panel.dataset.clinicalPanel !== currentView);
   });
 }
 
@@ -592,11 +645,21 @@ function applyEncounterToPatient(patient, encounter) {
   };
 
   patient.notes.unshift(note);
+  patient.documents.unshift({
+    id: createRecordId("document"),
+    title: note.title,
+    type: encounter.type || "Clinical encounter",
+    status: "Draft",
+    time: note.time,
+    sections: { summary: note.summary, vitals: encounter.vitals || "", plan: encounter.followup ? `Follow-up: ${encounter.followup}` : "" }
+  });
   patient.chartCompleted = true;
   patient.medicationReviewed = true;
   patient.lastVisit = "Today";
   patient.status = encounter.followup ? "Follow-up scheduled" : "Stable";
   patient.vitals = { ...patient.vitals, ...updatedVitals };
+  patient.clinical.vitals = { ...patient.clinical.vitals, ...updatedVitals };
+  if (encounter.followup) patient.clinical.followUpDate = encounter.followup;
 
   if (encounter.followup) {
     patient.carePlan.followUpDate = encounter.followup;
@@ -629,6 +692,145 @@ function createEncounterForPatient(patient, encounter, role = currentUser.role) 
     actorLabel: getRoleLabel(role)
   });
   return { allowed: true, note };
+}
+
+function updateWorkflowForPatient(patient, updates, role = currentUser.role) {
+  const permission = evaluatePermission(role, "workflow:update", patient.name);
+  if (!permission.allowed) return permission;
+
+  const allowedStages = ["Intake", "Triage", "ED evaluation", "Consultation", "Admission", "Discharge", "Closed"];
+  const allowedDispositions = ["", "Admit to ward", "Admit to ICU", "Discharge home", "Refer to PCP", "Refer to specialist", "Transfer"];
+  if (!allowedStages.includes(updates.stage) || !allowedDispositions.includes(updates.disposition || "")) {
+    return { allowed: false, message: "Select a valid encounter stage and disposition." };
+  }
+
+  patient.clinical = {
+    ...patient.clinical,
+    arrivalMode: updates.arrivalMode || patient.clinical.arrivalMode,
+    stage: updates.stage,
+    chiefComplaint: (updates.chiefComplaint || "").trim(),
+    acuity: updates.acuity || "",
+    triageNote: (updates.triageNote || "").trim(),
+    painScore: updates.painScore || "",
+    location: (updates.location || "").trim() || patient.clinical.location,
+    disposition: updates.disposition || "",
+    destination: (updates.destination || "").trim(),
+    followUpDate: updates.followUpDate || "",
+    vitals: { ...patient.clinical.vitals }
+  };
+  ["bp", "hr", "rr", "temp", "spO2"].forEach((key) => {
+    if (updates[key] !== undefined && updates[key] !== "") {
+      patient.clinical.vitals[key] = updates[key];
+      if (key !== "rr") patient.vitals[key] = updates[key];
+    }
+  });
+  if (patient.clinical.followUpDate) patient.carePlan.followUpDate = patient.clinical.followUpDate;
+  patient.room = patient.clinical.location;
+  patient.status = ({
+    "Admit to ward": "Admitted · Ward",
+    "Admit to ICU": "Admitted · ICU",
+    "Discharge home": "Discharge planning",
+    "Refer to PCP": "PCP referral",
+    "Refer to specialist": "Specialist referral",
+    Transfer: "Transfer planned"
+  })[patient.clinical.disposition] || patient.clinical.stage;
+
+  appendAuditEntry({
+    action: "workflow:update",
+    patientName: patient.name,
+    details: `Updated encounter to ${patient.clinical.stage}${patient.clinical.disposition ? ` · ${patient.clinical.disposition}` : ""}.`,
+    actorRole: role,
+    actorLabel: getRoleLabel(role)
+  });
+  saveState();
+  return { allowed: true, clinical: patient.clinical };
+}
+
+function createOrderForPatient(patient, order, role = currentUser.role) {
+  const permission = evaluatePermission(role, "order:create", patient.name);
+  if (!permission.allowed) return permission;
+  const title = (order.title || "").trim();
+  if (!title) return { allowed: false, message: "Enter an order or request before saving." };
+
+  const savedOrder = {
+    id: createRecordId("order"),
+    category: order.category || "Nursing",
+    priority: order.priority || "Routine",
+    title,
+    details: (order.details || "").trim(),
+    status: "Pending",
+    time: new Date().toLocaleString([], { dateStyle: "medium", timeStyle: "short" })
+  };
+  patient.orders.unshift(savedOrder);
+  appendAuditEntry({
+    action: "order:create",
+    patientName: patient.name,
+    details: `Added ${savedOrder.category.toLowerCase()} order: ${savedOrder.title}.`,
+    actorRole: role,
+    actorLabel: getRoleLabel(role)
+  });
+  saveState();
+  return { allowed: true, order: savedOrder };
+}
+
+function updateOrderStatus(patient, orderId, status, role = currentUser.role) {
+  const permission = evaluatePermission(role, "order:create", patient.name);
+  if (!permission.allowed) return permission;
+  if (!["Pending", "Acknowledged", "Completed", "Cancelled"].includes(status)) {
+    return { allowed: false, message: "Select a valid order status." };
+  }
+  const order = patient.orders.find((item) => item.id === orderId);
+  if (!order) return { allowed: false, message: "Order not found." };
+  order.status = status;
+  appendAuditEntry({
+    action: "order:update",
+    patientName: patient.name,
+    details: `Marked order "${order.title}" ${status.toLowerCase()}.`,
+    actorRole: role,
+    actorLabel: getRoleLabel(role)
+  });
+  saveState();
+  return { allowed: true, order };
+}
+
+function createDocumentForPatient(patient, document, role = currentUser.role) {
+  const permission = evaluatePermission(role, "document:create", patient.name);
+  if (!permission.allowed) return permission;
+  const title = (document.title || "").trim();
+  if (!title) return { allowed: false, message: "Enter a document title before saving." };
+
+  const sections = {
+    hpi: (document.hpi || "").trim(),
+    history: (document.history || "").trim(),
+    ros: (document.ros || "").trim(),
+    exam: (document.exam || "").trim(),
+    assessment: (document.assessment || "").trim(),
+    plan: (document.plan || "").trim()
+  };
+  const savedDocument = {
+    id: createRecordId("document"),
+    type: document.type || "Clinical note",
+    title,
+    status: "Draft",
+    time: new Date().toLocaleString([], { dateStyle: "medium", timeStyle: "short" }),
+    sections
+  };
+  patient.documents.unshift(savedDocument);
+  patient.notes.unshift({
+    title: savedDocument.title,
+    summary: sections.assessment || sections.hpi || "Draft saved.",
+    type: savedDocument.type,
+    time: savedDocument.time
+  });
+  appendAuditEntry({
+    action: "document:create",
+    patientName: patient.name,
+    details: `Saved ${savedDocument.type.toLowerCase()} "${savedDocument.title}" as a draft.`,
+    actorRole: role,
+    actorLabel: getRoleLabel(role)
+  });
+  saveState();
+  return { allowed: true, document: savedDocument };
 }
 
 function updateAppointmentStatus(patientId, appointmentId, nextStatus, role = currentUser.role) {
@@ -735,8 +937,10 @@ function renderRoleSummary() {
 
   roleValue.textContent = currentUser.label;
   roleHelp.textContent = currentUser.role === "clinician"
-    ? "Can record encounters and complete care tasks."
-    : "Can review audit history and manage cancellations.";
+    ? "Can document, manage orders, and update encounter workflow."
+    : currentUser.role === "nurse"
+      ? "Can record nursing intake, vitals, orders, and care notes."
+      : "Can review audit history and manage cancellations.";
   roleSelector.value = currentUser.role;
 }
 
@@ -757,10 +961,10 @@ function renderPatientList() {
     .map((patient) => {
       const active = patient.id === selectedPatientId ? "active" : "";
       return `
-        <button class="patient-card ${active}" data-id="${patient.id}">
-          <strong>${patient.name}</strong>
-          <span>${patient.mrn} • ${patient.priority}</span>
-          <span>${patient.status}</span>
+        <button class="patient-card ${active}" data-id="${escapeHtml(patient.id)}">
+          <strong>${escapeHtml(patient.name)}</strong>
+          <span>${escapeHtml(patient.mrn)} • ${escapeHtml(patient.priority)}</span>
+          <span>${escapeHtml(patient.status)}</span>
         </button>
       `;
     })
@@ -778,10 +982,10 @@ function renderPatientDetail() {
     <div class="detail-header">
       <div>
         <p class="eyebrow">Current patient</p>
-        <h3>${patient.name}</h3>
-        <p>${patient.mrn} • ${patient.age} years • ${patient.sex}</p>
+        <h3>${escapeHtml(patient.name)}</h3>
+        <p>${escapeHtml(patient.mrn)} • ${escapeHtml(patient.age)} years • ${escapeHtml(patient.sex)}</p>
       </div>
-      <span class="pill">${patient.priority}</span>
+      <span class="pill">${escapeHtml(patient.priority)}</span>
     </div>
 
     <div class="detail-grid">
@@ -791,7 +995,7 @@ function renderPatientDetail() {
             <article class="mini-card">
               <h4>${card.title}</h4>
               <ul>
-                ${card.items.map((item) => `<li>${item}</li>`).join("")}
+                ${card.items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
               </ul>
               ${card.action === "task" ? `<button class="ghost-btn action-btn" id="completeTaskBtn" type="button" ${canCompleteTask ? "" : "disabled"}>Complete next task</button>` : ""}
             </article>
@@ -805,7 +1009,7 @@ function renderPatientDetail() {
       <ul>
         ${patient.notes
           .map(
-            (note) => `<li><strong>${note.title}</strong> — ${note.summary} <em>(${note.type}, ${note.time})</em></li>`
+            (note) => `<li><strong>${escapeHtml(note.title)}</strong> — ${escapeHtml(note.summary)} <em>(${escapeHtml(note.type)}, ${escapeHtml(note.time)})</em></li>`
           )
           .join("")}
       </ul>
@@ -817,7 +1021,7 @@ function renderPatientDetail() {
         ${auditTrail
           .filter((entry) => entry.patientName === patient.name)
           .slice(0, 4)
-          .map((entry) => `<li><strong>${entry.actorLabel}</strong> — ${entry.details} <em>(${entry.action})</em></li>`)
+          .map((entry) => `<li><strong>${escapeHtml(entry.actorLabel)}</strong> — ${escapeHtml(entry.details)} <em>(${escapeHtml(entry.action)})</em></li>`)
           .join("") || "<li>No audit events for this patient yet.</li>"}
       </ul>
     </div>
@@ -834,12 +1038,12 @@ function renderAppointments() {
       (appointment) => `
         <div class="list-item appointment-item ${appointment.status.toLowerCase().replace(/\s+/g, "-")}">
           <div>
-            <strong>${appointment.time} • ${appointment.title}</strong>
-            <span>${appointment.location} • ${appointment.status}</span>
+            <strong>${escapeHtml(appointment.time)} • ${escapeHtml(appointment.title)}</strong>
+            <span>${escapeHtml(appointment.location)} • ${escapeHtml(appointment.status)}</span>
           </div>
           <div class="appointment-actions">
-            <button class="ghost-btn action-btn" type="button" data-action="complete" data-id="${appointment.id}" ${canComplete ? "" : "disabled"}>Complete</button>
-            <button class="ghost-btn action-btn" type="button" data-action="cancel" data-id="${appointment.id}" ${canCancel ? "" : "disabled"}>Cancel</button>
+            <button class="ghost-btn action-btn" type="button" data-action="complete" data-id="${escapeHtml(appointment.id)}" ${canComplete ? "" : "disabled"}>Complete</button>
+            <button class="ghost-btn action-btn" type="button" data-action="cancel" data-id="${escapeHtml(appointment.id)}" ${canCancel ? "" : "disabled"}>Cancel</button>
           </div>
         </div>
       `
@@ -855,11 +1059,11 @@ function renderSnapshot() {
   container.innerHTML = `
     <div class="snapshot-item">
       <span>Care team</span>
-      <strong>${patient.provider}</strong>
+      <strong>${escapeHtml(patient.provider)}</strong>
     </div>
     <div class="snapshot-item">
       <span>Outstanding balance</span>
-      <strong>${formatCurrency(patient.billing.balance)}</strong>
+      <strong>${escapeHtml(formatCurrency(patient.billing.balance))}</strong>
     </div>
     <div class="snapshot-item">
       <span>Open care tasks</span>
@@ -871,7 +1075,7 @@ function renderSnapshot() {
     </div>
     <div class="snapshot-item">
       <span>Active role</span>
-      <strong>${currentUser.label}</strong>
+      <strong>${escapeHtml(currentUser.label)}</strong>
     </div>
   `;
 }
@@ -891,14 +1095,87 @@ function renderAuditTrail() {
         .map(
           (entry) => `
             <div class="audit-entry">
-              <strong>${entry.actorLabel} • ${entry.action}</strong>
-              <span>${entry.patientName}</span>
-              <p>${entry.details}</p>
+              <strong>${escapeHtml(entry.actorLabel)} • ${escapeHtml(entry.action)}</strong>
+              <span>${escapeHtml(entry.patientName)}</span>
+              <p>${escapeHtml(entry.details)}</p>
             </div>
           `
         )
         .join("")
     : '<p class="mini-card">No audit activity recorded yet.</p>';
+}
+
+function renderClinicalWorkspace() {
+  const patient = getSelectedPatient();
+  if (!patient) return;
+  const clinical = patient.clinical;
+  document.getElementById("clinicalPatientHeading").textContent = patient.name;
+  document.getElementById("clinicalPatientMeta").textContent =
+    `${patient.mrn} · ${patient.age} years · ${patient.sex} · ${patient.provider}`;
+  document.getElementById("workflowSummary").innerHTML = `
+    <span class="workflow-chip">${escapeHtml(clinical.stage)}</span>
+    <span class="workflow-chip">${escapeHtml(clinical.location)}</span>
+    <span class="workflow-chip">${escapeHtml(clinical.disposition || "Disposition pending")}</span>
+  `;
+
+  const workflowForm = document.getElementById("workflowForm");
+  const values = { ...clinical, ...clinical.vitals };
+  Object.entries(values).forEach(([name, value]) => {
+    if (workflowForm.elements[name]) workflowForm.elements[name].value = value ?? "";
+  });
+}
+
+function renderOrders() {
+  const patient = getSelectedPatient();
+  const container = document.getElementById("ordersList");
+  const canUpdate = hasPermission(currentUser.role, "order:create");
+  document.getElementById("orderCount").textContent = `${patient.orders.length} ${patient.orders.length === 1 ? "order" : "orders"}`;
+  container.innerHTML = patient.orders.length
+    ? patient.orders.map((order) => {
+      const nextStatus = order.status === "Pending" ? "Acknowledged" : order.status === "Acknowledged" ? "Completed" : "";
+      return `
+        <article class="record-card">
+          <div class="record-card-header">
+            <div>
+              <span class="record-category">${escapeHtml(order.category)} · ${escapeHtml(order.priority)}</span>
+              <h4>${escapeHtml(order.title)}</h4>
+            </div>
+            <span class="status-pill status-${escapeHtml(order.status.toLowerCase())}">${escapeHtml(order.status)}</span>
+          </div>
+          ${order.details ? `<p>${escapeHtml(order.details)}</p>` : ""}
+          <div class="record-card-footer"><span>${escapeHtml(order.time)}</span>
+            ${nextStatus ? `<button class="ghost-btn action-btn" type="button" data-order-id="${escapeHtml(order.id)}" data-next-status="${escapeHtml(nextStatus)}" ${canUpdate ? "" : "disabled"}>${nextStatus === "Acknowledged" ? "Acknowledge" : "Mark complete"}</button>` : ""}
+            ${order.status === "Pending" ? `<button class="text-btn" type="button" data-order-id="${escapeHtml(order.id)}" data-next-status="Cancelled" ${canUpdate ? "" : "disabled"}>Cancel</button>` : ""}
+          </div>
+        </article>`;
+    }).join("")
+    : '<p class="empty-state">No orders recorded for this encounter.</p>';
+}
+
+function renderDocuments() {
+  const patient = getSelectedPatient();
+  const container = document.getElementById("documentsList");
+  document.getElementById("documentCount").textContent =
+    `${patient.documents.length} ${patient.documents.length === 1 ? "document" : "documents"}`;
+  container.innerHTML = patient.documents.length
+    ? patient.documents.map((document) => `
+      <article class="record-card document-card">
+        <div class="record-card-header">
+          <div>
+            <span class="record-category">${escapeHtml(document.type)}</span>
+            <h4>${escapeHtml(document.title)}</h4>
+          </div>
+          <span class="status-pill status-draft">${escapeHtml(document.status)}</span>
+        </div>
+        <p class="document-meta">${escapeHtml(document.time)}</p>
+        <div class="document-sections">
+          ${Object.entries(document.sections || {}).filter(([, value]) => value).map(([key, value]) => `
+            <div><strong>${escapeHtml(key.replace(/([A-Z])/g, " $1").replace(/^./, (letter) => letter.toUpperCase()))}</strong>
+              <p>${escapeHtml(value)}</p>
+            </div>`).join("")}
+        </div>
+      </article>`).join("")
+    : '<p class="empty-state">No clinical documents recorded for this patient.</p>';
 }
 
 function renderPermissions() {
@@ -907,6 +1184,9 @@ function renderPermissions() {
   const saveEncounterButton = document.getElementById("saveEncounterBtn");
   const encounterInputs = document.querySelectorAll("#encounterForm input, #encounterForm select, #encounterForm textarea");
   const canCreateEncounter = hasPermission(currentUser.role, "encounter:create");
+  const canUpdateWorkflow = hasPermission(currentUser.role, "workflow:update");
+  const canCreateOrders = hasPermission(currentUser.role, "order:create");
+  const canCreateDocuments = hasPermission(currentUser.role, "document:create");
   const canExport = hasPermission(currentUser.role, "report:export");
 
   if (quickEncounterButton) quickEncounterButton.disabled = !canCreateEncounter;
@@ -915,6 +1195,16 @@ function renderPermissions() {
 
   encounterInputs.forEach((field) => {
     field.disabled = !canCreateEncounter;
+  });
+  [
+    ["workflowForm", canUpdateWorkflow],
+    ["orderForm", canCreateOrders],
+    ["documentForm", canCreateDocuments]
+  ].forEach(([formId, allowed]) => {
+    const form = document.getElementById(formId);
+    form.querySelectorAll("input, select, textarea, button").forEach((field) => {
+      field.disabled = !allowed;
+    });
   });
 }
 
@@ -930,6 +1220,9 @@ function render() {
   renderAppointments();
   renderSnapshot();
   renderAuditTrail();
+  renderClinicalWorkspace();
+  renderOrders();
+  renderDocuments();
   saveState();
 }
 
@@ -965,6 +1258,50 @@ function handleEncounterSubmit(event) {
   form.reset();
 }
 
+function handleWorkflowSubmit(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const updates = Object.fromEntries(new FormData(form).entries());
+  const patient = getSelectedPatient();
+  const result = updateWorkflowForPatient(patient, updates);
+  const message = result.allowed
+    ? `Workflow updated for ${patient.name}.`
+    : result.message;
+  document.getElementById("clinicalStatus").textContent = message;
+  document.getElementById("encounterStatus").textContent = message;
+  render();
+}
+
+function handleOrderSubmit(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const order = Object.fromEntries(new FormData(form).entries());
+  const patient = getSelectedPatient();
+  const result = createOrderForPatient(patient, order);
+  const message = result.allowed
+    ? `${result.order.category} order saved for ${patient.name}.`
+    : result.message;
+  document.getElementById("clinicalStatus").textContent = message;
+  document.getElementById("encounterStatus").textContent = message;
+  if (result.allowed) form.reset();
+  render();
+}
+
+function handleDocumentSubmit(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const documentData = Object.fromEntries(new FormData(form).entries());
+  const patient = getSelectedPatient();
+  const result = createDocumentForPatient(patient, documentData);
+  const message = result.allowed
+    ? `${result.document.type} saved as a draft for ${patient.name}.`
+    : result.message;
+  document.getElementById("clinicalStatus").textContent = message;
+  document.getElementById("encounterStatus").textContent = message;
+  if (result.allowed) form.reset();
+  render();
+}
+
 function attachEvents() {
   document.getElementById("patientSearch").addEventListener("input", renderPatientList);
 
@@ -981,7 +1318,9 @@ function attachEvents() {
   });
 
   document.getElementById("quickEncounterBtn").addEventListener("click", () => {
-    document.getElementById("encounterForm").scrollIntoView({ behavior: "smooth" });
+    setCurrentView("clinical");
+    render();
+    document.getElementById("clinicalSection").scrollIntoView({ behavior: "smooth" });
   });
 
   document.getElementById("roleSelector").addEventListener("change", (event) => {
@@ -991,6 +1330,22 @@ function attachEvents() {
   });
 
   document.getElementById("encounterForm").addEventListener("submit", handleEncounterSubmit);
+  document.getElementById("workflowForm").addEventListener("submit", handleWorkflowSubmit);
+  document.getElementById("orderForm").addEventListener("submit", handleOrderSubmit);
+  document.getElementById("documentForm").addEventListener("submit", handleDocumentSubmit);
+
+  document.getElementById("ordersList").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-order-id]");
+    if (!button) return;
+    const patient = getSelectedPatient();
+    const result = updateOrderStatus(patient, button.dataset.orderId, button.dataset.nextStatus);
+    const message = result.allowed
+      ? `Order marked ${result.order.status.toLowerCase()}.`
+      : result.message;
+    document.getElementById("clinicalStatus").textContent = message;
+    document.getElementById("encounterStatus").textContent = message;
+    render();
+  });
 
   document.getElementById("appointmentsList").addEventListener("click", (event) => {
     const actionButton = event.target.closest("[data-action]");
@@ -1056,12 +1411,16 @@ const appApi = {
   buildExportPayload,
   calculateDashboardStats,
   createEncounterForPatient,
+  createDocumentForPatient,
+  createOrderForPatient,
   hasPermission,
   normalizeAuditEntry,
   normalizePatient,
   parseVitalsInput,
   setCurrentRole,
-  updateAppointmentStatus
+  updateOrderStatus,
+  updateAppointmentStatus,
+  updateWorkflowForPatient
 };
 
 if (typeof window !== "undefined") {

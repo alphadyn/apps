@@ -2,31 +2,37 @@
 
 ## Overview
 
-Northstar EHR is a desktop-friendly, responsive web application for reviewing patient information, scheduling care, and recording clinical encounters. It is intentionally polished for demos, stakeholder presentations, or as a foundation for a larger healthcare product.
+Northstar EHR is a responsive, browser-only demonstration of an emergency and inpatient care workflow. The built-in records are fictional. The application stores changes in browser local storage.
 
-## Main workflow
+## Patient chart
 
-1. Select a patient from the queue on the left.
-2. Review the patient’s demographics, vitals, labs, allergies, and recent notes.
-3. Use the appointment panel and care snapshot to prepare for the visit.
-4. Record an encounter in the form at the bottom of the page.
-5. Switch between the Clinician and Admin roles from the sidebar to review permission-based workflows.
-6. Review recent system actions in the audit trail panel. Admins can see the full audit list.
+Choose a patient from the worklist or search by name, MRN, priority, or status. The chart summarizes demographics, vitals, allergies, medications, labs, appointments, care tasks, recent notes, and activity. Use the role selector to explore clinician, nurse, and admin demonstration permissions.
 
-## Persistence
+## Encounter workflow
 
-The app stores patient data and encounter notes in your browser using local storage. Refreshing the page preserves the selected patient and saved encounter history.
-The active role and audit trail are also persisted in browser storage.
+Open **ED & Inpatient** to document an encounter:
 
-## Customizing the experience
+1. Record arrival mode, encounter stage, chief complaint, acuity, triage observations, and intake vitals.
+2. Update the care location and disposition as the patient moves through ED evaluation, consultation, admission, discharge, or transfer.
+3. For ward/ICU admission or PCP/specialist referral, record the receiving location or destination and follow-up date.
+4. Use **Orders** to track nursing, vitals, diagnosis, lab, imaging, procedure, medication, and referral requests. Pending orders can be acknowledged, completed, or cancelled in the demo.
+5. Use **Documents** to create drafts for ED provider, history and physical, admission, SOAP progress, consult, nursing, procedure, discharge, and referral notes.
 
-- Update the sample patient data in app.js to match your demo scenarios.
-- Adjust the visuals in styles.css to match your organization’s branding.
-- Add API-backed services later for real patient record management and authentication.
+The document form provides fields for HPI, relevant history and medication/allergy reconciliation, review of systems, objective findings, assessment, and plan. Saved documents remain drafts; the demo does not implement authentication, co-signature, or legally valid electronic signatures.
 
-## Suggested next upgrades
+## Other views
 
-- Role-based access for clinicians, nurses, and admins
-- Real-time charting for vitals and lab trends
-- Integration with a backend database or FHIR-compatible APIs
-- Appointment booking and e-prescribing modules
+- **Overview** summarizes patient and chart activity.
+- **Patients** displays the patient worklist and chart details.
+- **Appointments** supports completing appointments; the admin role can cancel them.
+- **Labs & Meds** displays chart data and supports the existing encounter form.
+- **Billing** displays sample billing context.
+- Admins can review the activity audit trail. The role selector is not an access-control mechanism.
+
+## Persistence and reset
+
+Changes are saved to local storage in the current browser profile and remain after refresh. Clearing this site's browser storage removes the demo changes. There is no server synchronization, backup, or multi-user workflow.
+
+## Safety and privacy
+
+Do not enter real patient information. This prototype is not a clinical system and must not be used to guide or document patient care. Its orders are tracking examples only: they are not transmitted, validated, or executed, and medication entries are not prescriptions. Production use requires secure infrastructure, real authentication and authorization, validated clinical and medication workflows, interoperability, and applicable privacy, security, safety, and regulatory review.

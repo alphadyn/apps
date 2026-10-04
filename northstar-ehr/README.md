@@ -2,18 +2,19 @@
 
 > Standalone browser-based EHR interface demo. See the [repository catalog](../README.md) for shared setup and deployment context.
 
-A polished, single-page electronic health record web application designed to look and feel like a modern clinical dashboard. The experience combines patient search, vitals, medication tracking, appointments, billing context, and encounter documentation in one responsive interface.
+A responsive electronic health record demonstration covering patient charts, emergency and inpatient encounter flow, clinical notes, orders, referrals, follow-up, appointments, and billing context.
 
 ## Features
 
-- Patient queue with live selection and fast search
-- Detailed patient profile with demographics, vitals, medications, allergies, and labs
-- Appointment timeline for the active patient
-- Care coordination snapshot with provider and billing context
-- Encounter form for documenting patient visits and follow-up plans
-- Local persistence using browser storage so notes remain available after refresh
-- Role-based workflow modes for clinicians and admins
-- Audit trail for patient access, encounter updates, scheduling actions, and exports
+- Patient worklist with chart search, demographics, allergies, medications, labs, and vitals
+- Encounter progression for intake, triage, ED evaluation, consultation, admission, discharge, and closure
+- Intake and triage capture for arrival mode, chief complaint, acuity, nursing note, vital signs, pain score, and location
+- Disposition tracking for ward/ICU admission, home discharge, PCP or specialist referral, and transfer
+- Nursing, vitals, diagnosis, laboratory, imaging, procedure, medication, and referral order tracking
+- Structured drafts for ED, history and physical, admission, SOAP/progress, consult, nursing, procedure, discharge, and referral documents
+- Clinician and nurse workflow roles, plus an admin review role and an activity audit trail
+- Appointment management, care tasks, follow-up planning, patient summary export, and billing context
+- Local browser persistence for the demonstration dataset
 
 ## Project structure
 
@@ -48,6 +49,6 @@ Run the repository-wide test suite from the project root:
 ./run_tests.sh
 ```
 
-## Notes
+## Important limitations
 
-This is a front-end application with working in-browser business logic for core demo workflows. It supports derived operational metrics, appointment completion and cancellation, care-task updates, patient summary exports, role-based workflow permissions, audit history, and richer encounter processing while still using local browser storage.
+This is a front-end prototype with fictional sample patients. Data is stored in browser local storage and is not protected, backed up, or shared with a care team. Orders and notes are not sent to clinical systems, medications are not prescribed, and role selection is a demonstration control rather than authentication or access control. Do not enter real patient information or use this application to make or document clinical decisions. A production EHR requires a secure backend, identity and access management, audit controls, validated clinical terminology and workflows, interoperability, and applicable privacy, safety, and regulatory review.

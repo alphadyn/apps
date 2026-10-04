@@ -21,6 +21,9 @@
         <nav class="nav-links">
           <button class="nav-link active" data-view="overview">Overview</button>
           <button class="nav-link" data-view="patients">Patients</button>
+          <button class="nav-link" data-view="clinical">ED & Inpatient</button>
+          <button class="nav-link" data-view="orders">Orders</button>
+          <button class="nav-link" data-view="documents">Documents</button>
           <button class="nav-link" data-view="appointments">Appointments</button>
           <button class="nav-link" data-view="labs">Labs & Meds</button>
           <button class="nav-link" data-view="billing">Billing</button>
@@ -28,8 +31,9 @@
 
         <div class="sidebar-card">
           <h3>Care Coordination</h3>
-          <p>Track patient flow, follow-ups, and response time from one place.</p>
-          <button id="quickEncounterBtn" class="primary-btn">New Encounter</button>
+          <p>Follow each encounter from arrival and triage through disposition and follow-up.</p>
+          <button id="quickEncounterBtn" class="primary-btn">Open encounter</button>
+          <p class="demo-notice">Demonstration workspace · fictional patient data · not for clinical use</p>
         </div>
 
         <div class="sidebar-card role-card">
@@ -39,6 +43,7 @@
           <label for="roleSelector" class="role-label">Switch role</label>
           <select id="roleSelector">
             <option value="clinician">Clinician</option>
+            <option value="nurse">Nurse</option>
             <option value="admin">Admin</option>
           </select>
         </div>
@@ -47,8 +52,8 @@
       <main class="main-panel">
         <header class="topbar">
           <div>
-            <p class="eyebrow">Clinical operations dashboard</p>
-            <h2>Modern EHR experience for fast, secure care delivery</h2>
+            <p class="eyebrow">Northstar EHR · Demonstration environment</p>
+            <h2>Connected care from arrival through follow-up</h2>
           </div>
           <div class="topbar-actions">
             <label class="search-box" for="patientSearch">
@@ -80,6 +85,151 @@
             <strong id="medRecValue">0%</strong>
             <span id="medRecMeta">0 patient charts reviewed</span>
           </article>
+        </section>
+
+        <section id="clinicalSection" class="clinical-workspace view-section">
+          <div class="panel clinical-banner">
+            <div>
+              <p class="eyebrow">Encounter workspace</p>
+              <h3 id="clinicalPatientHeading">Patient encounter</h3>
+              <p id="clinicalPatientMeta" class="muted-copy"></p>
+              <p id="clinicalStatus" class="status-message" role="status"></p>
+            </div>
+            <div id="workflowSummary" class="workflow-summary"></div>
+          </div>
+
+          <div class="panel workflow-panel clinical-subview" data-clinical-panel="clinical">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Arrival · intake · triage · disposition</p>
+                <h3>Emergency & inpatient workflow</h3>
+              </div>
+            </div>
+            <form id="workflowForm" class="clinical-form">
+              <div class="row">
+                <label>Arrival mode
+                  <select name="arrivalMode">
+                    <option>Walk-in</option><option>Ambulance</option><option>Transfer</option><option>Direct admission</option>
+                  </select>
+                </label>
+                <label>Encounter stage
+                  <select name="stage">
+                    <option>Intake</option><option>Triage</option><option>ED evaluation</option><option>Consultation</option>
+                    <option>Admission</option><option>Discharge</option><option>Closed</option>
+                  </select>
+                </label>
+              </div>
+              <div class="row">
+                <label>Chief complaint
+                  <input name="chiefComplaint" type="text" placeholder="Patient-reported reason for visit" />
+                </label>
+                <label>Triage acuity
+                  <select name="acuity">
+                    <option value="">Not assessed</option><option>ESI 1 · Resuscitation</option><option>ESI 2 · Emergent</option>
+                    <option>ESI 3 · Urgent</option><option>ESI 4 · Less urgent</option><option>ESI 5 · Non-urgent</option>
+                  </select>
+                </label>
+              </div>
+              <label>Triage / nursing intake note
+                <textarea name="triageNote" rows="3" placeholder="Onset, symptoms, relevant observations, and immediate nursing concerns"></textarea>
+              </label>
+              <fieldset class="vitals-fieldset">
+                <legend>Intake vital signs</legend>
+                <div class="vitals-grid">
+                  <label>Blood pressure<input name="bp" type="text" placeholder="mmHg" /></label>
+                  <label>Heart rate<input name="hr" type="number" min="0" placeholder="bpm" /></label>
+                  <label>Respiratory rate<input name="rr" type="number" min="0" placeholder="/min" /></label>
+                  <label>Temperature<input name="temp" type="text" placeholder="°C or °F" /></label>
+                  <label>SpO₂<input name="spO2" type="text" placeholder="%" /></label>
+                  <label>Pain score (0–10)<input name="painScore" type="number" min="0" max="10" /></label>
+                </div>
+              </fieldset>
+              <div class="row">
+                <label>Care location
+                  <input name="location" type="text" placeholder="ED bay, ward / bed, ICU..." />
+                </label>
+                <label>Disposition
+                  <select name="disposition">
+                    <option value="">Undecided</option><option>Admit to ward</option><option>Admit to ICU</option>
+                    <option>Discharge home</option><option>Refer to PCP</option><option>Refer to specialist</option><option>Transfer</option>
+                  </select>
+                </label>
+              </div>
+              <div class="row">
+                <label>Receiving service / referral destination
+                  <input name="destination" type="text" placeholder="Service, specialist, or PCP" />
+                </label>
+                <label>Follow-up date<input name="followUpDate" type="date" /></label>
+              </div>
+              <button class="primary-btn" type="submit">Save workflow update</button>
+            </form>
+          </div>
+
+          <div class="panel clinical-subview" data-clinical-panel="orders">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Care plan</p>
+                <h3>Orders & requests</h3>
+              </div>
+              <span class="pill" id="orderCount">0 orders</span>
+            </div>
+            <form id="orderForm" class="clinical-form">
+              <div class="row">
+                <label>Order category
+                  <select name="category">
+                    <option>Nursing</option><option>Vitals</option><option>Diagnosis</option><option>Laboratory</option>
+                    <option>Imaging</option><option>Procedure</option><option>Medication</option><option>Referral</option>
+                  </select>
+                </label>
+                <label>Priority<select name="priority"><option>Routine</option><option>Urgent</option><option>STAT</option></select></label>
+              </div>
+              <label>Order / request
+                <input name="title" type="text" placeholder="Specify the requested care, test, medication, or referral" required />
+              </label>
+              <label>Instructions / details
+                <textarea name="details" rows="2" placeholder="Include frequency, dose/route when applicable, clinical indication, or destination"></textarea>
+              </label>
+              <button class="primary-btn" type="submit">Add order</button>
+              <p class="form-caution">Demo only: orders are not transmitted, verified, or executed. A licensed clinician must review all clinical decisions.</p>
+            </form>
+            <div id="ordersList" class="record-list"></div>
+          </div>
+
+          <div class="panel clinical-subview" data-clinical-panel="documents">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Clinical documentation</p>
+                <h3>Notes & documents</h3>
+              </div>
+              <span class="pill" id="documentCount">0 documents</span>
+            </div>
+            <form id="documentForm" class="clinical-form">
+              <div class="row">
+                <label>Document type
+                  <select name="type">
+                    <option>ED provider note</option><option>History & physical</option><option>Admission note</option>
+                    <option>SOAP progress note</option><option>Consult note</option><option>Nursing note</option>
+                    <option>Procedure note</option><option>Discharge summary</option><option>Referral letter</option>
+                  </select>
+                </label>
+                <label>Document title<input name="title" type="text" placeholder="e.g., Initial evaluation" required /></label>
+              </div>
+              <div class="row">
+                <label>Chief concern / HPI<textarea name="hpi" rows="3" placeholder="Symptoms, onset, context, and patient-reported history"></textarea></label>
+                <label>Relevant history / medications / allergies<textarea name="history" rows="3" placeholder="Medical, surgical, family, and social history; medication reconciliation; allergies"></textarea></label>
+              </div>
+              <div class="row">
+                <label>Review of systems<textarea name="ros" rows="3" placeholder="Pertinent positives and negatives"></textarea></label>
+                <label>Exam / objective findings<textarea name="exam" rows="3" placeholder="Physical examination, observations, and reviewed results"></textarea></label>
+              </div>
+              <div class="row">
+                <label>Assessment / diagnosis<textarea name="assessment" rows="3" placeholder="Clinical assessment and coded diagnoses as applicable"></textarea></label>
+                <label>Plan / orders / disposition<textarea name="plan" rows="3" placeholder="Treatment plan, orders, consultations, disposition, and follow-up"></textarea></label>
+              </div>
+              <button class="primary-btn" type="submit">Save document draft</button>
+            </form>
+            <div id="documentsList" class="record-list"></div>
+          </div>
         </section>
 
         <section id="recordsSection" class="content-grid view-section">

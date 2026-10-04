@@ -1561,3 +1561,19 @@ h4.collapse-head .collapse-toggle {
 .collapsible.collapsed > :not(.collapse-head):not(.section-summary) {
   display: none;
 }
+
+.data-exchange {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.data-exchange select {
+  min-height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--line, #d7dee8);
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+}

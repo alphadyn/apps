@@ -3,7 +3,7 @@ const storageKey = "northstar-ehr-state-v3";
 const rolePermissions = {
   clinician: {
     label: "Clinician",
-    actions: ["encounter:create", "workflow:update", "order:create", "document:create", "appointment:complete", "task:complete", "patient:select", "report:export"]
+    actions: ["encounter:create", "workflow:update", "order:create", "document:create", "appointment:complete", "task:complete", "patient:select", "report:export", "data:import"]
   },
   nurse: {
     label: "Nurse",
@@ -11,7 +11,7 @@ const rolePermissions = {
   },
   admin: {
     label: "Admin",
-    actions: ["appointment:cancel", "appointment:complete", "patient:select", "report:export", "audit:view", "billing:view"]
+    actions: ["appointment:cancel", "appointment:complete", "patient:select", "report:export", "data:import", "audit:view", "billing:view"]
   }
 };
 
@@ -1420,15 +1420,46 @@ function buildExportPayload(patient) {
   };
 }
 
-function downloadPatientExport(patient) {
-  const payload = buildExportPayload(patient);
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+function downloadPatientExport(patient, format = "json", scope = "selected") {
+  const interop = window.NorthstarInterop;
+  const list = scope === "all" ? patients : [patient];
+  const meta = interop.FORMATS[format];
+  const content = interop.buildExport(format, list, buildExportPayload);
+  const blob = new Blob([content], { type: meta.mime });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
+  const base = scope === "all" ? "northstar-patients" : `${patient.mrn.toLowerCase()}-summary`;
   link.href = url;
-  link.download = `${patient.mrn.toLowerCase()}-summary.json`;
+  link.download = `${base}.${meta.extension}`;
   link.click();
   URL.revokeObjectURL(url);
+  return list.length;
+}
+
+// Upserts imported patients by MRN; returns counts.
+function importPatientRecords(records, role = currentUser.role) {
+  const permission = evaluatePermission(role, "data:import", "Multiple patients");
+  if (!permission.allowed) return { allowed: false, permission };
+
+  let created = 0;
+  let updated = 0;
+  records.forEach((record) => {
+    const incoming = { ...record };
+    if (!incoming.carePlan && (incoming.tasks || incoming.followUpDate)) {
+      incoming.carePlan = { followUpDate: incoming.followUpDate || "", tasks: incoming.tasks || [] };
+    }
+    const index = patients.findIndex((patient) => patient.mrn === incoming.mrn);
+    if (index >= 0) {
+      incoming.id = patients[index].id;
+      patients[index] = normalizePatient({ ...patients[index], ...incoming });
+      updated += 1;
+    } else {
+      incoming.id = patients.reduce((max, patient) => Math.max(max, Number(patient.id) || 0), 0) + 1;
+      patients.push(normalizePatient(incoming));
+      created += 1;
+    }
+  });
+  return { allowed: true, created, updated };
 }
 
 function renderDashboardStats() {
@@ -1954,6 +1985,8 @@ function renderPermissions() {
   const canCreateOrders = hasPermission(currentUser.role, "order:create");
   const canCreateDocuments = hasPermission(currentUser.role, "document:create");
   const canExport = hasPermission(currentUser.role, "report:export");
+  const importButton = document.getElementById("importBtn");
+  if (importButton) importButton.disabled = !hasPermission(currentUser.role, "data:import");
 
   if (quickEncounterButton) quickEncounterButton.disabled = !canCreateEncounter;
   if (saveEncounterButton) saveEncounterButton.disabled = !canCreateEncounter;
@@ -2291,9 +2324,48 @@ function attachEvents() {
       return;
     }
 
-    downloadPatientExport(patient);
-    recordAudit("report:export", patient.name, `Exported patient summary for ${patient.mrn}.`);
-    document.getElementById("encounterStatus").textContent = `Exported a patient summary for ${patient.name}.`;
+    const format = document.getElementById("exchangeFormat").value;
+    const scope = document.getElementById("exchangeScope").value;
+    const count = downloadPatientExport(patient, format, scope);
+    const label = window.NorthstarInterop.FORMATS[format].label;
+    recordAudit("report:export", scope === "all" ? "Multiple patients" : patient.name, `Exported ${count} record(s) as ${label}.`);
+    document.getElementById("encounterStatus").textContent = `Exported ${count} record(s) as ${label}.`;
+    render();
+  });
+
+  const importButton = document.getElementById("importBtn");
+  const importFile = document.getElementById("importFile");
+  importButton.addEventListener("click", () => {
+    const permission = evaluatePermission(currentUser.role, "data:import", "Multiple patients");
+    if (!permission.allowed) {
+      appendAuditEntry(permission.audit);
+      saveState();
+      document.getElementById("encounterStatus").textContent = permission.message;
+      render();
+      return;
+    }
+    importFile.click();
+  });
+  importFile.addEventListener("change", async () => {
+    const file = importFile.files[0];
+    importFile.value = "";
+    if (!file) return;
+    const status = document.getElementById("encounterStatus");
+    try {
+      const { format, patients: records } = window.NorthstarInterop.parseImport(file.name, await file.text());
+      const result = importPatientRecords(records);
+      if (!result.allowed) {
+        appendAuditEntry(result.permission.audit);
+        status.textContent = result.permission.message;
+      } else {
+        const label = window.NorthstarInterop.FORMATS[format].label;
+        recordAudit("data:import", "Multiple patients", `Imported ${result.created} new and ${result.updated} updated record(s) from ${label}.`);
+        status.textContent = `Imported ${result.created} new and ${result.updated} updated patient(s) from ${label}.`;
+      }
+    } catch (error) {
+      status.textContent = `Import failed: ${error.message}`;
+    }
+    saveState();
     render();
   });
 }
@@ -2313,6 +2385,7 @@ const appApi = {
   createDocumentForPatient,
   createOrderForPatient,
   hasPermission,
+  importPatientRecords,
   normalizeAuditEntry,
   normalizePatient,
   parseVitalsInput,

@@ -70,7 +70,20 @@
               <input id="patientSearch" type="text" aria-label="Search patients by name, MRN, or diagnosis" placeholder="Search patients..." />
             </label>
             <span class="demo-badge">Demo data</span>
-            <button class="ghost-btn" id="exportBtn" type="button">Export</button>
+            <div class="data-exchange" role="group" aria-label="Import and export">
+              <select id="exchangeFormat" aria-label="Export format">
+                <option value="json">JSON</option>
+                <option value="fhir">Epic / FHIR R4</option>
+                <option value="csv">CSV</option>
+              </select>
+              <select id="exchangeScope" aria-label="Export scope">
+                <option value="selected">Selected patient</option>
+                <option value="all">All patients</option>
+              </select>
+              <button class="ghost-btn" id="exportBtn" type="button">Export</button>
+              <button class="ghost-btn" id="importBtn" type="button">Import</button>
+              <input id="importFile" type="file" accept=".json,.csv,application/json,text/csv" hidden />
+            </div>
           </div>
         </header>
 
@@ -330,6 +343,7 @@
       </main>
     </div>
 
+    <script src="interop.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

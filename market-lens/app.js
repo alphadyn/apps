@@ -12,6 +12,7 @@ const COMPANY_SITES = { AAPL: 'https://www.apple.com', MSFT: 'https://www.micros
 const $ = (selector) => document.querySelector(selector);
 const elements = { body: $('#ranking-body'), refresh: $('#refresh-button'), updated: $('#last-updated'), status: $('#market-status'), count: $('#scan-count'), progressStatus: $('#progress-status'), progressCount: $('#progress-count'), progressBar: $('#progress-bar'), progressTrack: $('.progress-track'), detailTitle: $('#detail-title'), detailSignal: $('#detail-signal'), description: $('#detail-description'), price: $('#detail-price'), change: $('#detail-change'), marketCap: $('#detail-market-cap'), range: $('#detail-range'), volume: $('#detail-volume'), pe: $('#detail-pe'), performanceChange: $('#performance-change'), performanceChart: $('#performance-chart'), chartStart: $('#chart-start'), chartEnd: $('#chart-end'), rangeTabs: document.querySelectorAll('.range-tab'), rationale: $('#rationale-list'), period: $('#financial-period'), revenue: $('#financial-revenue'), income: $('#financial-income'), margin: $('#financial-margin'), cash: $('#financial-cash'), companyLink: $('#company-link'), secLink: $('#sec-link') };
 let results = [];
+let searchQuery = '';
 let selectedSymbol = null;
 let selectedRange = '1d';
 let chartRequestId = 0;
@@ -62,7 +63,7 @@ function updateProgress(completed, total, label = 'Assessing constituents') {
   elements.progressTrack.setAttribute('aria-valuenow', String(percentage));
 }
 
-const PERFORMANCE_RANGES = { '1d': { label: '1D' }, '1w': { label: '1W', days: 7 }, '1m': { label: '1M', days: 30 }, ytd: { label: 'YTD', ytd: true }, '1y': { label: '1Y', days: 365 }, '5y': { label: '5Y', days: 1825 }, '10y': { label: '10Y', days: 3650 }, all: { label: 'All', all: true } };
+const PERFORMANCE_RANGES = { '1d': { label: '1D' }, '1w': { label: '1W', days: 7 }, '1m': { label: '1M', days: 30 }, ytd: { label: 'YTD', ytd: true }, '1y': { label: '1Y', days: 365 }, '2y': { label: '2Y', days: 730 }, '5y': { label: '5Y', days: 1825 }, '10y': { label: '10Y', days: 3650 }, all: { label: 'All', all: true } };
 
 function rangeStart(range) {
   const date = new Date();
@@ -218,10 +219,13 @@ function renderSummary() {
 }
 
 function renderTable() {
-  const shortlist = selectTopSignals();
-  elements.count.textContent = `${results.length} / ${WATCHLIST.length} securities · 500 companies · top ${shortlist.length} shown`;
+  const query = searchQuery.trim().toLowerCase();
+  const matches = query ? results.filter((item) => item.symbol.toLowerCase().includes(query) || String(item.name || '').toLowerCase().includes(query)) : null;
+  const shortlist = matches || selectTopSignals();
+  elements.count.textContent = `${results.length} / ${WATCHLIST.length} securities · 500 companies · ${matches ? `${matches.length} match${matches.length === 1 ? '' : 'es'}` : `top ${shortlist.length} shown`}`;
   if (!results.length) { elements.body.innerHTML = '<tr><td colspan="6" class="loading-cell">No market data returned. Try refreshing.</td></tr>'; return; }
-  elements.body.innerHTML = shortlist.slice().sort((a, b) => b.score - a.score).map((item, index) => `<tr data-symbol="${item.symbol}" tabindex="0" class="${item.symbol === selectedSymbol ? 'selected' : ''}"><td class="rank">${String(index + 1).padStart(2, '0')}</td><td class="company-cell"><strong>${escapeHtml(item.symbol)}</strong><span>${escapeHtml(item.name)}</span></td><td class="signal-text ${signalClass(item.signal)}">${item.signal}</td><td class="num">${fmtPrice(item.price)}</td><td class="num ${changeClass(item.dayChange)}">${changeText(item.dayChange)}</td><td class="num">${item.score}</td></tr>`).join('');
+  if (matches && !matches.length) { elements.body.innerHTML = `<tr><td colspan="6" class="loading-cell">No security matches "${escapeHtml(searchQuery.trim())}".</td></tr>`; return; }
+  elements.body.innerHTML = shortlist.slice().sort((a, b) => b.score - a.score).map((item, index) => `<tr data-symbol="${item.symbol}" tabindex="0" class="${item.symbol === selectedSymbol ? 'selected' : ''}${matches ? ' search-match' : ''}"><td class="rank">${String(index + 1).padStart(2, '0')}</td><td class="company-cell"><strong>${escapeHtml(item.symbol)}</strong><span>${escapeHtml(item.name)}</span></td><td class="signal-text ${signalClass(item.signal)}">${item.signal}</td><td class="num">${fmtPrice(item.price)}</td><td class="num ${changeClass(item.dayChange)}">${changeText(item.dayChange)}</td><td class="num">${item.score}</td></tr>`).join('');
   elements.body.querySelectorAll('tr[data-symbol]').forEach((row) => { row.addEventListener('click', () => selectCompany(row.dataset.symbol)); row.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') selectCompany(row.dataset.symbol); }); });
 }
 
@@ -337,5 +341,6 @@ async function init() {
 }
 
 elements.refresh.addEventListener('click', runScan);
+$('#security-search').addEventListener('input', (event) => { searchQuery = event.target.value; renderTable(); });
 elements.rangeTabs.forEach((tab) => tab.addEventListener('click', () => { if (!selectedSymbol) return; setActiveRange(tab.dataset.range); loadPerformanceChart(results.find((item) => item.symbol === selectedSymbol), tab.dataset.range); }));
 init();

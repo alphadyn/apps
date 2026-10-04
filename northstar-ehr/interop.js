@@ -7,6 +7,7 @@
     csv: { label: "CSV (roster)", extension: "csv", mime: "text/csv" }
   };
 
+  const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
   const FHIR_FORMATS = { fhir: "R4", fhir5: "R5" };
   const MRN_SYSTEM = "urn:northstar-ehr:mrn";
   const LOINC = {
@@ -252,7 +253,7 @@
 
   function patientsFromFhir(bundle) {
     const resources = bundle?.resourceType === "Bundle"
-      ? toArray(bundle.entry).map((entry) => entry.resource).filter(Boolean)
+      ? toArray(bundle.entry).map((entry) => entry?.resource).filter((resource) => resource && typeof resource === "object")
       : [bundle];
     const byId = new Map();
 
@@ -290,8 +291,8 @@
         const quantity = resource.valueQuantity;
         if (key === "bp") target.vitals.bp = resource.valueString || "";
         else if (key === "hr") target.vitals.hr = quantity?.value;
-        else if (key === "temp") target.vitals.temp = `${quantity?.value}°${quantity?.unit === "degC" || quantity?.unit === "Cel" ? "C" : "F"}`;
-        else if (key === "spO2") target.vitals.spO2 = `${quantity?.value}%`;
+        else if (key === "temp" && quantity?.value !== undefined) target.vitals.temp = `${quantity.value}°${quantity?.unit === "degC" || quantity?.unit === "Cel" ? "C" : "F"}`;
+        else if (key === "spO2" && quantity?.value !== undefined) target.vitals.spO2 = `${quantity.value}%`;
         else if (textOf(resource.code)) {
           const value = quantity ? ` ${quantity.value}${quantity.unit ? ` ${quantity.unit}` : ""}` : resource.valueString ? ` ${resource.valueString}` : "";
           target.labs.push(`${textOf(resource.code)}${value}`);
@@ -362,6 +363,8 @@
 
   // Returns patient-shaped objects (not yet normalized) from any supported file.
   function parseImport(filename, text) {
+    if (!String(text || "").trim()) throw new Error("The file is empty.");
+    if (String(text).length > MAX_IMPORT_BYTES) throw new Error("The file is too large (limit 5 MB).");
     const format = detectFormat(filename, text);
     let patients;
     if (format === "csv") patients = parseCsvPatients(text);
@@ -378,7 +381,7 @@
     return { format, patients };
   }
 
-  const api = { FORMATS, buildFhirBundle, buildCsv, buildExport, parseCsv, parseImport, patientsFromFhir };
+  const api = { FORMATS, MAX_IMPORT_BYTES, buildFhirBundle, buildCsv, buildExport, parseCsv, parseImport, patientsFromFhir };
   root.NorthstarInterop = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;
 })(typeof window !== "undefined" ? window : globalThis);

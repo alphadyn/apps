@@ -1424,6 +1424,7 @@ function downloadPatientExport(patient, format = "json", scope = "selected") {
   const interop = window.NorthstarInterop;
   const list = scope === "all" ? patients : [patient];
   const meta = interop.FORMATS[format];
+  if (!meta) throw new Error(`Unsupported export format: ${format}`);
   const content = interop.buildExport(format, list, buildExportPayload);
   const blob = new Blob([content], { type: meta.mime });
   const url = URL.createObjectURL(blob);
@@ -2326,7 +2327,13 @@ function attachEvents() {
 
     const format = document.getElementById("exchangeFormat").value;
     const scope = document.getElementById("exchangeScope").value;
-    const count = downloadPatientExport(patient, format, scope);
+    let count;
+    try {
+      count = downloadPatientExport(patient, format, scope);
+    } catch (error) {
+      document.getElementById("encounterStatus").textContent = `Export failed: ${error.message}`;
+      return;
+    }
     const label = window.NorthstarInterop.FORMATS[format].label;
     recordAudit("report:export", scope === "all" ? "Multiple patients" : patient.name, `Exported ${count} record(s) as ${label}.`);
     document.getElementById("encounterStatus").textContent = `Exported ${count} record(s) as ${label}.`;
@@ -2350,6 +2357,10 @@ function attachEvents() {
     const file = importFile.files[0];
     importFile.value = "";
     if (!file) return;
+    if (file.size > window.NorthstarInterop.MAX_IMPORT_BYTES) {
+      document.getElementById("encounterStatus").textContent = "Import failed: the file is too large (limit 5 MB).";
+      return;
+    }
     const status = document.getElementById("encounterStatus");
     try {
       const { format, patients: records } = window.NorthstarInterop.parseImport(file.name, await file.text());

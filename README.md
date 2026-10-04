@@ -16,6 +16,7 @@ The landing page highlights these projects:
 4. [Market Lens](market-lens/) — Large-cap equity screening dashboard
 5. [Nexus](nexus/) — Content and media workspace
 6. [Atlas Store](atlas-store/) — Storefront and checkout experience
+7. [Northstar EHR](northstar-ehr/) — Responsive electronic health record demo for patient care workflows and encounter documentation
 
 ## App catalog
 

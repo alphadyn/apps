@@ -8,8 +8,9 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
     <div class="app-shell">
-      <aside class="sidebar">
+      <aside class="sidebar" aria-label="Workspace navigation and settings">
         <div class="brand-block">
           <div class="brand-icon" aria-hidden="true">✦</div>
           <div>
@@ -21,26 +22,26 @@
         <nav class="nav-links" aria-label="Main navigation">
           <div class="nav-group">
             <p class="nav-group-title">Workspace</p>
-            <button class="nav-link active" data-view="overview">Overview</button>
-            <button class="nav-link" data-view="patients">Patients</button>
-            <button class="nav-link" data-view="appointments">Appointments</button>
+            <button class="nav-link active" type="button" data-view="overview">Overview</button>
+            <button class="nav-link" type="button" data-view="patients">Patients</button>
+            <button class="nav-link" type="button" data-view="appointments">Appointments</button>
           </div>
           <div class="nav-group">
             <p class="nav-group-title">Care delivery</p>
-            <button class="nav-link" data-view="clinical">ED & Inpatient</button>
-            <button class="nav-link" data-view="orders">Orders</button>
-            <button class="nav-link" data-view="documents">Documents</button>
-            <button class="nav-link" data-view="labs">Labs & Meds</button>
+            <button class="nav-link" type="button" data-view="clinical">ED & Inpatient</button>
+            <button class="nav-link" type="button" data-view="orders">Orders</button>
+            <button class="nav-link" type="button" data-view="documents">Documents</button>
+            <button class="nav-link" type="button" data-view="labs">Labs & Meds</button>
           </div>
           <div class="nav-group">
             <p class="nav-group-title">Administration</p>
-            <button class="nav-link" data-view="billing">Billing</button>
+            <button class="nav-link" type="button" data-view="billing">Billing</button>
           </div>
         </nav>
 
         <div class="sidebar-card quick-action-card">
           <p class="eyebrow">Quick action</p>
-          <button id="quickEncounterBtn" class="primary-btn">＋ &nbsp; Open encounter</button>
+          <button id="quickEncounterBtn" class="primary-btn" type="button">＋ &nbsp; Open encounter</button>
           <p class="demo-notice">Demonstration workspace · fictional patient data · not for clinical use</p>
         </div>
 
@@ -57,7 +58,7 @@
         </div>
       </aside>
 
-      <main class="main-panel">
+      <main id="main-content" class="main-panel">
         <header class="topbar">
           <div>
             <p class="eyebrow">Clinical operations</p>
@@ -69,7 +70,7 @@
               <input id="patientSearch" type="text" aria-label="Search patients by name, MRN, or diagnosis" placeholder="Search patients..." />
             </label>
             <span class="demo-badge">Demo data</span>
-            <button class="ghost-btn" id="exportBtn">Export</button>
+            <button class="ghost-btn" id="exportBtn" type="button">Export</button>
           </div>
         </header>
 
@@ -80,12 +81,12 @@
             <span id="patientsTodayMeta">0 records in workspace</span>
           </article>
           <article class="stat-card accent-green">
-            <p>Completed Charts</p>
+            <p>Completed charts</p>
             <strong id="completedChartsValue">0</strong>
             <span id="completedChartsMeta">0% completion rate</span>
           </article>
           <article class="stat-card accent-amber">
-            <p>Critical Follow-ups</p>
+            <p>Critical follow-ups</p>
             <strong id="criticalFollowupsValue">0</strong>
             <span id="criticalFollowupsMeta">0 overdue tasks</span>
           </article>

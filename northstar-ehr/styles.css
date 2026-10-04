@@ -1,15 +1,15 @@
 :root {
-  --bg: #f5f7fb;
+  --bg: #f4f7fb;
   --panel: #ffffff;
-  --border: #e2e8f0;
+  --border: #e3e9f1;
   --text: #17243b;
-  --muted: #64748b;
+  --muted: #66758b;
   --accent: #2563eb;
-  --accent-soft: #dbeafe;
-  --green: #16a34a;
-  --amber: #d97706;
-  --purple: #7c3aed;
-  --shadow: 0 8px 24px rgba(15, 23, 42, 0.045);
+  --accent-soft: #eaf2ff;
+  --green: #16845b;
+  --amber: #b66a0b;
+  --purple: #7452c8;
+  --shadow: 0 10px 28px rgba(20, 35, 60, 0.055);
 }
 
 * {
@@ -19,8 +19,10 @@
 body {
   margin: 0;
   font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background: var(--bg);
+  background: linear-gradient(180deg, #f7f9fc 0%, var(--bg) 280px);
   color: var(--text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 button,
@@ -30,9 +32,27 @@ textarea {
   font: inherit;
 }
 
+.skip-link {
+  position: fixed;
+  z-index: 10;
+  top: 12px;
+  left: 12px;
+  transform: translateY(-160%);
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: #fff;
+  color: var(--accent);
+  box-shadow: var(--shadow);
+  font-weight: 700;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
 .app-shell {
   display: grid;
-  grid-template-columns: 252px minmax(0, 1fr);
+  grid-template-columns: 264px minmax(0, 1fr);
   min-height: 100vh;
 }
 
@@ -42,12 +62,13 @@ textarea {
   align-self: start;
   height: 100vh;
   overflow-y: auto;
-  background: #0f172a;
+  background: linear-gradient(180deg, #14213a 0%, #101b30 100%);
   color: #f8fafc;
-  padding: 22px 16px;
+  padding: 24px 18px;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  border-right: 1px solid rgba(148, 163, 184, 0.14);
 }
 
 .brand-block {
@@ -62,7 +83,8 @@ textarea {
   border-radius: 14px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, var(--accent), #38bdf8);
+  background: linear-gradient(135deg, #3478ee, #42b9d5);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.24);
   font-size: 24px;
   font-weight: 700;
 }
@@ -104,14 +126,20 @@ textarea {
   text-align: left;
   padding: 10px 12px;
   border-radius: 9px;
+  min-height: 42px;
   color: #cbd5e1;
   background: transparent;
   cursor: pointer;
   font-size: 0.92rem;
-  transition: background 120ms ease, color 120ms ease;
+  transition: background 140ms ease, color 140ms ease, box-shadow 140ms ease;
 }
 
-.nav-link.active,
+.nav-link.active {
+  box-shadow: inset 3px 0 0 #60a5fa;
+  background: rgba(59, 130, 246, 0.16);
+  color: #fff;
+}
+
 .nav-link:hover {
   background: rgba(148, 163, 184, 0.15);
   color: white;
@@ -179,17 +207,28 @@ textarea {
   color: #f8fafc;
 }
 
+.role-card select option {
+  color: var(--text);
+}
+
 .primary-btn,
 .ghost-btn {
   border: 0;
-  border-radius: 999px;
+  border-radius: 10px;
   padding: 10px 14px;
   cursor: pointer;
+  font-weight: 650;
+  transition: background 140ms ease, box-shadow 140ms ease, transform 140ms ease;
 }
 
 .primary-btn {
-  background: linear-gradient(135deg, var(--accent), #38bdf8);
+  background: linear-gradient(135deg, #2864d7, #3184df);
   color: white;
+}
+
+.primary-btn:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  transform: translateY(-1px);
 }
 
 .primary-btn:disabled,
@@ -201,6 +240,10 @@ textarea {
 .ghost-btn {
   background: var(--accent-soft);
   color: var(--accent);
+}
+
+.ghost-btn:hover:not(:disabled) {
+  background: #bfdbfe;
 }
 
 .main-panel {
@@ -217,7 +260,7 @@ textarea {
   align-items: center;
   gap: 24px;
   min-height: 62px;
-  padding-bottom: 4px;
+  padding-bottom: 2px;
 }
 
 .eyebrow {
@@ -233,6 +276,7 @@ textarea {
   margin: 0;
   font-size: clamp(1.3rem, 2vw, 1.7rem);
   letter-spacing: -0.035em;
+  line-height: 1.2;
 }
 
 .topbar-actions {
@@ -244,14 +288,22 @@ textarea {
 
 .search-box {
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 8px;
-  padding: 9px 12px;
+  padding: 0 12px;
   border-radius: 10px;
   background: var(--panel);
   border: 1px solid var(--border);
   min-width: 220px;
   max-width: 340px;
+  min-height: 42px;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.search-box:focus-within {
+  border-color: #8bb4f4;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .search-box input {
@@ -259,6 +311,9 @@ textarea {
   outline: 0;
   background: transparent;
   width: 100%;
+  min-width: 0;
+  padding: 8px 0;
+  box-shadow: none;
 }
 
 .demo-badge {
@@ -280,10 +335,16 @@ textarea {
 
 .stat-card {
   border: 1px solid rgba(148, 163, 184, 0.12);
-  border-radius: 16px;
-  padding: 16px;
+  border-radius: 14px;
+  padding: 17px 18px;
   color: #0f172a;
-  box-shadow: none;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.025);
+  transition: box-shadow 140ms ease, transform 140ms ease;
+}
+
+.stat-card:hover {
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+  transform: translateY(-1px);
 }
 
 .stat-card p,
@@ -307,10 +368,10 @@ textarea {
   margin: 6px 0 3px;
 }
 
-.accent-blue { background: #eff6ff; }
-.accent-green { background: #f0fdf4; }
-.accent-amber { background: #fffbeb; }
-.accent-purple { background: #f5f3ff; }
+.accent-blue { border-left: 3px solid #4d84e8; background: #f0f5ff; }
+.accent-green { border-left: 3px solid #3a9b74; background: #f0f8f4; }
+.accent-amber { border-left: 3px solid #cf8b2d; background: #fbf6ed; }
+.accent-purple { border-left: 3px solid #826ac7; background: #f5f2fb; }
 
 .content-grid {
   display: grid;
@@ -325,9 +386,10 @@ textarea {
 .panel {
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 18px;
+  border-radius: 16px;
   padding: 18px;
-  box-shadow: var(--shadow);
+  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.035);
+  min-width: 0;
 }
 
 .panel-header {
@@ -366,12 +428,17 @@ textarea {
   padding: 11px 12px;
   background: #fff;
   cursor: pointer;
-  transition: border-color 120ms ease, background 120ms ease;
+  transition: border-color 140ms ease, background 140ms ease, box-shadow 140ms ease;
+}
+
+.patient-card:hover {
+  border-color: #b7c8e2;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.045);
 }
 
 .patient-card.active {
-  border-color: var(--accent);
-  background: #f8fbff;
+  border-color: #7da7ec;
+  background: #f5f8ff;
   box-shadow: inset 3px 0 0 var(--accent);
 }
 
@@ -879,9 +946,15 @@ input,
 select,
 textarea {
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 10px 12px;
   background: #fcfdff;
+  color: var(--text);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #94a3b8;
 }
 
 textarea {
@@ -1185,6 +1258,15 @@ textarea:focus-visible {
   outline-offset: 2px;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 @media (max-width: 1080px) {
   .stats-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1257,9 +1339,18 @@ textarea:focus-visible {
   }
 
   .role-card h3,
-  .role-help,
-  .role-label {
+  .role-help {
     display: none;
+  }
+
+  .role-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    clip-path: inset(50%);
   }
 
   .role-card select {

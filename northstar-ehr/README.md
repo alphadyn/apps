@@ -6,11 +6,12 @@ A responsive electronic health record demonstration covering patient charts, eme
 
 ## Features
 
-- Patient worklist with chart search, demographics, allergies, medications, labs, and vitals
+- Patient worklist with 23 fictional patient charts, searchable diagnoses, demographics, histories, allergies, medications, labs, and vitals
 - Encounter progression for intake, triage, ED evaluation, consultation, admission, discharge, and closure
 - Intake and triage capture for arrival mode, chief complaint, acuity, nursing note, vital signs, pain score, and location
 - Disposition tracking for ward/ICU admission, home discharge, PCP or specialist referral, and transfer
 - Nursing, vitals, diagnosis, laboratory, imaging, procedure, medication, and referral order tracking
+- Per-patient imaging and radiology records with modality, body site, indication, report, status, and radiologist
 - Structured drafts for ED, history and physical, admission, SOAP/progress, consult, nursing, procedure, discharge, and referral documents
 - Clinician and nurse workflow roles, plus an admin review role and an activity audit trail
 - Appointment management, care tasks, follow-up planning, patient summary export, and billing context
@@ -51,4 +52,4 @@ Run the repository-wide test suite from the project root:
 
 ## Important limitations
 
-This is a front-end prototype with fictional sample patients. Data is stored in browser local storage and is not protected, backed up, or shared with a care team. Orders and notes are not sent to clinical systems, medications are not prescribed, and role selection is a demonstration control rather than authentication or access control. Do not enter real patient information or use this application to make or document clinical decisions. A production EHR requires a secure backend, identity and access management, audit controls, validated clinical terminology and workflows, interoperability, and applicable privacy, safety, and regulatory review.
+This is a front-end prototype with fictional sample patients and illustrative imaging text. Data is stored in browser local storage and is not protected, backed up, or shared with a care team. Orders and notes are not sent to clinical systems, medications are not prescribed, and role selection is a demonstration control rather than authentication or access control. Do not enter real patient information or use this application to make or document clinical decisions. A production EHR requires a secure backend, identity and access management, audit controls, validated clinical terminology and workflows, interoperability, and applicable privacy, safety, and regulatory review.

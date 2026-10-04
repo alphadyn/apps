@@ -134,6 +134,97 @@ const initialPatients = [
   }
 ];
 
+const demoPatientScenarios = [
+  ["Avery Bennett", 27, "Female", "Migraine without aura", "Recurrent unilateral headaches; family history of migraine; no prior surgery.", "Ibuprofen", "None listed", "Brain MRI without contrast", "MRI", "Brain", "Recurrent headaches", "No acute intracranial abnormality in this fictional sample report."],
+  ["Noah Patel", 63, "Male", "Knee osteoarthritis", "Chronic knee pain; prior meniscal repair; walks daily.", "Sulfa drugs", "Acetaminophen as needed", "Right knee radiographs, 3 views", "X-ray", "Right knee", "Chronic knee pain", "Mild medial compartment joint-space narrowing; no acute fracture."],
+  ["Grace Kim", 52, "Female", "Asthma", "Intermittent wheeze; childhood asthma; seasonal allergies.", "None listed", "Albuterol inhaler", "Chest radiograph, 2 views", "X-ray", "Chest", "Cough and wheeze", "Lungs are clear; no focal air-space opacity or pleural effusion."],
+  ["Ethan Brooks", 46, "Male", "Nephrolithiasis", "Prior kidney stone; episodic flank discomfort; no prior procedures.", "Codeine", "None listed", "Renal ultrasound", "Ultrasound", "Kidneys and bladder", "Flank discomfort", "No hydronephrosis identified; small simple-appearing renal cyst noted."],
+  ["Isabella Chen", 35, "Female", "Cholelithiasis", "Intermittent post-meal abdominal discomfort; prior appendectomy.", "Latex", "None listed", "Right upper quadrant ultrasound", "Ultrasound", "Right upper quadrant", "Abdominal discomfort", "Gallstones are present; no gallbladder wall thickening in this sample report."],
+  ["Lucas Rivera", 71, "Male", "Chronic obstructive pulmonary disease", "Former smoker; COPD; recent increase in exertional dyspnea.", "Penicillin", "Tiotropium, albuterol", "Chest CT without contrast", "CT", "Chest", "Dyspnea follow-up", "Emphysematous change is described; no focal pulmonary mass identified."],
+  ["Mia Johnson", 24, "Female", "Ankle sprain", "Twisted left ankle during recreation; no prior fractures.", "None listed", "None listed", "Left ankle radiographs, 3 views", "X-ray", "Left ankle", "Left ankle pain after twisting injury", "No acute fracture or dislocation identified."],
+  ["Benjamin Clark", 59, "Male", "Lumbar radiculopathy", "Recurrent low-back pain with leg symptoms; remote lifting injury.", "Morphine", "Naproxen as needed", "Lumbar spine MRI without contrast", "MRI", "Lumbar spine", "Persistent low-back symptoms", "Mild multilevel degenerative changes; no acute osseous finding."],
+  ["Amara Okafor", 44, "Female", "Thyroid nodule", "Incidental thyroid nodule on prior imaging; no neck surgery.", "Iodinated contrast", "Levothyroxine", "Thyroid ultrasound", "Ultrasound", "Thyroid", "Nodule follow-up", "Stable-appearing right thyroid nodule; comparison with prior study recommended."],
+  ["Oliver Davis", 68, "Male", "Heart failure with preserved ejection fraction", "Hypertension; prior admission for fluid overload; followed by cardiology.", "Aspirin", "Furosemide, losartan", "Chest radiograph, 2 views", "X-ray", "Chest", "Follow-up of exertional breathlessness", "Mild cardiomegaly; no focal air-space opacity in this sample report."],
+  ["Chloe Martin", 31, "Female", "Endometriosis", "Pelvic pain; prior diagnostic laparoscopy; under gynecology care.", "None listed", "Combined oral contraceptive", "Pelvic MRI", "MRI", "Pelvis", "Pelvic pain evaluation", "Small endometrioma-like lesion described; correlate with specialist assessment."],
+  ["Samuel Wilson", 56, "Male", "Diverticulosis", "Intermittent abdominal discomfort; prior colonoscopy; no abdominal surgery.", "Metronidazole", "None listed", "CT abdomen and pelvis with contrast", "CT", "Abdomen and pelvis", "Abdominal discomfort", "Colonic diverticulosis without acute inflammatory change."],
+  ["Layla Hassan", 39, "Female", "Rotator cuff tendinopathy", "Shoulder pain after repetitive work; prior physical therapy.", "None listed", "Topical diclofenac", "Right shoulder MRI without contrast", "MRI", "Right shoulder", "Persistent shoulder pain", "Mild supraspinatus tendinopathy; no full-thickness tear described."],
+  ["Henry Moore", 74, "Male", "Osteoporosis", "Prior wrist fracture; treated for low bone density; former smoker.", "None listed", "Calcium, vitamin D", "DEXA bone density study", "DEXA", "Lumbar spine and hips", "Bone density monitoring", "Bone mineral density remains below the expected range for age in this sample."],
+  ["Zoe Thompson", 29, "Female", "Sinusitis", "Recurrent sinus symptoms; seasonal rhinitis; no facial surgery.", "Amoxicillin", "Cetirizine", "CT paranasal sinuses without contrast", "CT", "Paranasal sinuses", "Recurrent sinus symptoms", "Mild maxillary mucosal thickening; no fluid level identified."],
+  ["Daniel Garcia", 61, "Male", "Carotid artery stenosis", "Hyperlipidemia; former smoker; prior vascular clinic follow-up.", "Shellfish", "Atorvastatin", "Carotid duplex ultrasound", "Ultrasound", "Carotid arteries", "Surveillance study", "Mild plaque bilaterally without hemodynamically significant stenosis described."],
+  ["Priya Nair", 48, "Female", "Breast cyst", "Prior benign breast cyst; routine imaging follow-up; no breast surgery.", "None listed", "None listed", "Diagnostic mammogram and breast ultrasound", "Mammogram / Ultrasound", "Breasts", "Follow-up of known breast cyst", "Stable benign-appearing cystic finding; routine follow-up suggested in this mock report."],
+  ["Caleb Turner", 19, "Male", "Concussion, subsequent visit", "Sports-related head impact; no loss of consciousness reported; no prior neurologic history.", "None listed", "None listed", "Head CT without contrast", "CT", "Head", "Follow-up after head injury", "No acute intracranial finding identified in this fictional sample."],
+  ["Nora Williams", 66, "Female", "Peripheral neuropathy", "Type 2 diabetes; chronic foot numbness; prior podiatry visits.", "Gabapentin", "Metformin", "Left foot radiographs, 3 views", "X-ray", "Left foot", "Chronic foot symptoms", "No acute fracture; mild first metatarsophalangeal degenerative change."],
+  ["Mateo Silva", 42, "Male", "Hepatic steatosis", "Elevated liver enzymes on prior screening; no abdominal surgery.", "None listed", "None listed", "Abdominal ultrasound", "Ultrasound", "Liver and biliary system", "Follow-up of liver enzyme elevation", "Increased hepatic echogenicity compatible with steatosis in this mock report."]
+];
+
+function createDemoPatient(scenario, index) {
+  const [name, age, sex, diagnosis, history, allergy, medication, study, modality, bodySite, indication, report] = scenario;
+  const id = index + 4;
+  const imaging = {
+    id: `rad-demo-${id}`,
+    study,
+    modality,
+    bodySite,
+    performedAt: `2026-09-${String(3 + (index % 27)).padStart(2, "0")} ${String(8 + (index % 9)).padStart(2, "0")}:30`,
+    status: index % 4 === 0 ? "Preliminary" : "Final",
+    indication,
+    report,
+    radiologist: `Dr. ${["Morgan Ellis", "Riley Bennett", "Jordan Park", "Taylor Reed"][index % 4]}`
+  };
+
+  return {
+    id,
+    name,
+    mrn: `MRN-${String(42000 + id * 137)}`,
+    age,
+    sex,
+    status: index % 4 === 0 ? "Imaging review" : "Stable",
+    priority: index % 6 === 0 ? "Urgent" : "Routine",
+    diagnosis,
+    lastVisit: "Today",
+    provider: `Dr. ${["Elena Ruiz", "Amir Hassan", "Priya Singh", "Morgan Ellis"][index % 4]}`,
+    room: `Clinic ${String.fromCharCode(65 + (index % 6))}${(index % 4) + 1}`,
+    allergies: [allergy],
+    medications: [medication],
+    vitals: {
+      bp: `${112 + (index % 22)}/${68 + (index % 14)}`,
+      hr: 64 + (index % 28),
+      temp: `${(98.1 + (index % 7) * 0.1).toFixed(1)}°F`,
+      spO2: `${95 + (index % 5)}%`
+    },
+    labs: [`Sample chart · ${diagnosis}`, "Fictional demonstration values"],
+    notes: [{
+      title: "Medical history",
+      summary: history,
+      type: "Fictional sample history",
+      time: "Today"
+    }],
+    appointments: [{
+      id: `a-demo-${id}`,
+      time: "10:30",
+      title: "Imaging review",
+      location: "Radiology",
+      status: "Scheduled"
+    }],
+    imaging: [imaging],
+    billing: {
+      balance: 250 + index * 75,
+      insurance: ["Sample Health Plan", "DemoCare", "Fictional PPO"][index % 3],
+      claimStatus: "Pending review",
+      lastPayment: "Not recorded"
+    },
+    chartCompleted: index % 3 === 0,
+    medicationReviewed: index % 2 === 0,
+    carePlan: {
+      followUpDate: "2026-10-17",
+      tasks: [{ label: `Review ${modality} report`, status: "Open" }]
+    }
+  };
+}
+
+const demoPatients = demoPatientScenarios.map(createDemoPatient);
+const allInitialPatients = [...initialPatients, ...demoPatients];
+
 function safeLocalStorage() {
   return typeof localStorage !== "undefined" ? localStorage : null;
 }
@@ -221,6 +312,17 @@ function normalizePatient(patient) {
       status: order.status || "Pending",
       time: order.time || "Previously recorded"
     })),
+    imaging: (patient.imaging || []).map((record) => ({
+      id: record.id || createRecordId("imaging"),
+      study: record.study || "Imaging study",
+      modality: record.modality || "Not specified",
+      bodySite: record.bodySite || "Not specified",
+      performedAt: record.performedAt || "Date not recorded",
+      status: record.status || "Final",
+      indication: record.indication || "",
+      report: record.report || "",
+      radiologist: record.radiologist || "Not recorded"
+    })),
     documents: (patient.documents || patient.notes || []).map((document) => ({
       id: document.id || createRecordId("document"),
       type: document.type || "Clinical note",
@@ -269,14 +371,19 @@ function loadPatients() {
     if (saved) {
       const parsed = JSON.parse(saved);
       if (parsed.patients) {
-        return parsed.patients.map(normalizePatient);
+        const savedPatients = parsed.patients.map(normalizePatient);
+        const savedIds = new Set(savedPatients.map((patient) => patient.id));
+        return [
+          ...savedPatients,
+          ...allInitialPatients.filter((patient) => !savedIds.has(patient.id)).map(normalizePatient)
+        ];
       }
     }
   } catch (error) {
     console.warn("Unable to load saved patients", error);
   }
 
-  return initialPatients.map(normalizePatient);
+  return allInitialPatients.map(normalizePatient);
 }
 
 function loadAuditTrail() {
@@ -566,7 +673,10 @@ function getVisibleSections(view) {
 
 function renderNavigation() {
   document.querySelectorAll(".nav-link").forEach((item) => {
-    item.classList.toggle("active", item.dataset.view === currentView);
+    const active = item.dataset.view === currentView;
+    item.classList.toggle("active", active);
+    if (active) item.setAttribute("aria-current", "page");
+    else item.removeAttribute("aria-current");
   });
 }
 
@@ -610,7 +720,6 @@ function parseVitalsInput(rawVitals) {
 
 function calculateDashboardStats(patientList) {
   const totalPatients = patientList.length || 1;
-  const totalAppointments = patientList.reduce((count, patient) => count + patient.appointments.length, 0);
   const completedCharts = patientList.filter((patient) => patient.chartCompleted).length;
   const medicationReviewed = patientList.filter((patient) => patient.medicationReviewed).length;
   const overdueTasks = patientList.reduce(
@@ -625,7 +734,7 @@ function calculateDashboardStats(patientList) {
 
   return {
     patientsToday: patientList.length,
-    patientsTodayMeta: `${totalAppointments} scheduled visits`,
+    patientsTodayMeta: "in the workspace",
     completedCharts,
     completedChartsMeta: `${Math.round((completedCharts / totalPatients) * 100)}% completion rate`,
     criticalFollowups,
@@ -901,7 +1010,8 @@ function buildExportPayload(patient) {
       followUpDate: patient.carePlan.followUpDate,
       appointments: patient.appointments,
       tasks: patient.carePlan.tasks,
-      notes: patient.notes
+      notes: patient.notes,
+      imaging: patient.imaging
     }
   };
 }
@@ -948,10 +1058,12 @@ function renderPatientList() {
   const searchField = document.getElementById("patientSearch");
   const searchTerm = searchField ? searchField.value.toLowerCase() : "";
   const filtered = patients.filter((patient) =>
-    `${patient.name} ${patient.mrn} ${patient.priority} ${patient.status}`.toLowerCase().includes(searchTerm)
+    `${patient.name} ${patient.mrn} ${patient.priority} ${patient.status} ${patient.diagnosis}`.toLowerCase().includes(searchTerm)
   );
 
   const list = document.getElementById("patientList");
+  document.getElementById("patientListCount").textContent =
+    `${filtered.length} ${filtered.length === 1 ? "record" : "records"}`;
   if (!filtered.length) {
     list.innerHTML = '<p class="mini-card">No patients matched your search.</p>';
     return;
@@ -964,6 +1076,7 @@ function renderPatientList() {
         <button class="patient-card ${active}" data-id="${escapeHtml(patient.id)}">
           <strong>${escapeHtml(patient.name)}</strong>
           <span>${escapeHtml(patient.mrn)} • ${escapeHtml(patient.priority)}</span>
+          <span>${escapeHtml(patient.diagnosis)}</span>
           <span>${escapeHtml(patient.status)}</span>
         </button>
       `;
@@ -1013,6 +1126,31 @@ function renderPatientDetail() {
           )
           .join("")}
       </ul>
+    </div>
+
+    <div class="mini-card detail-notes imaging-records">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Imaging & radiology</p>
+          <h4>Imaging records (${patient.imaging.length})</h4>
+        </div>
+      </div>
+      ${patient.imaging.length
+        ? patient.imaging.map((record) => `
+          <article class="imaging-record">
+            <div class="record-card-header">
+              <div>
+                <span class="record-category">${escapeHtml(record.modality)} · ${escapeHtml(record.bodySite)}</span>
+                <h4>${escapeHtml(record.study)}</h4>
+              </div>
+              <span class="status-pill ${record.status === "Final" ? "status-completed" : "status-acknowledged"}">${escapeHtml(record.status)}</span>
+            </div>
+            <p><strong>Performed:</strong> ${escapeHtml(record.performedAt)} · <strong>Radiologist:</strong> ${escapeHtml(record.radiologist)}</p>
+            ${record.indication ? `<p><strong>Indication:</strong> ${escapeHtml(record.indication)}</p>` : ""}
+            ${record.report ? `<p><strong>Report:</strong> ${escapeHtml(record.report)}</p>` : ""}
+          </article>`).join("")
+        : '<p class="empty-state">No imaging or radiology records for this patient.</p>'}
+      <p class="form-caution">Fictional demonstration records only; reports are not diagnostic and are not for clinical use.</p>
     </div>
 
     <div class="mini-card detail-notes">

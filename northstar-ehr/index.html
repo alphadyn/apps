@@ -18,21 +18,29 @@
           </div>
         </div>
 
-        <nav class="nav-links">
-          <button class="nav-link active" data-view="overview">Overview</button>
-          <button class="nav-link" data-view="patients">Patients</button>
-          <button class="nav-link" data-view="clinical">ED & Inpatient</button>
-          <button class="nav-link" data-view="orders">Orders</button>
-          <button class="nav-link" data-view="documents">Documents</button>
-          <button class="nav-link" data-view="appointments">Appointments</button>
-          <button class="nav-link" data-view="labs">Labs & Meds</button>
-          <button class="nav-link" data-view="billing">Billing</button>
+        <nav class="nav-links" aria-label="Main navigation">
+          <div class="nav-group">
+            <p class="nav-group-title">Workspace</p>
+            <button class="nav-link active" data-view="overview">Overview</button>
+            <button class="nav-link" data-view="patients">Patients</button>
+            <button class="nav-link" data-view="appointments">Appointments</button>
+          </div>
+          <div class="nav-group">
+            <p class="nav-group-title">Care delivery</p>
+            <button class="nav-link" data-view="clinical">ED & Inpatient</button>
+            <button class="nav-link" data-view="orders">Orders</button>
+            <button class="nav-link" data-view="documents">Documents</button>
+            <button class="nav-link" data-view="labs">Labs & Meds</button>
+          </div>
+          <div class="nav-group">
+            <p class="nav-group-title">Administration</p>
+            <button class="nav-link" data-view="billing">Billing</button>
+          </div>
         </nav>
 
-        <div class="sidebar-card">
-          <h3>Care Coordination</h3>
-          <p>Follow each encounter from arrival and triage through disposition and follow-up.</p>
-          <button id="quickEncounterBtn" class="primary-btn">Open encounter</button>
+        <div class="sidebar-card quick-action-card">
+          <p class="eyebrow">Quick action</p>
+          <button id="quickEncounterBtn" class="primary-btn">＋ &nbsp; Open encounter</button>
           <p class="demo-notice">Demonstration workspace · fictional patient data · not for clinical use</p>
         </div>
 
@@ -52,23 +60,24 @@
       <main class="main-panel">
         <header class="topbar">
           <div>
-            <p class="eyebrow">Northstar EHR · Demonstration environment</p>
-            <h2>Connected care from arrival through follow-up</h2>
+            <p class="eyebrow">Clinical operations</p>
+            <h2>Care team workspace</h2>
           </div>
           <div class="topbar-actions">
             <label class="search-box" for="patientSearch">
-              <span>🔎</span>
-              <input id="patientSearch" type="text" placeholder="Search patient" />
+              <span aria-hidden="true">⌕</span>
+              <input id="patientSearch" type="text" aria-label="Search patients by name, MRN, or diagnosis" placeholder="Search patients..." />
             </label>
-            <button class="ghost-btn" id="exportBtn">Export Report</button>
+            <span class="demo-badge">Demo data</span>
+            <button class="ghost-btn" id="exportBtn">Export</button>
           </div>
         </header>
 
         <section id="overviewSection" class="stats-grid view-section">
           <article class="stat-card accent-blue">
-            <p>Patients Today</p>
+            <p>Patient records</p>
             <strong id="patientsTodayValue">0</strong>
-            <span id="patientsTodayMeta">0 scheduled visits</span>
+            <span id="patientsTodayMeta">0 records in workspace</span>
           </article>
           <article class="stat-card accent-green">
             <p>Completed Charts</p>
@@ -239,7 +248,7 @@
                 <p class="eyebrow">Patient queue</p>
                 <h3>Active records</h3>
               </div>
-              <span class="pill">Live</span>
+              <span class="pill" id="patientListCount">23 records</span>
             </div>
             <div id="patientList" class="patient-list"></div>
           </div>

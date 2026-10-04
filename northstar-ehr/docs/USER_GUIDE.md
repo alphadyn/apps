@@ -6,7 +6,7 @@ Northstar EHR is a responsive, browser-only demonstration of an emergency and in
 
 ## Patient chart
 
-Choose a patient from the worklist or search by name, MRN, priority, or status. The chart summarizes demographics, vitals, allergies, medications, labs, appointments, care tasks, recent notes, and activity. Use the role selector to explore clinician, nurse, and admin demonstration permissions.
+The worklist contains 23 fictional charts spanning a variety of conditions and histories. Choose a patient or search by name, MRN, diagnosis, priority, or status. The chart summarizes demographics, vitals, allergies, medications, labs, appointments, care tasks, recent notes, activity, and linked imaging/radiology records. Imaging records show the sample study, modality, body site, indication, report, status, and radiologist. Use the role selector to explore clinician, nurse, and admin demonstration permissions.
 
 ## Encounter workflow
 
@@ -22,6 +22,8 @@ The document form provides fields for HPI, relevant history and medication/aller
 
 ## Other views
 
+- The sidebar groups **Overview**, **Patients**, and **Appointments** under Workspace; **ED & Inpatient**, **Orders**, **Documents**, and **Labs & Meds** under Care delivery; and **Billing** under Administration.
+- Use the patient search in the header to find a chart by name, MRN, or diagnosis. The patient list is independently scrollable; the sidebar remains available while browsing on desktop.
 - **Overview** summarizes patient and chart activity.
 - **Patients** displays the patient worklist and chart details.
 - **Appointments** supports completing appointments; the admin role can cancel them.
@@ -35,4 +37,4 @@ Changes are saved to local storage in the current browser profile and remain aft
 
 ## Safety and privacy
 
-Do not enter real patient information. This prototype is not a clinical system and must not be used to guide or document patient care. Its orders are tracking examples only: they are not transmitted, validated, or executed, and medication entries are not prescriptions. Production use requires secure infrastructure, real authentication and authorization, validated clinical and medication workflows, interoperability, and applicable privacy, security, safety, and regulatory review.
+Do not enter real patient information. All patient histories and imaging reports are fictional illustrative examples. This prototype is not a clinical system and must not be used to guide or document patient care. Its orders are tracking examples only: they are not transmitted, validated, or executed, and medication entries are not prescriptions. Production use requires secure infrastructure, real authentication and authorization, validated clinical and medication workflows, interoperability, and applicable privacy, security, safety, and regulatory review.

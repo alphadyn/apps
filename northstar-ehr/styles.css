@@ -1501,3 +1501,53 @@ textarea:focus-visible {
     grid-template-columns: 1fr;
   }
 }
+
+.collapse-toggle {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 140ms ease, background 140ms ease;
+}
+
+.collapse-toggle:hover {
+  background: #f1f5f9;
+}
+
+.collapse-toggle:focus-visible {
+  outline: 2px solid #4d84e8;
+  outline-offset: 2px;
+}
+
+.collapsible.collapsed > .collapse-head .collapse-toggle {
+  transform: rotate(-90deg);
+}
+
+.collapsible.collapsed > :not(.collapse-head) {
+  display: none;
+}
+
+.collapse-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.collapse-head > :first-child:not(.collapse-toggle) {
+  margin-right: auto;
+}
+
+h4.collapse-head .collapse-toggle {
+  margin-left: auto;
+}
+
+.collapsible.collapsed > .collapse-head {
+  margin-bottom: 0;
+}

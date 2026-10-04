@@ -1974,6 +1974,62 @@ function renderPermissions() {
   });
 }
 
+const COLLAPSIBLES = [
+  ["#patientQueuePanel", ".panel-header"],
+  ["#appointmentsPanel", ".panel-header"],
+  ["#snapshotSection", ".panel-header"],
+  ["#encounterSection", ".panel-header"],
+  ["#auditSection", ".panel-header"],
+  [".clinical-dashboard-card", ".clinical-dashboard-heading", true],
+  [".patient-timeline", ".timeline-heading", true],
+  [".detail-grid > .mini-card", "h4", true]
+];
+const collapsedKeys = new Set();
+const seenKeys = new Set();
+
+function getHeadingText(head) {
+  const heading = head.matches("h3, h4") ? head : head.querySelector("h3, h4");
+  return heading ? heading.firstChild.textContent.trim() : "";
+}
+
+function setCollapsed(target, head, button, collapsed) {
+  const title = getHeadingText(head) || "section";
+  target.classList.toggle("collapsed", collapsed);
+  button.setAttribute("aria-expanded", String(!collapsed));
+  button.setAttribute("aria-label", `${collapsed ? "Expand" : "Collapse"} ${title}`);
+}
+
+function initCollapsibles() {
+  COLLAPSIBLES.forEach(([targetSelector, headSelector, collapsedByDefault]) => {
+    document.querySelectorAll(targetSelector).forEach((target) => {
+      const head = target.querySelector(`:scope > ${headSelector}`);
+      if (!head) return;
+      const key = `${targetSelector}:${getHeadingText(head)}`;
+      if (!seenKeys.has(key)) {
+        seenKeys.add(key);
+        if (collapsedByDefault) collapsedKeys.add(key);
+      }
+      let button = head.querySelector(":scope > .collapse-toggle");
+      if (!button) {
+        button = document.createElement("button");
+        button.type = "button";
+        button.className = "collapse-toggle";
+        button.textContent = "▾";
+        head.classList.add("collapse-head");
+        target.classList.add("collapsible");
+        head.appendChild(button);
+        button.addEventListener("click", () => {
+          const collapsed = !target.classList.contains("collapsed");
+          if (collapsed) collapsedKeys.add(key);
+          else collapsedKeys.delete(key);
+          setCollapsed(target, head, button, collapsed);
+        });
+      }
+      setCollapsed(target, head, button, collapsedKeys.has(key));
+    });
+  });
+}
+
 function render() {
   if (typeof document === "undefined") return;
   renderNavigation();
@@ -1989,6 +2045,7 @@ function render() {
   renderClinicalWorkspace();
   renderOrders();
   renderDocuments();
+  initCollapsibles();
   saveState();
 }
 

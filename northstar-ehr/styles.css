@@ -1530,10 +1530,6 @@ textarea:focus-visible {
   transform: rotate(-90deg);
 }
 
-.collapsible.collapsed > :not(.collapse-head) {
-  display: none;
-}
-
 .collapse-head {
   display: flex;
   align-items: center;
@@ -1550,4 +1546,18 @@ h4.collapse-head .collapse-toggle {
 
 .collapsible.collapsed > .collapse-head {
   margin-bottom: 0;
+}
+
+.section-summary {
+  margin: -6px 0 12px;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.collapsible.collapsed > .section-summary {
+  margin: 6px 0 0;
+}
+
+.collapsible.collapsed > :not(.collapse-head):not(.section-summary) {
+  display: none;
 }

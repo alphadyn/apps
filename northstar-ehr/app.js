@@ -1974,15 +1974,61 @@ function renderPermissions() {
   });
 }
 
+function summarizeList(items, limit = 2) {
+  const shown = items.filter(Boolean).slice(0, limit).join(" · ");
+  return items.length > limit ? `${shown} · +${items.length - limit} more` : shown;
+}
+
+const SECTION_SUMMARIES = {
+  queue: () => {
+    const urgent = patients.filter((patient) => patient.priority === "Urgent").length;
+    return `${patients.length} patients · ${urgent} urgent · ${patients.filter((patient) => patient.chartCompleted).length} charts completed`;
+  },
+  appointments: () => {
+    const { appointments } = getSelectedPatient();
+    const next = appointments.find((appointment) => appointment.status === "Scheduled");
+    const done = appointments.filter((appointment) => appointment.status === "Completed").length;
+    return `${done}/${appointments.length} completed${next ? ` · Next: ${next.time} ${next.title}` : ""}`;
+  },
+  snapshot: () => {
+    const patient = getSelectedPatient();
+    const openTasks = patient.carePlan.tasks.filter((task) => task.status !== "Done").length;
+    return `${patient.provider} · ${openTasks} open ${openTasks === 1 ? "task" : "tasks"} · ${formatCurrency(patient.billing.balance)} balance`;
+  },
+  encounter: () => `Document a care note for ${getSelectedPatient().name}`,
+  audit: () => hasPermission(currentUser.role, "audit:view")
+    ? `${auditTrail.length} recorded ${auditTrail.length === 1 ? "action" : "actions"}`
+    : "Admin role required to review",
+  vitals: () => {
+    const vitals = getSelectedPatient().vitals || {};
+    return summarizeList([
+      vitals.bp && `BP ${vitals.bp}`,
+      vitals.hr !== undefined && vitals.hr !== "" && `HR ${vitals.hr}`,
+      vitals.spO2 && `SpO₂ ${vitals.spO2}`
+    ], 3) || "No vitals recorded";
+  },
+  imaging: () => {
+    const { imaging } = getSelectedPatient();
+    return imaging.length ? `${imaging.length} ${imaging.length === 1 ? "study" : "studies"} · Latest: ${imaging[0].study}` : "No imaging on file";
+  },
+  timeline: () => {
+    const items = buildPatientTimeline(getSelectedPatient());
+    return items.length ? `${items.length} events · Latest: ${items[0].title}` : "No events yet";
+  },
+  card: (target) => summarizeList([...target.querySelectorAll(":scope > ul > li")].map((item) => item.textContent.trim()))
+};
+
+// [target selector, header selector, collapsed by default, summary key]
 const COLLAPSIBLES = [
-  ["#patientQueuePanel", ".panel-header"],
-  ["#appointmentsPanel", ".panel-header"],
-  ["#snapshotSection", ".panel-header"],
-  ["#encounterSection", ".panel-header"],
-  ["#auditSection", ".panel-header"],
-  [".clinical-dashboard-card", ".clinical-dashboard-heading", true],
-  [".patient-timeline", ".timeline-heading", true],
-  [".detail-grid > .mini-card", "h4", true]
+  ["#patientQueuePanel", ".panel-header", true, "queue"],
+  ["#appointmentsPanel", ".panel-header", true, "appointments"],
+  ["#snapshotSection", ".panel-header", true, "snapshot"],
+  ["#encounterSection", ".panel-header", true, "encounter"],
+  ["#auditSection", ".panel-header", true, "audit"],
+  [".vitals-dashboard", ".clinical-dashboard-heading", true, "vitals"],
+  [".imaging-dashboard", ".clinical-dashboard-heading", true, "imaging"],
+  [".patient-timeline", ".timeline-heading", true, "timeline"],
+  [".detail-grid > .mini-card", "h4", true, "card"]
 ];
 const collapsedKeys = new Set();
 const seenKeys = new Set();
@@ -1999,8 +2045,18 @@ function setCollapsed(target, head, button, collapsed) {
   button.setAttribute("aria-label", `${collapsed ? "Expand" : "Collapse"} ${title}`);
 }
 
+function renderSectionSummary(target, head, text) {
+  let summary = target.querySelector(":scope > .section-summary");
+  if (!summary) {
+    summary = document.createElement("p");
+    summary.className = "section-summary";
+    head.after(summary);
+  }
+  summary.textContent = text;
+}
+
 function initCollapsibles() {
-  COLLAPSIBLES.forEach(([targetSelector, headSelector, collapsedByDefault]) => {
+  COLLAPSIBLES.forEach(([targetSelector, headSelector, collapsedByDefault, summaryKey]) => {
     document.querySelectorAll(targetSelector).forEach((target) => {
       const head = target.querySelector(`:scope > ${headSelector}`);
       if (!head) return;
@@ -2026,6 +2082,7 @@ function initCollapsibles() {
         });
       }
       setCollapsed(target, head, button, collapsedKeys.has(key));
+      renderSectionSummary(target, head, SECTION_SUMMARIES[summaryKey](target));
     });
   });
 }

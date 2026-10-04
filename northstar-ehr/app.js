@@ -40,6 +40,17 @@ const initialPatients = [
         time: "Today • 09:15"
       }
     ],
+    imaging: [{
+      id: "rad-10482",
+      study: "Renal function follow-up ultrasound",
+      modality: "Ultrasound",
+      bodySite: "Kidneys",
+      performedAt: "2026-09-24 09:15",
+      status: "Final",
+      indication: "Diabetes and hypertension follow-up",
+      report: "Kidneys are normal in size. No hydronephrosis identified in this fictional sample report.",
+      radiologist: "Dr. Riley Bennett"
+    }],
     appointments: [
       { id: "a-101", time: "08:30", title: "Annual wellness review", location: "Exam Room 2", status: "Scheduled" },
       { id: "a-102", time: "14:00", title: "Lab follow-up", location: "Lab Desk", status: "Scheduled" }
@@ -79,6 +90,17 @@ const initialPatients = [
         time: "Today • 11:40"
       }
     ],
+    imaging: [{
+      id: "rad-20811",
+      study: "Portable chest radiograph",
+      modality: "X-ray",
+      bodySite: "Chest",
+      performedAt: "2026-10-02 11:40",
+      status: "Preliminary",
+      indication: "Post-operative chest discomfort",
+      report: "No focal air-space opacity identified. Final review pending in this fictional sample.",
+      radiologist: "Dr. Taylor Reed"
+    }],
     appointments: [
       { id: "a-201", time: "10:00", title: "Cardiac recheck", location: "Telemetry Unit", status: "In Progress" },
       { id: "a-202", time: "16:30", title: "Discharge planning", location: "Nursing Station", status: "Scheduled" }
@@ -118,6 +140,17 @@ const initialPatients = [
         time: "Yesterday • 15:20"
       }
     ],
+    imaging: [{
+      id: "rad-31544",
+      study: "Obstetric ultrasound",
+      modality: "Ultrasound",
+      bodySite: "Obstetric",
+      performedAt: "2026-10-01 15:20",
+      status: "Final",
+      indication: "Routine prenatal follow-up",
+      report: "Single intrauterine pregnancy noted in this fictional sample report. Refer to the complete imaging record.",
+      radiologist: "Dr. Morgan Ellis"
+    }],
     appointments: [
       { id: "a-301", time: "09:00", title: "Ultrasound review", location: "Imaging", status: "Scheduled" },
       { id: "a-302", time: "13:20", title: "Supportive counseling", location: "Room 4A", status: "Scheduled" }
@@ -225,6 +258,180 @@ function createDemoPatient(scenario, index) {
 const demoPatients = demoPatientScenarios.map(createDemoPatient);
 const allInitialPatients = [...initialPatients, ...demoPatients];
 
+function textField(name, label, placeholder = "", required = false) {
+  return { name, label, placeholder, required, type: "text" };
+}
+
+function numberField(name, label, placeholder = "", required = false) {
+  return { name, label, placeholder, required, type: "number" };
+}
+
+function selectField(name, label, options, required = false) {
+  return { name, label, options, required, type: "select" };
+}
+
+function noteField(name, label, placeholder = "", required = false) {
+  return { name, label, placeholder, required, type: "textarea" };
+}
+
+const orderTypeFields = {
+  Nursing: [
+    selectField("discipline", "Nursing discipline", ["Registered nurse", "Licensed practical nurse", "Wound care", "Other"], true),
+    selectField("nursingFrequency", "Frequency", ["Once", "Every shift", "Daily", "As needed", "Continuous"], true),
+    textField("nursingDuration", "Duration", "e.g., 24 hours, until discharge"),
+    noteField("nursingInterventions", "Care instructions", "Assessment focus, interventions, precautions, and escalation instructions", true)
+  ],
+  Vitals: [
+    selectField("vitalSet", "Observation set", ["Routine vitals", "Orthostatic vitals", "Neurological observations", "Post-procedure observations", "Other"], true),
+    selectField("vitalFrequency", "Frequency", ["Once", "Every 15 minutes", "Every 30 minutes", "Hourly", "Every 4 hours", "Every shift"], true),
+    textField("vitalDuration", "Duration", "e.g., 4 hours, until stable"),
+    noteField("notifyParameters", "Notify clinician if", "Document patient-specific thresholds or concerning changes")
+  ],
+  Diagnosis: [
+    textField("diagnosisCode", "Code system / code", "e.g., ICD-10-CM code"),
+    selectField("diagnosisRole", "Diagnosis role", ["Primary", "Secondary", "Differential", "Problem list"], true),
+    selectField("diagnosisStatus", "Status", ["Active", "Historical", "Resolved", "Rule out"], true),
+    textField("diagnosisOnset", "Onset / effective date", "Date or approximate onset"),
+    noteField("diagnosisEvidence", "Clinical basis", "Relevant findings supporting this diagnosis")
+  ],
+  Laboratory: [
+    textField("labTest", "Test / panel", "Test name or panel", true),
+    selectField("labSpecimen", "Specimen", ["Blood", "Urine", "Swab", "Stool", "Other / see instructions"], true),
+    selectField("labTiming", "Collection timing", ["Routine", "Timed", "Fasting", "Now"], true),
+    textField("labCollectionDate", "Collection date / time", "If timed"),
+    noteField("labClinicalInfo", "Clinical indication / collection notes", "Relevant context and special collection instructions")
+  ],
+  Imaging: [
+    textField("imagingStudy", "Study requested", "e.g., chest radiograph, CT abdomen", true),
+    selectField("imagingModality", "Modality", ["X-ray", "CT", "MRI", "Ultrasound", "Mammography", "DEXA", "Other"], true),
+    textField("imagingBodySite", "Body site / laterality", "Specify anatomy and side"),
+    selectField("imagingContrast", "Contrast", ["Not applicable", "Without contrast", "With contrast", "Without and with contrast", "Per radiology protocol"], true),
+    selectField("pregnancyStatus", "Pregnancy status (when applicable)", ["Not applicable", "Not pregnant", "Pregnant", "Unknown / verify"], false),
+    noteField("imagingIndication", "Clinical indication / protocol notes", "Symptoms, relevant history, comparison studies, and protocol requests", true)
+  ],
+  Procedure: [
+    textField("procedureName", "Procedure", "Procedure requested", true),
+    textField("procedureSite", "Site / laterality", "Anatomy and side, if applicable"),
+    noteField("procedureIndication", "Indication", "Reason the procedure is requested", true),
+    selectField("procedureConsent", "Consent status", ["Not applicable", "Pending", "Obtained", "Documented separately"], true),
+    selectField("procedureSedation", "Sedation / anesthesia", ["None planned", "Local", "Moderate sedation", "Anesthesia review required", "Per procedural team"], true),
+    noteField("procedurePrecautions", "Precautions / preparation", "Anticoagulation, fasting, equipment, monitoring, and aftercare considerations")
+  ],
+  Medication: [
+    textField("medicationName", "Medication", "Generic or brand name", true),
+    textField("medicationDose", "Dose", "Amount and units", true),
+    selectField("medicationRoute", "Route", ["Oral", "IV", "IM", "Subcutaneous", "Topical", "Inhaled", "Other"], true),
+    textField("medicationFrequency", "Frequency / schedule", "e.g., once, twice daily, as needed", true),
+    textField("medicationDuration", "Duration", "Duration or stop date"),
+    numberField("medicationQuantity", "Quantity", "Units to dispense"),
+    numberField("medicationRefills", "Refills", "0"),
+    textField("medicationPharmacy", "Pharmacy", "Destination pharmacy"),
+    noteField("medicationIndication", "Indication / monitoring", "Reason for use, precautions, and monitoring notes")
+  ],
+  Referral: [
+    selectField("referralSpecialty", "Referral service", ["Primary care", "Cardiology", "Neurology", "Orthopedics", "Oncology", "Behavioral health", "Other specialist"], true),
+    textField("referralDestination", "Receiving clinician / destination", "Clinic, clinician, or service"),
+    selectField("referralUrgency", "Requested timeframe", ["Routine", "Within 2 weeks", "Within 48 hours", "Same day"], true),
+    noteField("referralReason", "Reason for referral / clinical question", "Specific question or service requested", true),
+    noteField("referralRecords", "Records to include / coordination notes", "Relevant results, imaging, medications, and contact details")
+  ]
+};
+
+const documentTypeFields = {
+  "ED provider note": [
+    noteField("chiefConcern", "Chief concern", "Presenting problem in the patient's own words", true),
+    noteField("hpi", "History of present illness", "Onset, location, duration, character, aggravating/relieving factors, associated symptoms, and pertinent context", true),
+    noteField("relevantHistory", "Relevant medical / surgical history", "Pertinent conditions, procedures, medications, and allergies"),
+    noteField("edReviewSystems", "Focused review of systems", "Pertinent positives and negatives"),
+    noteField("edExam", "Focused examination", "Document relevant findings by system", true),
+    noteField("edDiagnostics", "Diagnostics reviewed", "Labs, imaging, ECG, and other results reviewed"),
+    noteField("edAssessment", "Medical decision making / assessment", "Differential, risk, interpretation, and working diagnoses", true),
+    noteField("edPlan", "Treatment, reassessment, and disposition", "Interventions, response, consultant discussions, and disposition plan", true)
+  ],
+  "History & physical": [
+    textField("historian", "Historian / source", "Patient, family, records, interpreter", true),
+    selectField("historyReliability", "History reliability", ["Reliable", "Limited", "Unable to obtain", "Other"], true),
+    noteField("hpi", "History of present illness", "Timeline, symptoms, context, and pertinent positives/negatives", true),
+    noteField("pastMedicalHistory", "Past medical history", "Chronic and prior conditions"),
+    noteField("pastSurgicalHistory", "Past surgical history", "Procedures and approximate dates"),
+    noteField("medicationsAllergies", "Medications and allergies", "Reconciliation, doses when known, reactions, and status", true),
+    noteField("familySocialHistory", "Family and social history", "Relevant family history, living situation, occupation, tobacco, alcohol, and substances"),
+    noteField("hAndPRos", "Review of systems", "Pertinent positives and negatives by system", true),
+    noteField("hAndPExam", "Physical examination", "General and system-based exam with pertinent findings", true),
+    noteField("hAndPData", "Vitals and diagnostic data", "Vital signs and pertinent laboratory / imaging data reviewed"),
+    noteField("hAndPAssessment", "Assessment / problem list", "Problem-by-problem assessment", true),
+    noteField("hAndPPlan", "Plan", "Plan by problem, monitoring, consultations, and follow-up", true)
+  ],
+  "Admission note": [
+    textField("admittingDiagnosis", "Admitting diagnosis", "Primary reason for admission", true),
+    textField("admittingService", "Admitting service / attending", "Service and responsible clinician", true),
+    selectField("levelOfCare", "Level of care", ["Medical ward", "Telemetry", "Step-down", "ICU", "Observation"], true),
+    selectField("codeStatus", "Code status", ["Not reviewed", "Full code", "DNR", "DNI", "See documented goals of care"], true),
+    textField("expectedStay", "Expected length of stay", "Estimate or reassessment point"),
+    noteField("admissionHpi", "Presenting history and reason for admission", "Presentation, workup, and admission rationale", true),
+    noteField("admissionExam", "Admission exam / current condition", "Current status, pertinent findings, and stability"),
+    noteField("admissionProblems", "Active problems and risk factors", "Problem list, comorbidities, allergies, and precautions"),
+    noteField("admissionPlan", "Initial inpatient plan", "Monitoring, initial management, consultations, and goals", true),
+    noteField("admissionReconciliation", "Medication reconciliation / handoff", "Home medications, holds, outstanding tasks, and handoff needs")
+  ],
+  "SOAP progress note": [
+    noteField("subjective", "S · Subjective", "Patient report, interval events, symptoms, and concerns", true),
+    noteField("objective", "O · Objective", "Vitals, examination, intake/output, labs, imaging, and other observed data", true),
+    noteField("assessment", "A · Assessment", "Problem-based assessment and clinical status", true),
+    noteField("plan", "P · Plan", "Actions, orders, monitoring, consultations, and follow-up", true),
+    noteField("soapSafety", "Safety / care coordination", "Precautions, lines, mobility, nutrition, communication, and barriers")
+  ],
+  "Consult note": [
+    textField("consultService", "Consulting service / clinician", "Specialty and consultant"),
+    textField("consultRequester", "Requesting clinician / service", "Referring team and contact"),
+    noteField("consultQuestion", "Reason for consultation / specific question", "Question to be addressed", true),
+    noteField("consultHistory", "Relevant history and record review", "History, medications, allergies, and data reviewed"),
+    noteField("consultFindings", "Consult examination / findings", "Focused examination and review of results", true),
+    noteField("consultImpression", "Impression / recommendations", "Consultant's assessment and recommendations", true),
+    noteField("consultFollowup", "Follow-up / communication", "Actions, ownership, and communication back to the primary team")
+  ],
+  "Nursing note": [
+    selectField("nursingShift", "Shift / note type", ["Shift assessment", "Focused assessment", "Care update", "Handoff", "Other"], true),
+    noteField("nursingAssessment", "Assessment and patient-reported concerns", "Neurologic, respiratory, cardiac, skin, pain, and other relevant findings", true),
+    noteField("nursingVitals", "Vitals / pain reassessment", "Values, time, trends, and response"),
+    noteField("nursingInterventions", "Interventions / care delivered", "Medication administration record reference, care, education, and safety checks"),
+    noteField("nursingResponse", "Patient response / outcome", "Tolerance, response, and goal progress", true),
+    noteField("nursingEscalation", "Notifications / escalation", "Who was notified, when, response, and pending actions"),
+    noteField("nursingHandoff", "Handoff / next-shift priorities", "Outstanding tasks and continuity plan")
+  ],
+  "Procedure note": [
+    textField("procedurePerformed", "Procedure performed", "Procedure and indication", true),
+    textField("procedureDateTime", "Date / time", "When performed"),
+    textField("procedureOperator", "Operator / assistants", "Names and roles"),
+    textField("procedureAnesthesia", "Anesthesia / sedation", "Type and monitoring"),
+    selectField("procedureConsentStatus", "Consent", ["Obtained and documented", "Emergency exception documented", "Not applicable"], true),
+    noteField("procedureTimeOut", "Time-out / site verification", "Patient, procedure, site/laterality, and team confirmation"),
+    noteField("procedureTechnique", "Technique / findings", "Preparation, approach, key steps, and findings", true),
+    noteField("procedureSpecimens", "Specimens / implants / devices", "Items collected, implanted, or used"),
+    noteField("procedureComplications", "Estimated blood loss / complications", "Include none if applicable"),
+    noteField("procedurePostCare", "Post-procedure condition / plan", "Disposition, monitoring, instructions, and follow-up", true)
+  ],
+  "Discharge summary": [
+    noteField("dischargeDiagnoses", "Discharge diagnoses", "Primary and secondary diagnoses", true),
+    noteField("dischargeCourse", "Reason for admission and hospital course", "Key events, treatments, consultations, and response", true),
+    noteField("dischargeCondition", "Condition at discharge", "Status, examination, and destination", true),
+    noteField("dischargeMedicationChanges", "Medication reconciliation / changes", "Started, stopped, changed, and continued medicines; confirm separately"),
+    noteField("dischargeInstructions", "Patient / caregiver instructions", "Self-care, equipment, activity, diet, and education", true),
+    noteField("dischargeFollowup", "Follow-up appointments / referrals", "Clinician, service, timeframe, and pending results", true),
+    noteField("dischargePrecautions", "Return precautions / contact plan", "Symptoms requiring urgent evaluation and how to obtain help", true),
+    noteField("dischargeDisposition", "Discharge destination / transport", "Home, facility, transfer, and transport arrangements")
+  ],
+  "Referral letter": [
+    textField("referralTo", "To / receiving clinician", "Name, specialty, and clinic", true),
+    textField("referralFrom", "From / referring clinician", "Name, service, and contact details", true),
+    selectField("referralPriority", "Priority / requested timeframe", ["Routine", "Within 2 weeks", "Within 48 hours", "Urgent / same day"], true),
+    noteField("referralQuestion", "Reason for referral / requested service", "Specific question or requested evaluation", true),
+    noteField("referralSummary", "Clinical summary and relevant history", "Presentation, course, relevant history, medications, and allergies", true),
+    noteField("referralInvestigations", "Investigations attached / pending", "Results, imaging, and outstanding tests"),
+    noteField("referralRequest", "Requested action / follow-up", "Next steps, communication, and return of recommendations")
+  ]
+};
+
 function safeLocalStorage() {
   return typeof localStorage !== "undefined" ? localStorage : null;
 }
@@ -262,6 +469,150 @@ function createRecordId(prefix) {
   return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
 }
 
+function addPatientEvent(patient, type, title, details = "", timestamp = new Date().toISOString()) {
+  const event = {
+    id: createRecordId("event"),
+    type,
+    title,
+    details,
+    timestamp
+  };
+  patient.events.unshift(event);
+  patient.events = patient.events.slice(0, 120);
+  return event;
+}
+
+function toTimelineDate(value) {
+  if (!value) return null;
+  const raw = String(value).trim();
+  const now = new Date();
+  if (/^today\b/i.test(raw)) {
+    const timeMatch = raw.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+    if (timeMatch) {
+      let hour = Number(timeMatch[1]);
+      if (timeMatch[3]?.toUpperCase() === "PM" && hour < 12) hour += 12;
+      if (timeMatch[3]?.toUpperCase() === "AM" && hour === 12) hour = 0;
+      now.setHours(hour, Number(timeMatch[2]), 0, 0);
+    }
+    return now;
+  }
+  if (/^yesterday\b/i.test(raw)) {
+    now.setDate(now.getDate() - 1);
+    return now;
+  }
+  const parsed = new Date(raw);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function formatTimelineDate(value) {
+  const date = toTimelineDate(value);
+  if (!date) return value || "Date not recorded";
+  return date.toLocaleString([], {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
+  });
+}
+
+function recordVitals(patient, values, source) {
+  if (!Object.keys(values).length) return;
+  const snapshot = { ...patient.vitals, ...values };
+  patient.vitals = snapshot;
+  patient.clinical.vitals = { ...patient.clinical.vitals, ...values };
+  const recordedAt = new Date().toISOString();
+  patient.vitalReadings.unshift({ values: snapshot, recordedAt, source });
+  patient.vitalReadings = patient.vitalReadings.slice(0, 12);
+  addPatientEvent(patient, "Vitals", "Vital signs recorded", source, recordedAt);
+}
+
+function buildPatientTimeline(patient) {
+  const items = [];
+  if (patient.diagnosis) {
+    items.push({
+      id: `timeline-diagnosis-${patient.id}`,
+      type: "Diagnosis",
+      title: patient.diagnosis,
+      details: "Primary problem on the patient chart",
+      timestamp: "",
+      fallbackTime: "Date not recorded"
+    });
+  }
+  (patient.labs || [])
+    .filter((lab) => !/fictional demonstration values/i.test(lab))
+    .forEach((lab, index) => {
+      items.push({
+        id: `timeline-lab-${patient.id}-${index}`,
+        type: "Laboratory",
+        title: lab,
+        details: "Lab marker on the patient chart",
+        timestamp: patient.labRecords?.[index]?.recordedAt || "",
+        fallbackTime: patient.labRecords?.[index]?.recordedAt || "Date not recorded"
+      });
+    });
+  (patient.carePlan?.tasks || [])
+    .filter((task) => task.status !== "Done")
+    .forEach((task, index) => {
+      items.push({
+        id: `timeline-task-${patient.id}-${index}`,
+        type: "Care plan",
+        title: task.label,
+        details: "Open care task",
+        timestamp: task.createdAt || "",
+        fallbackTime: "Date not recorded"
+      });
+    });
+  patient.events.forEach((event) => {
+    items.push({ ...event, timestamp: event.timestamp, fallbackTime: "Date not recorded" });
+  });
+  patient.documents.forEach((document) => {
+    items.push({
+      id: `timeline-${document.id}`,
+      type: "Document",
+      title: document.title,
+      details: `${document.type} · ${document.status}`,
+      timestamp: document.createdAt || document.time,
+      fallbackTime: document.time
+    });
+  });
+  patient.orders.forEach((order) => {
+    items.push({
+      id: `timeline-${order.id}`,
+      type: order.category,
+      title: order.title,
+      details: `Order · ${order.priority} priority · ${order.status}`,
+      timestamp: order.createdAt || order.time,
+      fallbackTime: order.time
+    });
+  });
+  patient.imaging.forEach((record) => {
+    items.push({
+      id: `timeline-${record.id}`,
+      type: "Imaging",
+      title: record.study,
+      details: `${record.modality} · ${record.bodySite} · ${record.status}${record.indication ? ` · ${record.indication}` : ""}`,
+      timestamp: record.performedAt,
+      fallbackTime: record.performedAt
+    });
+  });
+  patient.appointments.forEach((appointment) => {
+    items.push({
+      id: `timeline-${appointment.id}`,
+      type: "Appointment",
+      title: appointment.title,
+      details: `${appointment.status} · ${appointment.location}`,
+      timestamp: appointment.updatedAt,
+      fallbackTime: `Scheduled time ${appointment.time}`
+    });
+  });
+
+  return items
+    .map((item, index) => ({ ...item, sortTime: toTimelineDate(item.timestamp)?.getTime() ?? -index }))
+    .sort((left, right) => right.sortTime - left.sortTime)
+    .slice(0, 14);
+}
+
 function normalizeTask(task) {
   if (typeof task === "string") {
     return { label: task, status: "Open" };
@@ -276,27 +627,46 @@ function normalizeTask(task) {
 function normalizeAppointment(appointment) {
   return {
     id: appointment.id || createAppointmentId(),
+    createdAt: appointment.createdAt || "",
     time: appointment.time,
     title: appointment.title,
     location: appointment.location,
-    status: appointment.status || "Scheduled"
+    status: appointment.status || "Scheduled",
+    updatedAt: appointment.updatedAt || ""
   };
 }
 
 function normalizePatient(patient) {
   const clinical = patient.clinical || {};
+  const vitals = { ...(patient.vitals || {}), ...(clinical.vitals || {}) };
   return {
     ...patient,
     chartCompleted: Boolean(patient.chartCompleted),
     medicationReviewed: patient.medicationReviewed !== false,
     appointments: (patient.appointments || []).map(normalizeAppointment),
+    vitalReadings: (patient.vitalReadings || [{
+      values: vitals,
+      recordedAt: patient.vitalsRecordedAt || "",
+      source: "Current chart"
+    }]).map((reading) => ({
+      values: { ...(reading.values || {}) },
+      recordedAt: reading.recordedAt || "",
+      source: reading.source || "Recorded vitals"
+    })),
+    events: (patient.events || []).map((event) => ({
+      id: event.id || createRecordId("event"),
+      type: event.type || "Encounter",
+      title: event.title || "Patient event",
+      details: event.details || "",
+      timestamp: event.timestamp || ""
+    })),
     clinical: {
       arrivalMode: clinical.arrivalMode || "Walk-in",
       stage: clinical.stage || "Intake",
       chiefComplaint: clinical.chiefComplaint || "",
       acuity: clinical.acuity || "",
       triageNote: clinical.triageNote || "",
-      vitals: { ...(patient.vitals || {}), ...(clinical.vitals || {}) },
+      vitals,
       painScore: clinical.painScore || "",
       location: clinical.location || patient.room || "Waiting",
       disposition: clinical.disposition || "",
@@ -305,15 +675,19 @@ function normalizePatient(patient) {
     },
     orders: (patient.orders || []).map((order) => ({
       id: order.id || createRecordId("order"),
+      createdAt: order.createdAt || "",
+      updatedAt: order.updatedAt || "",
       category: order.category || "Nursing",
       priority: order.priority || "Routine",
       title: order.title || "",
       details: order.details || "",
+      fields: Array.isArray(order.fields) ? order.fields : [],
       status: order.status || "Pending",
       time: order.time || "Previously recorded"
     })),
     imaging: (patient.imaging || []).map((record) => ({
       id: record.id || createRecordId("imaging"),
+      createdAt: record.createdAt || "",
       study: record.study || "Imaging study",
       modality: record.modality || "Not specified",
       bodySite: record.bodySite || "Not specified",
@@ -325,6 +699,7 @@ function normalizePatient(patient) {
     })),
     documents: (patient.documents || patient.notes || []).map((document) => ({
       id: document.id || createRecordId("document"),
+      createdAt: document.createdAt || "",
       type: document.type || "Clinical note",
       title: document.title || "Untitled note",
       status: document.status || "Finalized",
@@ -538,15 +913,6 @@ function getDetailCardsForView(patient, openTasks) {
         ]
       },
       {
-        title: "Latest vitals",
-        items: [
-          `Blood pressure: ${patient.vitals.bp}`,
-          `Heart rate: ${patient.vitals.hr} bpm`,
-          `Temperature: ${patient.vitals.temp}`,
-          `SpO₂: ${patient.vitals.spO2}`
-        ]
-      },
-      {
         title: "Allergies & meds",
         items: [
           `Allergies: ${patient.allergies.join(", ")}`,
@@ -614,15 +980,6 @@ function getDetailCardsForView(patient, openTasks) {
       }
     ],
     labs: [
-      {
-        title: "Latest vitals",
-        items: [
-          `Blood pressure: ${patient.vitals.bp}`,
-          `Heart rate: ${patient.vitals.hr} bpm`,
-          `Temperature: ${patient.vitals.temp}`,
-          `SpO₂: ${patient.vitals.spO2}`
-        ]
-      },
       {
         title: "Lab markers",
         items: patient.labs
@@ -754,20 +1111,21 @@ function applyEncounterToPatient(patient, encounter) {
   };
 
   patient.notes.unshift(note);
+  const createdAt = new Date().toISOString();
   patient.documents.unshift({
     id: createRecordId("document"),
     title: note.title,
     type: encounter.type || "Clinical encounter",
     status: "Draft",
     time: note.time,
+    createdAt,
     sections: { summary: note.summary, vitals: encounter.vitals || "", plan: encounter.followup ? `Follow-up: ${encounter.followup}` : "" }
   });
   patient.chartCompleted = true;
   patient.medicationReviewed = true;
   patient.lastVisit = "Today";
   patient.status = encounter.followup ? "Follow-up scheduled" : "Stable";
-  patient.vitals = { ...patient.vitals, ...updatedVitals };
-  patient.clinical.vitals = { ...patient.clinical.vitals, ...updatedVitals };
+  recordVitals(patient, updatedVitals, "Encounter documentation");
   if (encounter.followup) patient.clinical.followUpDate = encounter.followup;
 
   if (encounter.followup) {
@@ -783,6 +1141,7 @@ function applyEncounterToPatient(patient, encounter) {
     );
   }
 
+  addPatientEvent(patient, "Encounter", "Clinical encounter documented", `${note.title} · ${note.type}`);
   return note;
 }
 
@@ -844,6 +1203,16 @@ function updateWorkflowForPatient(patient, updates, role = currentUser.role) {
     Transfer: "Transfer planned"
   })[patient.clinical.disposition] || patient.clinical.stage;
 
+  const submittedVitals = Object.fromEntries(
+    ["bp", "hr", "rr", "temp", "spO2"].filter((key) => updates[key] !== undefined && updates[key] !== "").map((key) => [key, updates[key]])
+  );
+  recordVitals(patient, submittedVitals, "Intake / triage");
+  addPatientEvent(
+    patient,
+    "Encounter",
+    `Encounter updated · ${patient.clinical.stage}`,
+    [patient.clinical.disposition, patient.clinical.location, patient.clinical.destination].filter(Boolean).join(" · ")
+  );
   appendAuditEntry({
     action: "workflow:update",
     patientName: patient.name,
@@ -860,13 +1229,19 @@ function createOrderForPatient(patient, order, role = currentUser.role) {
   if (!permission.allowed) return permission;
   const title = (order.title || "").trim();
   if (!title) return { allowed: false, message: "Enter an order or request before saving." };
+  const fields = orderTypeFields[order.category];
+  if (!fields) return { allowed: false, message: "Select a valid order category." };
 
   const savedOrder = {
     id: createRecordId("order"),
+    createdAt: new Date().toISOString(),
     category: order.category || "Nursing",
     priority: order.priority || "Routine",
     title,
     details: (order.details || "").trim(),
+    fields: fields
+      .map((field) => ({ label: field.label, value: (order[field.name] || "").trim() }))
+      .filter((field) => field.value),
     status: "Pending",
     time: new Date().toLocaleString([], { dateStyle: "medium", timeStyle: "short" })
   };
@@ -891,6 +1266,8 @@ function updateOrderStatus(patient, orderId, status, role = currentUser.role) {
   const order = patient.orders.find((item) => item.id === orderId);
   if (!order) return { allowed: false, message: "Order not found." };
   order.status = status;
+  order.updatedAt = new Date().toISOString();
+  addPatientEvent(patient, order.category, `${order.category} order ${status.toLowerCase()}`, order.title, order.updatedAt);
   appendAuditEntry({
     action: "order:update",
     patientName: patient.name,
@@ -908,16 +1285,14 @@ function createDocumentForPatient(patient, document, role = currentUser.role) {
   const title = (document.title || "").trim();
   if (!title) return { allowed: false, message: "Enter a document title before saving." };
 
-  const sections = {
-    hpi: (document.hpi || "").trim(),
-    history: (document.history || "").trim(),
-    ros: (document.ros || "").trim(),
-    exam: (document.exam || "").trim(),
-    assessment: (document.assessment || "").trim(),
-    plan: (document.plan || "").trim()
-  };
+  const fields = documentTypeFields[document.type];
+  if (!fields) return { allowed: false, message: "Select a valid document type." };
+  const sections = Object.fromEntries(
+    fields.map((field) => [field.name, (document[field.name] || "").trim()]).filter(([, value]) => value)
+  );
   const savedDocument = {
     id: createRecordId("document"),
+    createdAt: new Date().toISOString(),
     type: document.type || "Clinical note",
     title,
     status: "Draft",
@@ -927,7 +1302,7 @@ function createDocumentForPatient(patient, document, role = currentUser.role) {
   patient.documents.unshift(savedDocument);
   patient.notes.unshift({
     title: savedDocument.title,
-    summary: sections.assessment || sections.hpi || "Draft saved.",
+    summary: Object.values(sections)[0] || "Draft saved.",
     type: savedDocument.type,
     time: savedDocument.time
   });
@@ -956,6 +1331,7 @@ function updateAppointmentStatus(patientId, appointmentId, nextStatus, role = cu
   }
 
   appointment.status = nextStatus;
+  appointment.updatedAt = new Date().toISOString();
   if (nextStatus === "Completed") {
     patient.chartCompleted = true;
     patient.status = "Stable";
@@ -982,6 +1358,7 @@ function markTaskDone(patient, role = currentUser.role) {
   const nextOpenTask = patient.carePlan.tasks.find((task) => task.status !== "Done");
   if (!nextOpenTask) return { allowed: true, changed: false };
   nextOpenTask.status = "Done";
+  addPatientEvent(patient, "Care plan", "Care task completed", nextOpenTask.label);
   appendAuditEntry({
     action: "task:complete",
     patientName: patient.name,
@@ -1006,11 +1383,16 @@ function buildExportPayload(patient) {
       chartCompleted: patient.chartCompleted,
       medicationReviewed: patient.medicationReviewed,
       vitals: patient.vitals,
+      vitalReadings: patient.vitalReadings,
+      clinical: patient.clinical,
       billing: patient.billing,
       followUpDate: patient.carePlan.followUpDate,
       appointments: patient.appointments,
       tasks: patient.carePlan.tasks,
       notes: patient.notes,
+      orders: patient.orders,
+      documents: patient.documents,
+      events: patient.events,
       imaging: patient.imaging
     }
   };
@@ -1084,6 +1466,141 @@ function renderPatientList() {
     .join("");
 }
 
+function getVitalDisplay(value, unit = "") {
+  if (value === undefined || value === null || value === "") return "—";
+  return `${value}${unit}`;
+}
+
+function renderPatientStatusDashboard(patient) {
+  const currentVitals = patient.vitals || {};
+  const latestReading = patient.vitalReadings[0];
+  const vitalDefinitions = [
+    ["Blood pressure", currentVitals.bp, ""],
+    ["Heart rate", currentVitals.hr, " bpm"],
+    ["Respiratory rate", currentVitals.rr, " /min"],
+    ["Temperature", currentVitals.temp, ""],
+    ["Oxygen saturation", currentVitals.spO2, ""],
+    ["Pain score", patient.clinical.painScore, " / 10"]
+  ];
+  const imagingOrders = patient.orders.filter((order) =>
+    order.category === "Imaging" && ["Pending", "Acknowledged"].includes(order.status)
+  );
+  const finalReports = patient.imaging.filter((record) => record.status.toLowerCase() === "final").length;
+  const preliminaryReports = patient.imaging.filter((record) => record.status.toLowerCase() !== "final").length;
+  const latestImaging = [...patient.imaging].sort((left, right) =>
+    (toTimelineDate(right.performedAt)?.getTime() || 0) - (toTimelineDate(left.performedAt)?.getTime() || 0)
+  )[0];
+  const allergyText = patient.allergies.length ? patient.allergies.join(", ") : "None listed";
+
+  return `
+    <section class="patient-status-dashboard" aria-label="Patient medical status dashboard">
+      <div class="status-overview">
+        <div>
+          <p class="eyebrow">Current medical status</p>
+          <h4>${escapeHtml(patient.diagnosis)}</h4>
+          <p>${escapeHtml(patient.status)} · ${escapeHtml(patient.clinical.stage)} · ${escapeHtml(patient.room)}</p>
+        </div>
+        <div class="status-overview-tags">
+          <span class="status-pill ${patient.priority === "Urgent" ? "status-urgent" : ""}">${escapeHtml(patient.priority)} priority</span>
+          ${patient.clinical.acuity ? `<span class="status-pill status-acknowledged">${escapeHtml(patient.clinical.acuity)}</span>` : ""}
+          <span class="status-pill">Care team: ${escapeHtml(patient.provider)}</span>
+        </div>
+        <p class="allergy-alert"><strong>Allergies:</strong> ${escapeHtml(allergyText)}</p>
+      </div>
+
+      <div class="clinical-dashboard-grid">
+        <section class="clinical-dashboard-card vitals-dashboard" aria-labelledby="vitalsDashboardHeading">
+          <div class="clinical-dashboard-heading">
+            <div>
+              <p class="eyebrow">Patient dashboard</p>
+              <h4 id="vitalsDashboardHeading">Latest vitals</h4>
+            </div>
+            <span class="dashboard-meta">${patient.vitalReadings.length} ${patient.vitalReadings.length === 1 ? "reading" : "readings"}</span>
+          </div>
+          <div class="vital-metric-grid">
+            ${vitalDefinitions.map(([label, value, unit]) => `
+              <article class="vital-metric">
+                <span>${escapeHtml(label)}</span>
+                <strong>${escapeHtml(getVitalDisplay(value, unit))}</strong>
+              </article>`).join("")}
+          </div>
+          <p class="dashboard-footnote">Latest charted values · unrecorded values shown as —${latestReading?.recordedAt ? ` · ${escapeHtml(formatTimelineDate(latestReading.recordedAt))}` : " · time not recorded"}${latestReading?.source ? ` · ${escapeHtml(latestReading.source)}` : ""}</p>
+          ${patient.vitalReadings.length > 1 ? `
+            <details class="vital-history">
+              <summary>View recent readings</summary>
+              <div class="vital-history-list">
+                ${patient.vitalReadings.slice(0, 6).map((reading) => `
+                  <div class="vital-history-row">
+                    <time>${escapeHtml(formatTimelineDate(reading.recordedAt))}</time>
+                    <span>${escapeHtml(reading.values.bp ? `BP ${reading.values.bp}` : "")}
+                    ${escapeHtml(reading.values.hr !== undefined ? ` · HR ${reading.values.hr}` : "")}
+                    ${escapeHtml(reading.values.rr !== undefined ? ` · RR ${reading.values.rr}` : "")}
+                    ${escapeHtml(reading.values.temp ? ` · Temp ${reading.values.temp}` : "")}
+                    ${escapeHtml(reading.values.spO2 ? ` · SpO₂ ${reading.values.spO2}` : "")}</span>
+                  </div>`).join("")}
+              </div>
+            </details>` : ""}
+        </section>
+
+        <section class="clinical-dashboard-card imaging-dashboard" aria-labelledby="imagingDashboardHeading">
+          <div class="clinical-dashboard-heading">
+            <div>
+              <p class="eyebrow">Diagnostic studies</p>
+              <h4 id="imagingDashboardHeading">Imaging & radiology</h4>
+            </div>
+            <span class="dashboard-meta">${patient.imaging.length} ${patient.imaging.length === 1 ? "study" : "studies"}</span>
+          </div>
+          <div class="imaging-metric-grid">
+            <div><strong>${patient.imaging.length}</strong><span>Studies</span></div>
+            <div><strong>${finalReports}</strong><span>Final reports</span></div>
+            <div><strong>${preliminaryReports}</strong><span>Preliminary</span></div>
+            <div><strong>${imagingOrders.length}</strong><span>Open orders</span></div>
+          </div>
+          ${latestImaging ? `
+            <div class="latest-imaging">
+              <div class="latest-imaging-heading">
+                <strong>${escapeHtml(latestImaging.study)}</strong>
+                <span class="status-pill ${latestImaging.status.toLowerCase() === "final" ? "status-completed" : "status-acknowledged"}">${escapeHtml(latestImaging.status)}</span>
+              </div>
+              <p>${escapeHtml(latestImaging.modality)} · ${escapeHtml(latestImaging.bodySite)} · ${escapeHtml(latestImaging.performedAt)}</p>
+              ${latestImaging.report ? `<p class="latest-imaging-report">${escapeHtml(latestImaging.report)}</p>` : ""}
+            </div>` : '<p class="empty-state compact-empty">No imaging reports on file.</p>'}
+          ${imagingOrders.length ? `<p class="dashboard-footnote">${imagingOrders.length} imaging ${imagingOrders.length === 1 ? "order is" : "orders are"} awaiting completion.</p>` : ""}
+        </section>
+      </div>
+    </section>
+  `;
+}
+
+function renderPatientTimeline(patient) {
+  const items = buildPatientTimeline(patient);
+  return `
+    <section class="patient-timeline" aria-labelledby="patientTimelineHeading">
+      <div class="timeline-heading">
+        <div>
+          <p class="eyebrow">Longitudinal record</p>
+          <h4 id="patientTimelineHeading">Patient timeline</h4>
+        </div>
+        <span class="dashboard-meta">${items.length} recent events</span>
+      </div>
+      ${items.length ? `<ol class="timeline-list">
+        ${items.map((item) => `
+          <li class="timeline-item">
+            <span class="timeline-marker timeline-${escapeHtml(item.type.toLowerCase().replace(/[^a-z0-9]+/g, "-"))}" aria-hidden="true"></span>
+            <div class="timeline-content">
+              <div class="timeline-event-heading">
+                <strong>${escapeHtml(item.title)}</strong>
+                <span class="timeline-type">${escapeHtml(item.type)}</span>
+              </div>
+              ${item.details ? `<p>${escapeHtml(item.details)}</p>` : ""}
+              <time>${escapeHtml(formatTimelineDate(item.timestamp || item.fallbackTime))}</time>
+            </div>
+          </li>`).join("")}
+      </ol>` : '<p class="empty-state">Patient-related events will appear here as the chart is updated.</p>'}
+    </section>
+  `;
+}
+
 function renderPatientDetail() {
   const detail = document.getElementById("patientDetail");
   const patient = getSelectedPatient();
@@ -1100,6 +1617,9 @@ function renderPatientDetail() {
       </div>
       <span class="pill">${escapeHtml(patient.priority)}</span>
     </div>
+
+    ${renderPatientStatusDashboard(patient)}
+    ${renderPatientTimeline(patient)}
 
     <div class="detail-grid">
       ${detailCards
@@ -1263,6 +1783,73 @@ function renderClinicalWorkspace() {
   });
 }
 
+function renderStructuredFields(containerId, fields) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = `
+    <div class="structured-fields-heading">
+      <strong>Type-specific details</strong>
+      <span>Complete the relevant fields before saving.</span>
+    </div>
+    <div class="structured-fields-grid">
+      ${fields.map((field) => {
+        const required = field.required ? "required" : "";
+        const requiredMark = field.required ? ' <span aria-hidden="true">*</span>' : "";
+        if (field.type === "select") {
+          return `<label>${escapeHtml(field.label)}${requiredMark}
+            <select name="${escapeHtml(field.name)}" ${required}>
+              <option value="">Select...</option>
+              ${field.options.map((option) => `<option>${escapeHtml(option)}</option>`).join("")}
+            </select>
+          </label>`;
+        }
+        if (field.type === "textarea") {
+          return `<label class="structured-field-wide">${escapeHtml(field.label)}${requiredMark}
+            <textarea name="${escapeHtml(field.name)}" rows="2" placeholder="${escapeHtml(field.placeholder)}" ${required}></textarea>
+          </label>`;
+        }
+        return `<label>${escapeHtml(field.label)}${requiredMark}
+          <input name="${escapeHtml(field.name)}" type="${escapeHtml(field.type)}" placeholder="${escapeHtml(field.placeholder)}" ${required} />
+        </label>`;
+      }).join("")}
+    </div>
+  `;
+}
+
+const orderFieldDrafts = {};
+const documentFieldDrafts = {};
+let activeOrderTemplate = "";
+let activeDocumentTemplate = "";
+
+function renderOrderFields() {
+  const category = document.querySelector('#orderForm [name="category"]').value;
+  const form = document.getElementById("orderForm");
+  if (activeOrderTemplate) {
+    orderFieldDrafts[activeOrderTemplate] = Object.fromEntries(
+      orderTypeFields[activeOrderTemplate].map((field) => [field.name, form.elements[field.name]?.value || ""])
+    );
+  }
+  activeOrderTemplate = category;
+  renderStructuredFields("orderSpecificFields", orderTypeFields[category] || []);
+  Object.entries(orderFieldDrafts[category] || {}).forEach(([name, value]) => {
+    if (form.elements[name]) form.elements[name].value = value;
+  });
+}
+
+function renderDocumentFields() {
+  const type = document.querySelector('#documentForm [name="type"]').value;
+  const form = document.getElementById("documentForm");
+  if (activeDocumentTemplate) {
+    documentFieldDrafts[activeDocumentTemplate] = Object.fromEntries(
+      documentTypeFields[activeDocumentTemplate].map((field) => [field.name, form.elements[field.name]?.value || ""])
+    );
+  }
+  activeDocumentTemplate = type;
+  renderStructuredFields("documentSpecificFields", documentTypeFields[type] || []);
+  Object.entries(documentFieldDrafts[type] || {}).forEach(([name, value]) => {
+    if (form.elements[name]) form.elements[name].value = value;
+  });
+}
+
 function renderOrders() {
   const patient = getSelectedPatient();
   const container = document.getElementById("ordersList");
@@ -1281,6 +1868,9 @@ function renderOrders() {
             <span class="status-pill status-${escapeHtml(order.status.toLowerCase())}">${escapeHtml(order.status)}</span>
           </div>
           ${order.details ? `<p>${escapeHtml(order.details)}</p>` : ""}
+          ${order.fields?.length ? `<dl class="structured-record-fields">
+            ${order.fields.map((field) => `<div><dt>${escapeHtml(field.label)}</dt><dd>${escapeHtml(field.value)}</dd></div>`).join("")}
+          </dl>` : ""}
           <div class="record-card-footer"><span>${escapeHtml(order.time)}</span>
             ${nextStatus ? `<button class="ghost-btn action-btn" type="button" data-order-id="${escapeHtml(order.id)}" data-next-status="${escapeHtml(nextStatus)}" ${canUpdate ? "" : "disabled"}>${nextStatus === "Acknowledged" ? "Acknowledge" : "Mark complete"}</button>` : ""}
             ${order.status === "Pending" ? `<button class="text-btn" type="button" data-order-id="${escapeHtml(order.id)}" data-next-status="Cancelled" ${canUpdate ? "" : "disabled"}>Cancel</button>` : ""}
@@ -1308,7 +1898,7 @@ function renderDocuments() {
         <p class="document-meta">${escapeHtml(document.time)}</p>
         <div class="document-sections">
           ${Object.entries(document.sections || {}).filter(([, value]) => value).map(([key, value]) => `
-            <div><strong>${escapeHtml(key.replace(/([A-Z])/g, " $1").replace(/^./, (letter) => letter.toUpperCase()))}</strong>
+            <div><strong>${escapeHtml(documentTypeFields[document.type]?.find((field) => field.name === key)?.label || key.replace(/([A-Z])/g, " $1").replace(/^./, (letter) => letter.toUpperCase()))}</strong>
               <p>${escapeHtml(value)}</p>
             </div>`).join("")}
         </div>
@@ -1421,7 +2011,12 @@ function handleOrderSubmit(event) {
     : result.message;
   document.getElementById("clinicalStatus").textContent = message;
   document.getElementById("encounterStatus").textContent = message;
-  if (result.allowed) form.reset();
+  if (result.allowed) {
+    delete orderFieldDrafts[order.category];
+    activeOrderTemplate = "";
+    form.reset();
+    renderOrderFields();
+  }
   render();
 }
 
@@ -1436,7 +2031,12 @@ function handleDocumentSubmit(event) {
     : result.message;
   document.getElementById("clinicalStatus").textContent = message;
   document.getElementById("encounterStatus").textContent = message;
-  if (result.allowed) form.reset();
+  if (result.allowed) {
+    delete documentFieldDrafts[documentData.type];
+    activeDocumentTemplate = "";
+    form.reset();
+    renderDocumentFields();
+  }
   render();
 }
 
@@ -1471,6 +2071,8 @@ function attachEvents() {
   document.getElementById("workflowForm").addEventListener("submit", handleWorkflowSubmit);
   document.getElementById("orderForm").addEventListener("submit", handleOrderSubmit);
   document.getElementById("documentForm").addEventListener("submit", handleDocumentSubmit);
+  document.querySelector('#orderForm [name="category"]').addEventListener("change", renderOrderFields);
+  document.querySelector('#documentForm [name="type"]').addEventListener("change", renderDocumentFields);
 
   document.getElementById("ordersList").addEventListener("click", (event) => {
     const button = event.target.closest("[data-order-id]");
@@ -1540,6 +2142,8 @@ function attachEvents() {
 }
 
 function bootstrap() {
+  renderOrderFields();
+  renderDocumentFields();
   attachEvents();
   render();
 }

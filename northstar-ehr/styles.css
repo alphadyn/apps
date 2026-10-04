@@ -391,6 +391,331 @@ textarea {
   min-height: 320px;
 }
 
+.patient-status-dashboard {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.status-overview,
+.clinical-dashboard-card,
+.patient-timeline {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fff;
+}
+
+.status-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px 18px;
+  padding: 16px;
+  border-left: 4px solid var(--accent);
+}
+
+.status-overview h4,
+.clinical-dashboard-heading h4,
+.timeline-heading h4 {
+  margin: 0;
+  color: var(--text);
+}
+
+.status-overview > div:first-child > p:last-child {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.status-overview-tags {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.status-overview-tags .status-pill {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.status-overview-tags .status-urgent {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.allergy-alert {
+  grid-column: 1 / -1;
+  margin: 0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #fff7ed;
+  color: #9a3412;
+  font-size: 0.88rem;
+}
+
+.clinical-dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.clinical-dashboard-card {
+  min-width: 0;
+  padding: 15px;
+  background: #fbfdff;
+}
+
+.clinical-dashboard-heading,
+.timeline-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.clinical-dashboard-heading .eyebrow,
+.timeline-heading .eyebrow,
+.status-overview .eyebrow {
+  margin-bottom: 4px;
+  font-size: 0.66rem;
+}
+
+.dashboard-meta {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.vital-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.vital-metric {
+  min-width: 0;
+  border: 1px solid #e8edf5;
+  border-radius: 10px;
+  padding: 10px;
+  background: #fff;
+}
+
+.vital-metric span,
+.vital-metric strong {
+  display: block;
+}
+
+.vital-metric span {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.vital-metric strong {
+  margin-top: 4px;
+  color: var(--text);
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.dashboard-footnote {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.vital-history {
+  margin-top: 10px;
+  border-top: 1px solid var(--border);
+  padding-top: 9px;
+}
+
+.vital-history summary {
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.vital-history-list {
+  display: grid;
+  gap: 7px;
+  margin-top: 9px;
+}
+
+.vital-history-row {
+  display: grid;
+  grid-template-columns: minmax(110px, auto) minmax(0, 1fr);
+  gap: 8px;
+  color: #475569;
+  font-size: 0.76rem;
+}
+
+.vital-history-row time {
+  color: var(--muted);
+}
+
+.vital-history-row span {
+  overflow-wrap: anywhere;
+}
+
+.imaging-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.imaging-metric-grid > div {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  border-radius: 9px;
+  padding: 9px 4px;
+  background: #f1f5f9;
+}
+
+.imaging-metric-grid strong {
+  color: var(--text);
+  font-size: 1.1rem;
+}
+
+.imaging-metric-grid span {
+  color: var(--muted);
+  font-size: 0.68rem;
+  text-align: center;
+}
+
+.latest-imaging {
+  margin-top: 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+
+.latest-imaging-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.86rem;
+}
+
+.latest-imaging-heading > strong {
+  min-width: 0;
+}
+
+.latest-imaging > p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.latest-imaging .latest-imaging-report {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: #334155;
+}
+
+.compact-empty {
+  margin-top: 10px;
+  padding: 10px;
+  font-size: 0.8rem;
+}
+
+.patient-timeline {
+  margin: 0 0 18px;
+  padding: 15px;
+}
+
+.timeline-heading {
+  margin-bottom: 8px;
+}
+
+.timeline-list {
+  position: relative;
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 4px 0 0;
+  list-style: none;
+}
+
+.timeline-list::before {
+  position: absolute;
+  top: 11px;
+  bottom: 14px;
+  left: 7px;
+  width: 2px;
+  background: #e2e8f0;
+  content: "";
+}
+
+.timeline-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  gap: 10px;
+  padding: 7px 0 9px;
+}
+
+.timeline-marker {
+  z-index: 1;
+  width: 14px;
+  height: 14px;
+  margin-top: 3px;
+  border: 3px solid #dbeafe;
+  border-radius: 50%;
+  background: #2563eb;
+}
+
+.timeline-imaging { border-color: #ede9fe; background: #7c3aed; }
+.timeline-medication,
+.timeline-laboratory,
+.timeline-vitals { border-color: #dcfce7; background: #16a34a; }
+.timeline-appointment { border-color: #fef3c7; background: #d97706; }
+.timeline-document { border-color: #e2e8f0; background: #64748b; }
+
+.timeline-content {
+  min-width: 0;
+}
+
+.timeline-event-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 9px;
+}
+
+.timeline-event-heading > strong {
+  color: #1e293b;
+  font-size: 0.88rem;
+}
+
+.timeline-type {
+  border-radius: 999px;
+  padding: 2px 7px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 0.68rem;
+  font-weight: 650;
+}
+
+.timeline-content > p {
+  margin: 3px 0;
+  color: #475569;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.timeline-content time {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
 .detail-header {
   display: flex;
   justify-content: space-between;
@@ -629,6 +954,82 @@ textarea {
   gap: 14px;
 }
 
+.structured-fields {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  background: #fbfdff;
+}
+
+.structured-fields-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.structured-fields-heading strong {
+  color: #1e293b;
+  font-size: 0.92rem;
+}
+
+.structured-fields-heading span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.structured-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.structured-fields label span {
+  color: #dc2626;
+}
+
+.structured-fields select,
+.structured-fields input,
+.structured-fields textarea {
+  width: 100%;
+}
+
+.structured-field-wide {
+  grid-column: 1 / -1;
+}
+
+.document-fields .structured-fields-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.structured-record-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 16px;
+  margin: 14px 0 0;
+}
+
+.structured-record-fields > div {
+  min-width: 0;
+  border-left: 2px solid #dbeafe;
+  padding-left: 10px;
+}
+
+.structured-record-fields dt {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.structured-record-fields dd {
+  margin: 3px 0 0;
+  color: #334155;
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
 .clinical-form > button {
   align-self: flex-start;
 }
@@ -793,6 +1194,10 @@ textarea:focus-visible {
   .lower-grid {
     grid-template-columns: 1fr;
   }
+
+  .clinical-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 760px) {
@@ -883,6 +1288,14 @@ textarea:focus-visible {
     grid-template-columns: 1fr;
   }
 
+  .status-overview {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .status-overview-tags {
+    justify-content: flex-start;
+  }
+
   .vitals-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -935,9 +1348,28 @@ textarea:focus-visible {
     grid-template-columns: 1fr;
   }
 
+  .vital-metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .imaging-metric-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .vital-history-row {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
   .record-card-header,
   .record-card-footer {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .structured-fields-grid,
+  .structured-record-fields,
+  .document-fields .structured-fields-grid {
+    grid-template-columns: 1fr;
   }
 }

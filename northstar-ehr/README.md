@@ -7,12 +7,14 @@ A responsive electronic health record demonstration covering patient charts, eme
 ## Features
 
 - Patient worklist with 23 fictional patient charts, searchable diagnoses, demographics, histories, allergies, medications, labs, and vitals
+- Patient status dashboard with current encounter status, allergy visibility, vital-sign history, imaging/report counts, and latest radiology summary
+- Chronological patient timeline combining clinical notes, workflow updates, vitals, orders, imaging, and appointment activity
 - Encounter progression for intake, triage, ED evaluation, consultation, admission, discharge, and closure
 - Intake and triage capture for arrival mode, chief complaint, acuity, nursing note, vital signs, pain score, and location
 - Disposition tracking for ward/ICU admission, home discharge, PCP or specialist referral, and transfer
-- Nursing, vitals, diagnosis, laboratory, imaging, procedure, medication, and referral order tracking
+- Type-specific structured details for nursing, vitals, diagnosis, laboratory, imaging, procedure, medication, and referral orders
 - Per-patient imaging and radiology records with modality, body site, indication, report, status, and radiologist
-- Structured drafts for ED, history and physical, admission, SOAP/progress, consult, nursing, procedure, discharge, and referral documents
+- Workflow-specific structured drafts for ED, history and physical, admission, SOAP/progress, consult, nursing, procedure, discharge, and referral documents
 - Clinician and nurse workflow roles, plus an admin review role and an activity audit trail
 - Appointment management, care tasks, follow-up planning, patient summary export, and billing context
 - Local browser persistence for the demonstration dataset

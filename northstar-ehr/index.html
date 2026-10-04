@@ -195,8 +195,9 @@
               <label>Order / request
                 <input name="title" type="text" placeholder="Specify the requested care, test, medication, or referral" required />
               </label>
-              <label>Instructions / details
-                <textarea name="details" rows="2" placeholder="Include frequency, dose/route when applicable, clinical indication, or destination"></textarea>
+              <div id="orderSpecificFields" class="structured-fields" aria-live="polite"></div>
+              <label>Additional instructions
+                <textarea name="details" rows="2" placeholder="Additional context not captured above"></textarea>
               </label>
               <button class="primary-btn" type="submit">Add order</button>
               <p class="form-caution">Demo only: orders are not transmitted, verified, or executed. A licensed clinician must review all clinical decisions.</p>
@@ -223,18 +224,7 @@
                 </label>
                 <label>Document title<input name="title" type="text" placeholder="e.g., Initial evaluation" required /></label>
               </div>
-              <div class="row">
-                <label>Chief concern / HPI<textarea name="hpi" rows="3" placeholder="Symptoms, onset, context, and patient-reported history"></textarea></label>
-                <label>Relevant history / medications / allergies<textarea name="history" rows="3" placeholder="Medical, surgical, family, and social history; medication reconciliation; allergies"></textarea></label>
-              </div>
-              <div class="row">
-                <label>Review of systems<textarea name="ros" rows="3" placeholder="Pertinent positives and negatives"></textarea></label>
-                <label>Exam / objective findings<textarea name="exam" rows="3" placeholder="Physical examination, observations, and reviewed results"></textarea></label>
-              </div>
-              <div class="row">
-                <label>Assessment / diagnosis<textarea name="assessment" rows="3" placeholder="Clinical assessment and coded diagnoses as applicable"></textarea></label>
-                <label>Plan / orders / disposition<textarea name="plan" rows="3" placeholder="Treatment plan, orders, consultations, disposition, and follow-up"></textarea></label>
-              </div>
+              <div id="documentSpecificFields" class="structured-fields document-fields" aria-live="polite"></div>
               <button class="primary-btn" type="submit">Save document draft</button>
             </form>
             <div id="documentsList" class="record-list"></div>

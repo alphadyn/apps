@@ -6,7 +6,9 @@ Northstar EHR is a responsive, browser-only demonstration of an emergency and in
 
 ## Patient chart
 
-The worklist contains 23 fictional charts spanning a variety of conditions and histories. Choose a patient or search by name, MRN, diagnosis, priority, or status. The chart summarizes demographics, vitals, allergies, medications, labs, appointments, care tasks, recent notes, activity, and linked imaging/radiology records. Imaging records show the sample study, modality, body site, indication, report, status, and radiologist. Use the role selector to explore clinician, nurse, and admin demonstration permissions.
+The worklist contains 23 fictional charts spanning a variety of conditions and histories. Choose a patient or search by name, MRN, diagnosis, priority, or status. At the top of the chart, the medical-status dashboard summarizes the primary diagnosis, encounter stage/location, priority, care team, and allergies. The vital dashboard displays the latest charted blood pressure, heart rate, respiratory rate, temperature, oxygen saturation, and pain score; when repeat readings are recorded, expand **View recent readings** to review their timestamps and values. The imaging dashboard shows study and report counts, preliminary reports, open imaging orders, and the latest report summary.
+
+The **Patient timeline** brings together diagnoses, lab markers, documented clinical notes, orders, imaging studies, appointments, vital recordings, open care tasks, and encounter updates in time order. Some legacy sample appointments or values do not include a timestamp and are labeled accordingly rather than assigned a fabricated time.
 
 ## Encounter workflow
 
@@ -15,10 +17,10 @@ Open **ED & Inpatient** to document an encounter:
 1. Record arrival mode, encounter stage, chief complaint, acuity, triage observations, and intake vitals.
 2. Update the care location and disposition as the patient moves through ED evaluation, consultation, admission, discharge, or transfer.
 3. For ward/ICU admission or PCP/specialist referral, record the receiving location or destination and follow-up date.
-4. Use **Orders** to track nursing, vitals, diagnosis, lab, imaging, procedure, medication, and referral requests. Pending orders can be acknowledged, completed, or cancelled in the demo.
-5. Use **Documents** to create drafts for ED provider, history and physical, admission, SOAP progress, consult, nursing, procedure, discharge, and referral notes.
+4. Use **Orders** to track nursing, vitals, diagnosis, lab, imaging, procedure, medication, and referral requests. The selected category opens its own structured fields (for example, specimen and collection timing for labs, or dose, route, frequency, and pharmacy for medications). Pending orders can be acknowledged, completed, or cancelled in the demo.
+5. Use **Documents** to create drafts for ED provider, history and physical, admission, SOAP progress, consult, nursing, procedure, discharge, and referral notes. Each template provides documentation fields for its workflow, such as a problem-based admission plan, SOAP sections, procedure consent and findings, discharge instructions and return precautions, or referral question and destination.
 
-The document form provides fields for HPI, relevant history and medication/allergy reconciliation, review of systems, objective findings, assessment, and plan. Saved documents remain drafts; the demo does not implement authentication, co-signature, or legally valid electronic signatures.
+Saved orders retain and display their type-specific details. Saved documents retain and display each completed template field. Saved documents remain drafts; the demo does not implement authentication, co-signature, or legally valid electronic signatures.
 
 ## Other views
 

@@ -16,8 +16,6 @@ The landing page highlights these projects:
 4. [Market Lens](market-lens/) — Large-cap equity screening dashboard
 5. [Nexus](nexus/) — Content and media workspace
 6. [Atlas Store](atlas-store/) — Storefront and checkout experience
-7. [Photo Gallery](photo-gallery/) — Responsive photo gallery
-8. [Meetings](meetings/) — Encrypted video meetings with chat, file sharing, fullscreen mode, and a mobile-friendly interface
 
 ## App catalog
 

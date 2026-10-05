@@ -169,14 +169,32 @@ const initialPatients = [
 
 const demoPatientScenarios = [
   ["Avery Bennett", 27, "Female", "Migraine without aura", "Recurrent unilateral headaches; family history of migraine; no prior surgery.", "Ibuprofen", "None listed", "Brain MRI without contrast", "MRI", "Brain", "Recurrent headaches", "No acute intracranial abnormality in this fictional sample report."],
-  ["Noah Patel", 63, "Male", "Knee osteoarthritis", "Chronic knee pain; prior meniscal repair; walks daily.", "Sulfa drugs", "Acetaminophen as needed", "Right knee radiographs, 3 views", "X-ray", "Right knee", "Chronic knee pain", "Mild medial compartment joint-space narrowing; no acute fracture."],
+  ["Noah Patel", 63, "Male", "Knee osteoarthritis", "Chronic knee pain; prior meniscal repair; walks daily.", "Sulfa drugs", "Acetaminophen as needed", "Right knee radiographs, 3 views", "X-ray", "Right knee", "Chronic knee pain", "Mild medial compartment joint-space narrowing; no acute fracture.", {
+    study: "Right knee MRI without contrast",
+    modality: "MRI",
+    bodySite: "Right knee",
+    indication: "Persistent pain despite conservative management",
+    report: "Mild cartilage thinning and chronic postoperative meniscal changes; no acute ligament injury described in this fictional report."
+  }],
   ["Grace Kim", 52, "Female", "Asthma", "Intermittent wheeze; childhood asthma; seasonal allergies.", "None listed", "Albuterol inhaler", "Chest radiograph, 2 views", "X-ray", "Chest", "Cough and wheeze", "Lungs are clear; no focal air-space opacity or pleural effusion."],
   ["Ethan Brooks", 46, "Male", "Nephrolithiasis", "Prior kidney stone; episodic flank discomfort; no prior procedures.", "Codeine", "None listed", "Renal ultrasound", "Ultrasound", "Kidneys and bladder", "Flank discomfort", "No hydronephrosis identified; small simple-appearing renal cyst noted."],
   ["Isabella Chen", 35, "Female", "Cholelithiasis", "Intermittent post-meal abdominal discomfort; prior appendectomy.", "Latex", "None listed", "Right upper quadrant ultrasound", "Ultrasound", "Right upper quadrant", "Abdominal discomfort", "Gallstones are present; no gallbladder wall thickening in this sample report."],
-  ["Lucas Rivera", 71, "Male", "Chronic obstructive pulmonary disease", "Former smoker; COPD; recent increase in exertional dyspnea.", "Penicillin", "Tiotropium, albuterol", "Chest CT without contrast", "CT", "Chest", "Dyspnea follow-up", "Emphysematous change is described; no focal pulmonary mass identified."],
+  ["Lucas Rivera", 71, "Male", "Chronic obstructive pulmonary disease", "Former smoker; COPD; recent increase in exertional dyspnea.", "Penicillin", "Tiotropium, albuterol", "Chest CT without contrast", "CT", "Chest", "Dyspnea follow-up", "Emphysematous change is described; no focal pulmonary mass identified.", {
+    study: "Follow-up chest radiograph, 2 views",
+    modality: "X-ray",
+    bodySite: "Chest",
+    indication: "Interval assessment of exertional dyspnea",
+    report: "Hyperinflation is noted without focal air-space opacity or pleural effusion in this fictional report."
+  }],
   ["Mia Johnson", 24, "Female", "Ankle sprain", "Twisted left ankle during recreation; no prior fractures.", "None listed", "None listed", "Left ankle radiographs, 3 views", "X-ray", "Left ankle", "Left ankle pain after twisting injury", "No acute fracture or dislocation identified."],
   ["Benjamin Clark", 59, "Male", "Lumbar radiculopathy", "Recurrent low-back pain with leg symptoms; remote lifting injury.", "Morphine", "Naproxen as needed", "Lumbar spine MRI without contrast", "MRI", "Lumbar spine", "Persistent low-back symptoms", "Mild multilevel degenerative changes; no acute osseous finding."],
-  ["Amara Okafor", 44, "Female", "Thyroid nodule", "Incidental thyroid nodule on prior imaging; no neck surgery.", "Iodinated contrast", "Levothyroxine", "Thyroid ultrasound", "Ultrasound", "Thyroid", "Nodule follow-up", "Stable-appearing right thyroid nodule; comparison with prior study recommended."],
+  ["Amara Okafor", 44, "Female", "Thyroid nodule", "Incidental thyroid nodule on prior imaging; no neck surgery.", "Iodinated contrast", "Levothyroxine", "Thyroid ultrasound", "Ultrasound", "Thyroid", "Nodule follow-up", "Stable-appearing right thyroid nodule; comparison with prior study recommended.", {
+    study: "Repeat thyroid ultrasound",
+    modality: "Ultrasound",
+    bodySite: "Thyroid",
+    indication: "Interval surveillance of known right thyroid nodule",
+    report: "Right thyroid nodule is unchanged in size compared with the prior study in this fictional report."
+  }],
   ["Oliver Davis", 68, "Male", "Heart failure with preserved ejection fraction", "Hypertension; prior admission for fluid overload; followed by cardiology.", "Aspirin", "Furosemide, losartan", "Chest radiograph, 2 views", "X-ray", "Chest", "Follow-up of exertional breathlessness", "Mild cardiomegaly; no focal air-space opacity in this sample report."],
   ["Chloe Martin", 31, "Female", "Endometriosis", "Pelvic pain; prior diagnostic laparoscopy; under gynecology care.", "None listed", "Combined oral contraceptive", "Pelvic MRI", "MRI", "Pelvis", "Pelvic pain evaluation", "Small endometrioma-like lesion described; correlate with specialist assessment."],
   ["Samuel Wilson", 56, "Male", "Diverticulosis", "Intermittent abdominal discomfort; prior colonoscopy; no abdominal surgery.", "Metronidazole", "None listed", "CT abdomen and pelvis with contrast", "CT", "Abdomen and pelvis", "Abdominal discomfort", "Colonic diverticulosis without acute inflammatory change."],
@@ -191,7 +209,7 @@ const demoPatientScenarios = [
 ];
 
 function createDemoPatient(scenario, index) {
-  const [name, age, sex, diagnosis, history, allergy, medication, study, modality, bodySite, indication, report] = scenario;
+  const [name, age, sex, diagnosis, history, allergy, medication, study, modality, bodySite, indication, report, followUpStudy] = scenario;
   const id = index + 4;
   const imaging = {
     id: `rad-demo-${id}`,
@@ -239,7 +257,16 @@ function createDemoPatient(scenario, index) {
       location: "Radiology",
       status: "Scheduled"
     }],
-    imaging: [imaging],
+    imaging: [
+      imaging,
+      ...(followUpStudy ? [{
+        id: `rad-demo-${id}-followup`,
+        ...followUpStudy,
+        performedAt: `2026-09-${String(4 + (index % 27)).padStart(2, "0")} ${String(10 + (index % 7)).padStart(2, "0")}:00`,
+        status: "Final",
+        radiologist: `Dr. ${["Morgan Ellis", "Riley Bennett", "Jordan Park", "Taylor Reed"][index % 4]}`
+      }] : [])
+    ],
     billing: {
       balance: 250 + index * 75,
       insurance: ["Sample Health Plan", "DemoCare", "Fictional PPO"][index % 3],

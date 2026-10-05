@@ -23,8 +23,43 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <a class="skip-link" href="#main-content">Skip to main content</a>
-    <div class="app-shell">
+    <main id="loginScreen" class="login-screen">
+      <div class="login-layout">
+        <section class="login-aside" aria-label="Northstar EHR">
+          <div class="brand-block login-brand">
+            <div class="brand-icon" aria-hidden="true">✦</div>
+            <div>
+              <p class="eyebrow">Northstar</p>
+              <h1>Clinical operations</h1>
+            </div>
+          </div>
+          <div class="login-aside-copy">
+            <p class="eyebrow">Connected care, clearly organized</p>
+            <h2>A focused workspace for every step of care.</h2>
+            <p>Bring patient context, clinical workflows, and team activity together in one place.</p>
+          </div>
+          <p class="login-aside-footer">Patient-centered workflows. Thoughtfully connected.</p>
+        </section>
+        <section class="login-card" aria-labelledby="loginTitle">
+          <div class="login-heading">
+            <p class="eyebrow">Welcome back</p>
+            <h2 id="loginTitle">Sign in to Northstar</h2>
+            <p class="login-intro">Enter your account details to continue.</p>
+          </div>
+          <form id="loginForm" class="login-form">
+            <label for="loginUsername">Username</label>
+            <input id="loginUsername" name="username" type="text" autocomplete="username" required />
+            <label for="loginPassword">Password</label>
+            <input id="loginPassword" name="password" type="password" autocomplete="current-password" required />
+            <p id="loginError" class="login-error" role="alert" aria-live="polite"></p>
+            <button class="primary-btn" type="submit">Sign in</button>
+          </form>
+          <p class="login-card-footer">Northstar EHR <span aria-hidden="true">·</span> Clinical operations</p>
+        </section>
+      </div>
+    </main>
+    <div id="appShell" class="app-shell" hidden>
+      <a class="skip-link" href="#main-content">Skip to main content</a>
       <aside class="sidebar" aria-label="Workspace navigation and settings">
         <div class="brand-block">
           <div class="brand-icon" aria-hidden="true">✦</div>
@@ -70,13 +105,14 @@
             <option value="nurse">Nurse</option>
             <option value="admin">Admin</option>
           </select>
+          <button id="signOutBtn" class="sign-out-btn" type="button">Sign out</button>
         </div>
       </aside>
 
       <main id="main-content" class="main-panel">
         <aside class="security-demo-banner" role="note" aria-label="Demo security notice">
-          <strong>Demo only — no login or HIPAA safeguards.</strong>
-          <span>Do not enter patient information. Roles are not enforced access controls.</span>
+          <strong>Prototype — no authentication or HIPAA safeguards.</strong>
+          <span>Do not enter patient information. Accounts and roles are not access controls.</span>
           <a href="docs/SECURITY_ARCHITECTURE.md">Security architecture proposal</a>
         </aside>
         <header class="topbar">

@@ -4,7 +4,7 @@
 
 ## Current deployment boundary
 
-GitHub Pages serves a static browser demo. It has no trusted server-side identity, authorization, or protected clinical-data store. The role selector is client-side UI state; browser `localStorage`, downloaded exports, and static assets are not a secure clinical record system. Do not enter or import PHI.
+GitHub Pages serves a static browser demo. It has no trusted server-side identity, authorization, or protected clinical-data store. The sign-in and role selector are client-side UI only; neither is authentication or access control. Browser `localStorage`, `sessionStorage`, downloaded exports, and static assets are not a secure clinical record system. Do not enter or import PHI.
 
 For production, GitHub Pages may host only a public, non-PHI application shell if organizational review approves that arrangement. All authenticated routes and PHI must be served by separately operated, BAA-covered infrastructure. The app must not render patient data or treat a role, patient ID, or permission supplied by the browser as authoritative.
 

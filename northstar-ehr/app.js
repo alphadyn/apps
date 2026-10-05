@@ -1,4 +1,11 @@
 const storageKey = "northstar-ehr-state-v3";
+const demoSessionKey = "northstar-ehr-demo-account";
+
+const demoAccounts = [
+  { id: "clinician", username: "elena.ruiz", password: "northstar", displayName: "Elena Ruiz", role: "clinician" },
+  { id: "nurse", username: "jordan.lee", password: "northstar", displayName: "Jordan Lee", role: "nurse" },
+  { id: "admin", username: "alex.morgan", password: "northstar", displayName: "Alex Morgan", role: "admin" }
+];
 
 const rolePermissions = {
   clinician: {
@@ -824,10 +831,12 @@ function normalizeAuditEntry(entry) {
 }
 
 function normalizeCurrentUser(user) {
-  const role = rolePermissions[user?.role] ? user.role : "clinician";
+  const account = demoAccounts.find((demoAccount) => demoAccount.id === user?.accountId);
+  const role = rolePermissions[user?.role] ? user.role : account?.role || "clinician";
   return {
+    accountId: account?.id || null,
+    label: account?.displayName || rolePermissions[role].label,
     role,
-    label: rolePermissions[role].label
   };
 }
 
@@ -872,20 +881,32 @@ function loadAuditTrail() {
   return [];
 }
 
-function loadCurrentUser() {
+function loadCurrentUser(account) {
   const storage = safeLocalStorage();
 
   try {
     const saved = storage?.getItem(storageKey);
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (parsed.currentUser) return normalizeCurrentUser(parsed.currentUser);
+      if (parsed.currentUser && parsed.currentUser.accountId === account?.id) {
+        return normalizeCurrentUser(parsed.currentUser);
+      }
     }
   } catch (error) {
     console.warn("Unable to load current user", error);
   }
 
-  return normalizeCurrentUser({ role: "clinician" });
+  return normalizeCurrentUser(account ? { accountId: account.id, role: account.role } : { role: "clinician" });
+}
+
+function loadDemoSession() {
+  try {
+    const accountId = typeof sessionStorage !== "undefined" ? sessionStorage.getItem(demoSessionKey) : null;
+    return demoAccounts.find((account) => account.id === accountId) || null;
+  } catch (error) {
+    console.warn("Unable to load demo session", error);
+    return null;
+  }
 }
 
 function loadSelectedPatient(patients) {
@@ -906,9 +927,11 @@ function loadSelectedPatient(patients) {
 
 let patients = loadPatients();
 let selectedPatientId = loadSelectedPatient(patients);
-let currentUser = loadCurrentUser();
+let activeDemoAccount = loadDemoSession();
+let currentUser = loadCurrentUser(activeDemoAccount);
 let auditTrail = loadAuditTrail();
 let currentView = loadCurrentView();
+let workspaceEventsAttached = false;
 
 function saveState() {
   const storage = safeLocalStorage();
@@ -975,7 +998,7 @@ function evaluatePermission(role, action, patientName) {
 }
 
 function setCurrentRole(role) {
-  const nextUser = normalizeCurrentUser({ role });
+  const nextUser = normalizeCurrentUser({ accountId: currentUser.accountId, role });
   currentUser = nextUser;
   appendAuditEntry({
     action: "role:switch",
@@ -1579,7 +1602,7 @@ function renderRoleSummary() {
   const roleSelector = document.getElementById("roleSelector");
   if (!roleValue || !roleHelp || !roleSelector) return;
 
-  roleValue.textContent = currentUser.label;
+  roleValue.textContent = `${currentUser.label} · ${rolePermissions[currentUser.role].label}`;
   roleHelp.textContent = "Demo-only capabilities; this selection does not authenticate users or enforce access permissions.";
   roleSelector.value = currentUser.role;
 }
@@ -2487,10 +2510,68 @@ function attachEvents() {
 }
 
 function bootstrap() {
+  document.getElementById("loginForm").addEventListener("submit", handleLoginSubmit);
+  document.getElementById("signOutBtn").addEventListener("click", signOut);
+  if (activeDemoAccount) {
+    showWorkspace();
+  }
+}
+
+function handleLoginSubmit(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const usernameField = form.elements.namedItem("username");
+  const passwordField = form.elements.namedItem("password");
+  const username = usernameField.value.trim().toLowerCase();
+  const password = passwordField.value;
+  const account = demoAccounts.find((demoAccount) =>
+    demoAccount.username === username && demoAccount.password === password
+  );
+  const error = document.getElementById("loginError");
+  if (!account) {
+    error.textContent = "That username or password doesn't match a sample account.";
+    passwordField.value = "";
+    passwordField.focus();
+    return;
+  }
+
+  try {
+    sessionStorage.setItem(demoSessionKey, account.id);
+  } catch (storageError) {
+    console.warn("Unable to save demo session", storageError);
+    error.textContent = "Unable to start a demo session in this browser. Check your browser storage settings and try again.";
+    return;
+  }
+  activeDemoAccount = account;
+  currentUser = normalizeCurrentUser({ accountId: account.id, role: account.role });
+  error.textContent = "";
+  form.reset();
+  showWorkspace();
+}
+
+function showWorkspace() {
+  document.getElementById("loginScreen").hidden = true;
+  document.getElementById("appShell").hidden = false;
   renderOrderFields();
   renderDocumentFields();
-  attachEvents();
+  if (!workspaceEventsAttached) {
+    attachEvents();
+    workspaceEventsAttached = true;
+  }
   render();
+}
+
+function signOut() {
+  try {
+    sessionStorage.removeItem(demoSessionKey);
+  } catch (error) {
+    console.warn("Unable to clear demo session", error);
+  }
+  activeDemoAccount = null;
+  document.getElementById("appShell").hidden = true;
+  document.getElementById("loginScreen").hidden = false;
+  document.getElementById("loginError").textContent = "";
+  document.getElementById("loginUsername").focus();
 }
 
 const appApi = {

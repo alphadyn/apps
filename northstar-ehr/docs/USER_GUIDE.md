@@ -2,7 +2,11 @@
 
 ## Overview
 
-Northstar EHR is a responsive, browser-only demonstration of an emergency and inpatient care workflow. The built-in records are fictional. The application stores changes in browser local storage. It has no login, multi-user identity, secure clinical storage, or server-enforced role permissions; the role selector is for demonstration only.
+Northstar EHR is a responsive, browser-only demonstration of an emergency and inpatient care workflow. The built-in records are fictional. The application stores changes in browser local storage. Its sign-in and role selector are for demonstration only; neither provides real authentication, secure clinical storage, nor server-enforced permissions.
+
+## Sign-in and roles
+
+The demo session lasts for the current browser tab and resumes after refresh. Signing out ends the demo session but does not clear browser-stored patient data. The role selector is a demonstration control, not access control. Do not enter or import real patient information.
 
 ## Patient chart
 
@@ -31,7 +35,7 @@ Saved orders retain and display their type-specific details. Saved documents ret
 - **Appointments** supports completing appointments; the demo admin role can cancel them.
 - **Labs & Meds** displays chart data and supports the existing encounter form.
 - **Billing** displays sample billing context.
-- The demo admin role can review the activity audit trail. The role selector is not an access-control mechanism.
+- The demo admin role can review the activity audit trail. The role selector is not an access-control mechanism; any signed-in user can switch demo roles.
 
 ## Persistence and reset
 

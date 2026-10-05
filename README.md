@@ -2,7 +2,7 @@
 
 This repository is a portfolio-style collection of 24 independent projects: interactive demos, data visualizations, browser apps, reports, and Python utilities. Each project is designed to be opened, adapted, or expanded on its own. The collection is intentionally mixed: some apps are static browser experiences, while others use Supabase, Flask, or Vercel APIs.
 
-The root landing page in [index.html](index.html) links to the most relevant app directories and gives a quick overview of the portfolio. It includes a Featured area and a full Catalog of all available apps and experiments.
+The root landing page in [index.html](index.html) links directly to the deployed apps and gives a quick overview of the portfolio. It includes a Featured area and a full Catalog of all available apps and experiments.
 
 Deployment configuration and host-specific setup are documented in [DEPLOYMENT.md](DEPLOYMENT.md).
 
@@ -22,30 +22,30 @@ The landing page highlights these projects:
 
 Projects are listed alphabetically, matching the catalog on the landing page.
 
-- [Architectural Design](architectural-design/) — Architectural concept board and home design presentation.
-- [Atlas Store](atlas-store/) — Storefront mockup with catalog, cart, and checkout flow.
-- [Audio Equalizer](audio-equalizer/) — Browser media player with live waveform and spectrum analysis.
-- [Crawler Indexer](crawler-indexer/) — Domain-scoped crawler and indexer utility.
-- [Earth 3D Explorer](earth-3d-explorer/) — Three.js globe with overlays and inspection interactions.
-- [Experiences](experiences/) — Supabase-backed journal with trips, shareable Experience collections, Event maps, precise location picking, and media carousels.
-- [Fractal Patterns](fractal-patterns/) — Interactive fractal visualizer.
-- [Game Videos](game-videos/) — Gaming video showcase page.
-- [Legal Docketing](legal-docketing/) — Matter and deadline tracking app.
-- [Market Curve Lab](market-curve-lab/) — Rank all 500 S&P 500 companies by market cap, search stocks, and inspect selected-ticker all-time performance, trendlines, and concavity.
-- [Market Lens](market-lens/) — Dashboard for screening and reviewing large-cap equities.
-- [Meetings](meetings/) — Encrypted WebRTC meetings with chat, file sharing, fullscreen mode, and responsive mobile controls.
-- [Multi-Search Engine](multi-search-engine/) — Search comparison page across multiple engines.
-- [Nexus](nexus/) — Content and media management system with browser UI, sample media, filtering, metadata editing, and optional Supabase persistence.
-- [Northstar EHR](northstar-ehr/) — Responsive electronic health record demo for patient care workflows and encounter documentation.
-- [Pencil Sketch](pencil-sketch/) — Image-to-pencil-sketch converter.
-- [Photo Gallery](photo-gallery/) — Responsive gallery app.
-- [Postboard](postboard/) — Personal post archive with rich text, uploads, and Supabase integration.
-- [Pulse](pulse/) — Social/news-style app with posts, tags, and discussion flows.
-- [Resume](resume/) — Portfolio-style resume page.
-- [Signal](signal/) — Focused, searchable news-reading list that captures Google News headlines and related stories and downloads them as structured JSON.
-- [Top Occupations](top-occupations/) — Income report across top occupations.
-- [Vault](vault/) — Browser-based text and file encryption app; all processing stays on-device.
-- [vCard Generator](vcard-generator/) — Card generation and QR code output.
+- [Architectural Design](architectural-design/) ([Open app](https://alphadyn.github.io/apps/architectural-design/)) — Architectural concept board and home design presentation.
+- [Atlas Store](atlas-store/) ([Open app](https://alphadyn.github.io/apps/atlas-store/)) — Storefront mockup with catalog, cart, and checkout flow.
+- [Audio Equalizer](audio-equalizer/) ([Open app](https://alphadyn.github.io/apps/audio-equalizer/)) — Browser media player with live waveform and spectrum analysis.
+- [Crawler Indexer](crawler-indexer/) ([Open app](https://alphadyn.github.io/apps/crawler-indexer/)) — Domain-scoped crawler and indexer utility.
+- [Earth 3D Explorer](earth-3d-explorer/) ([Open app](https://alphadyn.github.io/apps/earth-3d-explorer/)) — Three.js globe with overlays and inspection interactions.
+- [Experiences](experiences/) ([Open app](https://alphadyn.github.io/apps/experiences/)) — Supabase-backed journal with trips, shareable Experience collections, Event maps, precise location picking, and media carousels.
+- [Fractal Patterns](fractal-patterns/) ([Open app](https://alphadyn.github.io/apps/fractal-patterns/)) — Interactive fractal visualizer.
+- [Game Videos](game-videos/) ([Open app](https://alphadyn.github.io/apps/game-videos/)) — Gaming video showcase page.
+- [Legal Docketing](legal-docketing/) ([Open app](https://alphadyn.github.io/apps/legal-docketing/)) — Matter and deadline tracking app.
+- [Market Curve Lab](market-curve-lab/) ([Open app](https://alphadyn.github.io/apps/market-curve-lab/)) — Rank all 500 S&P 500 companies by market cap, search stocks, and inspect selected-ticker all-time performance, trendlines, and concavity.
+- [Market Lens](market-lens/) ([Open app](https://alphadyn.github.io/apps/market-lens/)) — Dashboard for screening and reviewing large-cap equities.
+- [Meetings](meetings/) ([Open app](https://alphadyn.github.io/apps/meetings/)) — Encrypted WebRTC meetings with chat, file sharing, fullscreen mode, and responsive mobile controls.
+- [Multi-Search Engine](multi-search-engine/) ([Open app](https://alphadyn.github.io/apps/multi-search-engine/)) — Search comparison page across multiple engines.
+- [Nexus](nexus/) ([Open app](https://alphadyn.github.io/apps/nexus/)) — Content and media management system with browser UI, sample media, filtering, metadata editing, and optional Supabase persistence.
+- [Northstar EHR](northstar-ehr/) ([Open app](https://alphadyn.github.io/apps/northstar-ehr/)) — Responsive electronic health record demo for patient care workflows and encounter documentation.
+- [Pencil Sketch](pencil-sketch/) ([Open app](https://alphadyn.github.io/apps/pencil-sketch/)) — Image-to-pencil-sketch converter.
+- [Photo Gallery](photo-gallery/) ([Open app](https://alphadyn.github.io/apps/photo-gallery/)) — Responsive gallery app.
+- [Postboard](postboard/) ([Open app](https://alphadyn.github.io/apps/postboard/)) — Personal post archive with rich text, uploads, and Supabase integration.
+- [Pulse](pulse/) ([Open app](https://alphadyn.github.io/apps/pulse/)) — Social/news-style app with posts, tags, and discussion flows.
+- [Resume](resume/) ([Open app](https://alphadyn.github.io/apps/resume/)) — Portfolio-style resume page.
+- [Signal](signal/) ([Open app](https://alphadyn.github.io/apps/signal/)) — Focused, searchable news-reading list that captures Google News headlines and related stories and downloads them as structured JSON.
+- [Top Occupations](top-occupations/) ([Open app](https://alphadyn.github.io/apps/top-occupations/)) — Income report across top occupations.
+- [Vault](vault/) ([Open app](https://alphadyn.github.io/apps/vault/)) — Browser-based text and file encryption app; all processing stays on-device.
+- [vCard Generator](vcard-generator/) ([Open app](https://alphadyn.github.io/apps/vcard-generator/)) — Card generation and QR code output.
 
 ## Quick start
 

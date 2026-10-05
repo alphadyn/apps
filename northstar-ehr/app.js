@@ -189,6 +189,12 @@ const demoPatientScenarios = [
   ["Mia Johnson", 24, "Female", "Ankle sprain", "Twisted left ankle during recreation; no prior fractures.", "None listed", "None listed", "Left ankle radiographs, 3 views", "X-ray", "Left ankle", "Left ankle pain after twisting injury", "No acute fracture or dislocation identified."],
   ["Benjamin Clark", 59, "Male", "Lumbar radiculopathy", "Recurrent low-back pain with leg symptoms; remote lifting injury.", "Morphine", "Naproxen as needed", "Lumbar spine MRI without contrast", "MRI", "Lumbar spine", "Persistent low-back symptoms", "Mild multilevel degenerative changes; no acute osseous finding."],
   ["Amara Okafor", 44, "Female", "Thyroid nodule", "Incidental thyroid nodule on prior imaging; no neck surgery.", "Iodinated contrast", "Levothyroxine", "Thyroid ultrasound", "Ultrasound", "Thyroid", "Nodule follow-up", "Stable-appearing right thyroid nodule; comparison with prior study recommended.", {
+    src: "assets/imaging/thyroid-ultrasound.jpg",
+    creator: "Drahreg01",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:SD-Sono002.jpg",
+    license: "CC BY-SA 4.0",
+    licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/"
+  }, {
     study: "Repeat thyroid ultrasound",
     modality: "Ultrasound",
     bodySite: "Thyroid",
@@ -198,18 +204,32 @@ const demoPatientScenarios = [
   ["Oliver Davis", 68, "Male", "Heart failure with preserved ejection fraction", "Hypertension; prior admission for fluid overload; followed by cardiology.", "Aspirin", "Furosemide, losartan", "Chest radiograph, 2 views", "X-ray", "Chest", "Follow-up of exertional breathlessness", "Mild cardiomegaly; no focal air-space opacity in this sample report."],
   ["Chloe Martin", 31, "Female", "Endometriosis", "Pelvic pain; prior diagnostic laparoscopy; under gynecology care.", "None listed", "Combined oral contraceptive", "Pelvic MRI", "MRI", "Pelvis", "Pelvic pain evaluation", "Small endometrioma-like lesion described; correlate with specialist assessment."],
   ["Samuel Wilson", 56, "Male", "Diverticulosis", "Intermittent abdominal discomfort; prior colonoscopy; no abdominal surgery.", "Metronidazole", "None listed", "CT abdomen and pelvis with contrast", "CT", "Abdomen and pelvis", "Abdominal discomfort", "Colonic diverticulosis without acute inflammatory change."],
-  ["Layla Hassan", 39, "Female", "Rotator cuff tendinopathy", "Shoulder pain after repetitive work; prior physical therapy.", "None listed", "Topical diclofenac", "Right shoulder MRI without contrast", "MRI", "Right shoulder", "Persistent shoulder pain", "Mild supraspinatus tendinopathy; no full-thickness tear described."],
+  ["Layla Hassan", 39, "Female", "Rotator cuff tendinopathy", "Shoulder pain after repetitive work; prior physical therapy.", "None listed", "Topical diclofenac", "Right shoulder MRI without contrast", "MRI", "Right shoulder", "Persistent shoulder pain", "Mild supraspinatus tendinopathy; no full-thickness tear described.", {
+    src: "assets/imaging/shoulder-mri.png",
+    creator: "Hellerhoff",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Post_Dislocated_shoulder_MRI_01.png",
+    license: "CC BY-SA 3.0",
+    licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/"
+  }],
   ["Henry Moore", 74, "Male", "Osteoporosis", "Prior wrist fracture; treated for low bone density; former smoker.", "None listed", "Calcium, vitamin D", "DEXA bone density study", "DEXA", "Lumbar spine and hips", "Bone density monitoring", "Bone mineral density remains below the expected range for age in this sample."],
   ["Zoe Thompson", 29, "Female", "Sinusitis", "Recurrent sinus symptoms; seasonal rhinitis; no facial surgery.", "Amoxicillin", "Cetirizine", "CT paranasal sinuses without contrast", "CT", "Paranasal sinuses", "Recurrent sinus symptoms", "Mild maxillary mucosal thickening; no fluid level identified."],
   ["Daniel Garcia", 61, "Male", "Carotid artery stenosis", "Hyperlipidemia; former smoker; prior vascular clinic follow-up.", "Shellfish", "Atorvastatin", "Carotid duplex ultrasound", "Ultrasound", "Carotid arteries", "Surveillance study", "Mild plaque bilaterally without hemodynamically significant stenosis described."],
   ["Priya Nair", 48, "Female", "Breast cyst", "Prior benign breast cyst; routine imaging follow-up; no breast surgery.", "None listed", "None listed", "Diagnostic mammogram and breast ultrasound", "Mammogram / Ultrasound", "Breasts", "Follow-up of known breast cyst", "Stable benign-appearing cystic finding; routine follow-up suggested in this mock report."],
-  ["Caleb Turner", 19, "Male", "Concussion, subsequent visit", "Sports-related head impact; no loss of consciousness reported; no prior neurologic history.", "None listed", "None listed", "Head CT without contrast", "CT", "Head", "Follow-up after head injury", "No acute intracranial finding identified in this fictional sample."],
+  ["Caleb Turner", 19, "Male", "Concussion, subsequent visit", "Sports-related head impact; no loss of consciousness reported; no prior neurologic history.", "None listed", "None listed", "Head CT without contrast", "CT", "Head", "Follow-up after head injury", "No acute intracranial finding identified in this fictional sample.", {
+    src: "assets/imaging/brain-ct.png",
+    creator: "Department of Radiology, Uppsala University Hospital; uploaded by Mikael Häggström",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Computed_tomography_of_human_brain_-_large.png",
+    license: "CC0 1.0",
+    licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/"
+  }],
   ["Nora Williams", 66, "Female", "Peripheral neuropathy", "Type 2 diabetes; chronic foot numbness; prior podiatry visits.", "Gabapentin", "Metformin", "Left foot radiographs, 3 views", "X-ray", "Left foot", "Chronic foot symptoms", "No acute fracture; mild first metatarsophalangeal degenerative change."],
   ["Mateo Silva", 42, "Male", "Hepatic steatosis", "Elevated liver enzymes on prior screening; no abdominal surgery.", "None listed", "None listed", "Abdominal ultrasound", "Ultrasound", "Liver and biliary system", "Follow-up of liver enzyme elevation", "Increased hepatic echogenicity compatible with steatosis in this mock report."]
 ];
 
 function createDemoPatient(scenario, index) {
-  const [name, age, sex, diagnosis, history, allergy, medication, study, modality, bodySite, indication, report, followUpStudy] = scenario;
+  const [name, age, sex, diagnosis, history, allergy, medication, study, modality, bodySite, indication, report, imageOrFollowUp, followUpStudy] = scenario;
+  const image = imageOrFollowUp && typeof imageOrFollowUp === "object" && imageOrFollowUp.src ? imageOrFollowUp : null;
+  const additionalStudy = imageOrFollowUp && typeof imageOrFollowUp === "object" && !image ? imageOrFollowUp : followUpStudy;
   const id = index + 4;
   const imaging = {
     id: `rad-demo-${id}`,
@@ -220,6 +240,7 @@ function createDemoPatient(scenario, index) {
     status: index % 4 === 0 ? "Preliminary" : "Final",
     indication,
     report,
+    ...(image ? { image } : {}),
     radiologist: `Dr. ${["Morgan Ellis", "Riley Bennett", "Jordan Park", "Taylor Reed"][index % 4]}`
   };
 
@@ -259,9 +280,9 @@ function createDemoPatient(scenario, index) {
     }],
     imaging: [
       imaging,
-      ...(followUpStudy ? [{
+      ...(additionalStudy ? [{
         id: `rad-demo-${id}-followup`,
-        ...followUpStudy,
+        ...additionalStudy,
         performedAt: `2026-09-${String(4 + (index % 27)).padStart(2, "0")} ${String(10 + (index % 7)).padStart(2, "0")}:00`,
         status: "Final",
         radiologist: `Dr. ${["Morgan Ellis", "Riley Bennett", "Jordan Park", "Taylor Reed"][index % 4]}`
@@ -562,6 +583,11 @@ function buildPatientTimeline(patient) {
       type: "Diagnosis",
       title: patient.diagnosis,
       details: "Primary problem on the patient chart",
+      detailRows: [
+        ["Status", patient.status],
+        ["Priority", patient.priority],
+        ["Provider", patient.provider]
+      ],
       timestamp: "",
       fallbackTime: "Date not recorded"
     });
@@ -574,6 +600,10 @@ function buildPatientTimeline(patient) {
         type: "Laboratory",
         title: lab,
         details: "Lab marker on the patient chart",
+        detailRows: [
+          ["Result", lab],
+          ["Recorded", patient.labRecords?.[index]?.recordedAt || "Date not recorded"]
+        ],
         timestamp: patient.labRecords?.[index]?.recordedAt || "",
         fallbackTime: patient.labRecords?.[index]?.recordedAt || "Date not recorded"
       });
@@ -586,22 +616,36 @@ function buildPatientTimeline(patient) {
         type: "Care plan",
         title: task.label,
         details: "Open care task",
-        timestamp: task.createdAt || "",
+          detailRows: [
+            ["Status", task.status],
+            ["Due date", task.dueDate || patient.carePlan?.followUpDate || "Not recorded"]
+          ],
+          timestamp: task.createdAt || "",
+          fallbackTime: "Date not recorded"
+        });
+    });
+    patient.events.forEach((event) => {
+      items.push({
+        ...event,
+        detailRows: [["Event details", event.details || "No additional details recorded"]],
+        timestamp: event.timestamp,
         fallbackTime: "Date not recorded"
       });
     });
-  patient.events.forEach((event) => {
-    items.push({ ...event, timestamp: event.timestamp, fallbackTime: "Date not recorded" });
-  });
-  patient.documents.forEach((document) => {
-    items.push({
-      id: `timeline-${document.id}`,
-      type: "Document",
-      title: document.title,
-      details: `${document.type} · ${document.status}`,
-      timestamp: document.createdAt || document.time,
-      fallbackTime: document.time
-    });
+    patient.documents.forEach((document) => {
+      items.push({
+        id: `timeline-${document.id}`,
+        type: "Document",
+        title: document.title,
+        details: `${document.type} · ${document.status}`,
+        detailRows: [
+          ["Type", document.type],
+          ["Status", document.status],
+          ["Summary", document.sections?.summary || document.summary || "No summary recorded"]
+        ],
+        timestamp: document.createdAt || document.time,
+        fallbackTime: document.time
+      });
   });
   patient.orders.forEach((order) => {
     items.push({
@@ -609,6 +653,13 @@ function buildPatientTimeline(patient) {
       type: order.category,
       title: order.title,
       details: `Order · ${order.priority} priority · ${order.status}`,
+      detailRows: [
+        ["Category", order.category],
+        ["Priority", order.priority],
+        ["Status", order.status],
+        ...(order.details ? [["Instructions", order.details]] : []),
+        ...(order.fields || []).map((field) => [field.label, field.value])
+      ],
       timestamp: order.createdAt || order.time,
       fallbackTime: order.time
     });
@@ -619,6 +670,14 @@ function buildPatientTimeline(patient) {
       type: "Imaging",
       title: record.study,
       details: `${record.modality} · ${record.bodySite} · ${record.status}${record.indication ? ` · ${record.indication}` : ""}`,
+      detailRows: [
+        ["Modality", record.modality],
+        ["Body site", record.bodySite],
+        ["Status", record.status],
+        ["Indication", record.indication],
+        ["Report", record.report],
+        ["Radiologist", record.radiologist]
+      ],
       timestamp: record.performedAt,
       fallbackTime: record.performedAt
     });
@@ -629,6 +688,11 @@ function buildPatientTimeline(patient) {
       type: "Appointment",
       title: appointment.title,
       details: `${appointment.status} · ${appointment.location}`,
+      detailRows: [
+        ["Status", appointment.status],
+        ["Location", appointment.location],
+        ["Scheduled time", appointment.time]
+      ],
       timestamp: appointment.updatedAt,
       fallbackTime: `Scheduled time ${appointment.time}`
     });
@@ -722,6 +786,8 @@ function normalizePatient(patient) {
       status: record.status || "Final",
       indication: record.indication || "",
       report: record.report || "",
+      image: record.image && typeof record.image === "object" ? record.image : allInitialPatients.flatMap((seedPatient) => seedPatient.imaging)
+        .find((seedRecord) => seedRecord.id === record.id)?.image || null,
       radiologist: record.radiologist || "Not recorded"
     })),
     documents: (patient.documents || patient.notes || []).map((document) => ({
@@ -1683,15 +1749,26 @@ function renderPatientTimeline(patient) {
       ${items.length ? `<ol class="timeline-list">
         ${items.map((item) => `
           <li class="timeline-item">
-            <span class="timeline-marker timeline-${escapeHtml(item.type.toLowerCase().replace(/[^a-z0-9]+/g, "-"))}" aria-hidden="true"></span>
-            <div class="timeline-content">
-              <div class="timeline-event-heading">
-                <strong>${escapeHtml(item.title)}</strong>
-                <span class="timeline-type">${escapeHtml(item.type)}</span>
+            <details class="timeline-entry">
+              <summary class="timeline-summary">
+                <span class="timeline-marker timeline-${escapeHtml(item.type.toLowerCase().replace(/[^a-z0-9]+/g, "-"))}" aria-hidden="true"></span>
+                <span class="timeline-content">
+                  <span class="timeline-event-heading">
+                    <strong>${escapeHtml(item.title)}</strong>
+                    <span class="timeline-type">${escapeHtml(item.type)}</span>
+                  </span>
+                  <time>${escapeHtml(formatTimelineDate(item.timestamp || item.fallbackTime))}</time>
+                </span>
+              </summary>
+              <div class="timeline-expanded">
+                ${item.details ? `<p class="timeline-description">${escapeHtml(item.details)}</p>` : ""}
+                ${item.detailRows?.length ? `<dl class="timeline-detail-list">
+                  ${item.detailRows.filter(([, value]) => value !== undefined && value !== null && value !== "").map(([label, value]) => `
+                    <div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>
+                  `).join("")}
+                </dl>` : ""}
               </div>
-              ${item.details ? `<p>${escapeHtml(item.details)}</p>` : ""}
-              <time>${escapeHtml(formatTimelineDate(item.timestamp || item.fallbackTime))}</time>
-            </div>
+            </details>
           </li>`).join("")}
       </ol>` : '<p class="empty-state">Patient-related events will appear here as the chart is updated.</p>'}
     </section>
@@ -1765,6 +1842,11 @@ function renderPatientDetail() {
             <p><strong>Performed:</strong> ${escapeHtml(record.performedAt)} · <strong>Radiologist:</strong> ${escapeHtml(record.radiologist)}</p>
             ${record.indication ? `<p><strong>Indication:</strong> ${escapeHtml(record.indication)}</p>` : ""}
             ${record.report ? `<p><strong>Report:</strong> ${escapeHtml(record.report)}</p>` : ""}
+            ${record.image ? `
+              <figure class="imaging-preview">
+                <img src="${escapeHtml(record.image.src)}" alt="Reference ${escapeHtml(record.modality)} example for ${escapeHtml(record.bodySite)}; not this patient's scan" loading="lazy" />
+                <figcaption>Reference example only—not this patient's scan or a diagnostic report. Source: <a href="${escapeHtml(record.image.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(record.image.creator)}, Wikimedia Commons</a> · <a href="${escapeHtml(record.image.licenseUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(record.image.license)}</a></figcaption>
+              </figure>` : ""}
           </article>`).join("")
         : '<p class="empty-state">No imaging or radiology records for this patient.</p>'}
       <p class="form-caution">Fictional demonstration records only; reports are not diagnostic and are not for clinical use.</p>

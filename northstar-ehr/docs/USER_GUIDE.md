@@ -8,7 +8,7 @@ Northstar EHR is a responsive, browser-only demonstration of an emergency and in
 
 The worklist contains 23 fictional charts spanning a variety of conditions and histories. Choose a patient or search by name, MRN, diagnosis, priority, or status. At the top of the chart, the medical-status dashboard summarizes the primary diagnosis, encounter stage/location, priority, care team, and allergies. The vital dashboard displays the latest charted blood pressure, heart rate, respiratory rate, temperature, oxygen saturation, and pain score; when repeat readings are recorded, expand **View recent readings** to review their timestamps and values. The imaging dashboard shows study and report counts, preliminary reports, open imaging orders, and the latest report summary.
 
-The **Patient timeline** brings together diagnoses, lab markers, documented clinical notes, orders, imaging studies, appointments, vital recordings, open care tasks, and encounter updates in time order. Some legacy sample appointments or values do not include a timestamp and are labeled accordingly rather than assigned a fabricated time.
+The **Patient timeline** brings together diagnoses, lab markers, documented clinical notes, orders, imaging studies, appointments, vital recordings, open care tasks, and encounter updates in time order. Click or keyboard-focus an event and press Enter or Space to expand its recorded details, such as imaging reports, order instructions, or document summaries. Some legacy sample appointments or values do not include a timestamp and are labeled accordingly rather than assigned a fabricated time.
 
 ## Encounter workflow
 

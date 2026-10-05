@@ -11,12 +11,12 @@ A responsive electronic health record demonstration covering patient charts, eme
 - Data exchange: export the selected patient or all patients as Northstar JSON, an Epic-compatible HL7 FHIR R4 or R5 Bundle (Patient, Condition, AllergyIntolerance, MedicationRequest, Observation, DiagnosticReport, Appointment, DocumentReference), or a CSV roster; import any of these (auto-detected) and upsert by MRN. Import requires the `data:import` permission (Clinician, Admin). File-based only: no live Epic connection or OAuth.
 - Patient worklist with 23 fictional patient charts, searchable diagnoses, demographics, histories, allergies, medications, labs, and vitals
 - Patient status dashboard with current encounter status, allergy visibility, vital-sign history, imaging/report counts, and latest radiology summary
-- Chronological patient timeline combining clinical notes, workflow updates, vitals, orders, imaging, and appointment activity
+- Chronological patient timeline combining clinical notes, workflow updates, vitals, orders, imaging, and appointment activity; click or keyboard-expand an event to view its recorded details
 - Encounter progression for intake, triage, ED evaluation, consultation, admission, discharge, and closure
 - Intake and triage capture for arrival mode, chief complaint, acuity, nursing note, vital signs, pain score, and location
 - Disposition tracking for ward/ICU admission, home discharge, PCP or specialist referral, and transfer
 - Type-specific structured details for nursing, vitals, diagnosis, laboratory, imaging, procedure, medication, and referral orders
-- Per-patient imaging and radiology records with modality, body site, indication, report, status, and radiologist
+- Per-patient imaging and radiology records with modality, body site, indication, report, status, and radiologist; selected charts display attributed, openly licensed radiology examples clearly marked as reference images, not patient scans
 - Workflow-specific structured drafts for ED, history and physical, admission, SOAP/progress, consult, nursing, procedure, discharge, and referral documents
 - Clinician and nurse workflow roles, plus an admin review role and an activity audit trail
 - Appointment management, care tasks, follow-up planning, patient summary export, and billing context
@@ -58,3 +58,11 @@ Run the repository-wide test suite from the project root:
 ## Important limitations
 
 This is a front-end prototype with fictional sample patients and illustrative imaging text. Data is stored in browser local storage and is not protected, backed up, or shared with a care team. Orders and notes are not sent to clinical systems, medications are not prescribed, and role selection is a demonstration control rather than authentication or access control. Do not enter real patient information or use this application to make or document clinical decisions. A production EHR requires a secure backend, identity and access management, audit controls, validated clinical terminology and workflows, interoperability, and applicable privacy, safety, and regulatory review.
+
+### Radiology example image attribution
+
+The following images are downloaded from Wikimedia Commons and shown only as external educational examples. They are not images of the fictional patients or evidence for the accompanying fictional reports. Original creator and license links are also shown beside each image.
+
+- Thyroid ultrasound: [Drahreg01, *SD-Sono002.jpg*](https://commons.wikimedia.org/wiki/File:SD-Sono002.jpg), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+- Shoulder MRI: [Hellerhoff, *Post Dislocated shoulder MRI 01.png*](https://commons.wikimedia.org/wiki/File:Post_Dislocated_shoulder_MRI_01.png), [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)
+- Brain CT: Department of Radiology, Uppsala University Hospital, uploaded by Mikael Häggström, [*Computed tomography of human brain - large.png*](https://commons.wikimedia.org/wiki/File:Computed_tomography_of_human_brain_-_large.png), [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)

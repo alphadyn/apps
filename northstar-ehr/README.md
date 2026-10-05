@@ -19,6 +19,7 @@ A responsive electronic health record demonstration covering patient charts, eme
 - Per-patient imaging and radiology records with modality, body site, indication, report, status, and radiologist; selected charts display attributed, openly licensed radiology examples clearly marked as reference images, not patient scans
 - Workflow-specific structured drafts for ED, history and physical, admission, SOAP/progress, consult, nursing, procedure, discharge, and referral documents
 - Clinician and nurse workflow roles, plus an admin review role and an activity audit trail
+- Demo-only role switching; this is not login or server-enforced authorization
 - Appointment management, care tasks, follow-up planning, patient summary export, and billing context
 - Local browser persistence for the demonstration dataset
 
@@ -26,8 +27,9 @@ A responsive electronic health record demonstration covering patient charts, eme
 
 - index.html — app shell and dashboard layout
 - styles.css — modern responsive UI styling
-- app.js — patient data, UI rendering, interactions, and local storage
+- app.js — fictional patient data, UI rendering, interactions, and local storage
 - docs/USER_GUIDE.md — usage guide and customization notes
+- docs/SECURITY_ARCHITECTURE.md — non-production secure multi-user architecture proposal
 
 ## How to run
 
@@ -55,9 +57,11 @@ Run the repository-wide test suite from the project root:
 ./run_tests.sh
 ```
 
-## Important limitations
+## Security status and important limitations
 
-This is a front-end prototype with fictional sample patients and illustrative imaging text. Data is stored in browser local storage and is not protected, backed up, or shared with a care team. Orders and notes are not sent to clinical systems, medications are not prescribed, and role selection is a demonstration control rather than authentication or access control. Do not enter real patient information or use this application to make or document clinical decisions. A production EHR requires a secure backend, identity and access management, audit controls, validated clinical terminology and workflows, interoperability, and applicable privacy, safety, and regulatory review.
+This is a public, browser-only prototype with fictional sample patients and illustrative imaging text. **It has no login, no multi-user identity, no server-enforced authorization, and no HIPAA safeguards.** Data is stored in browser local storage and is not protected, backed up, or shared with a care team. Role selection is a demonstration control, not authentication or access control. Do not enter, import, or export real patient information or use this application to make or document clinical decisions. Orders and notes are not sent to clinical systems, and medications are not prescribed.
+
+The proposed secure backend, profiles, permission model, encryption, and release requirements are documented in [SECURITY_ARCHITECTURE.md](./docs/SECURITY_ARCHITECTURE.md); it is a design only, not implemented or certified. Production use requires an approved and operated secure system, organizational risk analysis, contractual/vendor review including applicable BAAs, security controls, validated workflows, and privacy, clinical, legal, and compliance approval. Encryption alone does not establish HIPAA compliance.
 
 ### Radiology example image attribution
 

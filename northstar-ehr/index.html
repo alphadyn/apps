@@ -61,10 +61,10 @@
         </div>
 
         <div class="sidebar-card role-card">
-          <h3>Active Role</h3>
+          <h3>Demo Role (Not Access Control)</h3>
           <p id="roleValue">Clinician</p>
-          <span id="roleHelp" class="role-help">Can record encounters and complete care tasks.</span>
-          <label for="roleSelector" class="role-label">Switch role</label>
+          <span id="roleHelp" class="role-help">This demo selector does not authenticate users or protect patient data.</span>
+          <label for="roleSelector" class="role-label">Change demo role</label>
           <select id="roleSelector">
             <option value="clinician">Clinician</option>
             <option value="nurse">Nurse</option>
@@ -74,6 +74,11 @@
       </aside>
 
       <main id="main-content" class="main-panel">
+        <aside class="security-demo-banner" role="note" aria-label="Demo security notice">
+          <strong>Demo only — no login or HIPAA safeguards.</strong>
+          <span>Do not enter patient information. Roles are not enforced access controls.</span>
+          <a href="docs/SECURITY_ARCHITECTURE.md">Security architecture proposal</a>
+        </aside>
         <header class="topbar">
           <div>
             <p class="eyebrow">Clinical operations</p>

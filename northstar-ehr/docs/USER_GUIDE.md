@@ -2,7 +2,7 @@
 
 ## Overview
 
-Northstar EHR is a responsive, browser-only demonstration of an emergency and inpatient care workflow. The built-in records are fictional. The application stores changes in browser local storage.
+Northstar EHR is a responsive, browser-only demonstration of an emergency and inpatient care workflow. The built-in records are fictional. The application stores changes in browser local storage. It has no login, multi-user identity, secure clinical storage, or server-enforced role permissions; the role selector is for demonstration only.
 
 ## Patient chart
 
@@ -28,10 +28,10 @@ Saved orders retain and display their type-specific details. Saved documents ret
 - Use the patient search in the header to find a chart by name, MRN, or diagnosis. The patient list is independently scrollable; the sidebar remains available while browsing on desktop.
 - **Overview** summarizes patient and chart activity.
 - **Patients** displays the patient worklist and chart details.
-- **Appointments** supports completing appointments; the admin role can cancel them.
+- **Appointments** supports completing appointments; the demo admin role can cancel them.
 - **Labs & Meds** displays chart data and supports the existing encounter form.
 - **Billing** displays sample billing context.
-- Admins can review the activity audit trail. The role selector is not an access-control mechanism.
+- The demo admin role can review the activity audit trail. The role selector is not an access-control mechanism.
 
 ## Persistence and reset
 
@@ -39,4 +39,4 @@ Changes are saved to local storage in the current browser profile and remain aft
 
 ## Safety and privacy
 
-Do not enter real patient information. All patient histories and imaging reports are fictional illustrative examples. This prototype is not a clinical system and must not be used to guide or document patient care. Its orders are tracking examples only: they are not transmitted, validated, or executed, and medication entries are not prescriptions. Production use requires secure infrastructure, real authentication and authorization, validated clinical and medication workflows, interoperability, and applicable privacy, security, safety, and regulatory review.
+Do not enter, import, or export real patient information. All patient histories and imaging reports are fictional illustrative examples. This prototype is not a clinical system and must not be used to guide or document patient care. Its orders are tracking examples only: they are not transmitted, validated, or executed, and medication entries are not prescriptions. The proposed—but unimplemented—production security design is in [SECURITY_ARCHITECTURE.md](./SECURITY_ARCHITECTURE.md). Production requires organizational risk analysis, approved secure infrastructure and identity/access controls, validated clinical and medication workflows, interoperability, applicable BAAs, and privacy, security, safety, legal, and regulatory review.

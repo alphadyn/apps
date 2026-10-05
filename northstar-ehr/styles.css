@@ -254,6 +254,30 @@ textarea {
   gap: 18px;
 }
 
+.security-demo-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px 12px;
+  border: 1px solid #f2c47c;
+  border-radius: 12px;
+  padding: 10px 14px;
+  background: #fff8eb;
+  color: #713f12;
+  font-size: 0.82rem;
+}
+
+.security-demo-banner strong {
+  font-weight: 750;
+}
+
+.security-demo-banner a {
+  color: #1d4ed8;
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .topbar {
   display: flex;
   justify-content: space-between;

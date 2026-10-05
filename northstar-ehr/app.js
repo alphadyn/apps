@@ -1580,11 +1580,7 @@ function renderRoleSummary() {
   if (!roleValue || !roleHelp || !roleSelector) return;
 
   roleValue.textContent = currentUser.label;
-  roleHelp.textContent = currentUser.role === "clinician"
-    ? "Can document, manage orders, and update encounter workflow."
-    : currentUser.role === "nurse"
-      ? "Can record nursing intake, vitals, orders, and care notes."
-      : "Can review audit history and manage cancellations.";
+  roleHelp.textContent = "Demo-only capabilities; this selection does not authenticate users or enforce access permissions.";
   roleSelector.value = currentUser.role;
 }
 

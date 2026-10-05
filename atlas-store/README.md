@@ -1,5 +1,7 @@
 # Atlas & Co. Online Store
 
+**Deployed application:** [Open the app](https://alphadyn.github.io/apps/atlas-store/)
+
 > Standalone browser storefront. See the [repository catalog](../README.md) for shared setup and deployment context.
 
 A branded static storefront with a front-facing shopping page, grouped product/service menu, cart, checkout flow, advertising placements, encrypted browser cart storage, and payment-provider hooks for Apple Pay and credit cards.

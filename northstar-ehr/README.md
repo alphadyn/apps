@@ -1,5 +1,7 @@
 # Northstar EHR
 
+**Deployed application:** [Open the app](https://alphadyn.github.io/apps/northstar-ehr/)
+
 > Standalone browser-based EHR interface demo. See the [repository catalog](../README.md) for shared setup and deployment context.
 
 A responsive electronic health record demonstration covering patient charts, emergency and inpatient encounter flow, clinical notes, orders, referrals, follow-up, appointments, and billing context.

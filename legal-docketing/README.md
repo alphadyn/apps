@@ -1,5 +1,7 @@
 # Legal Docketing App
 
+**Deployed application:** [Open the app](https://alphadyn.github.io/apps/legal-docketing/)
+
 > Standalone browser workflow for matters and deadlines. See the [repository catalog](../README.md) for shared setup and testing context.
 
 This folder contains a fully functional, browser-based legal docketing application designed for law firms and legal teams that need to manage matters, deadlines, and tasks in one place.

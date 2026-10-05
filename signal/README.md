@@ -1,5 +1,7 @@
 # Signal
 
+**Deployed application:** [Open the app](https://alphadyn.github.io/apps/signal/)
+
 > A focused news-reading list powered by Google News. Signal collects headlines and related stories, then lets you search and download them as structured JSON.
 
 Signal can run as a browser-based page or as a local Flask app. The local app opens Google News in headless Chromium, scrolls the feed to load additional stories, and extracts article titles, links, and related reads. Captures are shown in a responsive interface, can be searched, and can be downloaded as structured JSON. The local app also saves a copy beside itself as `google_news.json`.

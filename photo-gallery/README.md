@@ -1,5 +1,7 @@
 # Photo Gallery
 
+**Deployed application:** [Open the app](https://alphadyn.github.io/apps/photo-gallery/)
+
 > Standalone responsive browser gallery. See the [repository catalog](../README.md) for shared setup and deployment context.
 
 A browser-based web app that fetches 10 new random photos from the web on every page load/refresh and displays them in an auto-rotating carousel.

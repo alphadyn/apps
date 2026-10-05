@@ -1,5 +1,7 @@
 # 3D Earth Explorer
 
+**Deployed application:** [Open the app](https://alphadyn.github.io/apps/earth-3d-explorer/)
+
 > Standalone Three.js browser visualization. See the [repository catalog](../README.md) for shared setup and deployment context.
 
 An interactive browser app that renders a 3D model of the Earth, lets you inspect the

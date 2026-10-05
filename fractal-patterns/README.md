@@ -1,5 +1,7 @@
 # Fractal Atlas Web App
 
+**Deployed application:** [Open the app](https://alphadyn.github.io/apps/fractal-patterns/)
+
 > Standalone interactive visualization. See the [repository catalog](../README.md) for shared setup and deployment context.
 
 A browser-based web app that generates and displays 10 popular fractal patterns on an HTML canvas.

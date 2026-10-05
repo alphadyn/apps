@@ -1,5 +1,7 @@
 # Pulse
 
+**Deployed application:** [Open the app](https://alphadyn.github.io/apps/pulse/)
+
 > Supabase-backed social news app with public browsing and authenticated roles. See the [repository catalog](../README.md) and [deployment guide](../DEPLOYMENT.md) for shared context.
 
 Pulse is a Reddit/Hacker-News-style social news aggregator. Anyone can post,

@@ -1,5 +1,7 @@
 # Crawler Indexer
 
+**Deployed application:** [Open the app](https://alphadyn.github.io/apps/crawler-indexer/)
+
 > Python crawler, indexer, and browser search utility. See the [repository catalog](../README.md) for shared setup and testing context.
 
 This folder contains a small Python script that can index content from a URL, a local file, or a local directory.

@@ -1,5 +1,7 @@
 # Meetings — Video Conferencing App
 
+**Deployed application:** [Open the app](https://alphadyn.github.io/apps/meetings/)
+
 > Browser-based WebRTC meeting app with mobile controls. See the [repository catalog](../README.md) for shared setup and deployment context.
 
 A browser-based video conferencing app. Enter a name and a meeting code to join a room where

@@ -1,5 +1,7 @@
 # Pencil Sketch Studio
 
+**Deployed application:** [Open the app](https://alphadyn.github.io/apps/pencil-sketch/)
+
 > Standalone browser image-conversion experiment. See the [repository catalog](../README.md) for shared setup and deployment context.
 
 A simple browser app for turning uploaded images into pencil-style sketches. It supports both black-and-white and color pencil effects and lets the user tune how closely the result matches the original, how fine or coarse the pencil strokes feel, and how the image is balanced by brightness and a color tint picker.

@@ -1,5 +1,7 @@
 # Nexus Content Management System (CMS)
 
+**Deployed application:** [Open the app](https://alphadyn.github.io/apps/nexus/)
+
 > Browser-based media workspace with optional Supabase persistence. See the [repository catalog](../README.md) and [deployment guide](../DEPLOYMENT.md) for shared context.
 
 A modern, full-featured web-based Content Management System (CMS) for uploading, displaying, playing, searching, ordering, editing, and managing all kinds of digital media and documents (text, code, documents, audio, video, images, PDFs, archives, and custom binary formats) with persistent Supabase storage.

@@ -1,5 +1,7 @@
 # Top 20 Occupations Income Report
 
+**Deployed application:** [Open the app](https://alphadyn.github.io/apps/top-occupations/)
+
 > Standalone static report. See the [repository catalog](../README.md) for shared setup and deployment context.
 
 This folder contains a polished HTML report highlighting 20 occupations with some of the highest approximate median incomes in the United States.

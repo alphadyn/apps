@@ -1,5 +1,7 @@
 # Vault — Secure File Tool
 
+**Deployed application:** [Open the app](https://alphadyn.github.io/apps/vault/)
+
 > Standalone browser encryption tool; data stays on-device. See the [repository catalog](../README.md) for shared setup and deployment context.
 
 Vault is a static web app for encrypting and decrypting text or files in your browser. It is designed to be hosted on GitHub Pages: there is no server, account, upload, or build step. The web app files are `index.html`, `styles.css`, and `app.js`.
@@ -25,5 +27,4 @@ In the repository's GitHub Pages settings, publish from the `main` branch and se
 Vault uses AES-256-GCM with a fresh 16-byte random salt, a fresh 12-byte nonce, and PBKDF2-HMAC-SHA256 with 600,000 iterations. File payloads are laid out as `salt + nonce + authenticated ciphertext`. Text payloads use the same binary format, Base64-encoded for copying.
 
 Keep your password safe. There is no password reset, and losing the password means the encrypted data cannot be recovered. Encryption happens on-device, but downloaded output and passwords are only as safe as the device and storage you use.
-
 

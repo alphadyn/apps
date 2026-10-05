@@ -1,5 +1,7 @@
 # Game Videos Site
 
+**Deployed application:** [Open the app](https://alphadyn.github.io/apps/game-videos/)
+
 > Standalone static media showcase. See the [repository catalog](../README.md) for shared setup and deployment context.
 
 This folder contains a simple static website that showcases a collection of gaming video links.

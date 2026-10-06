@@ -35,7 +35,7 @@ Projects are listed alphabetically, matching the catalog on the landing page.
 - [Market Lens](market-lens/) ([Open app](https://alphadyn.github.io/apps/market-lens/)) — Dashboard for screening and reviewing large-cap equities.
 - [Meetings](meetings/) ([Open app](https://alphadyn.github.io/apps/meetings/)) — Encrypted WebRTC meetings with chat, file sharing, fullscreen mode, and responsive mobile controls.
 - [Multi-Search Engine](multi-search-engine/) ([Open app](https://alphadyn.github.io/apps/multi-search-engine/)) — Search comparison page across multiple engines.
-- [Nexus](nexus/) ([Open app](https://alphadyn.github.io/apps/nexus/)) — Content and media management system with browser UI, sample media, filtering, metadata editing, and optional Supabase persistence.
+- [Nexus](nexus/) ([Open app](https://alphadyn.github.io/apps/nexus/)) — Media workspace with browser UI, sample media, filtering, metadata editing, and optional Supabase persistence.
 - [Northstar EHR](northstar-ehr/) ([Open app](https://alphadyn.github.io/apps/northstar-ehr/)) — Responsive electronic health record demo for patient care workflows and encounter documentation.
 - [Pencil Sketch](pencil-sketch/) ([Open app](https://alphadyn.github.io/apps/pencil-sketch/)) — Image-to-pencil-sketch converter.
 - [Photo Gallery](photo-gallery/) ([Open app](https://alphadyn.github.io/apps/photo-gallery/)) — Responsive gallery app.

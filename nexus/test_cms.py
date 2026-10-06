@@ -1,5 +1,5 @@
 """
-Automated validation and integration tests for Nexus Content Management System (CMS).
+Automated validation and integration tests for Nexus.
 """
 
 import json
@@ -16,7 +16,7 @@ README_MD = os.path.join(APP_DIR, "README.md")
 
 
 def test_files_exist():
-    """Verify all required CMS application files are present."""
+    """Verify all required Nexus application files are present."""
     assert os.path.exists(INDEX_HTML), "index.html must exist"
     assert os.path.exists(STYLES_CSS), "styles.css must exist"
     assert os.path.exists(APP_JS), "app.js must exist"
@@ -54,7 +54,7 @@ def test_html_structure_and_ids():
         "tagCloudContainer",
         "filterDatePreset",
         "filterSizePreset",
-        "clearAllEntriesBtn",
+        "adminClearAllEntriesBtn",
         # Upload Modal
         "uploadModal",
         "uploadDropzone",
@@ -215,9 +215,9 @@ def test_js_syntax_validation():
 
 def test_sqlite_database_crud(tmp_path):
     """Verify SQLite database CRUD operations."""
-    from content_management_app.database import DatabaseManager
+    from nexus.database import DatabaseManager
 
-    db_file = tmp_path / "test_cms.db"
+    db_file = tmp_path / "test_nexus.db"
     mgr = DatabaseManager(db_path=db_file)
 
     # Initial count
@@ -276,7 +276,7 @@ def test_sqlite_database_crud(tmp_path):
 
 def test_sqlite_batch_operations_and_clear(tmp_path):
     """Verify SQLite batch insertion, batch deletion, and clear operations."""
-    from content_management_app.database import DatabaseManager
+    from nexus.database import DatabaseManager
 
     db_file = tmp_path / "test_batch.db"
     mgr = DatabaseManager(db_path=db_file)
@@ -312,7 +312,7 @@ def test_server_direct_media_and_view_endpoints():
     from http.server import HTTPServer
     import threading
     import time
-    from content_management_app.server import CMSHTTPRequestHandler, db_manager
+    from nexus.server import NexusHTTPRequestHandler, db_manager
 
     # Ensure a sample item exists
     sample = {
@@ -325,7 +325,7 @@ def test_server_direct_media_and_view_endpoints():
     }
     db_manager.upsert(sample)
 
-    server = HTTPServer(("127.0.0.1", 0), CMSHTTPRequestHandler)
+    server = HTTPServer(("127.0.0.1", 0), NexusHTTPRequestHandler)
     port = server.server_port
     server_thread = threading.Thread(target=server.serve_forever, daemon=True)
     server_thread.start()
@@ -369,9 +369,9 @@ def test_server_and_database_auto_connect():
     from http.server import HTTPServer
     import threading
     import time
-    from content_management_app.server import CMSHTTPRequestHandler
+    from nexus.server import NexusHTTPRequestHandler
 
-    server = HTTPServer(("127.0.0.1", 0), CMSHTTPRequestHandler)
+    server = HTTPServer(("127.0.0.1", 0), NexusHTTPRequestHandler)
     port = server.server_port
     server_thread = threading.Thread(target=server.serve_forever, daemon=True)
     server_thread.start()

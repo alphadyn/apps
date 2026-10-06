@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-SQLite Database Layer for Nexus Content Management System (CMS).
+SQLite database layer for Nexus.
 Provides schema initialization, seed data management, and CRUD operations.
 """
 

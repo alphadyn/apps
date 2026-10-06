@@ -1,12 +1,12 @@
-# Nexus Content Management System (CMS)
+# Nexus
 
 **Deployed application:** [Open the app](https://alphadyn.github.io/apps/nexus/)
 
 > Browser-based media workspace with optional Supabase persistence. See the [repository catalog](../README.md) and [deployment guide](../DEPLOYMENT.md) for shared context.
 
-A modern, full-featured web-based Content Management System (CMS) for uploading, displaying, playing, searching, ordering, editing, and managing all kinds of digital media and documents (text, code, documents, audio, video, images, PDFs, archives, and custom binary formats) with persistent Supabase storage.
+A modern, full-featured media workspace for uploading, displaying, playing, searching, ordering, editing, and managing all kinds of digital media and documents (text, code, audio, video, images, PDFs, archives, and custom binary formats) with persistent Supabase storage.
 
-![Nexus CMS Banner](https://img.shields.io/badge/Status-Complete-brightgreen)
+![Nexus](https://img.shields.io/badge/Status-Complete-brightgreen)
 ![Supabase](https://img.shields.io/badge/Storage-Supabase-3ECF8E)
 ![Zero Dependencies](https://img.shields.io/badge/Dependencies-Python%20Standard%20Library-orange)
 
@@ -74,7 +74,7 @@ A modern, full-featured web-based Content Management System (CMS) for uploading,
 - **Undo Stack**: Toast notification with instant "Undo" button to restore accidentally deleted files.
 
 ### 7. Persistent Supabase Database Storage & Data Portability
-- **Exclusive Persistent Database Storage (`nexus_media_items`)**: All data storage, edits, metadata, tags, and media assets are saved to the configured Supabase table through PostgREST. Browser local storage and IndexedDB are not used for CMS records.
+- **Exclusive Persistent Database Storage (`nexus_media_items`)**: All data storage, edits, metadata, tags, and media assets are saved to the configured Supabase table through PostgREST. Browser local storage and IndexedDB are not used for Nexus records.
 - **Database Status Indicator**: Live status badge in the UI displaying Supabase connectivity and record counts.
 - **Export & Import Backup Tools**: One-click JSON backup export and import to transfer or restore data from Supabase.
 - **Preloaded Sample Data**: Includes sample vector image, audio track with synthesized melody, Markdown architecture doc, JavaScript visualizer script, and video motion demo stored in the `nexus_media_items` table.
@@ -127,9 +127,9 @@ If uploads report `NoSuchBucket`, the schema has not been applied to the configu
 Run the static app locally:
 
 ```bash
-cd content_management_app
+cd nexus
 python3 -m http.server 8000
 ```
 Open `http://localhost:8000` in your web browser. All uploaded files, property updates, tags, and deletions persist directly in Supabase.
 
-For destructive database operations, open **Admin** from the sidebar and choose **Clear All Files**. The CMS asks for confirmation before deleting every indexed file, and the resulting notification provides an **Undo** action.
+For destructive database operations, open **Admin** from the sidebar and choose **Clear All Files**. Nexus asks for confirmation before deleting every indexed file, and the resulting notification provides an **Undo** action.

@@ -14,7 +14,7 @@ function escapeHtml(value) {
 
 function itemPage(item, shareUrl) {
   const title = String(item.title || item.filename || 'Shared file').slice(0, 160);
-  const description = String(item.description || item.filename || 'Shared from Nexus CMS.').slice(0, 280);
+  const description = String(item.description || item.filename || 'Shared from Nexus.').slice(0, 280);
   const appUrl = new URL(NEXUS_URL);
   appUrl.searchParams.set('item', item.id);
 
@@ -47,7 +47,7 @@ function itemPage(item, shareUrl) {
   <meta name="description" content="${safeDescription}">
   <link rel="canonical" href="${safeShareUrl}">
   <meta property="og:type" content="article">
-  <meta property="og:site_name" content="Nexus CMS">
+  <meta property="og:site_name" content="Nexus">
   <meta property="og:url" content="${safeShareUrl}">
   <meta property="og:title" content="${safeTitle}">
   <meta property="og:description" content="${safeDescription}">
@@ -59,7 +59,7 @@ function itemPage(item, shareUrl) {
   <meta name="twitter:title" content="${safeTitle}">
   <meta name="twitter:description" content="${safeDescription}">
   <meta name="twitter:image" content="${safeImage}">
-  <title>${safeTitle} · Nexus CMS</title>
+  <title>${safeTitle} · Nexus</title>
   <style>
     :root{color-scheme:dark;font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0d1117;color:#f0f6fc}
     *{box-sizing:border-box}
@@ -78,7 +78,7 @@ function itemPage(item, shareUrl) {
     <section>
       <h1>${safeTitle}</h1>
       <p>${safeDescription}</p>
-      <a href="${safeAppUrl}">Open in Nexus CMS</a>
+      <a href="${safeAppUrl}">Open in Nexus</a>
     </section>
   </main>
 </body>

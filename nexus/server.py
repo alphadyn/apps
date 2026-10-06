@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Lightweight REST API Backend & HTTP Server for Nexus Content Management System (CMS).
+Lightweight REST API backend and HTTP server for Nexus.
 Persists all media records, tags, and files to an SQLite Database.
 """
 
@@ -22,7 +22,7 @@ from database import DatabaseManager
 db_manager = DatabaseManager()
 
 
-class CMSHTTPRequestHandler(SimpleHTTPRequestHandler):
+class NexusHTTPRequestHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(APP_DIR), **kwargs)
 
@@ -217,8 +217,8 @@ class CMSHTTPRequestHandler(SimpleHTTPRequestHandler):
 
 def run_server(port: int = 8000, host: str = "0.0.0.0") -> None:
     server_address = (host, port)
-    httpd = HTTPServer(server_address, CMSHTTPRequestHandler)
-    print(f"🚀 Nexus CMS SQLite Database Server running at http://localhost:{port}")
+    httpd = HTTPServer(server_address, NexusHTTPRequestHandler)
+    print(f"🚀 Nexus SQLite database server running at http://localhost:{port}")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
@@ -229,7 +229,7 @@ def run_server(port: int = 8000, host: str = "0.0.0.0") -> None:
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="Nexus CMS Backend Server")
+    parser = argparse.ArgumentParser(description="Nexus backend server")
     parser.add_argument("--port", type=int, default=8000, help="Port to listen on (default 8000)")
     parser.add_argument("--host", type=str, default="0.0.0.0", help="Host interface")
     args = parser.parse_args()

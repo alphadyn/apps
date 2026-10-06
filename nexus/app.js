@@ -1,6 +1,6 @@
 /**
- * Nexus CMS — Modern Content & Media Management System
- * Full-featured content management system with Supabase persistence,
+ * Nexus — Media and Content Workspace
+ * Full-featured media workspace with Supabase persistence,
  * rich media players, metadata editing, tags, multi-criteria search, sorting, and batch actions.
  */
 
@@ -399,7 +399,7 @@
     document.getElementById('textShareBubbleText').textContent = message.split(url).join('').trim();
     document.getElementById('textShareLinkCard').href = url;
     document.getElementById('textShareCardTitle').textContent = item.title || item.filename || 'Shared file';
-    document.getElementById('textShareCardDescription').textContent = item.description || item.filename || 'Open this file in Nexus CMS.';
+    document.getElementById('textShareCardDescription').textContent = item.description || item.filename || 'Open this file in Nexus.';
     document.getElementById('textShareCardDomain').textContent = new URL(url).hostname;
     image.hidden = item.type !== 'image' || !item.dataUrl;
     if (!image.hidden) {
@@ -429,10 +429,10 @@
       navigator.clipboard.writeText(url).then(() => {
         showToast(`Copied direct URL to clipboard`, 'success');
       }).catch(() => {
-        prompt('Direct CMS URL:', url);
+        prompt('Nexus URL:', url);
       });
     } else {
-      prompt('Direct CMS URL:', url);
+      prompt('Nexus URL:', url);
     }
   }
 
@@ -593,7 +593,7 @@
         textContent: `# Strategic System Architecture Blueprint
 
 ## Executive Overview
-Nexus CMS provides a network-backed content repository capable of handling diverse media formats, extensive metadata attributes, and responsive playback backed by Supabase.
+Nexus provides a network-backed content repository capable of handling diverse media formats, extensive metadata attributes, and responsive playback backed by Supabase.
 
 ### Core Modules
 1. **Persistent Supabase Database Engine**: ACID-compliant relational transactions, indexing, and REST APIs.
@@ -1699,12 +1699,12 @@ class SpectrumVisualizer {
       openDeleteConfirmModal(state.items, true);
     });
 
-    // Export CMS JSON Database
+    // Export Nexus JSON database
     document.getElementById('exportDataBtn').addEventListener('click', () => {
       exportDatabase();
     });
 
-    // Import CMS JSON Database
+    // Import Nexus JSON database
     document.getElementById('importDataFileInput').addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (file) importDatabase(file);
@@ -2013,7 +2013,7 @@ class SpectrumVisualizer {
       }
     } else {
       // Created without file binary
-      dataUrl = `data:text/plain;charset=utf-8,${encodeURIComponent('Empty content record created in Nexus CMS.')}`;
+      dataUrl = `data:text/plain;charset=utf-8,${encodeURIComponent('Empty content record created in Nexus.')}`;
     }
 
     const newItem = {
@@ -2931,7 +2931,7 @@ class SpectrumVisualizer {
         state.selectedIds.clear();
         closeModal('deleteConfirmModal');
         renderApp();
-        showToast('All CMS records deleted', 'danger', () => undoLastDelete());
+        showToast('All Nexus records deleted', 'danger', () => undoLastDelete());
       } else {
         const idsToDelete = pendingDeleteItems.map((i) => i.id);
         state.lastDeletedItems = [...pendingDeleteItems];
@@ -3025,12 +3025,12 @@ class SpectrumVisualizer {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `nexus_cms_backup_${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `nexus_backup_${new Date().toISOString().slice(0, 10)}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showToast('CMS Database exported successfully', 'success');
+    showToast('Nexus database exported successfully', 'success');
   }
 
   function importDatabase(file) {

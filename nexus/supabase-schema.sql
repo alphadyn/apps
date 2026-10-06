@@ -36,28 +36,36 @@ drop policy if exists "Nexus CMS can read media items" on public.nexus_media_ite
 drop policy if exists "Nexus CMS can create media items" on public.nexus_media_items;
 drop policy if exists "Nexus CMS can update media items" on public.nexus_media_items;
 drop policy if exists "Nexus CMS can delete media items" on public.nexus_media_items;
+drop policy if exists "Nexus can read media items" on public.nexus_media_items;
+drop policy if exists "Nexus can create media items" on public.nexus_media_items;
+drop policy if exists "Nexus can update media items" on public.nexus_media_items;
+drop policy if exists "Nexus can delete media items" on public.nexus_media_items;
 
-create policy "Nexus CMS can read media items"
+create policy "Nexus can read media items"
   on public.nexus_media_items for select to anon using (true);
-create policy "Nexus CMS can create media items"
+create policy "Nexus can create media items"
   on public.nexus_media_items for insert to anon with check (true);
-create policy "Nexus CMS can update media items"
+create policy "Nexus can update media items"
   on public.nexus_media_items for update to anon using (true) with check (true);
-create policy "Nexus CMS can delete media items"
+create policy "Nexus can delete media items"
   on public.nexus_media_items for delete to anon using (true);
 
 drop policy if exists "Nexus CMS can upload media" on storage.objects;
 drop policy if exists "Nexus CMS can update media" on storage.objects;
 drop policy if exists "Nexus CMS can read media" on storage.objects;
 drop policy if exists "Nexus CMS can delete media" on storage.objects;
+drop policy if exists "Nexus can upload media" on storage.objects;
+drop policy if exists "Nexus can update media" on storage.objects;
+drop policy if exists "Nexus can read media" on storage.objects;
+drop policy if exists "Nexus can delete media" on storage.objects;
 
-create policy "Nexus CMS can upload media"
+create policy "Nexus can upload media"
   on storage.objects for insert to anon with check (bucket_id = 'nexus-media');
-create policy "Nexus CMS can update media"
+create policy "Nexus can update media"
   on storage.objects for update to anon using (bucket_id = 'nexus-media') with check (bucket_id = 'nexus-media');
-create policy "Nexus CMS can read media"
+create policy "Nexus can read media"
   on storage.objects for select to anon using (bucket_id = 'nexus-media');
-create policy "Nexus CMS can delete media"
+create policy "Nexus can delete media"
   on storage.objects for delete to anon using (bucket_id = 'nexus-media');
 
 notify pgrst, 'reload schema';

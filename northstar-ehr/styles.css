@@ -1945,3 +1945,236 @@ h4.collapse-head .collapse-toggle {
   background: #fff;
   font: inherit;
 }
+
+@media (max-width: 760px) {
+  html {
+    scroll-padding-top: 190px;
+  }
+
+  .login-screen {
+    min-height: 100vh;
+    min-height: 100svh;
+    padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
+  }
+
+  .app-shell {
+    min-height: 100vh;
+    min-height: 100svh;
+  }
+
+  .sidebar {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    align-items: center;
+    column-gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    padding: 12px max(14px, env(safe-area-inset-left)) 10px;
+    background: #14213a;
+    box-shadow: 0 5px 14px rgba(15, 23, 42, 0.15);
+  }
+
+  .sidebar > .brand-block,
+  .sidebar > .nav-links {
+    grid-column: 1 / -1;
+  }
+
+  .sidebar > .brand-block {
+    gap: 10px;
+  }
+
+  .sidebar > .brand-block .brand-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .sidebar > .brand-block p {
+    font-size: 0.82rem;
+  }
+
+  .nav-links {
+    gap: 6px;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .nav-link {
+    min-height: 44px;
+    scroll-snap-align: start;
+  }
+
+  .quick-action-card {
+    grid-column: 1;
+    min-width: 0;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .quick-action-card .primary-btn {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 8px;
+    font-size: 0.86rem;
+    white-space: nowrap;
+  }
+
+  .role-card {
+    grid-column: 2;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .role-card > p {
+    display: none;
+  }
+
+  .role-card select {
+    flex: 1 1 auto;
+    min-height: 44px;
+    min-width: 0;
+    padding: 8px;
+  }
+
+  .role-card .sign-out-btn {
+    flex: 0 0 auto;
+  }
+
+  .sign-out-btn {
+    min-height: 44px;
+    padding: 8px 0;
+  }
+
+  .topbar {
+    align-items: flex-start;
+  }
+
+  .topbar-actions {
+    flex: 0 1 auto;
+    justify-content: stretch;
+    align-content: flex-start;
+    width: 100%;
+  }
+
+  .search-box {
+    min-height: 46px;
+  }
+
+  .search-box input,
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  .data-exchange {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .data-exchange select,
+  .data-exchange .ghost-btn {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+  }
+
+  .data-exchange select {
+    padding: 0 8px;
+  }
+
+  .security-demo-banner {
+    align-items: flex-start;
+    padding: 12px;
+  }
+
+  .security-demo-banner a {
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+@media (max-width: 520px) {
+  .main-panel {
+    padding-right: max(12px, env(safe-area-inset-right));
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+    padding-left: max(12px, env(safe-area-inset-left));
+  }
+
+  .topbar {
+    gap: 12px;
+  }
+
+  .topbar-actions {
+    gap: 8px;
+  }
+
+  .demo-badge {
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .panel-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .panel-header > :first-child {
+    min-width: 0;
+  }
+
+  .imaging-metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .patient-list {
+    max-height: min(440px, 55vh);
+  }
+
+  .clinical-dashboard-heading,
+  .timeline-heading {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .collapse-toggle {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 360px) {
+  .sidebar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .quick-action-card,
+  .role-card {
+    grid-column: 1 / -1;
+  }
+
+  .quick-action-card {
+    justify-content: flex-start;
+  }
+
+  .quick-action-card .primary-btn {
+    width: auto;
+    padding: 8px 5px;
+    font-size: 0.78rem;
+  }
+}

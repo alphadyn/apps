@@ -421,8 +421,8 @@ h2 { margin: 0; font-size: clamp(1.8rem, 4vw, 3.6rem); line-height: .98; }
 .full { width: 100%; }
 .scrim { position: fixed; inset: 0; z-index: 30; background: rgba(31,35,32,.32); opacity: 0; pointer-events: none; transition: opacity .2s ease; }
 .scrim.open { opacity: 1; pointer-events: auto; }
-.toast { position: fixed; left: 50%; bottom: 22px; z-index: 50; transform: translate(-50%, 140%); max-width: min(520px, calc(100% - 28px)); padding: 12px 16px; background: var(--ink); color: white; border-radius: 8px; transition: transform .2s ease; }
-.toast.show { transform: translate(-50%, 0); }
+.toast { position: fixed; left: 50%; bottom: 22px; z-index: 50; transform: translate(-50%, calc(100% + 40px)); opacity: 0; pointer-events: none; max-width: min(520px, calc(100% - 28px)); padding: 12px 16px; background: var(--ink); color: white; border-radius: 8px; transition: transform .2s ease, opacity .2s ease; }
+.toast.show { transform: translate(-50%, 0); opacity: 1; }
 
 @media (max-width: 920px) {
   .top-nav { display: none; }

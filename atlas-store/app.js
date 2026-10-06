@@ -217,9 +217,13 @@ function addToCart(id) {
 function updateQuantity(id, delta) {
   const item = products.find(product => product.id === id);
   const next = (state.cart.get(id) || 0) + delta;
-  if (!item || next < 1) state.cart.delete(id);
+  const removed = !item || next < 1;
+  if (removed) state.cart.delete(id);
   else state.cart.set(id, Math.min(next, item.stock));
   persistAndRenderCart();
+  if (removed && item) {
+    showToast(state.cart.size === 0 ? `${item.name} removed. Your cart is now empty.` : `${item.name} removed from cart.`);
+  }
 }
 
 async function persistAndRenderCart() {

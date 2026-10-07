@@ -1,6 +1,6 @@
 # Alphadyn AI Apps and Experiments
 
-This repository is a portfolio-style collection of 24 independent projects: interactive demos, data visualizations, browser apps, reports, and Python utilities. Each project is designed to be opened, adapted, or expanded on its own. The collection is intentionally mixed: some apps are static browser experiences, while others use Supabase, Flask, or Vercel APIs.
+This repository is a portfolio-style collection of 21 independent projects: interactive demos, data visualizations, browser apps, and Python utilities. Each project is designed to be opened, adapted, or expanded on its own. The collection is intentionally mixed: some apps are static browser experiences, while others use Supabase, Flask, or Vercel APIs.
 
 The root landing page in [index.html](index.html) links directly to the deployed apps and gives a quick overview of the portfolio. It includes a Featured area and a full Catalog of all available apps and experiments.
 
@@ -29,7 +29,6 @@ Projects are listed alphabetically, matching the catalog on the landing page.
 - [Earth 3D Explorer](earth-3d-explorer/) ([Open app](https://alphadyn.github.io/apps/earth-3d-explorer/)) — Three.js globe with overlays and inspection interactions.
 - [Experiences](experiences/) ([Open app](https://alphadyn.github.io/apps/experiences/)) — Supabase-backed journal with trips, shareable Experience collections, Event maps, precise location picking, and media carousels.
 - [Fractal Patterns](fractal-patterns/) ([Open app](https://alphadyn.github.io/apps/fractal-patterns/)) — Interactive fractal visualizer.
-- [Game Videos](game-videos/) ([Open app](https://alphadyn.github.io/apps/game-videos/)) — Gaming video showcase page.
 - [Lexhaven Legal Docketing](lexhaven-legal-docketing/) ([Open app](https://alphadyn.github.io/apps/lexhaven-legal-docketing/)) — Matter and deadline tracking app.
 - [Market Curve Lab](market-curve-lab/) ([Open app](https://alphadyn.github.io/apps/market-curve-lab/)) — Rank all 500 S&P 500 companies by market cap, search stocks, and inspect selected-ticker all-time performance, trendlines, and concavity.
 - [Market Lens](market-lens/) ([Open app](https://alphadyn.github.io/apps/market-lens/)) — Dashboard for screening and reviewing large-cap equities.
@@ -41,9 +40,7 @@ Projects are listed alphabetically, matching the catalog on the landing page.
 - [Photo Gallery](photo-gallery/) ([Open app](https://alphadyn.github.io/apps/photo-gallery/)) — Responsive gallery app.
 - [Postboard](postboard/) ([Open app](https://alphadyn.github.io/apps/postboard/)) — Personal post archive with rich text, uploads, and Supabase integration.
 - [Pulse](pulse/) ([Open app](https://alphadyn.github.io/apps/pulse/)) — Social/news-style app with posts, tags, and discussion flows.
-- [Resume](resume/) ([Open app](https://alphadyn.github.io/apps/resume/)) — Portfolio-style resume page.
 - [Signal](signal/) ([Open app](https://alphadyn.github.io/apps/signal/)) — Focused, searchable news-reading list that captures Google News headlines and related stories and downloads them as structured JSON.
-- [Top Occupations](top-occupations/) ([Open app](https://alphadyn.github.io/apps/top-occupations/)) — Income report across top occupations.
 - [Vault](vault/) ([Open app](https://alphadyn.github.io/apps/vault/)) — Browser-based text and file encryption app; all processing stays on-device.
 - [vCard Generator](vcard-generator/) ([Open app](https://alphadyn.github.io/apps/vcard-generator/)) — Card generation and QR code output.
 

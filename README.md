@@ -1,6 +1,6 @@
 # Alphadyn AI Apps and Experiments
 
-This repository is a portfolio-style collection of 21 independent projects: interactive demos, data visualizations, browser apps, and Python utilities. Each project is designed to be opened, adapted, or expanded on its own. The collection is intentionally mixed: some apps are static browser experiences, while others use Supabase, Flask, or Vercel APIs.
+This repository is a portfolio-style collection of 20 independent projects: interactive demos, data visualizations, browser apps, and Python utilities. Each project is designed to be opened, adapted, or expanded on its own. The collection is intentionally mixed: some apps are static browser experiences, while others use Supabase, Flask, or Vercel APIs.
 
 The root landing page in [index.html](index.html) links directly to the deployed apps and gives a quick overview of the portfolio. It includes a Featured area and a full Catalog of all available apps and experiments.
 
@@ -25,7 +25,6 @@ Projects are listed alphabetically, matching the catalog on the landing page.
 - [Architectural Design](architectural-design/) ([Open app](https://alphadyn.github.io/apps/architectural-design/)) — Architectural concept board and home design presentation.
 - [Atlas Store](atlas-store/) ([Open app](https://alphadyn.github.io/apps/atlas-store/)) — Storefront mockup with catalog, cart, and checkout flow.
 - [Audio Equalizer](audio-equalizer/) ([Open app](https://alphadyn.github.io/apps/audio-equalizer/)) — Browser media player with live waveform and spectrum analysis.
-- [Crawler Indexer](crawler-indexer/) ([Open app](https://alphadyn.github.io/apps/crawler-indexer/)) — Domain-scoped crawler and indexer utility.
 - [Earth 3D Explorer](earth-3d-explorer/) ([Open app](https://alphadyn.github.io/apps/earth-3d-explorer/)) — Three.js globe with overlays and inspection interactions.
 - [Experiences](experiences/) ([Open app](https://alphadyn.github.io/apps/experiences/)) — Supabase-backed journal with trips, shareable Experience collections, Event maps, precise location picking, and media carousels.
 - [Fractal Patterns](fractal-patterns/) ([Open app](https://alphadyn.github.io/apps/fractal-patterns/)) — Interactive fractal visualizer.
@@ -112,7 +111,6 @@ If the app reports a `NetworkError`, the config file still contains placeholder 
 Run utility scripts from the repo root or from the project folder as needed:
 
 ```bash
-python3 crawler-indexer/indexer.py https://example.com --same-domain --max-pages 5 --output index.json
 python3 -m pip install -r signal/requirements.txt
 python3 -m playwright install chromium
 python3 signal/app.py
@@ -122,7 +120,7 @@ Signal runs as a local web app. After starting it, open <http://127.0.0.1:5000> 
 
 ## Testing
 
-This repo includes automated tests for the crawler and search engine utilities. Install the dev dependencies and run the suite:
+This repo includes automated tests for application utilities and generated pages. Install the dev dependencies and run the suite:
 
 ```bash
 python3 -m pip install -r requirements-dev.txt

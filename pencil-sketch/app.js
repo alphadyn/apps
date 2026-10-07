@@ -1,19 +1,19 @@
 const fileInput = document.getElementById('fileInput');
 const dropZone = document.getElementById('dropZone');
 const modeSelect = document.getElementById('modeSelect');
-const accuracyRange = document.getElementById('accuracyRange');
-const accuracyValue = document.getElementById('accuracyValue');
-const strokeLengthRange = document.getElementById('strokeLengthRange');
-const strokeLengthValue = document.getElementById('strokeLengthValue');
-const colorBlurRange = document.getElementById('colorBlurRange');
-const colorBlurValue = document.getElementById('colorBlurValue');
-const brightnessRange = document.getElementById('brightnessRange');
-const brightnessValue = document.getElementById('brightnessValue');
-const colorTintInput = document.getElementById('colorTintInput');
-const colorTintValue = document.getElementById('colorTintValue');
+const detailRange = document.getElementById('detailRange');
+const detailValue = document.getElementById('detailValue');
+const pressureRange = document.getElementById('pressureRange');
+const pressureValue = document.getElementById('pressureValue');
+const textureRange = document.getElementById('textureRange');
+const textureValue = document.getElementById('textureValue');
 const generateBtn = document.getElementById('generateBtn');
 const downloadBtn = document.getElementById('downloadBtn');
 const statusText = document.getElementById('status');
+const showOriginalBtn = document.getElementById('showOriginalBtn');
+const showSketchBtn = document.getElementById('showSketchBtn');
+const originalPanel = document.getElementById('originalPanel');
+const sketchPanel = document.getElementById('sketchPanel');
 
 const originalCanvas = document.getElementById('originalCanvas');
 const sketchCanvas = document.getElementById('sketchCanvas');
@@ -85,30 +85,23 @@ function colorDodgeBlend(grayValue, blurredInvertedValue) {
   return clampByte(Math.round((grayValue * 256) / (255 - blurredInvertedValue)));
 }
 
-function hexToRgb(hexColor) {
-  const clean = hexColor.replace('#', '');
-  const expanded = clean.length === 3
-    ? clean.split('').map((ch) => ch + ch).join('')
-    : clean;
-
-  return {
-    r: parseInt(expanded.slice(0, 2), 16),
-    g: parseInt(expanded.slice(2, 4), 16),
-    b: parseInt(expanded.slice(4, 6), 16)
-  };
-}
-
 function updateLabels() {
-  accuracyValue.textContent = `${accuracyRange.value}%`;
-  strokeLengthValue.textContent = `${strokeLengthRange.value}%`;
-  colorBlurValue.textContent = `${colorBlurRange.value}%`;
-  brightnessValue.textContent = `${brightnessRange.value}%`;
-  colorTintValue.textContent = colorTintInput.value.toUpperCase();
+  detailValue.textContent = `${detailRange.value}%`;
+  pressureValue.textContent = `${pressureRange.value}%`;
+  textureValue.textContent = `${textureRange.value}%`;
 }
 
 function setStatus(message, isError = false) {
   statusText.textContent = message;
   statusText.style.color = isError ? '#fca5a5' : '#a7f3d0';
+}
+
+function setPreview(view) {
+  const showOriginal = view === 'original';
+  originalPanel.hidden = !showOriginal;
+  sketchPanel.hidden = showOriginal;
+  showOriginalBtn.setAttribute('aria-pressed', String(showOriginal));
+  showSketchBtn.setAttribute('aria-pressed', String(!showOriginal));
 }
 
 function renderImageToCanvas(canvas, context, image) {
@@ -120,6 +113,8 @@ function renderImageToCanvas(canvas, context, image) {
   canvas.width = width;
   canvas.height = height;
   context.clearRect(0, 0, width, height);
+  context.fillStyle = '#ffffff';
+  context.fillRect(0, 0, width, height);
   context.drawImage(image, 0, 0, width, height);
 }
 
@@ -136,102 +131,48 @@ function generateSketch() {
   const sourceData = source.data;
   const outputData = output.data;
   const mode = modeSelect.value;
-  const accuracy = Number(accuracyRange.value) / 100;
-  const strokeLength = Number(strokeLengthRange.value) / 100;
-  const colorBlurLevel = Number(colorBlurRange.value) / 100;
-  const brightness = Number(brightnessRange.value) / 100;
-  const tint = hexToRgb(colorTintInput.value);
-  const tintR = tint.r / 255;
-  const tintG = tint.g / 255;
-  const tintB = tint.b / 255;
+  const detail = Number(detailRange.value) / 100;
+  const pressure = 0.3 + Number(pressureRange.value) / 100 * 1.9;
+  const texture = Number(textureRange.value) / 100;
 
   const gray = getGrayChannel(sourceData);
   const invertedGray = invertChannel(gray);
-  const blurRadius = Math.max(2, Math.round(6 + strokeLength * 32));
+  const blurRadius = Math.round(2 + (1 - detail) * 18);
   const blurredInverted = boxBlurChannel(invertedGray, width, height, blurRadius);
-  const colorBlurBoostRadius = Math.max(1, Math.round(1 + colorBlurLevel * 30));
-  const colorBlurredInverted = mode === 'color'
-    ? boxBlurChannel(blurredInverted, width, height, colorBlurBoostRadius)
-    : blurredInverted;
-  const brightnessScale = 0.45 + brightness * 1.5;
-  const colorSourceMix = 0.04 + accuracy * 0.28;
-  const colorSaturation = 0.12 + accuracy * 0.24;
-  const paperBlend = 0.2 + strokeLength * 0.22;
 
   for (let px = 0, i = 0; i < sourceData.length; i += 4, px += 1) {
-    const blurSource = mode === 'color' ? colorBlurredInverted : blurredInverted;
-    const sketchTone = colorDodgeBlend(gray[px], blurSource[px]);
-
-    if (mode === 'bw') {
-      const value = clampByte(Math.round(sketchTone * brightnessScale));
-      outputData[i] = value;
-      outputData[i + 1] = value;
-      outputData[i + 2] = value;
-      outputData[i + 3] = 255;
-      continue;
-    }
-
-    const r = sourceData[i];
-    const g = sourceData[i + 1];
-    const b = sourceData[i + 2];
-    const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
-    const desatR = luminance + (r - luminance) * colorSaturation;
-    const desatG = luminance + (g - luminance) * colorSaturation;
-    const desatB = luminance + (b - luminance) * colorSaturation;
-
-    const sketchBase = sketchTone / 255;
-    const pencilShade = Math.pow(sketchBase, 1.34);
-    const linePressure = 0.85 + (1 - accuracy) * 0.45;
-    const shadowScale = 1 - (1 - pencilShade) * linePressure;
-
+    const sketchTone = colorDodgeBlend(gray[px], blurredInverted[px]) / 255;
     const x = px % width;
     const y = Math.floor(px / width);
-    const hatchA = Math.sin(x * 0.19 + y * 0.11);
-    const hatchB = Math.sin(x * -0.13 + y * 0.23);
-    const hatchC = Math.sin(x * 0.08 + y * 0.31);
-    const hatchMix = hatchA * 0.5 + hatchB * 0.35 + hatchC * 0.15;
-    const midtoneMask = Math.max(0, 1 - Math.abs(sketchBase - 0.55) * 1.7);
-    const hatchStrength = ((1 - accuracy) * 0.28 + strokeLength * 0.16) * midtoneMask;
-    const hatchShade = 1 - Math.max(0, hatchMix) * hatchStrength;
+    const left = gray[y * width + Math.max(0, x - 1)];
+    const right = gray[y * width + Math.min(width - 1, x + 1)];
+    const above = gray[Math.max(0, y - 1) * width + x];
+    const below = gray[Math.min(height - 1, y + 1) * width + x];
+    const edge = Math.hypot(right - left, below - above) / 360;
+    const shadow = 1 - gray[px] / 255;
+    const graphite = (1 - sketchTone) * 0.75
+      + edge * (0.2 + detail * 0.7) + shadow * 0.1;
 
+    // Keep hatching and grain inside drawn areas, leaving blank paper clean.
+    const hatchA = Math.pow(Math.max(0, Math.sin((x + y) * 1.15)), 8);
+    const hatchB = Math.pow(Math.max(0, Math.sin((x - y) * 0.95)), 8);
     const grainSeed = ((x * 73856093) ^ (y * 19349663)) & 255;
     const grain = grainSeed / 255 - 0.5;
-    const grainAmount = (1 - accuracy) * 0.12 + 0.05;
-    const grainShade = 1 - grain * grainAmount;
-    const texturedShade = Math.max(0, Math.min(1.2, shadowScale * hatchShade * grainShade));
+    const strokeTexture = 1 + texture * (hatchA * 0.9 + hatchB * shadow * 0.6 + grain * 0.5 - 0.25);
+    const darkness = Math.min(1, Math.max(0, graphite * pressure * strokeTexture));
 
-    const tintRedScale = 0.25 + tintR * 0.9;
-    const tintGreenScale = 0.25 + tintG * 0.9;
-    const tintBlueScale = 0.25 + tintB * 0.9;
-
-    const redSketch = desatR * texturedShade * tintRedScale;
-    const greenSketch = desatG * texturedShade * tintGreenScale;
-    const blueSketch = desatB * texturedShade * tintBlueScale;
-
-    const warmPaperR = 247;
-    const warmPaperG = 242;
-    const warmPaperB = 231;
-
-    const paperRed = redSketch * (1 - paperBlend) + warmPaperR * paperBlend;
-    const paperGreen = greenSketch * (1 - paperBlend) + warmPaperG * paperBlend;
-    const paperBlue = blueSketch * (1 - paperBlend) + warmPaperB * paperBlend;
-
-    const mixedRed = paperRed * (1 - colorSourceMix) + r * colorSourceMix;
-    const mixedGreen = paperGreen * (1 - colorSourceMix) + g * colorSourceMix;
-    const mixedBlue = paperBlue * (1 - colorSourceMix) + b * colorSourceMix;
-
-    outputData[i] = clampByte(Math.round(mixedRed * brightnessScale));
-    outputData[i + 1] = clampByte(Math.round(mixedGreen * brightnessScale));
-    outputData[i + 2] = clampByte(Math.round(mixedBlue * brightnessScale));
+    for (let channel = 0; channel < 3; channel += 1) {
+      const pigment = mode === 'color' ? (sourceData[i + channel] - gray[px]) * 0.8 : 0;
+      outputData[i + channel] = clampByte(Math.round(255 - darkness * (255 - pigment)));
+    }
     outputData[i + 3] = 255;
   }
 
   sketchCanvas.width = width;
   sketchCanvas.height = height;
   sketchCtx.putImageData(output, 0, 0);
-  setStatus(mode === 'bw'
-    ? `Black-and-white pencil sketch generated at ${accuracyRange.value}% accuracy, ${strokeLengthRange.value}% stroke length, ${brightnessRange.value}% brightness. Drag the sketch to save it locally.`
-    : `Color pencil sketch generated at ${accuracyRange.value}% accuracy, ${strokeLengthRange.value}% stroke length, ${colorBlurRange.value}% blurriness, ${brightnessRange.value}% brightness, tint ${colorTintInput.value.toUpperCase()}. Drag the sketch to save it locally.`);
+  const style = mode === 'bw' ? 'Black-and-white' : 'Color';
+  setStatus(`${style} pencil sketch generated with ${detailRange.value}% detail, ${pressureRange.value}% pressure, and ${textureRange.value}% texture. Drag the sketch to save it locally.`);
 }
 
 function loadImageFile(file) {
@@ -274,6 +215,8 @@ function handleDrop(event) {
 }
 
 fileInput.addEventListener('change', handleFileSelection);
+showOriginalBtn.addEventListener('click', () => setPreview('original'));
+showSketchBtn.addEventListener('click', () => setPreview('sketch'));
 dropZone.addEventListener('dragenter', (event) => {
   event.preventDefault();
   dropZone.classList.add('dragover');
@@ -289,36 +232,14 @@ dropZone.addEventListener('dragleave', (event) => {
   }
 });
 dropZone.addEventListener('drop', handleDrop);
-accuracyRange.addEventListener('input', () => {
-  updateLabels();
-  if (currentImage) {
-    generateSketch();
-  }
-});
-strokeLengthRange.addEventListener('input', () => {
-  updateLabels();
-  if (currentImage) {
-    generateSketch();
-  }
-});
-colorBlurRange.addEventListener('input', () => {
-  updateLabels();
-  if (currentImage) {
-    generateSketch();
-  }
-});
-brightnessRange.addEventListener('input', () => {
-  updateLabels();
-  if (currentImage) {
-    generateSketch();
-  }
-});
-colorTintInput.addEventListener('input', () => {
-  updateLabels();
-  if (currentImage) {
-    generateSketch();
-  }
-});
+for (const slider of [detailRange, pressureRange, textureRange]) {
+  slider.addEventListener('input', () => {
+    updateLabels();
+    if (currentImage) {
+      generateSketch();
+    }
+  });
+}
 generateBtn.addEventListener('click', generateSketch);
 modeSelect.addEventListener('change', () => {
   if (currentImage) {

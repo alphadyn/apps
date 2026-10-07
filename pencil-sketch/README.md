@@ -4,7 +4,7 @@
 
 > Standalone browser image-conversion experiment. See the [repository catalog](../README.md) for shared setup and deployment context.
 
-A simple browser app for turning uploaded images into pencil-style sketches. It supports both black-and-white and color pencil effects and lets the user tune how closely the result matches the original, how fine or coarse the pencil strokes feel, and how the image is balanced by brightness and a color tint picker.
+A simple browser app for turning uploaded images into pencil-style sketches. It supports both black-and-white and color pencil effects, with controls for line detail, pencil pressure, and shading texture.
 
 The sketch engine follows the same core idea used in the GeeksforGeeks example:
 grayscale conversion, invert, blur, and color-dodge blending.
@@ -13,12 +13,10 @@ grayscale conversion, invert, blur, and color-dodge blending.
 
 - Upload an image file from your device
 - Choose between black-and-white and color sketch modes
-- Adjust the sketch accuracy from more artistic to more faithful to the source image
-- Adjust the pencil stroke length (maps to blur radius in the invert+blur stage)
-- Adjust color pencil blurriness to control how soft the color sketch appears
-- Adjust brightness to make the sketch lighter or darker
-- Use one color picker to set the color pencil tint
-- Preview the original image and generated sketch side by side
+- Adjust line detail from loose outlines to fine pencil lines
+- Adjust pencil pressure from light graphite to bold, dark strokes
+- Add shading texture with directional hatching and pencil grain
+- Switch between the original and sketch using the preview toggle
 - Download the final sketch as a PNG
 
 ## Run locally
@@ -40,21 +38,12 @@ http://localhost:8000/
 
 1. Click “Choose an image” and select a photo.
 2. Pick a sketch style: black-and-white or color pencil.
-3. Move the “Accuracy to original” slider:
-   - Lower values create a more stylized, artistic sketch
-   - Higher values keep more of the original image’s detail and shading
-4. Move the “Pencil stroke length” slider:
-   - Lower values use a smaller blur radius for harder, tighter lines
-   - Higher values use a larger blur radius for softer, broader shading
-5. Move the “Color pencil blurriness” slider:
-   - Lower values keep color edges more defined
-   - Higher values make color strokes softer and more blended
-6. Adjust the “Brightness” slider:
-   - Lower values darken the sketch
-   - Higher values lighten the sketch
-7. Use the color picker to set the pencil tint for color mode.
-8. Click “Generate Sketch” if needed.
-9. Use “Download PNG” to save the result.
+3. Adjust “Line detail” for loose outlines or fine lines.
+4. Adjust “Pencil pressure” to make strokes lighter or darker without darkening blank paper.
+5. Adjust “Shading texture” for smooth shading or visible pencil hatching.
+6. Switch to the “Sketch” preview to see the result. Adjustments regenerate it automatically in both sketch styles.
+7. Click “Generate Sketch” if needed.
+8. Use “Download PNG” to save the sketch, regardless of the selected preview.
 
 ## Files
 
@@ -73,9 +62,11 @@ The black-and-white sketch is generated with this pipeline:
 
    sketch = gray * 256 / (255 - blurredInvert)
 
-5. Clamp output values to 0-255.
+5. Combine the pencil tone with local edge strength and soft shadow shading.
+6. Apply pencil pressure, directional hatching, and deterministic grain only in drawn areas.
+7. Clamp output values to 0-255, keeping untouched paper white.
 
-Color mode applies the same pencil tone as a luminance mask, then applies an extra blur pass controlled by the blurriness slider.
+Line detail reduces the blur radius and strengthens fine edges at higher values. Color mode uses the same strokes and shading, adding subdued pigment from the source image instead of overlaying the original photograph. Transparent images are rendered over white paper before conversion.
 
 ## Test the project
 

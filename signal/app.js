@@ -1,12 +1,4 @@
-const GOOGLE_NEWS_RSS_URL = 'https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en';
-const RSS2JSON_PROXY = 'https://api.rss2json.com/v1/api.json?rss_url=';
-const GOOGLE_NEWS_FEEDS = [
-  { section: 'Top Stories', url: GOOGLE_NEWS_RSS_URL },
-  ...['WORLD', 'NATION', 'BUSINESS', 'TECHNOLOGY', 'ENTERTAINMENT', 'SPORTS', 'SCIENCE', 'HEALTH'].map((topic) => ({
-    section: topic.charAt(0) + topic.slice(1).toLowerCase(),
-    url: `https://news.google.com/rss/headlines/section/topic/${topic}?hl=en-US&gl=US&ceid=US:en`,
-  })),
-];
+const NEWS_SNAPSHOT_URL = './news.json';
 
 const elements = {
   captureButton: document.getElementById('capture-button'),
@@ -25,6 +17,7 @@ const elements = {
 };
 
 let capturedItems = [];
+let capturedSnapshot = null;
 
 function getVisibleStories() {
   const query = elements.searchInput.value.trim().toLowerCase();
@@ -161,80 +154,61 @@ function clearError() {
   elements.errorMessage.textContent = '';
 }
 
-function normalizeStories(items) {
-  const seenLinks = new Set();
-
-  return items.reduce((stories, item) => {
-    if (!item || !item.title || !item.link || seenLinks.has(item.link)) {
-      return stories;
-    }
-
-    seenLinks.add(item.link);
-    stories.push({
-      header_title: item.title.replace(/\s+/g, ' ').trim(),
-      header_url: item.link,
-      section: item.section || 'Google News',
-      subtitles: (item.categories || []).filter(Boolean).slice(0, 4).map((subtitle) => ({
-        title: String(subtitle).replace(/\s+/g, ' ').trim(),
-        url: item.link,
-      })),
-    });
-    return stories;
-  }, []);
-}
-
-async function fetchNewsFeed(feed) {
-  const response = await fetch(`${RSS2JSON_PROXY}${encodeURIComponent(feed.url)}`, {
+async function fetchNewsSnapshot() {
+  const response = await fetch(NEWS_SNAPSHOT_URL, {
     cache: 'no-store',
     headers: { Accept: 'application/json' },
   });
 
   if (!response.ok) {
-    throw new Error(`${feed.section} feed request failed (${response.status}).`);
+    throw new Error(`News snapshot request failed (${response.status}). The Pages deployment must build the snapshot before it can be loaded.`);
   }
 
   const payload = await response.json();
-  if (payload.status !== 'ok') {
-    throw new Error(payload.message || `${feed.section} feed is unavailable.`);
+  const isText = (value) => typeof value === 'string' && value.trim().length > 0;
+  const isLink = (value) => isText(value) && /^https?:\/\/[^/\s]+(?:\/|$)/i.test(value);
+  const isFeed = (feed) => feed && isText(feed.section) && isLink(feed.url);
+  if (!payload || !Array.isArray(payload.news) || !payload.news.length
+      || !payload.news.every((story) => story && isText(story.header_title)
+        && isLink(story.header_url) && isText(story.section)
+        && Array.isArray(story.subtitles)
+        && story.subtitles.every((item) => item && isText(item.title) && isLink(item.url)))
+      || !Array.isArray(payload.source_feeds) || !payload.source_feeds.length
+      || !payload.source_feeds.every(isFeed)
+      || !Array.isArray(payload.failed_feeds)
+      || !payload.failed_feeds.every((feed) => isFeed(feed) && isText(feed.error)
+        && payload.source_feeds.some((source) => source.url === feed.url))
+      || payload.failed_feeds.length >= payload.source_feeds.length
+      || !isText(payload.captured_at_utc) || !Number.isFinite(Date.parse(payload.captured_at_utc))) {
+    throw new Error('The news snapshot is invalid or contains no headlines.');
   }
-
-  return (payload.items || []).map((item) => ({ ...item, section: feed.section }));
+  return payload;
 }
 
 async function fetchGoogleNews() {
   clearError();
-  setStatus('running', 'Building your briefing', 'Loading Top Stories and all available news sections…', 'IN PROGRESS');
+  setStatus('running', 'Building your briefing', 'Loading the latest Google News snapshot…', 'IN PROGRESS');
   elements.captureButton.disabled = true;
   elements.buttonLabel.textContent = 'Gathering the latest stories…';
 
   try {
-    const feedResults = await Promise.allSettled(GOOGLE_NEWS_FEEDS.map(fetchNewsFeed));
-    const successfulFeeds = feedResults.filter((result) => result.status === 'fulfilled');
-    const allFeedItems = successfulFeeds.flatMap((result) => result.value);
-
-    if (!allFeedItems.length) {
-      const failure = feedResults.find((result) => result.status === 'rejected');
-      throw failure?.reason || new Error('No stories were returned by the Google News feeds.');
-    }
-
-    capturedItems = normalizeStories(allFeedItems);
+    capturedSnapshot = await fetchNewsSnapshot();
+    capturedItems = capturedSnapshot.news;
     renderStories(capturedItems);
-    const feedMessage = successfulFeeds.length === GOOGLE_NEWS_FEEDS.length
-      ? `Loaded ${capturedItems.length} unique stories across ${successfulFeeds.length} Google News feeds.`
-      : `Loaded ${capturedItems.length} unique stories across ${successfulFeeds.length} of ${GOOGLE_NEWS_FEEDS.length} feeds.`;
-    setStatus('idle', `${capturedItems.length} ${capturedItems.length === 1 ? 'story' : 'stories'} in your briefing`, feedMessage, `${successfulFeeds.length} FEEDS`);
-    if (successfulFeeds.length < GOOGLE_NEWS_FEEDS.length) {
-      showError(`${GOOGLE_NEWS_FEEDS.length - successfulFeeds.length} Google News section feed(s) could not be loaded.`);
+    const totalFeeds = capturedSnapshot.source_feeds.length;
+    const loadedFeeds = totalFeeds - capturedSnapshot.failed_feeds.length;
+    const feedMessage = `Loaded ${capturedItems.length} unique stories across ${loadedFeeds} of ${totalFeeds} Google News feeds.`;
+    setStatus('idle', `${capturedItems.length} ${capturedItems.length === 1 ? 'story' : 'stories'} in your briefing`, feedMessage, `${loadedFeeds} FEEDS`);
+    if (capturedSnapshot.failed_feeds.length) {
+      showError(`Some sections were unavailable when this snapshot was built: ${capturedSnapshot.failed_feeds.map((feed) => `${feed.section}: ${feed.error}`).join('; ')}. The next scheduled build will try again.`);
     }
-    elements.captureFooter.textContent = `Captured ${new Date().toLocaleString()} · Source: Google News`;
-    elements.captureFooter.hidden = false;
-    elements.captureButton.disabled = false;
-    elements.buttonLabel.textContent = 'Capture today’s headlines';
+    elements.captureFooter.textContent = `Snapshot updated ${new Date(capturedSnapshot.captured_at_utc).toLocaleString()} · Source: Google News`;
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     showError(message);
-    renderStories([]);
+    renderStories(capturedItems);
     setStatus('error', 'Capture needs attention', 'The news feed is temporarily unavailable. Please try again.', 'CAPTURE FAILED');
+  } finally {
     elements.captureButton.disabled = false;
     elements.buttonLabel.textContent = 'Capture today’s headlines';
   }
@@ -242,8 +216,9 @@ async function fetchGoogleNews() {
 
 function downloadAsJson() {
   const payload = {
-    source_feeds: GOOGLE_NEWS_FEEDS.map(({ section, url }) => ({ section, url })),
-    captured_at_utc: new Date().toISOString(),
+    source_feeds: capturedSnapshot.source_feeds,
+    captured_at_utc: capturedSnapshot.captured_at_utc,
+    failed_feeds: capturedSnapshot.failed_feeds,
     news: capturedItems,
   };
 

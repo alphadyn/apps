@@ -6,6 +6,39 @@
 
 Signal can run as a browser-based page or as a local Flask app. The local app opens Google News in headless Chromium, scrolls the feed to load additional stories, and extracts article titles, links, and related reads. Captures are shown in a responsive interface, can be searched, and can be downloaded as structured JSON. The local app also saves a copy beside itself as `google_news.json`.
 
+## GitHub Pages
+
+The Pages deployment fetches Google News RSS directly with `python3 signal/build_data.py`
+and publishes `signal/news.json` alongside the page. The existing deployment workflow
+is scheduled once an hour (GitHub may delay scheduled runs) and also runs on
+pushes to `main` or manual dispatch. Browser captures load this same-origin snapshot;
+they do not use an RSS conversion or CORS proxy.
+
+The snapshot includes Top Stories and eight topic feeds, deduplicated by article URL.
+The interface and JSON download preserve the snapshot's actual capture timestamp.
+Failed sections are recorded in `failed_feeds`, logged during the build, and displayed
+in the page. A build with no usable headlines fails instead of publishing an empty
+snapshot. RSS headlines have an empty `subtitles` array; the Flask capture still
+extracts related reads from Google News.
+
+To preview the static page locally, generate the snapshot before serving this directory:
+
+```sh
+python3 build_data.py
+python3 -m http.server 8000
+```
+
+Open <http://localhost:8000>. The builder uses only Python's standard library.
+The generated `news.json` is ignored by Git and is regenerated during deployment.
+
+Snapshot and browser-script regression tests run during deployment. To run them
+locally (the browser-script tests require Node.js 18 or newer):
+
+```sh
+python3 -m unittest discover -s . -p test_build_data.py
+node --test app.test.js
+```
+
 ## Requirements
 
 - Python 3.10 or newer

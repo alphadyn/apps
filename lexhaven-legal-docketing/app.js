@@ -80,7 +80,11 @@ const elements = {
   matterForm: document.getElementById('matterForm'),
   taskForm: document.getElementById('taskForm'),
   taskList: document.getElementById('taskList'),
-  taskMatterSelect: document.getElementById('taskMatterSelect')
+  taskMatterSelect: document.getElementById('taskMatterSelect'),
+  newMatterBtn: document.getElementById('newMatterBtn'),
+  toggleMatterFormBtn: document.getElementById('toggleMatterFormBtn'),
+  cancelMatterBtn: document.getElementById('cancelMatterBtn'),
+  taskFilters: [...document.querySelectorAll('.filter-pill')]
 };
 
 function init() {
@@ -118,22 +122,23 @@ function saveData() {
   }));
 }
 
+function setMatterFormVisible(visible) {
+  elements.matterForm.classList.toggle('hidden', !visible);
+  elements.toggleMatterFormBtn.setAttribute('aria-expanded', String(visible));
+  elements.newMatterBtn.setAttribute('aria-expanded', String(visible));
+  if (visible) {
+    elements.matterForm.querySelector('input[name="title"]').focus();
+  }
+}
+
 function bindEvents() {
-  document.getElementById('newMatterBtn').addEventListener('click', () => {
-    document.getElementById('matterForm').classList.remove('hidden');
-    document.getElementsByName('title')[0].focus();
+  elements.newMatterBtn.addEventListener('click', () => setMatterFormVisible(true));
+  elements.toggleMatterFormBtn.addEventListener('click', () => {
+    setMatterFormVisible(elements.matterForm.classList.contains('hidden'));
   });
-
-  document.getElementById('toggleMatterFormBtn').addEventListener('click', () => {
-    const form = document.getElementById('matterForm');
-    form.classList.toggle('hidden');
-    if (!form.classList.contains('hidden')) {
-      form.querySelector('input[name="title"]').focus();
-    }
-  });
-
-  document.getElementById('cancelMatterBtn').addEventListener('click', () => {
-    document.getElementById('matterForm').classList.add('hidden');
+  elements.cancelMatterBtn.addEventListener('click', () => {
+    setMatterFormVisible(false);
+    elements.toggleMatterFormBtn.focus();
   });
 
   elements.matterSearch.addEventListener('input', (event) => {
@@ -163,7 +168,7 @@ function bindEvents() {
     state.matters.unshift(matter);
     state.selectedMatterId = matter.id;
     elements.matterForm.reset();
-    elements.matterForm.classList.add('hidden');
+    setMatterFormVisible(false);
     saveData();
     render();
   });
@@ -192,11 +197,14 @@ function bindEvents() {
     render();
   });
 
-  document.querySelectorAll('.filter-pill').forEach((button) => {
+  elements.taskFilters.forEach((button) => {
     button.addEventListener('click', () => {
       state.taskFilter = button.dataset.filter;
-      document.querySelectorAll('.filter-pill').forEach((pill) => pill.classList.remove('active'));
-      button.classList.add('active');
+      elements.taskFilters.forEach((pill) => {
+        const active = pill === button;
+        pill.classList.toggle('active', active);
+        pill.setAttribute('aria-pressed', String(active));
+      });
       renderTasks();
     });
   });
@@ -234,6 +242,7 @@ function render() {
   renderStats();
   renderMatters();
   renderDetails();
+  renderTaskMatterOptions();
   renderTasks();
 }
 
@@ -247,33 +256,21 @@ function renderStats() {
     return diff >= 0 && diff <= 14;
   }).length;
 
-  elements.statsGrid.innerHTML = `
-    <article class="stat-card">
-      <span>Total matters</span>
-      <strong>${state.matters.length}</strong>
-    </article>
-    <article class="stat-card">
-      <span>Open matters</span>
-      <strong>${openMatters}</strong>
-    </article>
-    <article class="stat-card">
-      <span>Pending tasks</span>
-      <strong>${pendingTasks}</strong>
-    </article>
-    <article class="stat-card">
-      <span>Upcoming deadlines</span>
-      <strong>${upcomingHearings}</strong>
-    </article>
-  `;
-
+  const stats = [
+    { label: 'Total matters', value: state.matters.length },
+    { label: 'Open matters', value: openMatters },
+    { label: 'Pending tasks', value: pendingTasks },
+    { label: 'Hearings in 14 days', value: upcomingHearings }
+  ];
   if (overdue > 0) {
-    elements.statsGrid.insertAdjacentHTML('beforeend', `
-      <article class="stat-card">
-        <span>Overdue tasks</span>
-        <strong>${overdue}</strong>
-      </article>
-    `);
+    stats.push({ label: 'Overdue tasks', value: overdue, alert: true });
   }
+  elements.statsGrid.innerHTML = stats.map((stat) => `
+    <article class="stat-card${stat.alert ? ' stat-card-alert' : ''}">
+      <span>${stat.label}</span>
+      <strong>${stat.value}</strong>
+    </article>
+  `).join('');
 }
 
 function renderMatters() {
@@ -288,17 +285,17 @@ function renderMatters() {
   }
 
   elements.matterList.innerHTML = filtered.map((matter) => `
-    <div class="matter-item ${matter.id === state.selectedMatterId ? 'active' : ''}" data-matter-id="${matter.id}">
-      <h4>${escapeHtml(matter.title)}</h4>
-      <div class="matter-meta">
+    <button type="button" class="matter-item ${matter.id === state.selectedMatterId ? 'active' : ''}" data-matter-id="${matter.id}" aria-pressed="${matter.id === state.selectedMatterId}">
+      <span class="matter-title">${escapeHtml(matter.title)}</span>
+      <span class="matter-meta">
         <span>${escapeHtml(matter.client)}</span>
         <span class="tag ${matter.status.toLowerCase()}">${escapeHtml(matter.status)}</span>
-      </div>
-      <div class="matter-meta">
+      </span>
+      <span class="matter-meta">
         <span>${escapeHtml(matter.matterType)}</span>
         <span>${escapeHtml(formatDate(matter.nextHearing))}</span>
-      </div>
-    </div>
+      </span>
+    </button>
   `).join('');
 }
 
@@ -317,12 +314,18 @@ function renderDetails() {
       <span>${escapeHtml(matter.matterType)}</span>
     </div>
     <p>${escapeHtml(matter.description || 'No summary provided yet.')}</p>
-    <div class="matter-meta">
-      <span><strong>Court:</strong> ${escapeHtml(matter.court || '—')}</span>
-      <span><strong>Next hearing:</strong> ${escapeHtml(formatDate(matter.nextHearing))}</span>
-      <span><strong>Attorney:</strong> ${escapeHtml(matter.assigned || 'Unassigned')}</span>
-    </div>
+    <dl class="case-facts">
+      <div><dt>Court / venue</dt><dd>${escapeHtml(matter.court || '—')}</dd></div>
+      <div><dt>Next hearing</dt><dd>${escapeHtml(formatDate(matter.nextHearing))}</dd></div>
+      <div><dt>Assigned attorney</dt><dd>${escapeHtml(matter.assigned || 'Unassigned')}</dd></div>
+    </dl>
   `;
+}
+
+function renderTaskMatterOptions() {
+  elements.taskMatterSelect.innerHTML = state.matters.map((matter) => `
+    <option value="${matter.id}" ${matter.id === state.selectedMatterId ? 'selected' : ''}>${escapeHtml(matter.title)}</option>
+  `).join('');
 }
 
 function renderTasks() {
@@ -334,10 +337,6 @@ function renderTasks() {
       || (state.taskFilter === 'completed' && task.status === 'Completed');
     return matchesMatter && matchesFilter;
   }).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
-
-  elements.taskMatterSelect.innerHTML = state.matters.map((matter) => `
-    <option value="${matter.id}" ${matter.id === state.selectedMatterId ? 'selected' : ''}>${escapeHtml(matter.title)}</option>
-  `).join('');
 
   if (!filtered.length) {
     elements.taskList.innerHTML = '<div class="empty-state">No tasks for this view yet.</div>';

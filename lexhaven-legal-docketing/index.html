@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script defer src="/apps/analytics.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Lexhaven Legal Docketing</title>
+    <meta name="description" content="Manage legal matters, deadlines, and tasks in one clear workspace with Lexhaven Legal Docketing." />
+    <link rel="canonical" href="https://alphadyn.github.io/apps/lexhaven-legal-docketing/" />
+    <link rel="icon" href="favicon.png" type="image/png" sizes="64x64" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" sizes="180x180" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Lexhaven Legal Docketing" />
+    <meta property="og:title" content="Lexhaven Legal Docketing" />
+    <meta property="og:description" content="Legal matters, deadlines, and tasks. One clear workspace." />
+    <meta property="og:url" content="https://alphadyn.github.io/apps/lexhaven-legal-docketing/" />
+    <meta property="og:image" content="https://alphadyn.github.io/apps/lexhaven-legal-docketing/social-preview.png" />
+    <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/lexhaven-legal-docketing/social-preview.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Lexhaven Legal Docketing with a gold scales-of-justice shield on navy. Clear priorities. Confident next steps. Matters, hearings, and tasks." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Lexhaven Legal Docketing" />
+    <meta name="twitter:description" content="Legal matters, deadlines, and tasks. One clear workspace." />
+    <meta name="twitter:image" content="https://alphadyn.github.io/apps/lexhaven-legal-docketing/social-preview.png" />
+    <meta name="twitter:image:alt" content="Lexhaven Legal Docketing with a gold scales-of-justice shield on navy." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <img class="brand-mark" src="logo.svg" alt="" width="48" height="48" />
+          <div>
+            <h1>Lexhaven Legal Docketing</h1>
+            <p>Legal matters. Clear priorities. Confident next steps.</p>
+          </div>
+        </div>
+        <button id="newMatterBtn" class="btn btn-primary" aria-controls="matterForm" aria-expanded="false">+ New Matter</button>
+      </header>
+
+      <div class="workspace-heading">
+        <div>
+          <p class="eyebrow">Practice management</p>
+          <h2>Your docket at a glance</h2>
+        </div>
+        <p class="workspace-note">Matters, hearings, and tasks in one workspace</p>
+      </div>
+      <section id="statsGrid" class="stats-grid" aria-label="Docket overview"></section>
+
+      <nav class="mobile-navigation" aria-label="Workspace shortcuts">
+        <a href="#mattersPanel">Matters</a>
+        <a href="#caseWorkspace">Case workspace</a>
+      </nav>
+
+      <main class="content-grid">
+        <aside id="mattersPanel" class="panel panel-left" tabindex="-1">
+          <div class="panel-header">
+            <div>
+              <h2>Matters</h2>
+              <p>Track active cases and upcoming hearings.</p>
+            </div>
+            <div class="panel-actions">
+              <input id="matterSearch" type="search" placeholder="Search matters or clients" aria-label="Search matters or clients" />
+              <button id="toggleMatterFormBtn" class="btn btn-secondary" aria-label="Add matter" aria-controls="matterForm" aria-expanded="false">Add</button>
+            </div>
+          </div>
+
+          <form id="matterForm" class="card-form hidden">
+            <h3>Create Matter</h3>
+            <div class="form-grid">
+              <label>
+                <span>Case title</span>
+                <input name="title" required />
+              </label>
+              <label>
+                <span>Client</span>
+                <input name="client" required />
+              </label>
+              <label>
+                <span>Matter type</span>
+                <input name="matterType" value="Litigation" />
+              </label>
+              <label>
+                <span>Status</span>
+                <select name="status">
+                  <option value="Open">Open</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Closed">Closed</option>
+                </select>
+              </label>
+              <label>
+                <span>Court / venue</span>
+                <input name="court" placeholder="Superior Court" />
+              </label>
+              <label>
+                <span>Next hearing</span>
+                <input name="nextHearing" type="date" />
+              </label>
+              <label>
+                <span>Assigned attorney</span>
+                <input name="assigned" placeholder="Jane Doe" />
+              </label>
+            </div>
+            <label>
+              <span>Summary</span>
+              <textarea name="description" rows="3" placeholder="Describe the matter"></textarea>
+            </label>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Save Matter</button>
+              <button type="button" id="cancelMatterBtn" class="btn btn-ghost">Cancel</button>
+            </div>
+          </form>
+
+          <div id="matterList" class="matter-list"></div>
+        </aside>
+
+        <section id="caseWorkspace" class="panel panel-right" tabindex="-1">
+          <div class="panel-header">
+            <div>
+              <h2>Case Workspace</h2>
+              <p>Details and tasks for the selected matter.</p>
+            </div>
+          </div>
+
+          <div id="matterDetail" class="matter-detail"></div>
+
+          <div class="task-section">
+            <div class="task-header">
+              <h3>Task Tracker</h3>
+              <form id="taskForm" class="task-form">
+                <label class="task-title-field">
+                  <span>Task</span>
+                  <input name="title" placeholder="What needs to be done?" required />
+                </label>
+                <label>
+                  <span>Due date</span>
+                  <input name="dueDate" type="date" required />
+                </label>
+                <label>
+                  <span>Priority</span>
+                  <select name="priority">
+                    <option value="High">High</option>
+                    <option value="Medium" selected>Medium</option>
+                    <option value="Low">Low</option>
+                  </select>
+                </label>
+                <label class="task-matter-field">
+                  <span>Matter</span>
+                  <select id="taskMatterSelect" name="matterId"></select>
+                </label>
+                <button type="submit" class="btn btn-primary">Add Task</button>
+              </form>
+            </div>
+
+            <div class="task-toolbar">
+              <button class="filter-pill active" data-filter="all" aria-pressed="true">All</button>
+              <button class="filter-pill" data-filter="pending" aria-pressed="false">Pending</button>
+              <button class="filter-pill" data-filter="completed" aria-pressed="false">Completed</button>
+            </div>
+
+            <div id="taskList" class="task-list"></div>
+          </div>
+        </section>
+      </main>
+      <footer class="workspace-footer">Lexhaven Legal Docketing <span>Browser-based workspace &middot; Records saved on this device</span></footer>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

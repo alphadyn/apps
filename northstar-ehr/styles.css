@@ -286,8 +286,10 @@ textarea {
   place-items: center;
   background: linear-gradient(135deg, #3478ee, #42b9d5);
   box-shadow: 0 6px 16px rgba(37, 99, 235, 0.24);
+  color: inherit;
   font-size: 24px;
   font-weight: 700;
+  text-decoration: none;
 }
 
 .brand-block h1 {
@@ -470,30 +472,6 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 18px;
-}
-
-.security-demo-banner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 5px 12px;
-  border: 1px solid #f2c47c;
-  border-radius: 12px;
-  padding: 10px 14px;
-  background: #fff8eb;
-  color: #713f12;
-  font-size: 0.82rem;
-}
-
-.security-demo-banner strong {
-  font-weight: 750;
-}
-
-.security-demo-banner a {
-  color: #1d4ed8;
-  font-weight: 650;
-  text-decoration: underline;
-  text-underline-offset: 2px;
 }
 
 .topbar {
@@ -2093,17 +2071,6 @@ h4.collapse-head .collapse-toggle {
 
   .data-exchange select {
     padding: 0 8px;
-  }
-
-  .security-demo-banner {
-    align-items: flex-start;
-    padding: 12px;
-  }
-
-  .security-demo-banner a {
-    min-height: 32px;
-    display: inline-flex;
-    align-items: center;
   }
 }
 

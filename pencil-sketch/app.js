@@ -10,6 +10,7 @@ const textureValue = document.getElementById('textureValue');
 const generateBtn = document.getElementById('generateBtn');
 const downloadBtn = document.getElementById('downloadBtn');
 const statusText = document.getElementById('status');
+const openImageLink = document.getElementById('openImageLink');
 const showOriginalBtn = document.getElementById('showOriginalBtn');
 const showSketchBtn = document.getElementById('showSketchBtn');
 const originalPanel = document.getElementById('originalPanel');
@@ -21,6 +22,16 @@ const originalCtx = originalCanvas.getContext('2d');
 const sketchCtx = sketchCanvas.getContext('2d');
 
 let currentImage = null;
+let downloadPreviewUrl = null;
+
+function clearDownloadPreview() {
+  openImageLink.hidden = true;
+  openImageLink.removeAttribute('href');
+  if (downloadPreviewUrl) {
+    URL.revokeObjectURL(downloadPreviewUrl);
+    downloadPreviewUrl = null;
+  }
+}
 
 function clampByte(value) {
   return Math.min(255, Math.max(0, value));
@@ -124,6 +135,7 @@ function generateSketch() {
     return;
   }
 
+  clearDownloadPreview();
   const width = originalCanvas.width;
   const height = originalCanvas.height;
   const source = originalCtx.getImageData(0, 0, width, height);
@@ -270,17 +282,73 @@ sketchCanvas.addEventListener('dragstart', async (event) => {
   }
 });
 
-downloadBtn.addEventListener('click', () => {
+function downloadBlob(blob) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.download = 'pencil-sketch.png';
+  link.href = url;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
+
+downloadBtn.addEventListener('click', async () => {
   if (!currentImage) {
     setStatus('Generate a sketch before downloading.', true);
     return;
   }
 
-  const link = document.createElement('a');
-  link.download = 'pencil-sketch.png';
-  link.href = sketchCanvas.toDataURL('image/png');
-  link.click();
-  setStatus('Sketch download started. You can also drag the sketch out of the browser to save it.');
+  clearDownloadPreview();
+  const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
+  let canShareFiles = isTouchDevice
+    && typeof navigator.share === 'function'
+    && typeof navigator.canShare === 'function';
+  if (canShareFiles) {
+    try {
+      canShareFiles = navigator.canShare({
+        files: [new File([], 'pencil-sketch.png', { type: 'image/png' })],
+      });
+    } catch {
+      canShareFiles = false;
+    }
+  }
+
+  try {
+    const blob = await new Promise((resolve) => sketchCanvas.toBlob(resolve, 'image/png'));
+    if (!blob) {
+      setStatus('The sketch could not be prepared for download.', true);
+      return;
+    }
+
+    const file = new File([blob], 'pencil-sketch.png', { type: 'image/png' });
+    if (canShareFiles && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: 'Pencil sketch' });
+        setStatus('Sketch shared. Choose Save Image or Save to Files to keep it on your device.');
+        return;
+      } catch (error) {
+        if (error.name === 'AbortError') {
+          setStatus('Sharing cancelled.');
+          return;
+        }
+      }
+    }
+
+    if (isTouchDevice) {
+      clearDownloadPreview();
+      downloadPreviewUrl = URL.createObjectURL(blob);
+      openImageLink.href = downloadPreviewUrl;
+      openImageLink.hidden = false;
+      setStatus('Tap “Open sketch image to save”, then use your browser’s Save or Share option.');
+      return;
+    }
+
+    downloadBlob(blob);
+    setStatus('Sketch download started. You can also drag the sketch out of the browser to save it.');
+  } catch (error) {
+    setStatus(`The sketch could not be downloaded: ${error.message}`, true);
+  }
 });
 
 updateLabels();

@@ -1,4 +1,4 @@
-# Pencil Sketch Studio
+# Pencil Sketch
 
 **Deployed application:** [Open the app](https://alphadyn.github.io/apps/pencil-sketch/)
 
@@ -43,7 +43,7 @@ http://localhost:8000/
 5. Adjust “Shading texture” for smooth shading or visible pencil hatching.
 6. Switch to the “Sketch” preview to see the result. Adjustments regenerate it automatically in both sketch styles.
 7. Click “Generate Sketch” if needed.
-8. Use “Download PNG” to save the sketch, regardless of the selected preview.
+8. Use “Download PNG” to save the sketch, regardless of the selected preview. On mobile, use the share sheet’s Save Image or Save to Files option; if sharing is unavailable, tap “Open sketch image to save” and use your browser’s Save or Share option.
 
 ## Files
 

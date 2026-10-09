@@ -111,3 +111,27 @@ test('failed refresh preserves previous stories and downloadable snapshot', asyn
   app.run('downloadAsJson()');
   assert.deepEqual(JSON.parse(await app.download().text()), snapshot);
 });
+
+test('ranks trending terms, filters stories, and persists removals', async () => {
+  const headlines = [
+    'Fed rate cut looms - Reuters', 'Fed rate decision nears - AP',
+    'Fed holds steady on rates - CNN', 'Storm hits coast - BBC', 'Storm warning issued - NBC',
+  ];
+  const data = { ...snapshot, news: headlines.map((header_title, i) => ({
+    header_title, header_url: `https://example.com/${i}`, section: 'Top Stories', subtitles: [],
+  })) };
+  const app = setup(async () => ({ ok: true, json: async () => data }));
+  await app.run('fetchGoogleNews()');
+  assert.deepEqual(JSON.parse(app.run('JSON.stringify(computeTrends(capturedItems, []).map((t) => t.term))')),
+    ['fed', 'fed rate', 'storm']);
+  assert.equal(app.nodes.get('trend-list').children.length, 3);
+  app.run("selectTrend('storm')");
+  assert.equal(app.nodes.get('story-list').children.length, 2);
+  app.run("selectTrend('storm'); selectTrend('fed')");
+  assert.equal(app.run('getVisibleStories().length'), 0);
+  app.run("selectTrend('storm'); selectTrend('fed rate')");
+  assert.equal(app.run('getVisibleStories().length'), 3);
+  app.run("removeTrend('fed')");
+  assert.equal(app.run("JSON.stringify(removedTrends)"), '["fed"]');
+  assert.equal(app.run("computeTrends(capturedItems, removedTrends).some((t) => t.term === 'fed')"), false);
+});

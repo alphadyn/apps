@@ -14,19 +14,166 @@ const elements = {
   errorMessage: document.getElementById('error-message'),
   downloadButton: document.getElementById('download-button'),
   captureFooter: document.getElementById('capture-footer'),
+  trends: document.getElementById('trends'),
+  trendList: document.getElementById('trend-list'),
+  trendsHint: document.getElementById('trends-hint'),
 };
 
 let capturedItems = [];
 let capturedSnapshot = null;
+let activeTrends = [];
+
+const TREND_LIMIT = 20;
+const REMOVED_STORAGE_KEY = 'signal.removedTrends';
+const REMOVED_FILE_URL = './removed_trends.json';
+const STOP_WORDS = new Set(('a about after again all also am an and any are as at be because been before being but by can could did do does for from get gets had has have he her his how i if in into is it its just may more most new not now of off on one or our out over says say said she so than that the their them then there these they this to up us was we were what when where which who why will with would you your vs via amid').split(' '));
+
+let removedTrends = loadRemovedTrends();
+
+function loadRemovedTrends() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(REMOVED_STORAGE_KEY));
+    return Array.isArray(stored) ? stored.filter((term) => typeof term === 'string') : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function saveRemovedTrends() {
+  try {
+    localStorage.setItem(REMOVED_STORAGE_KEY, JSON.stringify(removedTrends));
+  } catch (error) {
+    // Storage may be unavailable; removals still apply for this session.
+  }
+
+  // Only the local server (serve.py) accepts this write; static hosting ignores the failure.
+  fetch(REMOVED_FILE_URL, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ removed: [...removedTrends].sort((a, b) => a.localeCompare(b)) }, null, 2),
+  }).catch(() => {});
+}
+
+async function syncRemovedTrendsFromFile() {
+  try {
+    const response = await fetch(REMOVED_FILE_URL, { cache: 'no-store' });
+    if (!response.ok) return;
+    const saved = (await response.json()).removed;
+    if (!Array.isArray(saved)) return;
+    const merged = [...new Set([...removedTrends, ...saved.filter((term) => typeof term === 'string')])];
+    if (merged.length === removedTrends.length) return;
+    removedTrends = merged;
+    renderTrends();
+    updateSearchResults();
+  } catch (error) {
+    // The file only exists when running through serve.py.
+  }
+}
+
+function tokenize(title) {
+  // Google News titles end with " - Publisher"; the publisher is not a trend.
+  const text = title.replace(/\s+[-–—|]\s+[^-–—|]+$/, '');
+  return text.toLowerCase().replace(/[’']s\b/g, '').match(/[a-z0-9][a-z0-9.&-]*[a-z0-9]|[a-z0-9]/g) || [];
+}
+
+function computeTrends(stories, removed, limit = TREND_LIMIT) {
+  const blocked = new Set(removed);
+  const counts = new Map();
+
+  for (const story of stories) {
+    const tokens = tokenize(story.header_title);
+    const seen = new Set();
+    for (let i = 0; i < tokens.length; i += 1) {
+      const word = tokens[i];
+      if (word.length > 1 && !STOP_WORDS.has(word) && !/^\d+$/.test(word)) seen.add(word);
+      const next = tokens[i + 1];
+      if (next && !STOP_WORDS.has(word) && !STOP_WORDS.has(next)) seen.add(`${word} ${next}`);
+    }
+    for (const term of seen) counts.set(term, (counts.get(term) || 0) + 1);
+  }
+
+  const candidates = [...counts].filter(([term, count]) => count >= 2 && !blocked.has(term));
+  // Drop a word when a phrase containing it is just as common; the phrase is more informative.
+  const phrases = candidates.filter(([term]) => term.includes(' '));
+  const kept = candidates.filter(([term, count]) => term.includes(' ')
+    || !phrases.some(([phrase, phraseCount]) => phraseCount === count && phrase.split(' ').includes(term)));
+
+  return kept
+    .sort((a, b) => b[1] - a[1] || b[0].split(' ').length - a[0].split(' ').length || a[0].localeCompare(b[0]))
+    .slice(0, limit)
+    .map(([term, count]) => ({ term, count }));
+}
+
+function storyMatchesTrend(story, term) {
+  return ` ${tokenize(story.header_title).join(' ')} `.includes(` ${term} `);
+}
+
+function selectTrend(term) {
+  activeTrends = activeTrends.includes(term)
+    ? activeTrends.filter((item) => item !== term)
+    : [...activeTrends, term];
+  renderTrends();
+  updateSearchResults();
+}
+
+function removeTrend(term) {
+  if (!removedTrends.includes(term)) removedTrends.push(term);
+  activeTrends = activeTrends.filter((item) => item !== term);
+  saveRemovedTrends();
+  renderTrends();
+  updateSearchResults();
+}
+
+function renderTrends() {
+  const trends = computeTrends(capturedItems, removedTrends);
+  elements.trends.hidden = !capturedItems.length;
+  elements.trendsHint.textContent = activeTrends.length
+    ? `Showing stories with ${activeTrends.map((term) => `“${term}”`).join(' and ')}. Select a term again to deselect it.`
+    : 'Select one or more terms to filter stories, or × to remove one.';
+
+  elements.trendList.replaceChildren(...trends.map(({ term, count }, index) => {
+    const item = document.createElement('li');
+    item.className = 'trend-item';
+    item.dataset.active = String(activeTrends.includes(term));
+
+    const rank = document.createElement('span');
+    rank.className = 'trend-rank';
+    rank.textContent = String(index + 1).padStart(2, '0');
+
+    const link = document.createElement('a');
+    link.className = 'trend-link';
+    link.href = '#';
+    link.textContent = term;
+    link.addEventListener('click', (event) => { event.preventDefault(); selectTrend(term); });
+
+    const total = document.createElement('span');
+    total.className = 'trend-count';
+    total.textContent = String(count);
+
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'trend-remove';
+    remove.textContent = '×';
+    remove.setAttribute('aria-label', `Remove ${term} from trending`);
+    remove.addEventListener('click', () => removeTrend(term));
+
+    item.append(rank, link, total, remove);
+    return item;
+  }));
+
+}
 
 function getVisibleStories() {
   const query = elements.searchInput.value.trim().toLowerCase();
+  const stories = activeTrends.length
+    ? capturedItems.filter((story) => activeTrends.every((term) => storyMatchesTrend(story, term)))
+    : capturedItems;
 
   if (!query) {
-    return capturedItems;
+    return stories;
   }
 
-  return capturedItems.filter((story) => {
+  return stories.filter((story) => {
     const haystack = [
       story.header_title,
       story.section,
@@ -194,6 +341,8 @@ async function fetchGoogleNews() {
   try {
     capturedSnapshot = await fetchNewsSnapshot();
     capturedItems = capturedSnapshot.news;
+    activeTrends = [];
+    renderTrends();
     renderStories(capturedItems);
     const totalFeeds = capturedSnapshot.source_feeds.length;
     const loadedFeeds = totalFeeds - capturedSnapshot.failed_feeds.length;
@@ -240,5 +389,6 @@ function bindEvents() {
 }
 
 bindEvents();
+syncRemovedTrendsFromFile();
 renderStories([]);
 setStatus('idle', 'Ready when you are', 'Your captured headlines will appear here.', 'NO CAPTURE YET');

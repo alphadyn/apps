@@ -136,3 +136,19 @@ body {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+.trends { margin-top: 14px; padding: 16px; border: 1px solid var(--line); border-radius: 6px; background: #f9faf6; }
+.trends-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+.trends h3 { margin: 0; font: 700 15px var(--display); color: var(--ink); }
+.trends-hint { font: 400 11px var(--mono); color: var(--green); letter-spacing: .04em; }
+.trend-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; padding: 0; list-style: none; }
+.trend-item { display: inline-flex; align-items: center; gap: 8px; padding: 5px 6px 5px 10px; border: 1px solid #d6ddd2; border-radius: 999px; background: #fff; }
+.trend-item[data-active="true"] { background: var(--green); border-color: var(--green); }
+.trend-rank, .trend-count { font: 400 11px var(--mono); color: #7b857b; }
+.trend-link { font: 600 13px 'DM Sans', sans-serif; color: var(--ink); text-decoration: none; }
+.trend-link:hover { text-decoration: underline; }
+.trend-item[data-active="true"] .trend-link, .trend-item[data-active="true"] .trend-rank, .trend-item[data-active="true"] .trend-count { color: #fff; }
+.trend-remove { cursor: pointer; border: 0; background: transparent; font: 500 13px 'DM Sans', sans-serif; color: var(--ink); }
+.trend-remove { width: 20px; height: 20px; border-radius: 50%; line-height: 1; }
+.trend-remove:hover { background: #e2e5df; }
+.trend-item[data-active="true"] .trend-remove { color: #fff; }

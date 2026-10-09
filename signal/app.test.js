@@ -24,7 +24,7 @@ function setup(fetch) {
   const node = () => ({
     dataset: {}, value: '', hidden: false, disabled: false, textContent: '',
     append() {}, replaceChildren(...children) { this.children = children; },
-    addEventListener() {}, click() {}, remove() {},
+    addEventListener() {}, setAttribute() {}, click() {}, remove() {},
   });
   const getNode = (id) => {
     if (!nodes.has(id)) nodes.set(id, node());

@@ -127,10 +127,12 @@ test('ranks trending terms, filters stories, and persists removals', async () =>
   assert.equal(app.nodes.get('trend-list').children.length, 3);
   app.run("selectTrend('storm')");
   assert.equal(app.nodes.get('story-list').children.length, 2);
-  app.run("selectTrend('storm'); selectTrend('fed')");
+  app.run("selectTrend('fed')");
   assert.equal(app.run('getVisibleStories().length'), 0);
-  app.run("selectTrend('storm'); selectTrend('fed rate')");
+  app.run("selectTrend('storm')");
   assert.equal(app.run('getVisibleStories().length'), 3);
+  app.run("selectTrend('fed rate')");
+  assert.equal(app.run('getVisibleStories().length'), 2);
   app.run("removeTrend('fed')");
   assert.equal(app.run("JSON.stringify(removedTrends)"), '["fed"]');
   assert.equal(app.run("computeTrends(capturedItems, removedTrends).some((t) => t.term === 'fed')"), false);

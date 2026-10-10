@@ -23,10 +23,8 @@ let capturedItems = [];
 let capturedSnapshot = null;
 let activeTrends = [];
 
-const TREND_LIMIT = 20;
 const REMOVED_STORAGE_KEY = 'signal.removedTrends';
 const REMOVED_FILE_URL = './removed_trends.json';
-const STOP_WORDS = new Set(('a about after again all also am an and any are as at be because been before being but by can could did do does for from get gets had has have he her his how i if in into is it its just may more most new not now of off on one or our out over says say said she so than that the their them then there these they this to up us was we were what when where which who why will with would you your vs via amid').split(' '));
 
 let removedTrends = loadRemovedTrends();
 
@@ -70,42 +68,12 @@ async function syncRemovedTrendsFromFile() {
   }
 }
 
-function tokenize(title) {
-  // Google News titles end with " - Publisher"; the publisher is not a trend.
-  const text = title.replace(/\s+[-–—|]\s+[^-–—|]+$/, '');
-  return text.toLowerCase().replace(/[’']s\b/g, '').match(/[a-z0-9][a-z0-9.&-]*[a-z0-9]|[a-z0-9]/g) || [];
-}
-
-function computeTrends(stories, removed, limit = TREND_LIMIT) {
-  const blocked = new Set(removed);
-  const counts = new Map();
-
-  for (const story of stories) {
-    const tokens = tokenize(story.header_title);
-    const seen = new Set();
-    for (let i = 0; i < tokens.length; i += 1) {
-      const word = tokens[i];
-      if (word.length > 1 && !STOP_WORDS.has(word) && !/^\d+$/.test(word)) seen.add(word);
-      const next = tokens[i + 1];
-      if (next && !STOP_WORDS.has(word) && !STOP_WORDS.has(next)) seen.add(`${word} ${next}`);
-    }
-    for (const term of seen) counts.set(term, (counts.get(term) || 0) + 1);
-  }
-
-  const candidates = [...counts].filter(([term, count]) => count >= 2 && !blocked.has(term));
-  // Drop a word when a phrase containing it is just as common; the phrase is more informative.
-  const phrases = candidates.filter(([term]) => term.includes(' '));
-  const kept = candidates.filter(([term, count]) => term.includes(' ')
-    || !phrases.some(([phrase, phraseCount]) => phraseCount === count && phrase.split(' ').includes(term)));
-
-  return kept
-    .sort((a, b) => b[1] - a[1] || b[0].split(' ').length - a[0].split(' ').length || a[0].localeCompare(b[0]))
-    .slice(0, limit)
-    .map(([term, count]) => ({ term, count }));
+function computeTrends(stories, removed, limit = 20) {
+  return SignalTrends.compute(stories, removed, limit);
 }
 
 function storyMatchesTrend(story, term) {
-  return ` ${tokenize(story.header_title).join(' ')} `.includes(` ${term} `);
+  return SignalTrends.matches(story, term);
 }
 
 function selectTrend(term) {
@@ -129,7 +97,9 @@ function renderTrends() {
   elements.trends.hidden = !capturedItems.length;
   elements.trendsHint.textContent = activeTrends.length
     ? `Showing stories with ${activeTrends.map((term) => `“${term}”`).join(' and ')}. Select a term again to deselect it.`
-    : 'Select one or more terms to filter stories, or × to remove one.';
+    : trends.length
+      ? 'Ranked by headline count, highest first. Select terms to filter stories, or × to remove one.'
+      : 'No recurring names or phrases found in this capture.';
 
   elements.trendList.replaceChildren(...trends.map(({ term, count }, index) => {
     const item = document.createElement('li');
@@ -149,6 +119,7 @@ function renderTrends() {
     const total = document.createElement('span');
     total.className = 'trend-count';
     total.textContent = String(count);
+    total.setAttribute('aria-label', `${count} headlines`);
 
     const remove = document.createElement('button');
     remove.type = 'button';

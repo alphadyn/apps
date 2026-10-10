@@ -6,6 +6,25 @@
 
 Signal can run as a browser-based page or as a local Flask app. The local app opens Google News in headless Chromium, scrolls the feed to load additional stories, and extracts article titles, links, and related reads. Captures are shown in a responsive interface, can be searched, and can be downloaded as structured JSON. The local app also saves a copy beside itself as `google_news.json`.
 
+## Trending names and phrases
+
+Both versions show up to **20 recurring proper-noun candidates and topic phrases**
+in descending order of headline count. Each term counts at most once per
+`header_title`; publisher suffixes and related-read subtitles are excluded.
+Terms must appear in at least two headlines, so a small capture may show fewer
+than 20 results. Search filters do not change the capture-wide ranking.
+
+The shared browser extractor uses capitalization as a lightweight heuristic for
+names, not a trained named-entity model. Sentence-initial capitalization alone
+does not qualify a single word; acronyms, mixed-case names, and capitalized name
+phrases do. Topic phrases contain two to four consecutive non-stop words and
+cannot cross punctuation. Case and possessives are normalized, numeric-only
+terms are ignored, and equally frequent fragments are replaced by their longer
+phrase. Ties prefer longer phrases, then alphabetical order.
+
+On the Pages version, select terms to filter headlines or remove unwanted terms
+from the ranking; removed terms are excluded before selecting the top 20.
+
 ## GitHub Pages
 
 The Pages deployment fetches Google News RSS directly with `python3 signal/build_data.py`

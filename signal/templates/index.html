@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <script src="{{ url_for('static', filename='trends.js') }}" defer></script>
   <script src="{{ url_for('static', filename='app.js') }}" defer></script>
 </head>
 <body>
@@ -63,6 +64,11 @@
           <span class="status-meta" id="status-meta">NO CAPTURE YET</span>
         </div>
         <div class="error-message" id="error-message" role="alert" hidden></div>
+        <section class="trends" id="trends" aria-labelledby="trends-title" hidden>
+          <h3 id="trends-title">Top 20 trending names &amp; phrases</h3>
+          <p id="trends-hint"></p>
+          <ol id="trend-list"></ol>
+        </section>
         <div class="story-list" id="story-list" aria-label="Captured headlines"></div>
         <div class="empty-note" id="empty-note"><span class="empty-star" aria-hidden="true">✳</span><span>Nothing in your briefing yet.<br>Start a capture to bring today’s stories into focus.</span></div>
         <div class="capture-footer" id="capture-footer" hidden></div>

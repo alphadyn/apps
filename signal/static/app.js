@@ -11,6 +11,9 @@ const elements = {
   errorMessage: document.querySelector('#error-message'),
   downloadButton: document.querySelector('#download-button'),
   captureFooter: document.querySelector('#capture-footer'),
+  trends: document.querySelector('#trends'),
+  trendList: document.querySelector('#trend-list'),
+  trendsHint: document.querySelector('#trends-hint'),
 };
 
 let pollTimer;
@@ -79,6 +82,16 @@ function renderState(data) {
   elements.statusMeta.textContent = isComplete ? 'CAPTURE COMPLETE' : isRunning ? 'IN PROGRESS' : isError ? 'CAPTURE FAILED' : 'NO CAPTURE YET';
 
   elements.storyList.replaceChildren(...stories.map(createStoryCard));
+  const trends = SignalTrends.compute(stories);
+  elements.trends.hidden = !stories.length;
+  elements.trendsHint.textContent = trends.length
+    ? 'Ranked by headline count, highest first.'
+    : 'No recurring names or phrases found in this capture.';
+  elements.trendList.replaceChildren(...trends.map(({ term, count }) => {
+    const item = document.createElement('li');
+    item.textContent = `${term} (${count} headlines)`;
+    return item;
+  }));
   elements.emptyNote.hidden = state !== 'idle';
   elements.downloadButton.hidden = !isComplete;
   elements.captureFooter.hidden = !isComplete;

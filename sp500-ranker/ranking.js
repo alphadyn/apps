@@ -18,6 +18,13 @@ export function criterionFor(key) {
   return CRITERIA.find((criterion) => criterion.key === key);
 }
 
+/** Table column order: selected criteria first in sort order, then the rest in default order. */
+export function columnOrder(sorts) {
+  const selected = sorts.map(({ key }) => criterionFor(key)).filter(Boolean);
+  const selectedKeys = new Set(selected.map(({ key }) => key));
+  return [...selected, ...CRITERIA.filter(({ key }) => !selectedKeys.has(key))];
+}
+
 function valueOf(row, key) {
   const value = row[key];
   return typeof value === 'number' && Number.isFinite(value) ? value : null;

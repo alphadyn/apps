@@ -1,5 +1,5 @@
 import {
-  CRITERIA, addCriterion, criterionFor, filterRanked, formatMoney, formatPercent, formatValue, marketSummary, moveCriterion,
+  CRITERIA, addCriterion, columnOrder, criterionFor, filterRanked, formatMoney, formatPercent, formatValue, marketSummary, moveCriterion,
   parseState, rankSecurities, removeCriterion, serializeState, toggleDirection,
 } from './ranking.js';
 import { createDetailView } from './detail.js';
@@ -111,7 +111,8 @@ function renderSortControls() {
 function renderHead() {
   const sortIndex = new Map(state.sorts.map((sort, index) => [sort.key, index]));
   const primary = state.sorts[0];
-  const criterionHeaders = CRITERIA.map(({ key, label }) => {
+  const lastSelected = state.sorts.length - 1;
+  const criterionHeaders = columnOrder(state.sorts).map(({ key, label }) => {
     const index = sortIndex.get(key);
     const active = index !== undefined;
     const direction = active ? state.sorts[index].direction : null;
@@ -121,7 +122,7 @@ function renderHead() {
       ? `<span class="badge">${index + 1}${direction === 'asc' ? '↑' : '↓'}</span>`
       : '<span class="sort-icon" aria-hidden="true">↕</span>';
     const hint = active ? 'Toggle direction' : 'Add to ranking';
-    return `<th scope="col" class="num${active ? ' active' : ''}"${ariaSort}>
+    return `<th scope="col" class="num${active ? ' active' : ''}${index === lastSelected ? ' last-active' : ''}"${ariaSort}>
       <button type="button" data-key="${key}" title="${escapeHtml(label)} — ${hint}">${escapeHtml(COLUMN_LABELS[key])}${badge}</button></th>`;
   }).join('');
   elements.head.innerHTML = `<th scope="col" class="rank-col">#</th><th scope="col" class="security-col">Security</th>${criterionHeaders}`;
@@ -142,6 +143,8 @@ function renderTable() {
   const ranked = rankSecurities(state.securities, state.sorts, state.method);
   const visible = filterRanked(ranked, { query: state.query, sector: state.sector });
   const activeKeys = new Set(state.sorts.map((sort) => sort.key));
+  const columns = columnOrder(state.sorts);
+  const lastKey = state.sorts.at(-1)?.key;
 
   elements.count.textContent = visible.length === ranked.length
     ? `${ranked.length} securities`
@@ -153,10 +156,10 @@ function renderTable() {
   }
   elements.body.innerHTML = visible.map(({ security, rank, score }) => {
     const scoreText = score === null ? '' : `<small title="Average rank across selected criteria">avg ${score.toFixed(1)}</small>`;
-    const cells = CRITERIA.map(({ key, format }) => {
+    const cells = columns.map(({ key, format }) => {
       const value = security[key];
       const title = cellTitle(security, key);
-      const classes = ['num', toneClass(format, value), activeKeys.has(key) ? 'active' : ''].filter(Boolean).join(' ');
+      const classes = ['num', toneClass(format, value), activeKeys.has(key) ? 'active' : '', key === lastKey ? 'last-active' : ''].filter(Boolean).join(' ');
       const text = formatValue(format, value);
       const content = format === 'percent' && Number.isFinite(value) ? `<span class="delta">${text}</span>` : text;
       return `<td class="${classes}"${title ? ` title="${escapeHtml(title)}"` : ''}>${content}</td>`;

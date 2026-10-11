@@ -160,6 +160,7 @@ thead th button:hover .sort-icon, thead th button:focus-visible .sort-icon { opa
 thead th.num button { flex-direction: row-reverse; }
 td.num { color: var(--text-2); font-size: .9rem; }
 td.active { background: rgb(94 234 212 / .035); color: var(--text); }
+th.last-active, td.last-active { box-shadow: inset -2px 0 0 rgb(94 234 212 / .28); }
 td.num.up { color: var(--up); }
 td.num.down { color: var(--down); }
 

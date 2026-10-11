@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
-  marketSummary,
+  columnOrder, marketSummary,
   addCriterion, criterionRanks, filterRanked, formatMoney, formatPercent, formatPrice, moveCriterion,
   parseState, rankSecurities, removeCriterion, serializeState, toggleDirection,
 } from './ranking.js';
@@ -114,4 +114,15 @@ test('market summary counts multi-class issuers once and takes the median return
   assert.deepEqual([summary.advancers, summary.measured], [2, 3]);
   assert.equal(summary.leader.symbol, 'GOOG');
   assert.equal(marketSummary([]).medianReturn1y, null);
+});
+
+test('selected columns lead in sort order, then the rest in default order', () => {
+  const keys = (sorts) => columnOrder(sorts).map(({ key }) => key);
+  assert.deepEqual(keys([]), [
+    'market_cap', 'market_cap_change_1y', 'net_income', 'net_income_change_1y', 'price', 'price_change_1y', 'price_change_3m',
+  ]);
+  assert.deepEqual(keys([{ key: 'price_change_3m', direction: 'desc' }, { key: 'net_income', direction: 'asc' }]), [
+    'price_change_3m', 'net_income', 'market_cap', 'market_cap_change_1y', 'net_income_change_1y', 'price', 'price_change_1y',
+  ]);
+  assert.equal(columnOrder([{ key: 'bogus', direction: 'desc' }]).length, 7);
 });

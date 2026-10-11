@@ -15,7 +15,7 @@ Add criteria in any order (or none — the default is alphabetical by ticker), f
 - **Priority order** — sort by criterion #1, break ties with #2, and so on.
 - **Average rank** — rank the securities on each criterion separately, then order by the mean rank so every criterion counts equally.
 
-Click a column heading to add it as the next criterion, or click it again to flip its direction. Search and sector filters narrow the table without changing overall ranks. The current ranking is stored in the URL hash (for example `#sort=market_cap:desc,price_change_3m:asc&method=average`) so it can be bookmarked or shared.
+Selected columns move to the left of the table in priority order, followed by the remaining columns in their default order. Click a column heading to add it as the next criterion, or click it again to flip its direction. Search and sector filters narrow the table without changing overall ranks. The current ranking is stored in the URL hash (for example `#sort=market_cap:desc,price_change_3m:asc&method=average`) so it can be bookmarked or shared.
 
 A summary strip above the controls shows the combined market cap, total TTM net income, median 1Y return (with the leader), and the share of securities trading higher than a year ago. It follows the sector filter. Totals count each issuer once, so multi-class companies are not double-counted.
 

@@ -186,17 +186,37 @@ function render({ updateHash = true } = {}) {
 
 const detail = createDetailView({
   onRequestClose: closeDetail,
+  onNavigate: navigateDetail,
   onRangeChange(range) {
     state.range = range;
     history.replaceState(history.state, '', hashUrl());
   },
 });
 
+function rankedVisibleSecurities() {
+  return filterRanked(rankSecurities(state.securities, state.sorts, state.method), {
+    query: state.query, sector: state.sector,
+  }).map(({ security }) => security);
+}
+
+function navigateDetail(direction) {
+  const ranked = rankedVisibleSecurities();
+  const index = ranked.findIndex((security) => security.symbol === state.symbol);
+  const security = ranked[index + direction];
+  if (!security) return;
+  state.symbol = security.symbol;
+  history.replaceState(history.state, '', hashUrl());
+  syncDetail();
+}
+
 function syncDetail() {
   const security = state.symbol && state.securities.find((item) => item.symbol === state.symbol);
   if (security) {
     lastFocusedSymbol = security.symbol;
     detail.open(security, state.range);
+    const ranked = rankedVisibleSecurities();
+    const index = ranked.findIndex((item) => item.symbol === security.symbol);
+    detail.setNavigation(index > 0, index >= 0 && index < ranked.length - 1);
     document.title = `${security.symbol} · S&P 500 Ranker`;
     return;
   }

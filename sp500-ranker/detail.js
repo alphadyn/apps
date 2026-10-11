@@ -49,10 +49,11 @@ function annualized(slice) {
   return years >= 0.99 ? (1 + slice.change) ** (1 / years) - 1 : null;
 }
 
-export function createDetailView({ onRequestClose, onRangeChange }) {
+export function createDetailView({ onRequestClose, onNavigate, onRangeChange }) {
   const $ = (id) => document.getElementById(id);
   const el = {
-    dialog: $('detail'), back: $('detail-back'), symbol: $('detail-symbol'), name: $('detail-name'),
+    dialog: $('detail'), back: $('detail-back'), previous: $('detail-previous'), next: $('detail-next'),
+    symbol: $('detail-symbol'), name: $('detail-name'),
     sector: $('detail-sector'), price: $('detail-price'), change: $('detail-change'), period: $('detail-period'),
     tabs: $('range-tabs'), caption: $('chart-caption'), log: $('log-scale'), chart: $('chart'),
     tooltip: $('chart-tooltip'), periodStats: $('period-stats'), metricStats: $('metric-stats'),
@@ -279,10 +280,17 @@ export function createDetailView({ onRequestClose, onRangeChange }) {
   el.log.addEventListener('change', renderChart);
   el.back.addEventListener('click', onRequestClose);
   el.dialog.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+      event.preventDefault();
+      onNavigate(event.key === 'ArrowUp' ? -1 : 1);
+      return;
+    }
     if (event.key !== 'Escape' || event.defaultPrevented) return;
     event.preventDefault();
     onRequestClose();
   });
+  el.previous.addEventListener('click', () => onNavigate(-1));
+  el.next.addEventListener('click', () => onNavigate(1));
   el.dialog.addEventListener('cancel', (event) => {
     event.preventDefault();
     onRequestClose();
@@ -314,9 +322,12 @@ export function createDetailView({ onRequestClose, onRangeChange }) {
       view.security = null;
       document.body.classList.remove('detail-open');
     },
+    setNavigation(canPrevious, canNext) {
+      el.previous.disabled = !canPrevious;
+      el.next.disabled = !canNext;
+    },
     get isOpen() {
       return el.dialog.open;
     },
   };
 }
-

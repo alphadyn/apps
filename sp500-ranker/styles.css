@@ -61,8 +61,6 @@ button:disabled { cursor: default; opacity: .35; }
 .brand b { font-weight: 800; }
 .brand-mark { width: 28px; height: 28px; border-radius: 8px; box-shadow: 0 0 0 1px var(--border-strong); }
 .appbar-nav { display: flex; align-items: center; gap: 18px; }
-.appbar-link { color: var(--muted); font-size: .86rem; font-weight: 500; text-decoration: none; }
-.appbar-link:hover { color: var(--text); }
 .data-status {
   display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 5px 12px;
   border: 1px solid var(--border); border-radius: 999px; background: var(--surface);
@@ -179,8 +177,8 @@ thead .rank-col { z-index: 3; background: var(--surface-2); }
 thead .security-col { z-index: 3; background: var(--surface-2); }
 .security-line { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .symbol { display: block; flex: none; color: var(--text); font-weight: 700; letter-spacing: .01em; }
-button.symbol { padding: 0; border: 0; background: none; text-align: left; text-decoration: underline transparent 1px; text-underline-offset: 3px; transition: color .15s, text-decoration-color .15s; }
-tbody tr:hover button.symbol, button.symbol:focus-visible { color: var(--accent); text-decoration-color: currentColor; }
+button.symbol { padding: 0; border: 0; background: none; text-align: left; transition: color .15s; }
+tbody tr:hover button.symbol, button.symbol:focus-visible { color: var(--accent); }
 .name { display: block; overflow: hidden; color: var(--text-2); font-size: .84rem; text-overflow: ellipsis; white-space: nowrap; }
 .sector { display: flex; align-items: center; gap: 5px; min-width: 0; overflow: hidden; color: var(--muted); font-size: .7rem; white-space: nowrap; text-overflow: ellipsis; }
 .sector-name { overflow: hidden; text-overflow: ellipsis; }
@@ -211,8 +209,13 @@ body.detail-open { overflow: hidden; }
 @keyframes detail-in { from { opacity: 0; transform: translateY(8px) scale(.99); } }
 .detail::backdrop { background: rgb(3 6 12 / .7); backdrop-filter: blur(4px); }
 .detail-inner { max-height: calc(100vh - 42px); padding: 22px 28px 28px; overflow-y: auto; }
-.detail-back { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 16px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text-2); font-size: .85rem; font-weight: 500; }
+.detail-navigation { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.detail-back { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text-2); font-size: .85rem; font-weight: 500; }
 .detail-back:hover { border-color: var(--border-strong); color: var(--text); }
+.detail-rank-nav { display: inline-flex; gap: 6px; }
+.detail-rank-nav button { width: 34px; height: 34px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text-2); font-size: 1.1rem; font-weight: 700; }
+.detail-rank-nav button:not(:disabled):hover { border-color: var(--accent-2); color: var(--text); }
+.detail-rank-nav button:disabled { cursor: default; opacity: .35; }
 .detail-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 20px; }
 .detail-symbol { display: inline-block; margin: 0; padding: 2px 8px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); font-size: .8rem; font-weight: 800; letter-spacing: .06em; }
 .detail-header h2 { margin: 8px 0 2px; font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 800; letter-spacing: -.03em; line-height: 1.1; }
@@ -278,7 +281,6 @@ body.detail-open { overflow: hidden; }
 }
 @media (max-width: 760px) {
   main, .appbar-inner { width: calc(100% - 24px); }
-  .appbar-link { display: none; }
   .hero { padding: 24px 0 16px; }
   .lede { font-size: .93rem; }
   .kpi { padding: 12px 14px; }

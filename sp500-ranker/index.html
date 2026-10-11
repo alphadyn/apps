@@ -43,7 +43,6 @@
       <a class="brand" href="./" aria-label="S&amp;P 500 Ranker home"><img src="favicon.svg" alt="" class="brand-mark"><span>S&amp;P 500 <b>Ranker</b></span></a>
       <nav class="appbar-nav" aria-label="Site">
         <p class="data-status" id="data-meta"><span class="pulse" aria-hidden="true"></span>Loading market data…</p>
-        <a class="appbar-link" href="../">Alphadyn Apps</a>
       </nav>
     </div>
   </header>
@@ -123,7 +122,13 @@
 
   <dialog class="detail" id="detail" aria-labelledby="detail-name">
     <div class="detail-inner">
-      <button type="button" class="detail-back" id="detail-back">← Back to rankings</button>
+      <div class="detail-navigation">
+        <button type="button" class="detail-back" id="detail-back">← Back to rankings</button>
+        <div class="detail-rank-nav" aria-label="Navigate ranked securities">
+          <button type="button" id="detail-previous" aria-label="Previous security in ranking (up arrow)" title="Previous security (↑)">↑</button>
+          <button type="button" id="detail-next" aria-label="Next security in ranking (down arrow)" title="Next security (↓)">↓</button>
+        </div>
+      </div>
       <header class="detail-header">
         <div>
           <p class="detail-symbol" id="detail-symbol"></p>

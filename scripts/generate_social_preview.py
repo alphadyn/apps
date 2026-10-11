@@ -49,9 +49,6 @@ draw.line([(80, 83), (87, 76), (93, 80), (100, 69), (105, 73)], fill=(110, 231, 
 draw.ellipse((98, 67, 104, 73), fill=(138, 167, 255, 255))
 draw.text((130, 52), "ALPHADYN", font=font(17, True), fill=(244, 247, 255, 255))
 draw.text((131, 76), "APPLIED INTELLIGENCE", font=font(9, True), fill=(148, 169, 192, 255))
-rounded(draw, (850, 55, 1135, 91), 18, (24, 36, 58, 230), (83, 106, 139, 120), 1)
-draw.ellipse((867, 69, 875, 77), fill=(110, 231, 210, 255))
-draw.text((885, 67), "30 INDEPENDENT PROJECTS", font=font(10, True), fill=(190, 208, 230, 255))
 draw.line((66, 119, 1134, 119), fill=(136, 164, 194, 55), width=1)
 
 # Headline and supporting copy.
@@ -68,9 +65,6 @@ draw.text((71, 535), "TOOLS   /   IDEAS   /   EXPERIMENTS", font=font(10, True),
 rounded(draw, (583, 145, 1135, 538), 23, (15, 24, 42, 242), (92, 119, 154, 150), 1)
 draw.text((610, 168), "PROJECT DIRECTORY", font=font(10, True), fill=(143, 164, 192, 255))
 draw.text((610, 190), "A universe of useful ideas", font=font(20, True), fill=(241, 245, 255, 255))
-rounded(draw, (969, 167, 1107, 194), 11, (23, 38, 57, 255), (66, 88, 118, 180), 1)
-draw.text((983, 175), "CURATED WORK", font=font(8, True), fill=(173, 194, 222, 255))
-
 cards = [
     ((610, 231, 862, 350), "MARKETS", "Market Curve Lab", "Trendlines & S&P 500 analysis", (110, 231, 210, 255), "chart"),
     ((878, 231, 1107, 350), "SOCIAL", "Pulse", "Stories & conversations", (138, 167, 255, 255), "pulse"),

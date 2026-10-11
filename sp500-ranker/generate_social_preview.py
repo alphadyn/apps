@@ -155,7 +155,6 @@ def social_preview():
     draw.line(coords, fill=UP, width=4, joint="curve")
     draw.ellipse((coords[-1][0] - 6, coords[-1][1] - 6, coords[-1][0] + 6, coords[-1][1] + 6), fill=TEXT, outline=UP, width=3)
 
-    draw.text((width - 64, 88), "alphadyn.github.io/apps", font=regular(20), fill=MUTED, anchor="rm")
     image.convert("RGB").save(HERE / "social-preview.png", optimize=True)
 
 

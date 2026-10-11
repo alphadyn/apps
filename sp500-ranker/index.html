@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script defer src="/apps/analytics.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>S&amp;P 500 Ranker — Rank and chart every S&amp;P 500 company</title>
+  <meta name="description" content="Rank every S&amp;P 500 company by market cap, net income, price, and growth — in any order — and chart each one's price history from 1 week to all time.">
+  <meta name="theme-color" content="#0a0e17">
+  <meta name="color-scheme" content="dark">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/">
+
+  <!-- Link previews (iMessage, SMS/RCS, WhatsApp, Slack, social) -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/">
+  <meta property="og:title" content="S&amp;P 500 Ranker">
+  <meta property="og:description" content="Rank every S&amp;P 500 company by market cap, net income, price, and growth — in any order — and chart each one's price history from 1 week to all time.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png">
+  <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="S&amp;P 500 Ranker: a ranked table of S&amp;P 500 companies with market cap, net income, and price growth beside a price chart.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="S&amp;P 500 Ranker">
+  <meta name="twitter:description" content="Rank every S&amp;P 500 company by market cap, net income, price, and growth — in any order — and chart each one's price history from 1 week to all time.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png">
+  <meta name="twitter:image:alt" content="S&amp;P 500 Ranker: a ranked table of S&amp;P 500 companies with market cap, net income, and price growth beside a price chart.">
+
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <header class="appbar">
+    <div class="appbar-inner">
+      <a class="brand" href="./" aria-label="S&amp;P 500 Ranker home"><img src="favicon.svg" alt="" class="brand-mark"><span>S&amp;P 500 <b>Ranker</b></span></a>
+      <nav class="appbar-nav" aria-label="Site">
+        <p class="data-status" id="data-meta"><span class="pulse" aria-hidden="true"></span>Loading market data…</p>
+        <a class="appbar-link" href="../">Alphadyn Apps</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="page-title">
+      <p class="eyebrow">Equity screener</p>
+      <h1 id="page-title">Rank the S&amp;P 500 your way</h1>
+      <p class="lede">Order every constituent by size, profitability, and momentum. Stack criteria in any priority, blend them by average rank, or leave the list unranked. Select any company to open its price history.</p>
+    </section>
+
+    <section class="kpis" id="kpis" aria-label="Market summary" aria-live="polite">
+      <div class="kpi"><span class="kpi-label">Combined market cap</span><strong class="kpi-value">—</strong><span class="kpi-note">&nbsp;</span></div>
+      <div class="kpi"><span class="kpi-label">Net income (TTM)</span><strong class="kpi-value">—</strong><span class="kpi-note">&nbsp;</span></div>
+      <div class="kpi"><span class="kpi-label">Median 1Y return</span><strong class="kpi-value">—</strong><span class="kpi-note">&nbsp;</span></div>
+      <div class="kpi"><span class="kpi-label">Higher than a year ago</span><strong class="kpi-value">—</strong><span class="kpi-note">&nbsp;</span></div>
+    </section>
+
+    <section class="panel controls" aria-labelledby="rank-heading">
+      <div class="controls-head">
+        <div>
+          <h2 id="rank-heading">Ranking criteria</h2>
+          <p class="hint">Highest priority first. Click a column heading to add it, or click it again to flip direction.</p>
+        </div>
+        <div class="method">
+          <span id="method-label" class="label">Combine by</span>
+          <div class="segmented" role="radiogroup" aria-labelledby="method-label">
+            <label title="Sort by #1, break ties with #2, …"><input type="radio" name="method" value="priority" checked><span>Priority order</span></label>
+            <label title="Average each security's rank across every criterion"><input type="radio" name="method" value="average"><span>Average rank</span></label>
+          </div>
+        </div>
+      </div>
+      <ol class="sort-list" id="sort-list" aria-label="Active ranking criteria, highest priority first"></ol>
+      <p class="sort-empty" id="sort-empty"><span aria-hidden="true">⇅</span> No ranking applied — securities are listed alphabetically by ticker.</p>
+      <div class="add-row">
+        <span class="label">Add</span>
+        <div class="chips" id="available-criteria"></div>
+        <button type="button" class="reset" id="reset-button">Clear all</button>
+      </div>
+    </section>
+
+    <section class="panel table-panel" aria-labelledby="table-heading">
+      <div class="table-toolbar">
+        <h2 id="table-heading" class="visually-hidden">S&amp;P 500 securities</h2>
+        <label class="search">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4 4"/></svg>
+          <input type="search" id="search" placeholder="Search ticker or company" aria-label="Search ticker or company" autocomplete="off" spellcheck="false">
+        </label>
+        <select id="sector" aria-label="Filter by sector"><option value="">All sectors</option></select>
+        <p class="result-count" id="result-count" aria-live="polite"></p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr id="table-head"></tr></thead>
+          <tbody id="table-body"><tr><td colspan="9" class="status">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <details class="panel notes">
+      <summary><h2>Methodology &amp; data sources</h2><span class="hint">How each figure is calculated</span></summary>
+      <ul>
+        <li><strong>Constituents</strong> come from the public S&amp;P 500 list; multi-class issuers (e.g. GOOGL/GOOG) appear once per listed security.</li>
+        <li><strong>Price</strong> is the latest close; <strong>1Y</strong> and <strong>3M</strong> growth compare it with the split-adjusted close one year and three months earlier (excluding dividends).</li>
+        <li><strong>Market cap</strong> is Nasdaq's issuer-level figure re-based to the latest close. <strong>YoY market cap growth</strong> combines 1-year price growth with the change in split-restated weighted diluted shares from SEC filings.</li>
+        <li><strong>Net income</strong> is trailing twelve months attributable to the company, built from SEC 10-Q/10-K filings (fiscal year when quarterly data is incomplete). Growth against a negative base is measured relative to its absolute value.</li>
+        <li><strong>Price history</strong> uses daily closes for the last two years and weekly closes before that.</li>
+        <li>Missing values (shown as —) always rank last. Summary figures reflect the selected sector.</li>
+      </ul>
+    </details>
+
+    <footer class="site-footer">
+      <p>Data: S&amp;P 500 constituents list, Nasdaq, Yahoo Finance, SEC EDGAR. Refreshed with each site deployment.</p>
+      <p>For information only — not investment advice.</p>
+    </footer>
+  </main>
+
+  <dialog class="detail" id="detail" aria-labelledby="detail-name">
+    <div class="detail-inner">
+      <button type="button" class="detail-back" id="detail-back">← Back to rankings</button>
+      <header class="detail-header">
+        <div>
+          <p class="detail-symbol" id="detail-symbol"></p>
+          <h2 id="detail-name"></h2>
+          <p class="detail-sector" id="detail-sector"></p>
+        </div>
+        <div class="detail-quote">
+          <strong id="detail-price"></strong>
+          <span id="detail-change"></span>
+          <small id="detail-period"></small>
+        </div>
+      </header>
+
+      <div class="range-tabs" id="range-tabs" role="group" aria-label="Performance period"></div>
+
+      <div class="chart-card">
+        <div class="chart-toolbar">
+          <p class="chart-caption" id="chart-caption"></p>
+          <label class="log-toggle"><input type="checkbox" id="log-scale"> Log scale</label>
+        </div>
+        <div class="chart" id="chart"></div>
+        <div class="chart-tooltip" id="chart-tooltip" hidden></div>
+      </div>
+
+      <div class="detail-grid">
+        <section aria-labelledby="period-heading">
+          <h3 id="period-heading">Selected period</h3>
+          <dl class="stats" id="period-stats"></dl>
+        </section>
+        <section aria-labelledby="fundamentals-heading">
+          <h3 id="fundamentals-heading">Ranking metrics</h3>
+          <dl class="stats" id="metric-stats"></dl>
+        </section>
+      </div>
+      <p class="detail-note">Split-adjusted closing prices; dividends are excluded. Daily closes cover the last two years and weekly closes cover earlier periods.</p>
+    </div>
+  </dialog>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # Alphadyn AI Apps and Experiments
 
-This repository is a portfolio-style collection of 20 independent projects: interactive demos, data visualizations, browser apps, and Python utilities. Each project is designed to be opened, adapted, or expanded on its own. The collection is intentionally mixed: some apps are static browser experiences, while others use Supabase, Flask, or Vercel APIs.
+This repository is a portfolio-style collection of 21 independent projects: interactive demos, data visualizations, browser apps, and Python utilities. Each project is designed to be opened, adapted, or expanded on its own. The collection is intentionally mixed: some apps are static browser experiences, while others use Supabase, Flask, or Vercel APIs.
 
 The root landing page in [index.html](index.html) links directly to the deployed apps and gives a quick overview of the portfolio. It includes a Featured area and a full Catalog of all available apps and experiments.
 
@@ -40,6 +40,7 @@ Projects are listed alphabetically, matching the catalog on the landing page.
 - [Postboard](postboard/) ([Open app](https://alphadyn.github.io/apps/postboard/)) — Personal post archive with rich text, uploads, and Supabase integration.
 - [Pulse](pulse/) ([Open app](https://alphadyn.github.io/apps/pulse/)) — Social/news-style app with posts, tags, and discussion flows.
 - [Signal](signal/) ([Open app](https://alphadyn.github.io/apps/signal/)) — Focused, searchable news-reading list that captures Google News headlines and related stories and downloads them as structured JSON.
+- [S&P 500 Ranker](sp500-ranker/) ([Open app](https://alphadyn.github.io/apps/sp500-ranker/)) — Table of every S&P 500 security ranked by market cap, net income, price, and their growth rates, using any criteria in any order, with a price-history chart for each security (1W through All).
 - [Vault](vault/) ([Open app](https://alphadyn.github.io/apps/vault/)) — Browser-based text and file encryption app; all processing stays on-device.
 - [vCard Generator](vcard-generator/) ([Open app](https://alphadyn.github.io/apps/vcard-generator/)) — Card generation and QR code output.
 
@@ -95,6 +96,17 @@ python3 app.py
 
 Open <http://127.0.0.1:5001>, type a ticker or company name, and choose a matching stock. The complete S&P 500 is listed in market-cap order; ranking data is cached for six hours, and selected-ticker histories for one hour. The dashboard shows the closest-fitting model by R² and classifies recent performance curvature as concave up or down.
 
+### S&P 500 Ranker
+
+[S&P 500 Ranker](sp500-ranker/) is a static page backed by a generated `data.json` snapshot plus per-security `history/*.json` files (gitignored, built at deploy time). Generate them (about three to four minutes because of SEC rate limits), then serve the folder:
+
+```bash
+python3 sp500-ranker/build_data.py
+cd sp500-ranker && python3 -m http.server 8000
+```
+
+See [sp500-ranker/README.md](sp500-ranker/README.md) for data sources and methodology.
+
 ### Postboard setup
 
 The [Postboard](postboard/) project uses Supabase for persistence and API access. Configure it once:
@@ -134,6 +146,13 @@ A convenience wrapper is also included:
 ```
 
 The pytest configuration is defined in [pytest.ini](pytest.ini).
+
+S&P 500 Ranker has its own unit tests:
+
+```bash
+python3 -m unittest discover -s sp500-ranker -p test_build_data.py
+node --test sp500-ranker/ranking.test.js sp500-ranker/history.test.js
+```
 
 ## Documentation map
 

@@ -72,23 +72,23 @@ def social_preview():
     regular = lambda s: font("Arial.ttf", s)
 
     brand_mark(draw, 64, 60, 56)
-    draw.text((136, 88), "S&P 500 ", font=bold(30), fill=TEXT, anchor="lm")
-    draw.text((136 + draw.textlength("S&P 500 ", font=bold(30)), 88), "Ranker", font=bold(30), fill=ACCENT, anchor="lm")
+    draw.text((136, 88), "S&P 500 ", font=bold(28), fill=TEXT, anchor="lm")
+    draw.text((136 + draw.textlength("S&P 500 ", font=bold(28)), 88), "Screener & Ranker", font=bold(28), fill=ACCENT, anchor="lm")
 
-    draw.text((64, 178), "EQUITY SCREENER", font=bold(20), fill=ACCENT)
-    draw.text((64, 212), "Rank the", font=bold(66), fill=TEXT)
-    draw.text((64, 286), "S&P 500", font=bold(66), fill=TEXT)
-    draw.text((64, 360), "your way", font=bold(66), fill=ACCENT)
+    draw.text((64, 174), "EQUITY SCREENER", font=bold(20), fill=ACCENT)
+    draw.text((64, 208), "Filter & rank", font=bold(58), fill=TEXT)
+    draw.text((64, 276), "the S&P 500", font=bold(58), fill=TEXT)
+    draw.text((64, 344), "your way", font=bold(58), fill=ACCENT)
     draw.text(
-        (64, 456),
-        "Sort by market cap, net income, growth\nand momentum. Explore 10 years of prices.",
-        font=regular(25),
+        (64, 438),
+        "Screen by market cap, P/E, price, net income,\nand performance. Explore 10 years of prices.",
+        font=regular(24),
         fill=TEXT_2,
-        spacing=10,
+        spacing=8,
     )
     x = 64
-    for label in ("Market cap", "Net income", "1Y growth"):
-        x = pill(draw, (x, 548), label, bold(18), SURFACE_2, BORDER, TEXT_2) + 10
+    for label in ("Market cap", "P/E", "Net income", "Performance"):
+        x = pill(draw, (x, 544), label, bold(16), SURFACE_2, BORDER, TEXT_2) + 8
 
     # Mock ranked table (illustrative only).
     px, py, pw, ph = 640, 120, 500, 420

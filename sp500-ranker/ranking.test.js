@@ -4,6 +4,7 @@ import {
   columnOrder, marketSummary,
   addCriterion, criterionRanks, filterRanked, formatMoney, formatPercent, formatPrice, moveCriterion,
   parseState, rankSecurities, removeCriterion, serializeState, toggleDirection,
+  filterSecurities, rankFilteredSecurities, parseMoneyInput, parsePercentInput, formatPE, getSecurityPE,
 } from './ranking.js';
 
 const rows = [
@@ -125,4 +126,154 @@ test('selected columns lead in sort order, then the rest in default order', () =
     'price_change_3m', 'net_income', 'market_cap', 'market_cap_change_1y', 'net_income_change_1y', 'price', 'price_change_1y',
   ]);
   assert.equal(columnOrder([{ key: 'bogus', direction: 'desc' }]).length, 7);
+});
+
+test('filterSecurities filters by market cap, P/E, price, and performance periods', () => {
+  const testSecurities = [
+    {
+      symbol: 'AAPL', name: 'Apple Inc.', sector: 'Information Technology',
+      market_cap: 3_000_000_000_000, price: 200, net_income: 100_000_000_000, net_income_prior: 76_900_000_000, net_income_change_1y: 0.30, pe: 30,
+      performance: { '1w': 0.01, '1m': 0.05, '3m': 0.10, ytd: 0.15, '1y': 0.30, '2y': 0.45, '5y': 1.2, '10y': 5.0, all: 20.0 },
+    },
+    {
+      symbol: 'MSFT', name: 'Microsoft Corp.', sector: 'Information Technology',
+      market_cap: 2_500_000_000_000, price: 400, net_income: 80_000_000_000, net_income_prior: 64_000_000_000, net_income_change_1y: 0.25, pe: 31.25,
+      performance: { '1w': -0.01, '1m': 0.02, '3m': 0.08, ytd: 0.12, '1y': 0.25, '2y': 0.40, '5y': 1.1, '10y': 6.0, all: 15.0 },
+    },
+    {
+      symbol: 'JNJ', name: 'Johnson & Johnson', sector: 'Health Care',
+      market_cap: 400_000_000_000, price: 160, net_income: 20_000_000_000, net_income_prior: 19_000_000_000, net_income_change_1y: 0.05, pe: 20,
+      performance: { '1w': 0.005, '1m': -0.02, '3m': -0.01, ytd: 0.03, '1y': 0.05, '2y': 0.10, '5y': 0.3, '10y': 1.2, all: 5.0 },
+    },
+    {
+      symbol: 'LOSS', name: 'Unprofitable Co.', sector: 'Health Care',
+      market_cap: 5_000_000_000, price: 25, net_income: -500_000_000, net_income_prior: -333_000_000, net_income_change_1y: -0.50, pe: null,
+      performance: { '1w': -0.05, '1m': -0.10, '3m': -0.20, ytd: -0.30, '1y': -0.50, '2y': -0.40, '5y': -0.2, '10y': null, all: -0.5 },
+    },
+  ];
+
+  // Market cap filter
+  const megaCaps = filterSecurities(testSecurities, { marketCapMin: 1_000_000_000_000 });
+  assert.deepEqual(megaCaps.map((s) => s.symbol), ['AAPL', 'MSFT']);
+
+  // P/E filter
+  const lowPE = filterSecurities(testSecurities, { peMax: 25 });
+  assert.deepEqual(lowPE.map((s) => s.symbol), ['JNJ']);
+
+  // Profitable only
+  const profitable = filterSecurities(testSecurities, { pePositiveOnly: true });
+  assert.deepEqual(profitable.map((s) => s.symbol), ['AAPL', 'MSFT', 'JNJ']);
+
+  // Price filter
+  const affordable = filterSecurities(testSecurities, { priceMax: 180 });
+  assert.deepEqual(affordable.map((s) => s.symbol), ['JNJ', 'LOSS']);
+
+  // Performance filters across different time periods
+  const weeklyWinners = filterSecurities(testSecurities, { performance: { '1w': { min: 0 } } });
+  assert.deepEqual(weeklyWinners.map((s) => s.symbol), ['AAPL', 'JNJ']);
+
+  const strong1Y = filterSecurities(testSecurities, { performance: { '1y': { min: 0.20 } } });
+  assert.deepEqual(strong1Y.map((s) => s.symbol), ['AAPL', 'MSFT']);
+
+  const multiPeriod = filterSecurities(testSecurities, {
+    performance: { '1y': { min: 0.25 }, '1m': { min: 0.03 } },
+  });
+  assert.deepEqual(multiPeriod.map((s) => s.symbol), ['AAPL']);
+
+  // Sector and search query
+  const techOnly = filterSecurities(testSecurities, { sector: 'Information Technology' });
+  assert.deepEqual(techOnly.map((s) => s.symbol), ['AAPL', 'MSFT']);
+
+  const searched = filterSecurities(testSecurities, { query: 'johnson' });
+  assert.deepEqual(searched.map((s) => s.symbol), ['JNJ']);
+
+  // Net income (TTM) filtering
+  const highEarners = filterSecurities(testSecurities, { netIncomeMin: 50_000_000_000 });
+  assert.deepEqual(highEarners.map((s) => s.symbol), ['AAPL', 'MSFT']);
+
+  const profitableEarnings = filterSecurities(testSecurities, { netIncomeMin: 0 });
+  assert.deepEqual(profitableEarnings.map((s) => s.symbol), ['AAPL', 'MSFT', 'JNJ']);
+
+  // Net income percentage growth (YoY) filtering
+  const fastGrowth = filterSecurities(testSecurities, { netIncomeGrowthMin: 0.20 });
+  assert.deepEqual(fastGrowth.map((s) => s.symbol), ['AAPL', 'MSFT']);
+
+  const structuredNetIncome = filterSecurities(testSecurities, {
+    netIncome: { ttm: { min: 20_000_000_000 }, yoy: { min: 0.26 } },
+  });
+  assert.deepEqual(structuredNetIncome.map((s) => s.symbol), ['AAPL']);
+});
+
+test('rankFilteredSecurities ranks by selected column and direction', () => {
+  const secs = [
+    { symbol: 'A', market_cap: 100, price: 50, pe: 25, net_income: 10, net_income_change_1y: 0.05, performance: { '1y': 0.1 } },
+    { symbol: 'B', market_cap: 300, price: 20, pe: 10, net_income: 50, net_income_change_1y: 0.35, performance: { '1y': 0.5 } },
+    { symbol: 'C', market_cap: 200, price: 80, pe: null, net_income: -5, net_income_change_1y: -0.20, performance: { '1y': -0.2 } },
+  ];
+
+  // Rank by market_cap descending
+  const byCap = rankFilteredSecurities(secs, 'market_cap', 'desc');
+  assert.deepEqual(byCap.map((r) => [r.security.symbol, r.rank]), [['B', 1], ['C', 2], ['A', 3]]);
+
+  // Rank by net_income descending
+  const byNI = rankFilteredSecurities(secs, 'net_income', 'desc');
+  assert.deepEqual(byNI.map((r) => [r.security.symbol, r.rank]), [['B', 1], ['A', 2], ['C', 3]]);
+
+  // Rank by net_income_change_1y descending
+  const byNIGrowth = rankFilteredSecurities(secs, 'net_income_change_1y', 'desc');
+  assert.deepEqual(byNIGrowth.map((r) => [r.security.symbol, r.rank]), [['B', 1], ['A', 2], ['C', 3]]);
+
+  // Rank by P/E ascending (null P/E sorts last)
+  const byPE = rankFilteredSecurities(secs, 'pe', 'asc');
+  assert.deepEqual(byPE.map((r) => [r.security.symbol, r.rank]), [['B', 1], ['A', 2], ['C', 3]]);
+
+  // Rank by 1y performance descending (handles both '1y' and 'perf_1y')
+  const byPerf = rankFilteredSecurities(secs, '1y', 'desc');
+  assert.deepEqual(byPerf.map((r) => [r.security.symbol, r.rank]), [['B', 1], ['A', 2], ['C', 3]]);
+
+  const byPerfPrefix = rankFilteredSecurities(secs, 'perf_1y', 'desc');
+  assert.deepEqual(byPerfPrefix.map((r) => [r.security.symbol, r.rank]), [['B', 1], ['A', 2], ['C', 3]]);
+});
+
+test('parseMoneyInput and parsePercentInput handle varied human inputs', () => {
+  assert.equal(parseMoneyInput('$50B'), 50e9);
+  assert.equal(parseMoneyInput('1.5T'), 1.5e12);
+  assert.equal(parseMoneyInput('250m'), 250e6);
+  assert.equal(parseMoneyInput('50000'), 50000);
+  assert.equal(parseMoneyInput('-$500M'), -500e6);
+  assert.equal(parseMoneyInput('> $1B'), 1e9);
+  assert.equal(parseMoneyInput('< $0'), 0);
+  assert.equal(parseMoneyInput('$0'), 0);
+  assert.equal(parseMoneyInput('0'), 0);
+  assert.equal(parseMoneyInput(''), null);
+  assert.equal(parseMoneyInput('invalid'), null);
+
+  assert.equal(parsePercentInput('25%'), 0.25);
+  assert.equal(parsePercentInput('10'), 0.10);
+  assert.equal(parsePercentInput('-5%'), -0.05);
+  assert.equal(parsePercentInput('0%'), 0);
+  assert.equal(parsePercentInput('0'), 0);
+  assert.equal(parsePercentInput('> 10%'), 0.10);
+  assert.equal(parsePercentInput('< 0%'), 0);
+  assert.equal(parsePercentInput('+15.5%'), 0.155);
+  assert.equal(parsePercentInput(''), null);
+  assert.equal(parsePercentInput('-'), null);
+});
+
+test('formatPE formats numbers cleanly', () => {
+  assert.equal(formatPE(38.12), '38.1');
+  assert.equal(formatPE(null), '—');
+  assert.equal(formatPE(-5), '—');
+});
+
+test('state serialization handles tab and fsort', () => {
+  const filterState = {
+    tab: 'filter', sorts: [], method: 'priority', symbol: null, range: '1y',
+    filterSort: { key: '1y', direction: 'desc' },
+  };
+  const hash = serializeState(filterState);
+  assert.equal(hash, 'tab=filter&fsort=1y:desc');
+  const parsed = parseState(hash);
+  assert.equal(parsed.tab, 'filter');
+  assert.deepEqual(parsed.filterSort, { key: '1y', direction: 'desc' });
 });

@@ -12,6 +12,17 @@ export const CRITERIA = [
 ];
 
 export const METHODS = ['priority', 'average'];
+export const FILTER_RANGES = [
+  { key: '1w', label: '1W', name: '1 week' },
+  { key: '1m', label: '1M', name: '1 month' },
+  { key: '3m', label: '3M', name: '3 months (Q)' },
+  { key: 'ytd', label: 'YTD', name: 'Year to date' },
+  { key: '1y', label: '1Y', name: '1 year' },
+  { key: '2y', label: '2Y', name: '2 years' },
+  { key: '5y', label: '5Y', name: '5 years' },
+  { key: '10y', label: '10Y', name: '10 years' },
+  { key: 'all', label: 'All', name: 'All time' },
+];
 const CRITERION_KEYS = new Set(CRITERIA.map((criterion) => criterion.key));
 
 export function criterionFor(key) {
@@ -98,6 +109,196 @@ export function filterRanked(ranked, { query = '', sector = '' } = {}) {
   });
 }
 
+// --- Filter Tab Filtering & Ranking --------------------------------------
+
+export function getSecurityPE(security) {
+  if (security.pe !== undefined && security.pe !== null) return security.pe;
+  if (security.net_income > 0 && security.market_cap > 0) {
+    return security.market_cap / security.net_income;
+  }
+  return null;
+}
+
+export function getSecurityPerformance(security, rangeKey) {
+  if (security.performance && security.performance[rangeKey] !== undefined) {
+    return security.performance[rangeKey];
+  }
+  const flat = security[`price_change_${rangeKey}`];
+  if (flat !== undefined) return flat;
+  return null;
+}
+
+export function filterSecurities(securities, filters = {}) {
+  const {
+    query = '',
+    sector = '',
+    marketCapMin = null,
+    marketCapMax = null,
+    netIncome = {},
+    netIncomeMin = null,
+    netIncomeMax = null,
+    netIncomeGrowthMin = null,
+    netIncomeGrowthMax = null,
+    netIncomePriorMin = null,
+    netIncomePriorMax = null,
+    peMin = null,
+    peMax = null,
+    pePositiveOnly = false,
+    priceMin = null,
+    priceMax = null,
+    performance = {},
+  } = filters;
+
+  const needle = query.trim().toLowerCase();
+
+  return securities.filter((security) => {
+    if (sector && security.sector !== sector) return false;
+    if (needle) {
+      const sym = (security.symbol || '').toLowerCase();
+      const name = (security.name || '').toLowerCase();
+      if (!sym.includes(needle) && !name.includes(needle)) return false;
+    }
+
+    if (marketCapMin !== null && marketCapMin !== undefined) {
+      if (security.market_cap === null || security.market_cap === undefined || security.market_cap < marketCapMin) {
+        return false;
+      }
+    }
+    if (marketCapMax !== null && marketCapMax !== undefined) {
+      if (security.market_cap === null || security.market_cap === undefined || security.market_cap > marketCapMax) {
+        return false;
+      }
+    }
+
+    // Net income TTM
+    const niTtmMin = netIncome?.ttm?.min ?? netIncomeMin;
+    const niTtmMax = netIncome?.ttm?.max ?? netIncomeMax;
+    if (niTtmMin !== null && niTtmMin !== undefined) {
+      if (security.net_income === null || security.net_income === undefined || security.net_income < niTtmMin) {
+        return false;
+      }
+    }
+    if (niTtmMax !== null && niTtmMax !== undefined) {
+      if (security.net_income === null || security.net_income === undefined || security.net_income > niTtmMax) {
+        return false;
+      }
+    }
+
+    // Net income percentage growth (YoY / 1Y)
+    const niGrowthMin = netIncome?.yoy?.min ?? netIncomeGrowthMin;
+    const niGrowthMax = netIncome?.yoy?.max ?? netIncomeGrowthMax;
+    if (niGrowthMin !== null && niGrowthMin !== undefined) {
+      if (security.net_income_change_1y === null || security.net_income_change_1y === undefined || security.net_income_change_1y < niGrowthMin) {
+        return false;
+      }
+    }
+    if (niGrowthMax !== null && niGrowthMax !== undefined) {
+      if (security.net_income_change_1y === null || security.net_income_change_1y === undefined || security.net_income_change_1y > niGrowthMax) {
+        return false;
+      }
+    }
+
+    // Net income Prior Year
+    const niPriorMin = netIncome?.prior?.min ?? netIncomePriorMin;
+    const niPriorMax = netIncome?.prior?.max ?? netIncomePriorMax;
+    if (niPriorMin !== null && niPriorMin !== undefined) {
+      if (security.net_income_prior === null || security.net_income_prior === undefined || security.net_income_prior < niPriorMin) {
+        return false;
+      }
+    }
+    if (niPriorMax !== null && niPriorMax !== undefined) {
+      if (security.net_income_prior === null || security.net_income_prior === undefined || security.net_income_prior > niPriorMax) {
+        return false;
+      }
+    }
+
+    const pe = getSecurityPE(security);
+    if (pePositiveOnly) {
+      if (pe === null || pe <= 0) return false;
+    }
+    if (peMin !== null && peMin !== undefined) {
+      if (pe === null || pe < peMin) return false;
+    }
+    if (peMax !== null && peMax !== undefined) {
+      if (pe === null || pe > peMax) return false;
+    }
+
+    if (priceMin !== null && priceMin !== undefined) {
+      if (security.price === null || security.price === undefined || security.price < priceMin) {
+        return false;
+      }
+    }
+    if (priceMax !== null && priceMax !== undefined) {
+      if (security.price === null || security.price === undefined || security.price > priceMax) {
+        return false;
+      }
+    }
+
+    if (performance && typeof performance === 'object') {
+      for (const [period, range] of Object.entries(performance)) {
+        if (!range) continue;
+        const { min = null, max = null } = range;
+        if (min === null && max === null) continue;
+        const val = getSecurityPerformance(security, period);
+        if (min !== null && min !== undefined) {
+          if (val === null || val === undefined || val < min) return false;
+        }
+        if (max !== null && max !== undefined) {
+          if (val === null || val === undefined || val > max) return false;
+        }
+      }
+    }
+
+    return true;
+  });
+}
+
+export function rankFilteredSecurities(securities, sortKey = 'market_cap', sortDirection = 'desc') {
+  const perfKeys = new Set(FILTER_RANGES.map((r) => r.key));
+  const sorted = [...securities].sort((a, b) => {
+    let aVal, bVal;
+    if (sortKey === 'pe') {
+      aVal = getSecurityPE(a);
+      bVal = getSecurityPE(b);
+    } else if (sortKey === 'net_income' || sortKey === 'net_income_ttm') {
+      aVal = a.net_income ?? null;
+      bVal = b.net_income ?? null;
+    } else if (sortKey === 'net_income_change_1y' || sortKey === 'net_income_growth' || sortKey === 'net_income_yoy') {
+      aVal = a.net_income_change_1y ?? null;
+      bVal = b.net_income_change_1y ?? null;
+    } else if (sortKey === 'net_income_prior') {
+      aVal = a.net_income_prior ?? null;
+      bVal = b.net_income_prior ?? null;
+    } else if (sortKey === 'symbol') {
+      return sortDirection === 'asc'
+        ? a.symbol.localeCompare(b.symbol)
+        : b.symbol.localeCompare(a.symbol);
+    } else if (sortKey === 'name') {
+      return sortDirection === 'asc'
+        ? a.name.localeCompare(b.name)
+        : b.name.localeCompare(a.name);
+    } else if (sortKey.startsWith('perf_')) {
+      const period = sortKey.replace('perf_', '');
+      aVal = getSecurityPerformance(a, period);
+      bVal = getSecurityPerformance(b, period);
+    } else if (perfKeys.has(sortKey)) {
+      aVal = getSecurityPerformance(a, sortKey);
+      bVal = getSecurityPerformance(b, sortKey);
+    } else {
+      aVal = a[sortKey] ?? null;
+      bVal = b[sortKey] ?? null;
+    }
+    const cmp = compareValues(aVal, bVal, sortDirection);
+    if (cmp !== 0) return cmp;
+    return a.symbol.localeCompare(b.symbol);
+  });
+
+  return sorted.map((security, index) => ({
+    security,
+    rank: index + 1,
+  }));
+}
+
 // --- Sort-state transitions (immutable) -----------------------------------
 
 export function addCriterion(sorts, key, direction = 'desc') {
@@ -158,14 +359,18 @@ export function marketSummary(securities) {
   };
 }
 
-// --- URL hash persistence: #sort=market_cap:desc,price:asc&method=average&symbol=AAPL&range=5y ---
+// --- URL hash persistence: #sort=market_cap:desc,price:asc&method=average&symbol=AAPL&range=5y&tab=filter ---
 
 const SYMBOL_PATTERN = /^[A-Z0-9][A-Z0-9.-]{0,9}$/;
 
-export function serializeState({ sorts, method, symbol = null, range = DEFAULT_RANGE }) {
+export function serializeState({ tab = 'sort', sorts = [], method = 'priority', symbol = null, range = DEFAULT_RANGE, filterSort = null }) {
   const parts = [];
-  if (sorts.length) parts.push(`sort=${sorts.map(({ key, direction }) => `${key}:${direction}`).join(',')}`);
+  if (tab === 'filter') parts.push('tab=filter');
+  if (sorts && sorts.length) parts.push(`sort=${sorts.map(({ key, direction }) => `${key}:${direction}`).join(',')}`);
   if (method === 'average') parts.push(`method=${method}`);
+  if (filterSort && (filterSort.key !== 'market_cap' || filterSort.direction !== 'desc')) {
+    parts.push(`fsort=${filterSort.key}:${filterSort.direction}`);
+  }
   if (symbol) parts.push(`symbol=${encodeURIComponent(symbol)}`);
   if (symbol && range !== DEFAULT_RANGE) parts.push(`range=${range}`);
   return parts.join('&');
@@ -181,12 +386,46 @@ export function parseState(hash) {
   const method = METHODS.includes(params.get('method')) ? params.get('method') : 'priority';
   const symbol = (params.get('symbol') || '').toUpperCase();
   const range = RANGE_KEYS.includes(params.get('range')) ? params.get('range') : DEFAULT_RANGE;
-  return { sorts, method, symbol: SYMBOL_PATTERN.test(symbol) ? symbol : null, range };
+  const state = { sorts, method, symbol: SYMBOL_PATTERN.test(symbol) ? symbol : null, range };
+  if (params.get('tab') === 'filter') state.tab = 'filter';
+  if (params.get('fsort')) {
+    const [fkey, fdir] = params.get('fsort').split(':');
+    if (fkey) state.filterSort = { key: fkey, direction: fdir === 'asc' ? 'asc' : 'desc' };
+  }
+  return state;
 }
 
 // --- Formatting ------------------------------------------------------------
 
 const MINUS = '\u2212';
+
+export function parseMoneyInput(text) {
+  if (text === null || text === undefined) return null;
+  const clean = String(text).trim().replace(/[><$]/g, '').replace(/,/g, '').trim();
+  if (!clean) return null;
+  const match = clean.match(/^([+-]?[0-9.]+)\s*([tbmk])?$/i);
+  if (!match) return null;
+  const num = parseFloat(match[1]);
+  if (!Number.isFinite(num)) return null;
+  const unit = (match[2] || '').toLowerCase();
+  const multipliers = { t: 1e12, b: 1e9, m: 1e6, k: 1e3 };
+  return num * (multipliers[unit] ?? 1);
+}
+
+export function parsePercentInput(text) {
+  if (text === null || text === undefined) return null;
+  const clean = String(text).trim().replace(/[><%]/g, '').replace(/,/g, '').trim();
+  if (!clean) return null;
+  const num = parseFloat(clean);
+  if (!Number.isFinite(num)) return null;
+  return num / 100;
+}
+
+export function formatPE(value) {
+  if (value === null || value === undefined || !Number.isFinite(value)) return '—';
+  if (value <= 0) return '—';
+  return value.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+}
 
 export function formatMoney(value) {
   if (value === null || value === undefined || !Number.isFinite(value)) return '—';

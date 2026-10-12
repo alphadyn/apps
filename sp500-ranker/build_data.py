@@ -222,6 +222,35 @@ def price_metrics(payload):
     }
 
 
+def performance_ranges(points):
+    """Calculate performance across 1w, 1m, 3m, ytd, 1y, 2y, 5y, 10y, all from sorted (date, close) points."""
+    if not points or len(points) < 2:
+        return {}
+    last_date, last_close = points[-1]
+    first_date, _ = points[0]
+    targets = {
+        "1w": last_date - timedelta(days=7),
+        "1m": shift_months(last_date, -1),
+        "3m": shift_months(last_date, -3),
+        "ytd": date(last_date.year - 1, 12, 31),
+        "1y": shift_months(last_date, -12),
+        "2y": shift_months(last_date, -24),
+        "5y": shift_months(last_date, -60),
+        "10y": shift_months(last_date, -120),
+        "all": first_date,
+    }
+    result = {}
+    for key, target_date in targets.items():
+        base = close_on_or_before(points, target_date)
+        if not base and key in ("all", "10y", "5y", "2y", "1y"):
+            base = points[0]
+        if base and base[1] > 0:
+            result[key] = round(growth(last_close, base[1]), 6)
+        else:
+            result[key] = None
+    return result
+
+
 def merge_history(daily_payload, weekly_payload):
     """Daily closes for the recent window, preceded by weekly closes for the full listed history."""
     daily, _ = chart_points(daily_payload)
@@ -419,7 +448,7 @@ def fetch_fundamentals(cik, today=None):
 # Assembly
 # ---------------------------------------------------------------------------
 
-def build_record(company, prices, cap_entry, fundamentals):
+def build_record(company, prices, cap_entry, fundamentals, history=None):
     record = dict(company)
     prices = prices or {}
     record.update({
@@ -434,6 +463,8 @@ def build_record(company, prices, cap_entry, fundamentals):
         "net_income_change_1y": None,
         "net_income_period_end": None,
         "net_income_basis": None,
+        "pe": None,
+        "performance": {},
     })
     last_close = prices.get("last_close")
     if cap_entry and last_close:
@@ -454,6 +485,20 @@ def build_record(company, prices, cap_entry, fundamentals):
             "net_income_period_end": period_end.isoformat(),
             "net_income_basis": basis,
         })
+    if record["market_cap"] and record["net_income"] and record["net_income"] > 0:
+        record["pe"] = round(record["market_cap"] / record["net_income"], 2)
+
+    perf = performance_ranges(history) if history else {}
+    if perf:
+        record["performance"] = perf
+        for k, v in perf.items():
+            record[f"price_change_{k}"] = v
+    else:
+        record["performance"] = {
+            "1y": record.get("price_change_1y"),
+            "3m": record.get("price_change_3m"),
+        }
+
     for key in ("price_change_1y", "price_change_3m", "market_cap_change_1y", "net_income_change_1y"):
         if record[key] is not None:
             record[key] = round(record[key], 6)
@@ -501,7 +546,13 @@ def build_snapshot(log=print):
     log(f"Net income found for {sum(1 for r in fundamentals_by_cik.values() if r and r['net_income'])} issuers")
 
     securities = [
-        build_record(company, price, caps.get(normalize_symbol(company["symbol"])), fundamentals_by_cik.get(company["cik"]))
+        build_record(
+            company,
+            price,
+            caps.get(normalize_symbol(company["symbol"])),
+            fundamentals_by_cik.get(company["cik"]),
+            histories.get(normalize_symbol(company["symbol"])),
+        )
         for company, price in zip(companies, prices)
     ]
     price_dates = sorted(item["price_date"] for item in securities if item["price_date"])

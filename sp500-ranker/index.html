@@ -4,8 +4,8 @@
   <script defer src="/apps/analytics.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>S&amp;P 500 Ranker — Rank and chart every S&amp;P 500 company</title>
-  <meta name="description" content="Rank every S&amp;P 500 company by market cap, net income, price, and growth — in any order — and chart each one's price history from 1 week to all time.">
+  <title>S&amp;P 500 Screener &amp; Ranker — Filter, rank, and chart every constituent</title>
+  <meta name="description" content="Filter and rank every S&amp;P 500 company by market cap, P/E, price, net income, and performance across 9 periods. Interactive charts and 10 years of price history.">
   <meta name="theme-color" content="#f4f7fb">
   <meta name="color-scheme" content="light">
   <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/">
@@ -15,19 +15,19 @@
   <meta property="og:site_name" content="Alphadyn Apps">
   <meta property="og:locale" content="en_US">
   <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/">
-  <meta property="og:title" content="S&amp;P 500 Ranker">
-  <meta property="og:description" content="Rank every S&amp;P 500 company by market cap, net income, price, and growth — in any order — and chart each one's price history from 1 week to all time.">
-  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=2">
-  <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=2">
+  <meta property="og:title" content="S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Filter and rank every S&amp;P 500 company by market cap, P/E, price, net income, and performance across 9 periods. Interactive charts and 10 years of price history.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="S&amp;P 500 Ranker: a ranked table of S&amp;P 500 companies with market cap, net income, and price growth beside a price chart.">
+  <meta property="og:image:alt" content="S&amp;P 500 Screener &amp; Ranker: a filtered and ranked table of S&amp;P 500 companies with market cap, net income, P/E, and performance beside an interactive price chart.">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="S&amp;P 500 Ranker">
-  <meta name="twitter:description" content="Rank every S&amp;P 500 company by market cap, net income, price, and growth — in any order — and chart each one's price history from 1 week to all time.">
-  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=2">
-  <meta name="twitter:image:alt" content="S&amp;P 500 Ranker: a ranked table of S&amp;P 500 companies with market cap, net income, and price growth beside a price chart.">
+  <meta name="twitter:title" content="S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Filter and rank every S&amp;P 500 company by market cap, P/E, price, net income, and performance across 9 periods. Interactive charts and 10 years of price history.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta name="twitter:image:alt" content="S&amp;P 500 Screener &amp; Ranker: a filtered and ranked table of S&amp;P 500 companies with market cap, net income, P/E, and performance beside an interactive price chart.">
 
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -50,8 +50,8 @@
   <main>
     <section class="hero" aria-labelledby="page-title">
       <p class="eyebrow">Equity screener</p>
-      <h1 id="page-title">Rank the S&amp;P 500 your way</h1>
-      <p class="lede">Order every constituent by size, profitability, and momentum. Stack criteria in any priority, blend them by average rank, or leave the list unranked. Select any company to open its price history.</p>
+      <h1 id="page-title">S&amp;P 500 Screener &amp; Ranker</h1>
+      <p class="lede">Filter and rank every constituent by market cap, P/E, price, net income, and performance across 9 periods. Click any column heading to sort. Select any company to open its price history.</p>
     </section>
 
     <section class="kpis" id="kpis" aria-label="Market summary" aria-live="polite">
@@ -61,46 +61,215 @@
       <div class="kpi"><span class="kpi-label">Higher than a year ago</span><strong class="kpi-value">—</strong><span class="kpi-note">&nbsp;</span></div>
     </section>
 
-    <section class="panel controls" aria-labelledby="rank-heading">
-      <div class="controls-head">
-        <div>
-          <h2 id="rank-heading">Ranking criteria</h2>
-          <p class="hint">Highest priority first. Click a column heading to add it, or click it again to flip direction.</p>
+    <!-- Main Filter Screener -->
+    <div id="view-filter" class="filter-screener">
+      <section class="panel filter-panel" aria-labelledby="filter-heading">
+        <div class="filter-panel-head">
+          <div class="filter-head-left">
+            <div class="filter-title-row">
+              <h2 id="filter-heading">Filter criteria</h2>
+              <button type="button" class="btn-toggle-filters" id="btn-toggle-filters" aria-expanded="true" aria-controls="filter-grid" title="Display or hide filter criteria">
+                <svg class="toggle-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                <span id="toggle-filters-text">Hide filters</span>
+              </button>
+            </div>
+            <div class="filter-summary-row" id="filter-summary-row">
+              <p class="filter-summary-empty" id="filter-summary-empty">No filters applied — showing all 503 securities</p>
+              <div class="filter-summary-active" id="filter-summary-active" hidden>
+                <span class="filter-summary-label" id="filter-summary-label">Filters (0):</span>
+                <div class="filter-summary-chips" id="filter-summary-chips" role="group" aria-label="Active filter criteria"></div>
+                <span class="filter-summary-match" id="filter-summary-match"></span>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="reset" id="filter-reset-button" disabled>Clear all filters</button>
         </div>
-        <div class="method">
-          <span id="method-label" class="label">Combine by</span>
-          <div class="segmented" role="radiogroup" aria-labelledby="method-label">
-            <label title="Sort by #1, break ties with #2, …"><input type="radio" name="method" value="priority" checked><span>Priority order</span></label>
-            <label title="Average each security's rank across every criterion"><input type="radio" name="method" value="average"><span>Average rank</span></label>
+
+        <div class="filter-grid" id="filter-grid">
+          <!-- Market Cap Card -->
+          <div class="filter-card">
+            <div class="filter-card-head">
+              <span class="label">Market Cap</span>
+            </div>
+            <div class="filter-range-inputs">
+              <label class="input-wrap">
+                <span class="input-label">Min</span>
+                <input type="text" id="filter-mcap-min" placeholder="e.g. 10B" aria-label="Minimum Market Cap">
+              </label>
+              <span class="range-sep" aria-hidden="true">–</span>
+              <label class="input-wrap">
+                <span class="input-label">Max</span>
+                <input type="text" id="filter-mcap-max" placeholder="e.g. 500B" aria-label="Maximum Market Cap">
+              </label>
+            </div>
+            <div class="filter-presets" role="group" aria-label="Market Cap Presets">
+              <button type="button" class="preset-chip" data-preset="mcap" data-min="200B" data-max="">Mega (≥$200B)</button>
+              <button type="button" class="preset-chip" data-preset="mcap" data-min="10B" data-max="200B">Large ($10B–$200B)</button>
+              <button type="button" class="preset-chip" data-preset="mcap" data-min="" data-max="10B">Mid (&lt;$10B)</button>
+            </div>
+          </div>
+
+          <!-- P/E Ratio Card -->
+          <div class="filter-card">
+            <div class="filter-card-head">
+              <span class="label">P/E Ratio</span>
+              <label class="checkbox-label" title="Exclude unprofitable companies with negative or null earnings">
+                <input type="checkbox" id="filter-pe-positive"> <span>Profitable only</span>
+              </label>
+            </div>
+            <div class="filter-range-inputs">
+              <label class="input-wrap">
+                <span class="input-label">Min</span>
+                <input type="number" id="filter-pe-min" step="0.5" placeholder="0" aria-label="Minimum P/E ratio">
+              </label>
+              <span class="range-sep" aria-hidden="true">–</span>
+              <label class="input-wrap">
+                <span class="input-label">Max</span>
+                <input type="number" id="filter-pe-max" step="0.5" placeholder="50" aria-label="Maximum P/E ratio">
+              </label>
+            </div>
+            <div class="filter-presets" role="group" aria-label="P/E Ratio Presets">
+              <button type="button" class="preset-chip" data-preset="pe" data-min="0" data-max="15">&lt; 15</button>
+              <button type="button" class="preset-chip" data-preset="pe" data-min="0" data-max="25">&lt; 25</button>
+              <button type="button" class="preset-chip" data-preset="pe" data-min="25" data-max="50">25 – 50</button>
+              <button type="button" class="preset-chip" data-preset="pe" data-min="50" data-max="">&gt; 50</button>
+            </div>
+          </div>
+
+          <!-- Price Card -->
+          <div class="filter-card">
+            <div class="filter-card-head">
+              <span class="label">Price ($)</span>
+            </div>
+            <div class="filter-range-inputs">
+              <label class="input-wrap">
+                <span class="input-label">Min</span>
+                <input type="number" id="filter-price-min" step="1" placeholder="$0" aria-label="Minimum Share Price">
+              </label>
+              <span class="range-sep" aria-hidden="true">–</span>
+              <label class="input-wrap">
+                <span class="input-label">Max</span>
+                <input type="number" id="filter-price-max" step="1" placeholder="$500" aria-label="Maximum Share Price">
+              </label>
+            </div>
+            <div class="filter-presets" role="group" aria-label="Price Presets">
+              <button type="button" class="preset-chip" data-preset="price" data-min="" data-max="50">&lt; $50</button>
+              <button type="button" class="preset-chip" data-preset="price" data-min="50" data-max="150">$50 – $150</button>
+              <button type="button" class="preset-chip" data-preset="price" data-min="150" data-max="300">$150 – $300</button>
+              <button type="button" class="preset-chip" data-preset="price" data-min="300" data-max="">&gt; $300</button>
+            </div>
+          </div>
+
+          <!-- Net Income Card -->
+          <div class="filter-card filter-card-ni">
+            <div class="filter-card-head">
+              <span class="label">Net Income</span>
+              <span class="ni-active-period-name" id="ni-period-heading">Trailing 12M (TTM)</span>
+            </div>
+            <div class="ni-period-selector" id="ni-period-selector" role="radiogroup" aria-label="Net income period selector">
+              <button type="button" class="ni-pill-btn active" data-period="ttm" aria-label="Trailing Twelve Months (TTM)">TTM ($)</button>
+              <button type="button" class="ni-pill-btn" data-period="yoy" aria-label="1-Year YoY Growth (%)">1Y YoY (%)</button>
+              <button type="button" class="ni-pill-btn" data-period="prior" aria-label="Prior Fiscal Year ($)">Prior Year ($)</button>
+            </div>
+            <div class="filter-range-inputs">
+              <label class="input-wrap">
+                <span class="input-label" id="filter-ni-min-label">Min</span>
+                <input type="text" id="filter-ni-min" placeholder="e.g. 1B" aria-label="Minimum Net Income">
+              </label>
+              <span class="range-sep" aria-hidden="true">–</span>
+              <label class="input-wrap">
+                <span class="input-label" id="filter-ni-max-label">Max</span>
+                <input type="text" id="filter-ni-max" placeholder="e.g. 50B" aria-label="Maximum Net Income">
+              </label>
+            </div>
+            <div class="filter-presets" id="ni-presets" role="group" aria-label="Net Income Presets">
+              <button type="button" class="preset-chip" data-preset="ni" data-min="0" data-max="">Profitable (≥ $0)</button>
+              <button type="button" class="preset-chip" data-preset="ni" data-min="1B" data-max="">&gt; $1B</button>
+              <button type="button" class="preset-chip" data-preset="ni" data-min="10B" data-max="">&gt; $10B</button>
+              <button type="button" class="preset-chip" data-preset="ni" data-min="" data-max="0">&lt; $0 (Losses)</button>
+              <button type="button" class="preset-chip clear-chip" id="filter-ni-clear-period">Clear period</button>
+            </div>
+          </div>
+
+          <!-- Performance Card: w/m/q/ytd/1y/2y/5y/10y/all -->
+          <div class="filter-card filter-card-perf">
+            <div class="filter-card-head">
+              <span class="label">Performance</span>
+              <span class="perf-active-period-name" id="perf-period-heading">1 Year (1Y)</span>
+            </div>
+            <div class="perf-period-selector" id="perf-period-selector" role="radiogroup" aria-label="Performance period selector">
+              <button type="button" class="perf-pill-btn" data-period="1w" aria-label="1 Week (w)">1W</button>
+              <button type="button" class="perf-pill-btn" data-period="1m" aria-label="1 Month (m)">1M</button>
+              <button type="button" class="perf-pill-btn" data-period="3m" aria-label="3 Months / Quarter (q)">3M</button>
+              <button type="button" class="perf-pill-btn" data-period="ytd" aria-label="Year to Date">YTD</button>
+              <button type="button" class="perf-pill-btn active" data-period="1y" aria-label="1 Year">1Y</button>
+              <button type="button" class="perf-pill-btn" data-period="2y" aria-label="2 Years">2Y</button>
+              <button type="button" class="perf-pill-btn" data-period="5y" aria-label="5 Years">5Y</button>
+              <button type="button" class="perf-pill-btn" data-period="10y" aria-label="10 Years">10Y</button>
+              <button type="button" class="perf-pill-btn" data-period="all" aria-label="All Time">All</button>
+            </div>
+            <div class="filter-range-inputs">
+              <label class="input-wrap">
+                <span class="input-label">Min %</span>
+                <input type="text" id="filter-perf-min" placeholder="e.g. 10%" aria-label="Minimum Return Percentage">
+              </label>
+              <span class="range-sep" aria-hidden="true">–</span>
+              <label class="input-wrap">
+                <span class="input-label">Max %</span>
+                <input type="text" id="filter-perf-max" placeholder="e.g. 50%" aria-label="Maximum Return Percentage">
+              </label>
+            </div>
+            <div class="filter-presets" role="group" aria-label="Performance Presets">
+              <button type="button" class="preset-chip" data-preset="perf" data-min="0%" data-max="">&gt; 0% (Positive)</button>
+              <button type="button" class="preset-chip" data-preset="perf" data-min="10%" data-max="">&gt; 10%</button>
+              <button type="button" class="preset-chip" data-preset="perf" data-min="25%" data-max="">&gt; 25%</button>
+              <button type="button" class="preset-chip" data-preset="perf" data-min="" data-max="0%">&lt; 0% (Negative)</button>
+              <button type="button" class="preset-chip clear-chip" id="filter-perf-clear-period">Clear period</button>
+            </div>
           </div>
         </div>
-      </div>
-      <ol class="sort-list" id="sort-list" aria-label="Active ranking criteria, highest priority first"></ol>
-      <p class="sort-empty" id="sort-empty"><span aria-hidden="true">⇅</span> No ranking applied — securities are listed alphabetically by ticker.</p>
-      <div class="add-row">
-        <span class="label">Add</span>
-        <div class="chips" id="available-criteria"></div>
-        <button type="button" class="reset" id="reset-button">Clear all</button>
-      </div>
-    </section>
+      </section>
 
-    <section class="panel table-panel" aria-labelledby="table-heading">
-      <div class="table-toolbar">
-        <h2 id="table-heading" class="visually-hidden">S&amp;P 500 securities</h2>
-        <label class="search">
-          <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4 4"/></svg>
-          <input type="search" id="search" placeholder="Search ticker or company" aria-label="Search ticker or company" autocomplete="off" spellcheck="false">
-        </label>
-        <select id="sector" aria-label="Filter by sector"><option value="">All sectors</option></select>
-        <p class="result-count" id="result-count" aria-live="polite"></p>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr id="table-head"></tr></thead>
-          <tbody id="table-body"><tr><td colspan="9" class="status">Loading…</td></tr></tbody>
-        </table>
-      </div>
-    </section>
+      <section class="panel table-panel filter-table-panel" aria-labelledby="filter-table-heading">
+        <div class="table-toolbar">
+          <h2 id="filter-table-heading" class="visually-hidden">Filtered S&amp;P 500 securities</h2>
+          <label class="search">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4 4"/></svg>
+            <input type="search" id="filter-search" placeholder="Search ticker or company" aria-label="Search ticker or company" autocomplete="off" spellcheck="false">
+          </label>
+          <select id="filter-sector" aria-label="Filter by sector"><option value="">All sectors</option></select>
+          <p class="result-count" id="filter-result-count" aria-live="polite"></p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr id="filter-table-head">
+                <th scope="col" class="rank-col"><button type="button" data-fcol="rank" title="Current ranking">#</button></th>
+                <th scope="col" class="security-col"><button type="button" data-fcol="symbol" title="Sort alphabetically by ticker">Security<span class="sort-icon" aria-hidden="true">↕</span></button></th>
+                <th scope="col" class="num active" aria-sort="descending"><button type="button" data-fcol="market_cap" title="Sort by Market Cap">Market cap<span class="badge">↓</span></button></th>
+                <th scope="col" class="num"><button type="button" data-fcol="pe" title="Sort by P/E ratio">P/E<span class="sort-icon" aria-hidden="true">↕</span></button></th>
+                <th scope="col" class="num"><button type="button" data-fcol="price" title="Sort by Price">Price<span class="sort-icon" aria-hidden="true">↕</span></button></th>
+                <th scope="col" class="num"><button type="button" data-fcol="net_income" title="Sort by Trailing Net Income">Net inc<span class="sort-icon" aria-hidden="true">↕</span></button></th>
+                <th scope="col" class="num"><button type="button" data-fcol="net_income_change_1y" title="Sort by 1-Year YoY Net Income Growth">Net inc YoY<span class="sort-icon" aria-hidden="true">↕</span></button></th>
+                <th scope="col" class="num"><button type="button" data-fcol="net_income_prior" title="Sort by Prior Year Net Income">Prior net inc<span class="sort-icon" aria-hidden="true">↕</span></button></th>
+                <th scope="col" class="num"><button type="button" data-fcol="1w" title="Sort by 1-week performance">1W<span class="sort-icon" aria-hidden="true">↕</span></button></th>
+                <th scope="col" class="num"><button type="button" data-fcol="1m" title="Sort by 1-month performance">1M<span class="sort-icon" aria-hidden="true">↕</span></button></th>
+                <th scope="col" class="num"><button type="button" data-fcol="3m" title="Sort by 3-month (quarter) performance">3M<span class="sort-icon" aria-hidden="true">↕</span></button></th>
+                <th scope="col" class="num"><button type="button" data-fcol="ytd" title="Sort by year-to-date performance">YTD<span class="sort-icon" aria-hidden="true">↕</span></button></th>
+                <th scope="col" class="num"><button type="button" data-fcol="1y" title="Sort by 1-year performance">1Y<span class="sort-icon" aria-hidden="true">↕</span></button></th>
+                <th scope="col" class="num"><button type="button" data-fcol="2y" title="Sort by 2-year performance">2Y<span class="sort-icon" aria-hidden="true">↕</span></button></th>
+                <th scope="col" class="num"><button type="button" data-fcol="5y" title="Sort by 5-year performance">5Y<span class="sort-icon" aria-hidden="true">↕</span></button></th>
+                <th scope="col" class="num"><button type="button" data-fcol="10y" title="Sort by 10-year performance">10Y<span class="sort-icon" aria-hidden="true">↕</span></button></th>
+                <th scope="col" class="num"><button type="button" data-fcol="all" title="Sort by all-time performance">All<span class="sort-icon" aria-hidden="true">↕</span></button></th>
+              </tr>
+            </thead>
+            <tbody id="filter-table-body">
+              <tr><td colspan="17" class="status">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
 
     <details class="panel notes">
       <summary><h2>Methodology &amp; data sources</h2><span class="hint">How each figure is calculated</span></summary>
@@ -152,6 +321,31 @@
         <div class="chart" id="chart"></div>
         <div class="chart-tooltip" id="chart-tooltip" hidden></div>
       </div>
+
+      <section class="panel detail-perf-panel" aria-labelledby="detail-perf-heading">
+        <div class="detail-perf-head">
+          <h3 id="detail-perf-heading">Performance across time periods</h3>
+          <span class="hint">Click any row to display on the chart</span>
+        </div>
+        <div class="perf-table-wrap">
+          <table class="detail-perf-table">
+            <thead>
+              <tr>
+                <th scope="col">Period</th>
+                <th scope="col">Date span</th>
+                <th scope="col" class="num">Start</th>
+                <th scope="col" class="num">End</th>
+                <th scope="col" class="num">Return</th>
+                <th scope="col" class="num">Change</th>
+                <th scope="col" class="num">Annualized</th>
+                <th scope="col" class="num">High</th>
+                <th scope="col" class="num">Low</th>
+              </tr>
+            </thead>
+            <tbody id="detail-perf-body"></tbody>
+          </table>
+        </div>
+      </section>
 
       <div class="detail-grid">
         <section aria-labelledby="period-heading">

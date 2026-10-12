@@ -2,7 +2,7 @@ import {
   RANGES, formatAxisDate, formatLongDate, historyFileFor, logTicks, nearestIndex, niceTicks, parseHistory,
   rangeSummaries, sliceRange,
 } from './history.js';
-import { CRITERIA, formatPercent, formatPrice, formatValue } from './ranking.js';
+import { CRITERIA, formatPE, formatPercent, formatPrice, formatValue, getSecurityPE } from './ranking.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const historyCache = new Map();
@@ -57,6 +57,7 @@ export function createDetailView({ onRequestClose, onNavigate, onRangeChange }) 
     sector: $('detail-sector'), price: $('detail-price'), change: $('detail-change'), period: $('detail-period'),
     tabs: $('range-tabs'), caption: $('chart-caption'), log: $('log-scale'), chart: $('chart'),
     tooltip: $('chart-tooltip'), periodStats: $('period-stats'), metricStats: $('metric-stats'),
+    detailPerfBody: $('detail-perf-body'),
   };
   const view = { security: null, range: null, points: null, slice: null, status: 'idle', geometry: null, active: null };
 
@@ -93,6 +94,39 @@ export function createDetailView({ onRequestClose, onNavigate, onRangeChange }) 
     }).join('');
   }
 
+  function renderPerformanceTable() {
+    if (!el.detailPerfBody) return;
+    if (!view.points?.length) {
+      el.detailPerfBody.innerHTML = '<tr><td colspan="9" class="status">Loading performance history…</td></tr>';
+      return;
+    }
+    const rows = RANGES.map(({ key, label, name }) => {
+      const slice = sliceRange(view.points, key);
+      if (!slice) return '';
+      const isActive = key === view.range;
+      const activeClass = isActive ? ' class="perf-row active-perf-row"' : ' class="perf-row"';
+      const ariaCurrent = isActive ? ' aria-current="true"' : '';
+      const returnTone = tone(slice.change);
+      const ann = annualized(slice);
+      const annTone = ann !== null ? tone(ann) : '';
+      const dates = `${formatLongDate(slice.base.day)} – ${formatLongDate(slice.last.day)}`;
+      const note = slice.partial && key !== 'all' ? '*' : '';
+      return `<tr${activeClass}${ariaCurrent} data-range="${key}" tabindex="0" role="button" title="View ${escapeHtml(name)} on chart">
+        <td class="perf-period-col"><strong>${escapeHtml(label)}</strong> <span class="perf-period-name">(${escapeHtml(name)})</span>${note ? `<span title="History is shorter than this period; measured from first available close">*</span>` : ''}</td>
+        <td class="perf-dates-col">${escapeHtml(dates)}</td>
+        <td class="num">${formatPrice(slice.base.close)}</td>
+        <td class="num">${formatPrice(slice.last.close)}</td>
+        <td class="num ${returnTone}"><span class="delta">${formatPercent(slice.change)}</span></td>
+        <td class="num ${returnTone}">${formatSignedMoney(slice.changeAmount)}</td>
+        <td class="num ${annTone}">${ann !== null ? formatPercent(ann) : '—'}</td>
+        <td class="num">${formatPrice(slice.high.close)}</td>
+        <td class="num">${formatPrice(slice.low.close)}</td>
+      </tr>`;
+    }).filter(Boolean);
+
+    el.detailPerfBody.innerHTML = rows.join('');
+  }
+
   function renderStats() {
     const { slice, security } = view;
     const rows = slice ? [
@@ -106,11 +140,17 @@ export function createDetailView({ onRequestClose, onNavigate, onRangeChange }) 
     el.periodStats.innerHTML = rows.length
       ? rows.map(([label, value, note]) => `<div><dt>${label}</dt><dd>${value}<small>${escapeHtml(note)}</small></dd></div>`).join('')
       : '<div><dt>Period</dt><dd>—</dd></div>';
-    el.metricStats.innerHTML = CRITERIA.map(({ key, label, format }) => {
-      const value = security[key];
-      const toneClass = format === 'percent' || (format === 'money' && value < 0) ? tone(value) : '';
-      return `<div><dt>${escapeHtml(label)}</dt><dd class="${toneClass}">${formatValue(format, value)}</dd></div>`;
-    }).join('');
+
+    const pe = getSecurityPE(security);
+    const metricCards = [
+      ...CRITERIA.map(({ key, label, format }) => {
+        const value = security[key];
+        const toneClass = format === 'percent' || (format === 'money' && value < 0) ? tone(value) : '';
+        return `<div><dt>${escapeHtml(label)}</dt><dd class="${toneClass}">${formatValue(format, value)}</dd></div>`;
+      }),
+      `<div><dt>P/E ratio (TTM)</dt><dd>${formatPE(pe)}</dd></div>`,
+    ];
+    el.metricStats.innerHTML = metricCards.join('');
   }
 
   function renderChart() {
@@ -235,6 +275,7 @@ export function createDetailView({ onRequestClose, onNavigate, onRangeChange }) 
     renderTabs();
     renderChart();
     renderStats();
+    renderPerformanceTable();
   }
 
   async function load(security) {
@@ -276,6 +317,23 @@ export function createDetailView({ onRequestClose, onNavigate, onRangeChange }) 
     renderAll();
     el.tabs.querySelector(`button[data-range="${view.range}"]`)?.focus();
     onRangeChange(view.range);
+  });
+  el.detailPerfBody?.addEventListener('click', (event) => {
+    const row = event.target.closest('tr[data-range]');
+    if (!row || row.dataset.range === view.range) return;
+    view.range = row.dataset.range;
+    renderAll();
+    onRangeChange(view.range);
+  });
+  el.detailPerfBody?.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      const row = event.target.closest('tr[data-range]');
+      if (!row) return;
+      event.preventDefault();
+      view.range = row.dataset.range;
+      renderAll();
+      onRangeChange(view.range);
+    }
   });
   el.log.addEventListener('change', renderChart);
   el.back.addEventListener('click', onRequestClose);

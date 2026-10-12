@@ -19,24 +19,37 @@
         <p class="subtitle">Explore the beauty of infinite patterns.</p>
       </header>
 
-      <label for="fractal-select">Pattern</label>
-      <select id="fractal-select" aria-label="Select fractal pattern"></select>
+      <section class="control-section" aria-labelledby="pattern-heading">
+        <h2 class="section-title" id="pattern-heading">Pattern</h2>
+        <label for="fractal-select">Choose a fractal</label>
+        <select id="fractal-select" aria-label="Select fractal pattern"></select>
 
-      <div class="controls-row">
-        <label for="detail">Detail</label>
-        <input id="detail" type="range" min="1" max="10" value="6" />
-        <span id="detail-value">6</span>
-      </div>
+        <div class="controls-row">
+          <label for="detail">Detail</label>
+          <span id="detail-value">6</span>
+          <input id="detail" type="range" min="1" max="10" value="6" />
+        </div>
 
-      <div class="button-row">
-        <button id="render-btn" class="btn-primary">Render</button>
-        <button id="random-btn" class="btn-secondary">Random Pick</button>
-        <button id="zoom-in-btn" class="btn-secondary">Zoom In</button>
-        <button id="zoom-out-btn" class="btn-secondary">Zoom Out</button>
-        <button id="reset-view-btn" class="btn-secondary">Reset View</button>
-      </div>
+        <p id="pattern-description" class="description"></p>
+      </section>
 
-      <p id="pattern-description" class="description"></p>
+      <section class="control-section" aria-labelledby="generate-heading">
+        <h2 class="section-title" id="generate-heading">Generate</h2>
+        <div class="button-row action-row">
+          <button id="render-btn" class="btn-primary">Render</button>
+          <button id="random-btn" class="btn-secondary">Random Pick</button>
+        </div>
+      </section>
+
+      <section class="control-section" aria-labelledby="view-heading">
+        <h2 class="section-title" id="view-heading">View</h2>
+        <div class="button-row view-row">
+          <button id="zoom-in-btn" class="btn-secondary">Zoom In</button>
+          <button id="zoom-out-btn" class="btn-secondary">Zoom Out</button>
+          <button id="reset-view-btn" class="btn-secondary">Reset View</button>
+        </div>
+        <p class="control-hint">Scroll or pinch to zoom; drag to move around.</p>
+      </section>
     </aside>
 
     <section class="canvas-wrap">

@@ -61,7 +61,7 @@ body {
 }
 
 .panel-header {
-  margin-bottom: 26px;
+  margin-bottom: 22px;
 }
 
 .eyebrow {
@@ -87,6 +87,19 @@ h1 {
   font-size: 0.92rem;
 }
 
+.control-section + .control-section {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.section-title {
+  margin: 0 0 14px;
+  color: var(--text);
+  font-size: 0.98rem;
+  letter-spacing: -0.015em;
+}
+
 label {
   display: block;
   margin-bottom: 8px;
@@ -107,7 +120,7 @@ select {
   font: inherit;
   background: #fff;
   padding: 11px 40px 11px 13px;
-  margin-bottom: 24px;
+  margin-bottom: 18px;
   min-height: 48px;
   color: var(--text);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2368778a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
@@ -145,7 +158,18 @@ select {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 9px;
-  margin: 22px 0 18px;
+  margin: 0;
+}
+
+.view-row #reset-view-btn {
+  grid-column: 1 / -1;
+}
+
+.control-hint {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
 }
 
 button {
@@ -282,7 +306,17 @@ canvas.is-panning {
   }
 
   .panel-header {
-    margin-bottom: 16px;
+    margin-bottom: 14px;
+  }
+
+  .control-section + .control-section {
+    margin-top: 14px;
+    padding-top: 12px;
+  }
+
+  .section-title {
+    margin-bottom: 9px;
+    font-size: 0.88rem;
   }
 
   .eyebrow {
@@ -311,14 +345,20 @@ canvas.is-panning {
   select {
     min-height: 44px;
     padding: 8px 36px 8px 10px;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
     font-size: 0.9rem;
   }
 
   .button-row {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 6px;
-    margin: 15px 0 12px;
+  }
+
+  .action-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .view-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .button-row button {
@@ -330,6 +370,10 @@ canvas.is-panning {
   .description {
     font-size: 0.8rem;
     padding: 8px 10px;
+  }
+
+  .control-hint {
+    display: none;
   }
 
   .app-shell.controls-hidden {
@@ -354,15 +398,11 @@ canvas.is-panning {
 }
 
 @media (max-width: 480px) {
-  .button-row {
+  .view-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .button-row #render-btn {
-    grid-column: 1 / -1;
-  }
-
-  .button-row #reset-view-btn {
+  .view-row #reset-view-btn {
     grid-column: 1 / -1;
   }
 }
@@ -398,6 +438,11 @@ canvas.is-panning {
 
   .panel-header {
     margin-bottom: 10px;
+  }
+
+  .control-section + .control-section {
+    margin-top: 10px;
+    padding-top: 8px;
   }
 
   h1 {

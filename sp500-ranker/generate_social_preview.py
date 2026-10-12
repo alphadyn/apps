@@ -14,17 +14,17 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 HERE = Path(__file__).resolve().parent
 FONT_DIR = Path("/System/Library/Fonts/Supplemental")
 
-BG = (10, 14, 23)
-SURFACE = (17, 23, 36)
-SURFACE_2 = (23, 31, 48)
-BORDER = (38, 48, 70)
-TEXT = (236, 241, 250)
-TEXT_2 = (163, 175, 199)
-MUTED = (110, 123, 150)
-ACCENT = (94, 234, 212)
-ACCENT_2 = (139, 166, 255)
-UP = (52, 211, 153)
-DOWN = (251, 113, 133)
+BG = (244, 247, 251)
+SURFACE = (255, 255, 255)
+SURFACE_2 = (247, 249, 252)
+BORDER = (220, 228, 238)
+TEXT = (23, 35, 51)
+TEXT_2 = (69, 85, 106)
+MUTED = (104, 120, 141)
+ACCENT = (8, 127, 140)
+ACCENT_2 = (53, 102, 214)
+UP = (22, 134, 91)
+DOWN = (196, 61, 88)
 BRAND_BG = (19, 27, 48)
 
 
@@ -109,18 +109,18 @@ def social_preview():
         top = py + 62 + index * row_h
         mid = top + row_h / 2
         if index:
-            draw.line((px + 20, top, px + pw - 20, top), fill=(28, 36, 54), width=1)
+            draw.line((px + 20, top, px + pw - 20, top), fill=BORDER, width=1)
         draw.text((px + 28, mid), rank, font=bold(20), fill=MUTED, anchor="lm")
         hue = [ACCENT_2, ACCENT, (192, 132, 252), (244, 114, 182), (251, 191, 36)][index]
-        draw.rounded_rectangle((px + 64, mid - 16, px + 64 + 110, mid - 4), radius=5, fill=(206, 214, 230))
+        draw.rounded_rectangle((px + 64, mid - 16, px + 64 + 110, mid - 4), radius=5, fill=TEXT_2)
         draw.rounded_rectangle((px + 64, mid + 6, px + 74, mid + 16), radius=2, fill=hue)
-        draw.rounded_rectangle((px + 82, mid + 7, px + 82 + 120, mid + 15), radius=4, fill=(52, 63, 88))
+        draw.rounded_rectangle((px + 82, mid + 7, px + 82 + 120, mid + 15), radius=4, fill=BORDER)
         bar_w = 170 * strength
         bar_x = px + pw - 120 - bar_w
-        draw.rounded_rectangle((bar_x, mid - 6, px + pw - 120, mid + 6), radius=6, fill=(32, 42, 64))
+        draw.rounded_rectangle((bar_x, mid - 6, px + pw - 120, mid + 6), radius=6, fill=BORDER)
         draw.rounded_rectangle((bar_x, mid - 6, bar_x + bar_w * 0.9, mid + 6), radius=6, fill=ACCENT_2 if index % 2 else ACCENT)
         color = UP if up else DOWN
-        tint = (20, 60, 52) if up else (70, 30, 40)
+        tint = (229, 244, 237) if up else (250, 235, 238)
         draw.rounded_rectangle((px + pw - 100, mid - 15, px + pw - 28, mid + 15), radius=8, fill=tint)
         draw.polygon(
             [(px + pw - 64, mid - 7), (px + pw - 73, mid + 6), (px + pw - 55, mid + 6)]
@@ -132,7 +132,7 @@ def social_preview():
     # Sparkline badge overlapping the table.
     cx, cy, cw, chh = 820, 470, 340, 120
     shadow = Image.new("RGBA", image.size, (0, 0, 0, 0))
-    ImageDraw.Draw(shadow).rounded_rectangle((cx, cy + 10, cx + cw, cy + chh + 10), radius=18, fill=(0, 0, 0, 150))
+    ImageDraw.Draw(shadow).rounded_rectangle((cx, cy + 10, cx + cw, cy + chh + 10), radius=18, fill=(35, 55, 80, 45))
     image.alpha_composite(shadow.filter(ImageFilter.GaussianBlur(14)))
     draw = ImageDraw.Draw(image)
     draw.rounded_rectangle((cx, cy, cx + cw, cy + chh), radius=18, fill=SURFACE_2, outline=BORDER, width=2)
@@ -140,7 +140,7 @@ def social_preview():
         lx = cx + 22 + i * 52
         active = label == "5Y"
         if active:
-            draw.rounded_rectangle((lx - 8, cy + 14, lx + 36, cy + 38), radius=7, fill=(40, 52, 78))
+            draw.rounded_rectangle((lx - 8, cy + 14, lx + 36, cy + 38), radius=7, fill=(234, 240, 247))
         draw.text((lx + 14, cy + 26), label, font=bold(13), fill=TEXT if active else MUTED, anchor="mm")
     points = [0.10, 0.14, 0.12, 0.2, 0.18, 0.28, 0.25, 0.36, 0.44, 0.40, 0.55, 0.52, 0.66, 0.62, 0.78, 0.74, 0.9]
     left, right, bottom, top = cx + 22, cx + cw - 22, cy + chh - 16, cy + 50

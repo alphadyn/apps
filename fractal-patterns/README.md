@@ -14,7 +14,8 @@ A browser-based web app that generates and displays 10 popular fractal patterns 
 - Adjustable detail slider per fractal
 - Zoom controls, mouse-wheel zoom, and drag-to-pan
 - Mobile touch gestures: one-finger pan and pinch-to-zoom
-- Responsive layout for desktop and mobile
+- Responsive desktop, portrait, and landscape layouts with touch-friendly controls
+- Adaptive canvas resolution to limit unnecessary work on high-density and smaller displays
 
 ## Included Fractal Patterns
 
@@ -59,6 +60,7 @@ No build tools or installation are required.
 ## Notes
 
 - Some fractals are computationally heavier at higher detail levels and may take longer to render.
+- Raster fractals adapt their canvas resolution to device pixel density and cap the render buffer at 2.4 million pixels to balance sharpness and responsiveness.
 - Rendering behavior and speed can vary by browser and hardware.
 
 ## Test the project

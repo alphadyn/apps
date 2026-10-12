@@ -11,13 +11,13 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="bg-orb orb-a"></div>
-  <div class="bg-orb orb-b"></div>
-
   <main class="app-shell" id="app-shell">
     <aside class="panel">
-      <h1>Fractal Atlas</h1>
-      <p class="subtitle">Generate 10 popular fractal patterns with one click.</p>
+      <header class="panel-header">
+        <span class="eyebrow">Interactive fractal studio</span>
+        <h1>Fractal Atlas</h1>
+        <p class="subtitle">Explore the beauty of infinite patterns.</p>
+      </header>
 
       <label for="fractal-select">Pattern</label>
       <select id="fractal-select" aria-label="Select fractal pattern"></select>
@@ -37,14 +37,12 @@
       </div>
 
       <p id="pattern-description" class="description"></p>
-
-      <ul class="fractal-list" id="fractal-list"></ul>
     </aside>
 
     <section class="canvas-wrap">
       <canvas id="fractal-canvas" width="980" height="680" aria-label="Fractal canvas"></canvas>
       <button id="toggle-controls-btn" class="toggle-controls-btn" type="button">Hide Controls</button>
-      <div id="status" class="status">Ready</div>
+      <div id="status" class="status" role="status" aria-live="polite">Ready</div>
     </section>
   </main>
 

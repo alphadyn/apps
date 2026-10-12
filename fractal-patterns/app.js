@@ -71,7 +71,6 @@ const zoomOutBtn = document.getElementById("zoom-out-btn");
 const resetViewBtn = document.getElementById("reset-view-btn");
 const toggleControlsBtn = document.getElementById("toggle-controls-btn");
 const descEl = document.getElementById("pattern-description");
-const listEl = document.getElementById("fractal-list");
 const statusEl = document.getElementById("status");
 const appShellEl = document.getElementById("app-shell");
 const canvas = document.getElementById("fractal-canvas");
@@ -84,7 +83,8 @@ const view = {
 };
 
 const ZOOM_MIN = 0.25;
-const ZOOM_MAX = 30;
+const ZOOM_MAX = 1000;
+const MAX_CANVAS_PIXELS = 2400000;
 let isPanning = false;
 let panStartX = 0;
 let panStartY = 0;
@@ -98,7 +98,10 @@ let renderScheduled = false;
 const CONTROLS_STORAGE_KEY = "fractal-atlas-controls-hidden";
 
 function getDevicePixelRatio() {
-  return Math.min(window.devicePixelRatio || 1, 2);
+  const width = Math.max(1, canvas.clientWidth);
+  const height = Math.max(1, canvas.clientHeight);
+  const devicePixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+  return Math.min(devicePixelRatio, Math.sqrt(MAX_CANVAS_PIXELS / (width * height)));
 }
 
 function updateCanvasResolution() {
@@ -190,10 +193,6 @@ function buildUI() {
   const options = fractals.map((f) => `<option value="${f.key}">${f.name}</option>`);
   selectEl.innerHTML = options.join("");
 
-  listEl.innerHTML = fractals
-    .map((f, i) => `<li>${i + 1}. ${f.name}</li>`)
-    .join("");
-
   selectEl.value = fractals[0].key;
   applyDetailRange();
   updateDescription();
@@ -262,6 +261,18 @@ function hsvToRgb(h, s, v) {
   };
 }
 
+function buildColorPalette(count, hueForIteration, saturation, value) {
+  const palette = new Uint8Array(count * 3);
+  for (let iteration = 0; iteration < count; iteration += 1) {
+    const color = hsvToRgb(hueForIteration(iteration), saturation, value);
+    const offset = iteration * 3;
+    palette[offset] = color.r;
+    palette[offset + 1] = color.g;
+    palette[offset + 2] = color.b;
+  }
+  return palette;
+}
+
 function drawMandelbrot(detail) {
   const pixelRatio = getDevicePixelRatio();
   const bufferW = canvas.width;
@@ -272,16 +283,14 @@ function drawMandelbrot(detail) {
   const scale = Math.max(3.0 / w, 2.4 / h);
   const centerX = -0.65;
   const centerY = 0;
+  const palette = buildColorPalette(maxIter, (iteration) => (iteration / maxIter) * 320, 0.75, 0.95);
   const image = ctx.createImageData(bufferW, bufferH);
   const data = image.data;
 
   for (let py = 0; py < bufferH; py += 1) {
-    const screenY = py / pixelRatio;
+    const y0 = centerY + ((py / pixelRatio - h / 2 - view.panY) / view.zoom) * scale;
     for (let px = 0; px < bufferW; px += 1) {
-      const screenX = px / pixelRatio;
-      const sample = screenToFractalSpace(screenX, screenY);
-      const x0 = centerX + (sample.x - w / 2) * scale;
-      const y0 = centerY + (sample.y - h / 2) * scale;
+      const x0 = centerX + ((px / pixelRatio - w / 2 - view.panX) / view.zoom) * scale;
       let x = 0;
       let y = 0;
       let iter = 0;
@@ -299,11 +308,10 @@ function drawMandelbrot(detail) {
         data[idx + 1] = 11;
         data[idx + 2] = 20;
       } else {
-        const hue = (iter / maxIter) * 320;
-        const rgb = hsvToRgb(hue, 0.75, 0.95);
-        data[idx] = rgb.r;
-        data[idx + 1] = rgb.g;
-        data[idx + 2] = rgb.b;
+        const paletteIdx = iter * 3;
+        data[idx] = palette[paletteIdx];
+        data[idx + 1] = palette[paletteIdx + 1];
+        data[idx + 2] = palette[paletteIdx + 2];
       }
       data[idx + 3] = 255;
     }
@@ -322,21 +330,20 @@ function drawJulia(detail) {
   const cRe = -0.79;
   const cIm = 0.15;
   const scale = Math.max(3.2 / w, 2.6 / h);
+  const palette = buildColorPalette(maxIter, (iteration) => (190 + (iteration / maxIter) * 160) % 360, 0.82, 0.98);
   const image = ctx.createImageData(bufferW, bufferH);
   const data = image.data;
 
   for (let py = 0; py < bufferH; py += 1) {
-    const screenY = py / pixelRatio;
+    const y = ((py / pixelRatio - h / 2 - view.panY) / view.zoom) * scale;
     for (let px = 0; px < bufferW; px += 1) {
-      const screenX = px / pixelRatio;
-      const sample = screenToFractalSpace(screenX, screenY);
-      let x = (sample.x - w / 2) * scale;
-      let y = (sample.y - h / 2) * scale;
+      let x = ((px / pixelRatio - w / 2 - view.panX) / view.zoom) * scale;
+      let pointY = y;
       let iter = 0;
 
-      while (x * x + y * y < 4 && iter < maxIter) {
-        const xt = x * x - y * y + cRe;
-        y = 2 * x * y + cIm;
+      while (x * x + pointY * pointY < 4 && iter < maxIter) {
+        const xt = x * x - pointY * pointY + cRe;
+        pointY = 2 * x * pointY + cIm;
         x = xt;
         iter += 1;
       }
@@ -347,11 +354,10 @@ function drawJulia(detail) {
         data[idx + 1] = 11;
         data[idx + 2] = 20;
       } else {
-        const hue = 190 + (iter / maxIter) * 160;
-        const rgb = hsvToRgb(hue % 360, 0.82, 0.98);
-        data[idx] = rgb.r;
-        data[idx + 1] = rgb.g;
-        data[idx + 2] = rgb.b;
+        const paletteIdx = iter * 3;
+        data[idx] = palette[paletteIdx];
+        data[idx + 1] = palette[paletteIdx + 1];
+        data[idx + 2] = palette[paletteIdx + 2];
       }
       data[idx + 3] = 255;
     }
@@ -728,30 +734,27 @@ const drawMap = {
   cantor: drawCantorSet
 };
 
-async function renderActiveFractal() {
-  const fractal = getActiveFractal();
-  const detail = Number(detailEl.value);
-  setStatus(`Rendering ${fractal.name} (detail ${detail}, zoom ${view.zoom.toFixed(2)}x)...`);
-
-  await new Promise((resolve) => requestAnimationFrame(resolve));
-  clearCanvas();
-
-  const draw = drawMap[fractal.key];
-  if (draw) {
-    draw(detail);
-  }
-
-  setStatus(`Rendered ${fractal.name} | detail ${detail} | zoom ${view.zoom.toFixed(2)}x | pan (${Math.round(view.panX)}, ${Math.round(view.panY)})`);
-}
-
-function scheduleRender() {
+function renderActiveFractal() {
   if (renderScheduled) {
     return;
   }
   renderScheduled = true;
+  const fractal = getActiveFractal();
+  const detail = Number(detailEl.value);
+  setStatus(`Rendering ${fractal.name} (detail ${detail}, zoom ${view.zoom.toFixed(2)}x)...`);
+
   requestAnimationFrame(() => {
     renderScheduled = false;
-    renderActiveFractal();
+    const currentFractal = getActiveFractal();
+    const currentDetail = Number(detailEl.value);
+    clearCanvas();
+
+    const draw = drawMap[currentFractal.key];
+    if (draw) {
+      draw(currentDetail);
+    }
+
+    setStatus(`Rendered ${currentFractal.name} | detail ${currentDetail} | zoom ${view.zoom.toFixed(2)}x | pan (${Math.round(view.panX)}, ${Math.round(view.panY)})`);
   });
 }
 
@@ -807,7 +810,7 @@ canvas.addEventListener("wheel", (event) => {
   const y = event.clientY - rect.top;
   const factor = event.deltaY < 0 ? 1.12 : 1 / 1.12;
   zoomAtPoint(factor, x, y);
-  scheduleRender();
+  renderActiveFractal();
 }, { passive: false });
 
 canvas.addEventListener("mousedown", (event) => {
@@ -830,7 +833,7 @@ window.addEventListener("mousemove", (event) => {
   view.panY += dy;
   panStartX = event.clientX;
   panStartY = event.clientY;
-  scheduleRender();
+  renderActiveFractal();
 });
 
 window.addEventListener("mouseup", () => {
@@ -876,7 +879,7 @@ canvas.addEventListener("touchmove", (event) => {
     view.panY += dy;
     panStartX = touch.clientX;
     panStartY = touch.clientY;
-    scheduleRender();
+    renderActiveFractal();
     return;
   }
 
@@ -900,7 +903,7 @@ canvas.addEventListener("touchmove", (event) => {
     lastPinchDistance = distance;
     lastPinchMidX = midpoint.x;
     lastPinchMidY = midpoint.y;
-    scheduleRender();
+    renderActiveFractal();
   }
 }, { passive: false });
 

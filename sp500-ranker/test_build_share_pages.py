@@ -38,6 +38,7 @@ class BuildSharePagesTests(unittest.TestCase):
         self.assertIn("&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;", html_content)
         self.assertIn('property="og:title" content="TEST · Test &amp; Co', html_content)
         self.assertIn('property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/TEST/"', html_content)
+        self.assertIn('property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/s/TEST/preview.png?v=1"', html_content)
         self.assertIn('location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=TEST")', html_content)
 
     def test_build_pages_creates_directories_and_files(self):
@@ -51,6 +52,9 @@ class BuildSharePagesTests(unittest.TestCase):
             self.assertEqual(count, 2)
             self.assertTrue((output_dir / "AAPL" / "index.html").exists())
             self.assertTrue((output_dir / "MSFT" / "index.html").exists())
+            if build_share_pages.HAS_PILLOW:
+                self.assertTrue((output_dir / "AAPL" / "preview.png").exists())
+                self.assertTrue((output_dir / "MSFT" / "preview.png").exists())
 
             aapl_html = (output_dir / "AAPL" / "index.html").read_text(encoding="utf-8")
             self.assertIn("Apple Inc.", aapl_html)

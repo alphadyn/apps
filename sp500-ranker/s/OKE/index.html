@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0d141e">
+  <meta name="theme-color" content="#f8fafc">
   <title>OKE · Oneok — S&amp;P 500 Screener &amp; Ranker</title>
   <meta name="description" content="Oneok (OKE): $89.80 (+26.0% 1Y). Performance: 1W +2.2%, 1M −6.3%, 3M +0.3%, YTD +22.2%, 1Y +26.0%, 5Y +45.7%. Market Cap: $56.6B, P/E: 15.5, Net Income: $3.66B. Explore interactive price graph and performance across 9 periods.">
   <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/OKE/">
@@ -13,7 +13,9 @@
   <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/OKE/">
   <meta property="og:title" content="OKE · Oneok — S&amp;P 500 Screener &amp; Ranker">
   <meta property="og:description" content="Oneok (OKE): $89.80 (+26.0% 1Y). Performance: 1W +2.2%, 1M −6.3%, 3M +0.3%, YTD +22.2%, 1Y +26.0%, 5Y +45.7%. Market Cap: $56.6B, P/E: 15.5, Net Income: $3.66B. Explore interactive price graph and performance across 9 periods.">
-  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/s/OKE/preview.png?v=1">
+  <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/sp500-ranker/s/OKE/preview.png?v=1">
+  <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="OKE · Oneok — S&amp;P 500 Screener &amp; Ranker">
@@ -21,7 +23,11 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="OKE · Oneok — S&amp;P 500 Screener &amp; Ranker">
   <meta name="twitter:description" content="Oneok (OKE): $89.80 (+26.0% 1Y). Performance: 1W +2.2%, 1M −6.3%, 3M +0.3%, YTD +22.2%, 1Y +26.0%, 5Y +45.7%. Market Cap: $56.6B, P/E: 15.5, Net Income: $3.66B. Explore interactive price graph and performance across 9 periods.">
-  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/s/OKE/preview.png?v=1">
+  <meta name="twitter:image:alt" content="OKE · Oneok — S&amp;P 500 Screener &amp; Ranker">
+
+  <link rel="icon" href="https://alphadyn.github.io/apps/sp500-ranker/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="https://alphadyn.github.io/apps/sp500-ranker/apple-touch-icon.png">
 
   <style>
     body {
@@ -31,24 +37,25 @@
       place-items: center;
       padding: 24px 16px;
       box-sizing: border-box;
-      background: #0d141e;
-      color: #f1f5f9;
+      background: #f8fafc;
+      color: #0f172a;
       font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     main {
       width: min(100%, 560px);
       padding: 28px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid #e2e8f0;
       border-radius: 18px;
-      background: #151e2b;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+      background: #ffffff;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
     }
     .badge {
       display: inline-block;
       padding: 4px 10px;
       border-radius: 6px;
-      background: rgba(56, 189, 248, 0.15);
-      color: #38bdf8;
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      color: #0369a1;
       font-size: 0.85rem;
       font-weight: 700;
       letter-spacing: 0.05em;
@@ -57,7 +64,7 @@
       margin: 12px 0 4px;
       font-size: 1.6rem;
       font-weight: 800;
-      color: #fff;
+      color: #0f172a;
     }
     .quote-row {
       display: flex;
@@ -69,21 +76,21 @@
     .price {
       font-size: 1.8rem;
       font-weight: 800;
-      color: #fff;
+      color: #0f172a;
     }
     .change {
       font-size: 1.1rem;
       font-weight: 700;
     }
-    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
-    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #059669; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #dc2626; }
 
     .chart-box {
       margin: 16px 0;
       padding: 12px 14px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid #e2e8f0;
       border-radius: 12px;
-      background: rgba(0, 0, 0, 0.25);
+      background: #f8fafc;
     }
     .chart-header {
       display: flex;
@@ -92,7 +99,7 @@
       margin-bottom: 8px;
       font-size: 0.82rem;
       font-weight: 600;
-      color: #94a3b8;
+      color: #64748b;
     }
     .chart-change { font-weight: 700; }
 
@@ -107,15 +114,23 @@
       flex-direction: column;
       align-items: center;
       padding: 6px 4px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid #e2e8f0;
       border-radius: 8px;
-      background: rgba(255, 255, 255, 0.03);
+      background: #ffffff;
       text-align: center;
+    }
+    .perf-chip.up {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+    .perf-chip.down {
+      background: #fef2f2;
+      border-color: #fecaca;
     }
     .perf-label {
       font-size: 0.7rem;
       font-weight: 700;
-      color: #94a3b8;
+      color: #64748b;
     }
     .perf-value {
       font-size: 0.82rem;
@@ -129,15 +144,15 @@
       gap: 16px;
       margin: 14px 0 20px;
       padding-top: 12px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      border-top: 1px solid #e2e8f0;
       font-size: 0.88rem;
-      color: #94a3b8;
+      color: #64748b;
     }
-    .stats-row strong { color: #f1f5f9; }
+    .stats-row strong { color: #0f172a; }
 
     p.summary {
       margin: 0 0 22px;
-      color: #94a3b8;
+      color: #64748b;
       font-size: 0.92rem;
       line-height: 1.5;
     }
@@ -145,14 +160,14 @@
       display: inline-block;
       padding: 10px 20px;
       border-radius: 8px;
-      background: #38bdf8;
-      color: #0b1119;
+      background: #0284c7;
+      color: #ffffff;
       font-weight: 700;
       text-decoration: none;
       transition: background 0.15s;
     }
     a.btn:hover {
-      background: #7dd3fc;
+      background: #0369a1;
     }
   </style>
 </head>
@@ -173,15 +188,15 @@
   <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for OKE">
     <defs>
       <linearGradient id="chart-fill-OKE" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
-        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+        <stop offset="0%" stop-color="#059669" stop-opacity="0.22"/>
+        <stop offset="100%" stop-color="#059669" stop-opacity="0.0"/>
       </linearGradient>
     </defs>
-    <line x1="12" y1="129.9" x2="416" y2="129.9" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <line x1="12" y1="129.9" x2="416" y2="129.9" stroke="#cbd5e1" stroke-dasharray="4 4" stroke-width="1"/>
     <path d="M12.0,129.9 L13.6,139.3 L15.2,137.2 L16.8,137.1 L18.4,140.0 L20.0,147.4 L21.7,143.6 L23.3,141.7 L24.9,139.9 L26.5,137.1 L28.1,136.4 L29.7,141.3 L31.3,138.4 L32.9,139.2 L34.5,147.5 L36.1,149.5 L37.8,148.3 L39.4,155.4 L41.0,160.0 L42.6,151.5 L44.2,144.8 L45.8,143.5 L47.4,144.4 L49.0,139.3 L50.6,140.1 L52.2,137.7 L53.8,133.2 L55.5,140.3 L57.1,137.8 L58.7,137.7 L60.3,136.5 L61.9,133.0 L63.5,134.3 L65.1,131.5 L66.7,128.8 L68.3,123.1 L69.9,119.4 L71.6,121.9 L73.2,114.1 L74.8,108.6 L76.4,107.8 L78.0,113.9 L79.6,113.8 L81.2,118.9 L82.8,119.6 L84.4,119.7 L86.0,123.0 L87.6,130.4 L89.3,122.1 L90.9,128.0 L92.5,128.1 L94.1,123.1 L95.7,120.3 L97.3,121.3 L98.9,123.0 L100.5,119.4 L102.1,118.8 L103.7,120.1 L105.4,116.5 L107.0,119.5 L108.6,131.5 L110.2,132.2 L111.8,125.2 L113.4,123.6 L115.0,124.5 L116.6,116.9 L118.2,109.9 L119.8,120.8 L121.5,116.2 L123.1,117.7 L124.7,110.1 L126.3,98.2 L127.9,100.6 L129.5,102.8 L131.1,101.7 L132.7,95.2 L134.3,98.2 L135.9,95.5 L137.5,112.2 L139.2,99.5 L140.8,90.5 L142.4,90.0 L144.0,84.0 L145.6,78.4 L147.2,76.9 L148.8,70.7 L150.4,72.0 L152.0,65.4 L153.6,67.6 L155.3,62.5 L156.9,62.1 L158.5,60.2 L160.1,60.2 L161.7,79.4 L163.3,82.1 L164.9,74.5 L166.5,79.9 L168.1,65.4 L169.7,71.2 L171.3,71.3 L173.0,67.7 L174.6,61.9 L176.2,66.1 L177.8,71.6 L179.4,67.0 L181.0,70.6 L182.6,68.7 L184.2,68.9 L185.8,63.5 L187.4,65.1 L189.1,55.6 L190.7,52.0 L192.3,48.9 L193.9,44.5 L195.5,39.4 L197.1,33.1 L198.7,31.4 L200.3,35.7 L201.9,46.9 L203.5,60.0 L205.1,55.9 L206.8,55.1 L208.4,45.8 L210.0,62.6 L211.6,65.1 L213.2,65.0 L214.8,68.8 L216.4,71.0 L218.0,74.2 L219.6,69.3 L221.2,76.7 L222.9,75.6 L224.5,71.6 L226.1,65.7 L227.7,60.7 L229.3,59.4 L230.9,58.3 L232.5,49.5 L234.1,51.5 L235.7,37.9 L237.3,47.0 L238.9,45.8 L240.6,48.5 L242.2,67.7 L243.8,66.5 L245.4,69.6 L247.0,58.2 L248.6,55.4 L250.2,53.8 L251.8,44.1 L253.4,38.5 L255.0,32.3 L256.7,25.8 L258.3,39.2 L259.9,37.2 L261.5,31.1 L263.1,46.7 L264.7,56.3 L266.3,61.5 L267.9,74.9 L269.5,70.5 L271.1,62.8 L272.7,62.7 L274.4,53.1 L276.0,56.2 L277.6,56.6 L279.2,58.2 L280.8,46.1 L282.4,52.0 L284.0,46.0 L285.6,59.6 L287.2,64.6 L288.8,67.7 L290.5,70.1 L292.1,64.7 L293.7,57.0 L295.3,60.2 L296.9,50.7 L298.5,52.0 L300.1,54.1 L301.7,61.8 L303.3,67.1 L304.9,58.0 L306.5,59.7 L308.2,45.7 L309.8,43.5 L311.4,50.7 L313.0,48.9 L314.6,39.1 L316.2,40.3 L317.8,44.1 L319.4,35.6 L321.0,33.3 L322.6,33.1 L324.3,40.6 L325.9,41.0 L327.5,34.6 L329.1,34.9 L330.7,50.9 L332.3,53.8 L333.9,48.6 L335.5,52.6 L337.1,45.1 L338.7,56.2 L340.4,58.8 L342.0,60.5 L343.6,57.6 L345.2,64.1 L346.8,47.1 L348.4,42.0 L350.0,37.9 L351.6,37.1 L353.2,26.9 L354.8,25.5 L356.4,17.9 L358.1,22.5 L359.7,28.6 L361.3,34.1 L362.9,35.5 L364.5,41.2 L366.1,27.3 L367.7,28.1 L369.3,27.9 L370.9,22.5 L372.5,23.9 L374.2,22.5 L375.8,23.6 L377.4,25.0 L379.0,16.0 L380.6,23.3 L382.2,23.8 L383.8,19.9 L385.4,18.3 L387.0,28.1 L388.6,36.9 L390.2,34.6 L391.9,33.6 L393.5,40.8 L395.1,48.2 L396.7,46.2 L398.3,43.5 L399.9,54.5 L401.5,54.6 L403.1,62.2 L404.7,69.1 L406.3,60.9 L408.0,57.8 L409.6,54.7 L411.2,51.9 L412.8,57.0 L414.4,47.3 L416.0,49.4 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-OKE)"/>
-    <path d="M12.0,129.9 L13.6,139.3 L15.2,137.2 L16.8,137.1 L18.4,140.0 L20.0,147.4 L21.7,143.6 L23.3,141.7 L24.9,139.9 L26.5,137.1 L28.1,136.4 L29.7,141.3 L31.3,138.4 L32.9,139.2 L34.5,147.5 L36.1,149.5 L37.8,148.3 L39.4,155.4 L41.0,160.0 L42.6,151.5 L44.2,144.8 L45.8,143.5 L47.4,144.4 L49.0,139.3 L50.6,140.1 L52.2,137.7 L53.8,133.2 L55.5,140.3 L57.1,137.8 L58.7,137.7 L60.3,136.5 L61.9,133.0 L63.5,134.3 L65.1,131.5 L66.7,128.8 L68.3,123.1 L69.9,119.4 L71.6,121.9 L73.2,114.1 L74.8,108.6 L76.4,107.8 L78.0,113.9 L79.6,113.8 L81.2,118.9 L82.8,119.6 L84.4,119.7 L86.0,123.0 L87.6,130.4 L89.3,122.1 L90.9,128.0 L92.5,128.1 L94.1,123.1 L95.7,120.3 L97.3,121.3 L98.9,123.0 L100.5,119.4 L102.1,118.8 L103.7,120.1 L105.4,116.5 L107.0,119.5 L108.6,131.5 L110.2,132.2 L111.8,125.2 L113.4,123.6 L115.0,124.5 L116.6,116.9 L118.2,109.9 L119.8,120.8 L121.5,116.2 L123.1,117.7 L124.7,110.1 L126.3,98.2 L127.9,100.6 L129.5,102.8 L131.1,101.7 L132.7,95.2 L134.3,98.2 L135.9,95.5 L137.5,112.2 L139.2,99.5 L140.8,90.5 L142.4,90.0 L144.0,84.0 L145.6,78.4 L147.2,76.9 L148.8,70.7 L150.4,72.0 L152.0,65.4 L153.6,67.6 L155.3,62.5 L156.9,62.1 L158.5,60.2 L160.1,60.2 L161.7,79.4 L163.3,82.1 L164.9,74.5 L166.5,79.9 L168.1,65.4 L169.7,71.2 L171.3,71.3 L173.0,67.7 L174.6,61.9 L176.2,66.1 L177.8,71.6 L179.4,67.0 L181.0,70.6 L182.6,68.7 L184.2,68.9 L185.8,63.5 L187.4,65.1 L189.1,55.6 L190.7,52.0 L192.3,48.9 L193.9,44.5 L195.5,39.4 L197.1,33.1 L198.7,31.4 L200.3,35.7 L201.9,46.9 L203.5,60.0 L205.1,55.9 L206.8,55.1 L208.4,45.8 L210.0,62.6 L211.6,65.1 L213.2,65.0 L214.8,68.8 L216.4,71.0 L218.0,74.2 L219.6,69.3 L221.2,76.7 L222.9,75.6 L224.5,71.6 L226.1,65.7 L227.7,60.7 L229.3,59.4 L230.9,58.3 L232.5,49.5 L234.1,51.5 L235.7,37.9 L237.3,47.0 L238.9,45.8 L240.6,48.5 L242.2,67.7 L243.8,66.5 L245.4,69.6 L247.0,58.2 L248.6,55.4 L250.2,53.8 L251.8,44.1 L253.4,38.5 L255.0,32.3 L256.7,25.8 L258.3,39.2 L259.9,37.2 L261.5,31.1 L263.1,46.7 L264.7,56.3 L266.3,61.5 L267.9,74.9 L269.5,70.5 L271.1,62.8 L272.7,62.7 L274.4,53.1 L276.0,56.2 L277.6,56.6 L279.2,58.2 L280.8,46.1 L282.4,52.0 L284.0,46.0 L285.6,59.6 L287.2,64.6 L288.8,67.7 L290.5,70.1 L292.1,64.7 L293.7,57.0 L295.3,60.2 L296.9,50.7 L298.5,52.0 L300.1,54.1 L301.7,61.8 L303.3,67.1 L304.9,58.0 L306.5,59.7 L308.2,45.7 L309.8,43.5 L311.4,50.7 L313.0,48.9 L314.6,39.1 L316.2,40.3 L317.8,44.1 L319.4,35.6 L321.0,33.3 L322.6,33.1 L324.3,40.6 L325.9,41.0 L327.5,34.6 L329.1,34.9 L330.7,50.9 L332.3,53.8 L333.9,48.6 L335.5,52.6 L337.1,45.1 L338.7,56.2 L340.4,58.8 L342.0,60.5 L343.6,57.6 L345.2,64.1 L346.8,47.1 L348.4,42.0 L350.0,37.9 L351.6,37.1 L353.2,26.9 L354.8,25.5 L356.4,17.9 L358.1,22.5 L359.7,28.6 L361.3,34.1 L362.9,35.5 L364.5,41.2 L366.1,27.3 L367.7,28.1 L369.3,27.9 L370.9,22.5 L372.5,23.9 L374.2,22.5 L375.8,23.6 L377.4,25.0 L379.0,16.0 L380.6,23.3 L382.2,23.8 L383.8,19.9 L385.4,18.3 L387.0,28.1 L388.6,36.9 L390.2,34.6 L391.9,33.6 L393.5,40.8 L395.1,48.2 L396.7,46.2 L398.3,43.5 L399.9,54.5 L401.5,54.6 L403.1,62.2 L404.7,69.1 L406.3,60.9 L408.0,57.8 L409.6,54.7 L411.2,51.9 L412.8,57.0 L414.4,47.3 L416.0,49.4" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <text x="474" y="49.4" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$89.80</text>
-    <text x="474" y="129.9" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$71.25</text>
+    <path d="M12.0,129.9 L13.6,139.3 L15.2,137.2 L16.8,137.1 L18.4,140.0 L20.0,147.4 L21.7,143.6 L23.3,141.7 L24.9,139.9 L26.5,137.1 L28.1,136.4 L29.7,141.3 L31.3,138.4 L32.9,139.2 L34.5,147.5 L36.1,149.5 L37.8,148.3 L39.4,155.4 L41.0,160.0 L42.6,151.5 L44.2,144.8 L45.8,143.5 L47.4,144.4 L49.0,139.3 L50.6,140.1 L52.2,137.7 L53.8,133.2 L55.5,140.3 L57.1,137.8 L58.7,137.7 L60.3,136.5 L61.9,133.0 L63.5,134.3 L65.1,131.5 L66.7,128.8 L68.3,123.1 L69.9,119.4 L71.6,121.9 L73.2,114.1 L74.8,108.6 L76.4,107.8 L78.0,113.9 L79.6,113.8 L81.2,118.9 L82.8,119.6 L84.4,119.7 L86.0,123.0 L87.6,130.4 L89.3,122.1 L90.9,128.0 L92.5,128.1 L94.1,123.1 L95.7,120.3 L97.3,121.3 L98.9,123.0 L100.5,119.4 L102.1,118.8 L103.7,120.1 L105.4,116.5 L107.0,119.5 L108.6,131.5 L110.2,132.2 L111.8,125.2 L113.4,123.6 L115.0,124.5 L116.6,116.9 L118.2,109.9 L119.8,120.8 L121.5,116.2 L123.1,117.7 L124.7,110.1 L126.3,98.2 L127.9,100.6 L129.5,102.8 L131.1,101.7 L132.7,95.2 L134.3,98.2 L135.9,95.5 L137.5,112.2 L139.2,99.5 L140.8,90.5 L142.4,90.0 L144.0,84.0 L145.6,78.4 L147.2,76.9 L148.8,70.7 L150.4,72.0 L152.0,65.4 L153.6,67.6 L155.3,62.5 L156.9,62.1 L158.5,60.2 L160.1,60.2 L161.7,79.4 L163.3,82.1 L164.9,74.5 L166.5,79.9 L168.1,65.4 L169.7,71.2 L171.3,71.3 L173.0,67.7 L174.6,61.9 L176.2,66.1 L177.8,71.6 L179.4,67.0 L181.0,70.6 L182.6,68.7 L184.2,68.9 L185.8,63.5 L187.4,65.1 L189.1,55.6 L190.7,52.0 L192.3,48.9 L193.9,44.5 L195.5,39.4 L197.1,33.1 L198.7,31.4 L200.3,35.7 L201.9,46.9 L203.5,60.0 L205.1,55.9 L206.8,55.1 L208.4,45.8 L210.0,62.6 L211.6,65.1 L213.2,65.0 L214.8,68.8 L216.4,71.0 L218.0,74.2 L219.6,69.3 L221.2,76.7 L222.9,75.6 L224.5,71.6 L226.1,65.7 L227.7,60.7 L229.3,59.4 L230.9,58.3 L232.5,49.5 L234.1,51.5 L235.7,37.9 L237.3,47.0 L238.9,45.8 L240.6,48.5 L242.2,67.7 L243.8,66.5 L245.4,69.6 L247.0,58.2 L248.6,55.4 L250.2,53.8 L251.8,44.1 L253.4,38.5 L255.0,32.3 L256.7,25.8 L258.3,39.2 L259.9,37.2 L261.5,31.1 L263.1,46.7 L264.7,56.3 L266.3,61.5 L267.9,74.9 L269.5,70.5 L271.1,62.8 L272.7,62.7 L274.4,53.1 L276.0,56.2 L277.6,56.6 L279.2,58.2 L280.8,46.1 L282.4,52.0 L284.0,46.0 L285.6,59.6 L287.2,64.6 L288.8,67.7 L290.5,70.1 L292.1,64.7 L293.7,57.0 L295.3,60.2 L296.9,50.7 L298.5,52.0 L300.1,54.1 L301.7,61.8 L303.3,67.1 L304.9,58.0 L306.5,59.7 L308.2,45.7 L309.8,43.5 L311.4,50.7 L313.0,48.9 L314.6,39.1 L316.2,40.3 L317.8,44.1 L319.4,35.6 L321.0,33.3 L322.6,33.1 L324.3,40.6 L325.9,41.0 L327.5,34.6 L329.1,34.9 L330.7,50.9 L332.3,53.8 L333.9,48.6 L335.5,52.6 L337.1,45.1 L338.7,56.2 L340.4,58.8 L342.0,60.5 L343.6,57.6 L345.2,64.1 L346.8,47.1 L348.4,42.0 L350.0,37.9 L351.6,37.1 L353.2,26.9 L354.8,25.5 L356.4,17.9 L358.1,22.5 L359.7,28.6 L361.3,34.1 L362.9,35.5 L364.5,41.2 L366.1,27.3 L367.7,28.1 L369.3,27.9 L370.9,22.5 L372.5,23.9 L374.2,22.5 L375.8,23.6 L377.4,25.0 L379.0,16.0 L380.6,23.3 L382.2,23.8 L383.8,19.9 L385.4,18.3 L387.0,28.1 L388.6,36.9 L390.2,34.6 L391.9,33.6 L393.5,40.8 L395.1,48.2 L396.7,46.2 L398.3,43.5 L399.9,54.5 L401.5,54.6 L403.1,62.2 L404.7,69.1 L406.3,60.9 L408.0,57.8 L409.6,54.7 L411.2,51.9 L412.8,57.0 L414.4,47.3 L416.0,49.4" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="49.4" fill="#059669" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$89.80</text>
+    <text x="474" y="129.9" fill="#64748b" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$71.25</text>
   </svg>
 </div>
 

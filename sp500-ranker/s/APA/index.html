@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0d141e">
+  <meta name="theme-color" content="#f8fafc">
   <title>APA · APA Corporation — S&amp;P 500 Screener &amp; Ranker</title>
   <meta name="description" content="APA Corporation (APA): $45.88 (+93.9% 1Y). Performance: 1W +5.0%, 1M +2.3%, 3M +37.8%, YTD +87.6%, 1Y +93.9%, 5Y +88.3%. Market Cap: $16.1B, P/E: 9.6, Net Income: $1.68B. Explore interactive price graph and performance across 9 periods.">
   <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/APA/">
@@ -13,7 +13,9 @@
   <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/APA/">
   <meta property="og:title" content="APA · APA Corporation — S&amp;P 500 Screener &amp; Ranker">
   <meta property="og:description" content="APA Corporation (APA): $45.88 (+93.9% 1Y). Performance: 1W +5.0%, 1M +2.3%, 3M +37.8%, YTD +87.6%, 1Y +93.9%, 5Y +88.3%. Market Cap: $16.1B, P/E: 9.6, Net Income: $1.68B. Explore interactive price graph and performance across 9 periods.">
-  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/s/APA/preview.png?v=1">
+  <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/sp500-ranker/s/APA/preview.png?v=1">
+  <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="APA · APA Corporation — S&amp;P 500 Screener &amp; Ranker">
@@ -21,7 +23,11 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="APA · APA Corporation — S&amp;P 500 Screener &amp; Ranker">
   <meta name="twitter:description" content="APA Corporation (APA): $45.88 (+93.9% 1Y). Performance: 1W +5.0%, 1M +2.3%, 3M +37.8%, YTD +87.6%, 1Y +93.9%, 5Y +88.3%. Market Cap: $16.1B, P/E: 9.6, Net Income: $1.68B. Explore interactive price graph and performance across 9 periods.">
-  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/s/APA/preview.png?v=1">
+  <meta name="twitter:image:alt" content="APA · APA Corporation — S&amp;P 500 Screener &amp; Ranker">
+
+  <link rel="icon" href="https://alphadyn.github.io/apps/sp500-ranker/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="https://alphadyn.github.io/apps/sp500-ranker/apple-touch-icon.png">
 
   <style>
     body {
@@ -31,24 +37,25 @@
       place-items: center;
       padding: 24px 16px;
       box-sizing: border-box;
-      background: #0d141e;
-      color: #f1f5f9;
+      background: #f8fafc;
+      color: #0f172a;
       font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     main {
       width: min(100%, 560px);
       padding: 28px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid #e2e8f0;
       border-radius: 18px;
-      background: #151e2b;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+      background: #ffffff;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
     }
     .badge {
       display: inline-block;
       padding: 4px 10px;
       border-radius: 6px;
-      background: rgba(56, 189, 248, 0.15);
-      color: #38bdf8;
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      color: #0369a1;
       font-size: 0.85rem;
       font-weight: 700;
       letter-spacing: 0.05em;
@@ -57,7 +64,7 @@
       margin: 12px 0 4px;
       font-size: 1.6rem;
       font-weight: 800;
-      color: #fff;
+      color: #0f172a;
     }
     .quote-row {
       display: flex;
@@ -69,21 +76,21 @@
     .price {
       font-size: 1.8rem;
       font-weight: 800;
-      color: #fff;
+      color: #0f172a;
     }
     .change {
       font-size: 1.1rem;
       font-weight: 700;
     }
-    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
-    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #059669; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #dc2626; }
 
     .chart-box {
       margin: 16px 0;
       padding: 12px 14px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid #e2e8f0;
       border-radius: 12px;
-      background: rgba(0, 0, 0, 0.25);
+      background: #f8fafc;
     }
     .chart-header {
       display: flex;
@@ -92,7 +99,7 @@
       margin-bottom: 8px;
       font-size: 0.82rem;
       font-weight: 600;
-      color: #94a3b8;
+      color: #64748b;
     }
     .chart-change { font-weight: 700; }
 
@@ -107,15 +114,23 @@
       flex-direction: column;
       align-items: center;
       padding: 6px 4px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid #e2e8f0;
       border-radius: 8px;
-      background: rgba(255, 255, 255, 0.03);
+      background: #ffffff;
       text-align: center;
+    }
+    .perf-chip.up {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+    .perf-chip.down {
+      background: #fef2f2;
+      border-color: #fecaca;
     }
     .perf-label {
       font-size: 0.7rem;
       font-weight: 700;
-      color: #94a3b8;
+      color: #64748b;
     }
     .perf-value {
       font-size: 0.82rem;
@@ -129,15 +144,15 @@
       gap: 16px;
       margin: 14px 0 20px;
       padding-top: 12px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      border-top: 1px solid #e2e8f0;
       font-size: 0.88rem;
-      color: #94a3b8;
+      color: #64748b;
     }
-    .stats-row strong { color: #f1f5f9; }
+    .stats-row strong { color: #0f172a; }
 
     p.summary {
       margin: 0 0 22px;
-      color: #94a3b8;
+      color: #64748b;
       font-size: 0.92rem;
       line-height: 1.5;
     }
@@ -145,14 +160,14 @@
       display: inline-block;
       padding: 10px 20px;
       border-radius: 8px;
-      background: #38bdf8;
-      color: #0b1119;
+      background: #0284c7;
+      color: #ffffff;
       font-weight: 700;
       text-decoration: none;
       transition: background 0.15s;
     }
     a.btn:hover {
-      background: #7dd3fc;
+      background: #0369a1;
     }
   </style>
 </head>
@@ -173,15 +188,15 @@
   <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for APA">
     <defs>
       <linearGradient id="chart-fill-APA" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
-        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+        <stop offset="0%" stop-color="#059669" stop-opacity="0.22"/>
+        <stop offset="100%" stop-color="#059669" stop-opacity="0.0"/>
       </linearGradient>
     </defs>
-    <line x1="12" y1="148.8" x2="416" y2="148.8" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <line x1="12" y1="148.8" x2="416" y2="148.8" stroke="#cbd5e1" stroke-dasharray="4 4" stroke-width="1"/>
     <path d="M12.0,148.8 L13.6,158.4 L15.2,153.5 L16.8,153.0 L18.4,151.2 L20.0,152.5 L21.7,155.2 L23.3,155.4 L24.9,154.9 L26.5,153.1 L28.1,143.4 L29.7,147.9 L31.3,150.6 L32.9,154.0 L34.5,155.1 L36.1,155.9 L37.8,154.5 L39.4,155.4 L41.0,157.6 L42.6,160.0 L44.2,148.9 L45.8,147.9 L47.4,145.0 L49.0,143.6 L50.6,147.5 L52.2,143.1 L53.8,142.5 L55.5,144.8 L57.1,141.8 L58.7,146.6 L60.3,150.4 L61.9,147.2 L63.5,144.6 L65.1,146.5 L66.7,143.2 L68.3,141.5 L69.9,139.8 L71.6,138.8 L73.2,130.4 L74.8,131.8 L76.4,129.6 L78.0,134.9 L79.6,133.5 L81.2,133.9 L82.8,136.0 L84.4,136.1 L86.0,139.8 L87.6,147.1 L89.3,143.4 L90.9,148.0 L92.5,146.2 L94.1,144.6 L95.7,144.9 L97.3,144.9 L98.9,145.9 L100.5,144.8 L102.1,143.0 L103.7,144.3 L105.4,139.3 L107.0,144.3 L108.6,147.6 L110.2,150.3 L111.8,139.3 L113.4,140.2 L115.0,141.8 L116.6,137.3 L118.2,131.9 L119.8,135.7 L121.5,137.0 L123.1,139.4 L124.7,132.7 L126.3,138.2 L127.9,136.8 L129.5,139.1 L131.1,136.7 L132.7,135.7 L134.3,134.3 L135.9,133.4 L137.5,136.3 L139.2,133.2 L140.8,128.0 L142.4,133.0 L144.0,127.6 L145.6,127.4 L147.2,127.6 L148.8,123.1 L150.4,130.6 L152.0,125.0 L153.6,128.2 L155.3,121.1 L156.9,118.5 L158.5,118.6 L160.1,120.5 L161.7,121.1 L163.3,125.4 L164.9,118.4 L166.5,111.3 L168.1,103.9 L169.7,103.0 L171.3,107.2 L173.0,100.1 L174.6,98.4 L176.2,98.9 L177.8,103.2 L179.4,96.8 L181.0,93.2 L182.6,88.4 L184.2,88.0 L185.8,80.5 L187.4,76.4 L189.1,68.3 L190.7,62.4 L192.3,62.9 L193.9,53.0 L195.5,50.1 L197.1,41.8 L198.7,32.9 L200.3,36.5 L201.9,43.8 L203.5,49.9 L205.1,46.0 L206.8,40.5 L208.4,40.9 L210.0,64.4 L211.6,63.2 L213.2,65.1 L214.8,60.3 L216.4,74.0 L218.0,76.5 L219.6,69.2 L221.2,81.3 L222.9,80.0 L224.5,70.9 L226.1,68.3 L227.7,64.9 L229.3,70.1 L230.9,66.2 L232.5,65.0 L234.1,55.6 L235.7,53.4 L237.3,56.7 L238.9,46.1 L240.6,49.2 L242.2,66.9 L243.8,78.5 L245.4,82.3 L247.0,75.9 L248.6,73.7 L250.2,74.4 L251.8,73.6 L253.4,63.1 L255.0,56.6 L256.7,52.3 L258.3,61.2 L259.9,66.7 L261.5,64.1 L263.1,71.4 L264.7,76.3 L266.3,76.8 L267.9,77.4 L269.5,70.0 L271.1,69.7 L272.7,66.8 L274.4,67.4 L276.0,76.6 L277.6,70.5 L279.2,76.4 L280.8,68.6 L282.4,75.4 L284.0,74.1 L285.6,86.7 L287.2,89.5 L288.8,91.4 L290.5,96.4 L292.1,89.9 L293.7,89.8 L295.3,94.7 L296.9,94.2 L298.5,96.5 L300.1,96.8 L301.7,99.0 L303.3,102.9 L304.9,100.2 L306.5,99.6 L308.2,91.0 L309.8,85.1 L311.4,95.0 L313.0,94.1 L314.6,87.2 L316.2,88.0 L317.8,89.5 L319.4,89.4 L321.0,84.2 L322.6,86.3 L324.3,81.1 L325.9,78.8 L327.5,77.5 L329.1,79.0 L330.7,86.9 L332.3,85.8 L333.9,75.9 L335.5,78.0 L337.1,72.4 L338.7,74.9 L340.4,80.9 L342.0,87.3 L343.6,76.8 L345.2,70.7 L346.8,51.7 L348.4,54.0 L350.0,57.6 L351.6,57.4 L353.2,54.8 L354.8,48.6 L356.4,44.2 L358.1,38.1 L359.7,32.9 L361.3,38.5 L362.9,40.9 L364.5,49.9 L366.1,50.8 L367.7,44.1 L369.3,43.2 L370.9,39.8 L372.5,33.4 L374.2,31.2 L375.8,34.1 L377.4,41.9 L379.0,37.6 L380.6,30.4 L382.2,32.1 L383.8,31.0 L385.4,29.3 L387.0,16.0 L388.6,30.7 L390.2,26.9 L391.9,30.2 L393.5,36.1 L395.1,44.6 L396.7,36.7 L398.3,36.9 L399.9,42.1 L401.5,44.4 L403.1,45.2 L404.7,48.8 L406.3,38.8 L408.0,36.9 L409.6,35.9 L411.2,34.5 L412.8,36.1 L414.4,26.8 L416.0,24.6 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-APA)"/>
-    <path d="M12.0,148.8 L13.6,158.4 L15.2,153.5 L16.8,153.0 L18.4,151.2 L20.0,152.5 L21.7,155.2 L23.3,155.4 L24.9,154.9 L26.5,153.1 L28.1,143.4 L29.7,147.9 L31.3,150.6 L32.9,154.0 L34.5,155.1 L36.1,155.9 L37.8,154.5 L39.4,155.4 L41.0,157.6 L42.6,160.0 L44.2,148.9 L45.8,147.9 L47.4,145.0 L49.0,143.6 L50.6,147.5 L52.2,143.1 L53.8,142.5 L55.5,144.8 L57.1,141.8 L58.7,146.6 L60.3,150.4 L61.9,147.2 L63.5,144.6 L65.1,146.5 L66.7,143.2 L68.3,141.5 L69.9,139.8 L71.6,138.8 L73.2,130.4 L74.8,131.8 L76.4,129.6 L78.0,134.9 L79.6,133.5 L81.2,133.9 L82.8,136.0 L84.4,136.1 L86.0,139.8 L87.6,147.1 L89.3,143.4 L90.9,148.0 L92.5,146.2 L94.1,144.6 L95.7,144.9 L97.3,144.9 L98.9,145.9 L100.5,144.8 L102.1,143.0 L103.7,144.3 L105.4,139.3 L107.0,144.3 L108.6,147.6 L110.2,150.3 L111.8,139.3 L113.4,140.2 L115.0,141.8 L116.6,137.3 L118.2,131.9 L119.8,135.7 L121.5,137.0 L123.1,139.4 L124.7,132.7 L126.3,138.2 L127.9,136.8 L129.5,139.1 L131.1,136.7 L132.7,135.7 L134.3,134.3 L135.9,133.4 L137.5,136.3 L139.2,133.2 L140.8,128.0 L142.4,133.0 L144.0,127.6 L145.6,127.4 L147.2,127.6 L148.8,123.1 L150.4,130.6 L152.0,125.0 L153.6,128.2 L155.3,121.1 L156.9,118.5 L158.5,118.6 L160.1,120.5 L161.7,121.1 L163.3,125.4 L164.9,118.4 L166.5,111.3 L168.1,103.9 L169.7,103.0 L171.3,107.2 L173.0,100.1 L174.6,98.4 L176.2,98.9 L177.8,103.2 L179.4,96.8 L181.0,93.2 L182.6,88.4 L184.2,88.0 L185.8,80.5 L187.4,76.4 L189.1,68.3 L190.7,62.4 L192.3,62.9 L193.9,53.0 L195.5,50.1 L197.1,41.8 L198.7,32.9 L200.3,36.5 L201.9,43.8 L203.5,49.9 L205.1,46.0 L206.8,40.5 L208.4,40.9 L210.0,64.4 L211.6,63.2 L213.2,65.1 L214.8,60.3 L216.4,74.0 L218.0,76.5 L219.6,69.2 L221.2,81.3 L222.9,80.0 L224.5,70.9 L226.1,68.3 L227.7,64.9 L229.3,70.1 L230.9,66.2 L232.5,65.0 L234.1,55.6 L235.7,53.4 L237.3,56.7 L238.9,46.1 L240.6,49.2 L242.2,66.9 L243.8,78.5 L245.4,82.3 L247.0,75.9 L248.6,73.7 L250.2,74.4 L251.8,73.6 L253.4,63.1 L255.0,56.6 L256.7,52.3 L258.3,61.2 L259.9,66.7 L261.5,64.1 L263.1,71.4 L264.7,76.3 L266.3,76.8 L267.9,77.4 L269.5,70.0 L271.1,69.7 L272.7,66.8 L274.4,67.4 L276.0,76.6 L277.6,70.5 L279.2,76.4 L280.8,68.6 L282.4,75.4 L284.0,74.1 L285.6,86.7 L287.2,89.5 L288.8,91.4 L290.5,96.4 L292.1,89.9 L293.7,89.8 L295.3,94.7 L296.9,94.2 L298.5,96.5 L300.1,96.8 L301.7,99.0 L303.3,102.9 L304.9,100.2 L306.5,99.6 L308.2,91.0 L309.8,85.1 L311.4,95.0 L313.0,94.1 L314.6,87.2 L316.2,88.0 L317.8,89.5 L319.4,89.4 L321.0,84.2 L322.6,86.3 L324.3,81.1 L325.9,78.8 L327.5,77.5 L329.1,79.0 L330.7,86.9 L332.3,85.8 L333.9,75.9 L335.5,78.0 L337.1,72.4 L338.7,74.9 L340.4,80.9 L342.0,87.3 L343.6,76.8 L345.2,70.7 L346.8,51.7 L348.4,54.0 L350.0,57.6 L351.6,57.4 L353.2,54.8 L354.8,48.6 L356.4,44.2 L358.1,38.1 L359.7,32.9 L361.3,38.5 L362.9,40.9 L364.5,49.9 L366.1,50.8 L367.7,44.1 L369.3,43.2 L370.9,39.8 L372.5,33.4 L374.2,31.2 L375.8,34.1 L377.4,41.9 L379.0,37.6 L380.6,30.4 L382.2,32.1 L383.8,31.0 L385.4,29.3 L387.0,16.0 L388.6,30.7 L390.2,26.9 L391.9,30.2 L393.5,36.1 L395.1,44.6 L396.7,36.7 L398.3,36.9 L399.9,42.1 L401.5,44.4 L403.1,45.2 L404.7,48.8 L406.3,38.8 L408.0,36.9 L409.6,35.9 L411.2,34.5 L412.8,36.1 L414.4,26.8 L416.0,24.6" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <text x="474" y="24.6" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$45.88</text>
-    <text x="474" y="148.8" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$23.66</text>
+    <path d="M12.0,148.8 L13.6,158.4 L15.2,153.5 L16.8,153.0 L18.4,151.2 L20.0,152.5 L21.7,155.2 L23.3,155.4 L24.9,154.9 L26.5,153.1 L28.1,143.4 L29.7,147.9 L31.3,150.6 L32.9,154.0 L34.5,155.1 L36.1,155.9 L37.8,154.5 L39.4,155.4 L41.0,157.6 L42.6,160.0 L44.2,148.9 L45.8,147.9 L47.4,145.0 L49.0,143.6 L50.6,147.5 L52.2,143.1 L53.8,142.5 L55.5,144.8 L57.1,141.8 L58.7,146.6 L60.3,150.4 L61.9,147.2 L63.5,144.6 L65.1,146.5 L66.7,143.2 L68.3,141.5 L69.9,139.8 L71.6,138.8 L73.2,130.4 L74.8,131.8 L76.4,129.6 L78.0,134.9 L79.6,133.5 L81.2,133.9 L82.8,136.0 L84.4,136.1 L86.0,139.8 L87.6,147.1 L89.3,143.4 L90.9,148.0 L92.5,146.2 L94.1,144.6 L95.7,144.9 L97.3,144.9 L98.9,145.9 L100.5,144.8 L102.1,143.0 L103.7,144.3 L105.4,139.3 L107.0,144.3 L108.6,147.6 L110.2,150.3 L111.8,139.3 L113.4,140.2 L115.0,141.8 L116.6,137.3 L118.2,131.9 L119.8,135.7 L121.5,137.0 L123.1,139.4 L124.7,132.7 L126.3,138.2 L127.9,136.8 L129.5,139.1 L131.1,136.7 L132.7,135.7 L134.3,134.3 L135.9,133.4 L137.5,136.3 L139.2,133.2 L140.8,128.0 L142.4,133.0 L144.0,127.6 L145.6,127.4 L147.2,127.6 L148.8,123.1 L150.4,130.6 L152.0,125.0 L153.6,128.2 L155.3,121.1 L156.9,118.5 L158.5,118.6 L160.1,120.5 L161.7,121.1 L163.3,125.4 L164.9,118.4 L166.5,111.3 L168.1,103.9 L169.7,103.0 L171.3,107.2 L173.0,100.1 L174.6,98.4 L176.2,98.9 L177.8,103.2 L179.4,96.8 L181.0,93.2 L182.6,88.4 L184.2,88.0 L185.8,80.5 L187.4,76.4 L189.1,68.3 L190.7,62.4 L192.3,62.9 L193.9,53.0 L195.5,50.1 L197.1,41.8 L198.7,32.9 L200.3,36.5 L201.9,43.8 L203.5,49.9 L205.1,46.0 L206.8,40.5 L208.4,40.9 L210.0,64.4 L211.6,63.2 L213.2,65.1 L214.8,60.3 L216.4,74.0 L218.0,76.5 L219.6,69.2 L221.2,81.3 L222.9,80.0 L224.5,70.9 L226.1,68.3 L227.7,64.9 L229.3,70.1 L230.9,66.2 L232.5,65.0 L234.1,55.6 L235.7,53.4 L237.3,56.7 L238.9,46.1 L240.6,49.2 L242.2,66.9 L243.8,78.5 L245.4,82.3 L247.0,75.9 L248.6,73.7 L250.2,74.4 L251.8,73.6 L253.4,63.1 L255.0,56.6 L256.7,52.3 L258.3,61.2 L259.9,66.7 L261.5,64.1 L263.1,71.4 L264.7,76.3 L266.3,76.8 L267.9,77.4 L269.5,70.0 L271.1,69.7 L272.7,66.8 L274.4,67.4 L276.0,76.6 L277.6,70.5 L279.2,76.4 L280.8,68.6 L282.4,75.4 L284.0,74.1 L285.6,86.7 L287.2,89.5 L288.8,91.4 L290.5,96.4 L292.1,89.9 L293.7,89.8 L295.3,94.7 L296.9,94.2 L298.5,96.5 L300.1,96.8 L301.7,99.0 L303.3,102.9 L304.9,100.2 L306.5,99.6 L308.2,91.0 L309.8,85.1 L311.4,95.0 L313.0,94.1 L314.6,87.2 L316.2,88.0 L317.8,89.5 L319.4,89.4 L321.0,84.2 L322.6,86.3 L324.3,81.1 L325.9,78.8 L327.5,77.5 L329.1,79.0 L330.7,86.9 L332.3,85.8 L333.9,75.9 L335.5,78.0 L337.1,72.4 L338.7,74.9 L340.4,80.9 L342.0,87.3 L343.6,76.8 L345.2,70.7 L346.8,51.7 L348.4,54.0 L350.0,57.6 L351.6,57.4 L353.2,54.8 L354.8,48.6 L356.4,44.2 L358.1,38.1 L359.7,32.9 L361.3,38.5 L362.9,40.9 L364.5,49.9 L366.1,50.8 L367.7,44.1 L369.3,43.2 L370.9,39.8 L372.5,33.4 L374.2,31.2 L375.8,34.1 L377.4,41.9 L379.0,37.6 L380.6,30.4 L382.2,32.1 L383.8,31.0 L385.4,29.3 L387.0,16.0 L388.6,30.7 L390.2,26.9 L391.9,30.2 L393.5,36.1 L395.1,44.6 L396.7,36.7 L398.3,36.9 L399.9,42.1 L401.5,44.4 L403.1,45.2 L404.7,48.8 L406.3,38.8 L408.0,36.9 L409.6,35.9 L411.2,34.5 L412.8,36.1 L414.4,26.8 L416.0,24.6" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="24.6" fill="#059669" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$45.88</text>
+    <text x="474" y="148.8" fill="#64748b" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$23.66</text>
   </svg>
 </div>
 

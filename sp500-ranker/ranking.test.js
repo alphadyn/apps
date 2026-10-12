@@ -90,6 +90,9 @@ test('state round-trips through the URL hash', () => {
   assert.equal(parseState('#symbol=aapl').symbol, 'AAPL');
   assert.equal(parseState('?symbol=NVDA').symbol, 'NVDA');
   assert.equal(parseState('#MSFT').symbol, 'MSFT');
+  assert.equal(parseState('https://alphadyn.github.io/apps/sp500-ranker/s/AAPL/').symbol, 'AAPL');
+  assert.equal(parseState('https://alphadyn.github.io/apps/sp500-ranker/#symbol=NVDA').symbol, 'NVDA');
+  assert.equal(parseState('s/GOOGL/').symbol, 'GOOGL');
 });
 
 test('formatSecuritySummary formats highlighted link preview details for a security', () => {

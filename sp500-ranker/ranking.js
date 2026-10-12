@@ -377,7 +377,18 @@ export function serializeState({ tab = 'sort', sorts = [], method = 'priority', 
 }
 
 export function parseState(hashOrQuery) {
-  const clean = String(hashOrQuery || '').replace(/^[#?]/, '');
+  let input = String(hashOrQuery || '').trim();
+
+  // Match /s/<symbol> in path or full URL
+  const shareMatch = input.match(/(?:^|\/)s\/([A-Za-z0-9.-]+)(?:\/|$|\?|#)/);
+  let shareSymbol = shareMatch ? shareMatch[1].toUpperCase() : null;
+
+  if (input.includes('#')) {
+    input = input.slice(input.indexOf('#'));
+  } else if (input.includes('?')) {
+    input = input.slice(input.indexOf('?'));
+  }
+  const clean = input.replace(/^[#?]/, '');
   const params = new URLSearchParams(clean);
   let sorts = [];
   for (const part of (params.get('sort') || '').split(',')) {
@@ -385,7 +396,7 @@ export function parseState(hashOrQuery) {
     sorts = addCriterion(sorts, key, direction === 'asc' ? 'asc' : 'desc');
   }
   const method = METHODS.includes(params.get('method')) ? params.get('method') : 'priority';
-  let symbol = (params.get('symbol') || '').toUpperCase();
+  let symbol = (params.get('symbol') || shareSymbol || '').toUpperCase();
   if (!symbol && !clean.includes('=') && SYMBOL_PATTERN.test(clean.toUpperCase())) {
     symbol = clean.toUpperCase();
   }

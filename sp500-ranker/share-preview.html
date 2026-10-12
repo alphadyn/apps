@@ -37,8 +37,87 @@
       width: min(100%, 420px);
       margin-bottom: 12px;
       display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .preview-url-form {
+      display: flex;
+      gap: 6px;
+      width: 100%;
+    }
+
+    .preview-url-input {
+      flex: 1;
+      height: 34px;
+      padding: 0 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #0f172a;
+      font-size: 12.5px;
+      outline: none;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      transition: border-color 0.15s;
+    }
+    .preview-url-input:focus {
+      border-color: #0284c7;
+    }
+
+    .preview-url-btn {
+      height: 34px;
+      padding: 0 12px;
+      border: none;
+      border-radius: 10px;
+      background: #0284c7;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .preview-url-btn:hover {
+      background: #0369a1;
+    }
+
+    .preview-quick-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .quick-pill-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .quick-pill {
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 2px 8px;
+      background: #ffffff;
+      color: #334155;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .quick-pill:hover {
+      background: #e0f2fe;
+      border-color: #38bdf8;
+      color: #0369a1;
+    }
+
+    .preview-select-row {
+      display: flex;
       align-items: center;
       gap: 8px;
+      width: 100%;
     }
 
     .selector-label {
@@ -58,7 +137,7 @@
       border-radius: 10px;
       background: #ffffff;
       color: #0f172a;
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 600;
       outline: none;
       cursor: pointer;
@@ -67,6 +146,26 @@
     }
     .security-select:focus {
       border-color: #0284c7;
+    }
+
+    .preview-crawler-note {
+      font-size: 11px;
+      line-height: 1.4;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+    }
+    .preview-crawler-note.badge-warning {
+      background: #fefce8;
+      border-color: #fef08a;
+      color: #854d0e;
+    }
+    .preview-crawler-note.badge-success {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+      color: #166534;
     }
 
     .messages {
@@ -429,9 +528,47 @@
     }
 
     .composer {
+      display: flex;
+      align-items: center;
       gap: 8px;
       padding: 6px 12px;
       border-top: 1px solid #f1f5f9;
+      background: #ffffff;
+    }
+    .composer-input {
+      height: 32px;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 16px;
+      color: #0f172a;
+      font-size: 11.5px;
+      outline: none;
+      background: #f8fafc;
+      transition: border-color 0.15s;
+    }
+    .composer-input:focus {
+      border-color: #0284c7;
+      background: #ffffff;
+    }
+    .composer-send-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #0284c7;
+      border: none;
+      color: #ffffff;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
+      transition: background 0.15s;
+    }
+    .composer-send-btn:hover {
+      background: #0369a1;
     }
     .add {
       width: 26px;
@@ -445,22 +582,6 @@
       font-size: 18px;
       font-weight: 400;
     }
-    .input {
-      height: 30px;
-      flex: 1;
-      display: flex;
-      align-items: center;
-      padding: 0 11px;
-      border: 1px solid #e2e8f0;
-      border-radius: 16px;
-      color: #94a3b8;
-      font-size: 10.5px;
-    }
-    .mic {
-      width: 13px;
-      height: 18px;
-      color: #94a3b8;
-    }
 
     @media (max-width: 440px) {
       body { padding: 8px 6px; }
@@ -472,10 +593,30 @@
 </head>
 <body>
   <div class="preview-controls">
-    <label for="security-select" class="selector-label">Preview Mode:</label>
-    <select id="security-select" class="security-select" aria-label="Select security to preview link unfurl">
-      <option value="">S&amp;P 500 Screener &amp; Ranker (Overview)</option>
-    </select>
+    <form class="preview-url-form" id="preview-url-form">
+      <input type="text" id="preview-url-input" class="preview-url-input" placeholder="Paste URL or symbol (e.g. s/AAPL/, #symbol=AAPL, NVDA)..." aria-label="URL or symbol to unfurl">
+      <button type="submit" class="preview-url-btn">Unfurl</button>
+    </form>
+
+    <div class="preview-quick-pills">
+      <span class="quick-pill-label">Examples:</span>
+      <button type="button" class="quick-pill" data-target="s/AAPL/">s/AAPL/</button>
+      <button type="button" class="quick-pill" data-target="#symbol=AAPL">#symbol=AAPL</button>
+      <button type="button" class="quick-pill" data-target="s/NVDA/">s/NVDA/</button>
+      <button type="button" class="quick-pill" data-target="s/MSFT/">s/MSFT/</button>
+      <button type="button" class="quick-pill" data-target="">Overview</button>
+    </div>
+
+    <div class="preview-select-row">
+      <label for="security-select" class="selector-label">Or Pick:</label>
+      <select id="security-select" class="security-select" aria-label="Select security to preview link unfurl">
+        <option value="">S&amp;P 500 Screener &amp; Ranker (Overview)</option>
+      </select>
+    </div>
+
+    <div class="preview-crawler-note" id="preview-crawler-note">
+      💡 <b>Text/SMS Link Preview</b>: When sharing on iOS Messages, WhatsApp, or Twitter, crawlers fetch static metadata and preview images.
+    </div>
   </div>
 
   <main class="messages" aria-label="Text message with S&P 500 link preview">
@@ -544,11 +685,11 @@
       </div>
       <p class="delivered">Delivered</p>
     </section>
-    <footer class="composer" aria-hidden="true">
-      <span class="add">+</span>
-      <span class="input">iMessage</span>
-      <svg class="mic" viewBox="0 0 16 22" fill="none"><rect x="5" y="1" width="6" height="13" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 10v1a6 6 0 0 0 12 0v-1M8 17v4m-3 0h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-    </footer>
+    <form class="composer" id="composer-form" aria-label="Compose text message">
+      <span class="add" aria-hidden="true">+</span>
+      <input type="text" id="composer-input" class="composer-input" placeholder="Type message or paste URL..." aria-label="Message text or URL">
+      <button type="submit" class="composer-send-btn" aria-label="Send message">↑</button>
+    </form>
   </main>
 
   <script type="module">
@@ -563,6 +704,9 @@
     };
 
     const el = {
+      urlForm: document.getElementById('preview-url-form'),
+      urlInput: document.getElementById('preview-url-input'),
+      note: document.getElementById('preview-crawler-note'),
       select: document.getElementById('security-select'),
       message: document.getElementById('preview-message'),
       title: document.getElementById('preview-title'),
@@ -582,6 +726,8 @@
       netIncome: document.getElementById('preview-net-income'),
       perfSection: document.getElementById('preview-perf-section'),
       perfChips: document.getElementById('preview-perf-chips'),
+      composerForm: document.getElementById('composer-form'),
+      composerInput: document.getElementById('composer-input'),
     };
 
     let allSecurities = [];
@@ -737,12 +883,57 @@
       await updateGraph(symbol, currentRange || '1y');
     }
 
+    function updateNoteForInput(rawInput, symbol) {
+      if (!el.note) return;
+      el.note.className = 'preview-crawler-note';
+
+      if (!rawInput && !symbol) {
+        el.note.innerHTML = '💡 <b>Text/SMS Link Preview</b>: When sharing on iOS Messages, WhatsApp, or Twitter, crawlers fetch static metadata and preview images.';
+        return;
+      }
+
+      if (rawInput.includes('#symbol=')) {
+        el.note.className = 'preview-crawler-note badge-warning';
+        el.note.innerHTML = `⚠️ <b>Client-Side Fragment Notice</b>: Web crawlers (Apple iMessage, SMS, WhatsApp) strip everything after <code>#</code> before requesting a URL. If you share <code>.../#symbol=${symbol || 'AAPL'}</code>, crawlers receive the generic overview page. Use the server path <code>s/${symbol || 'AAPL'}/</code> (copied by the app's <b>Share</b> button) to unfurl the stock's chart &amp; performance card.`;
+      } else if (rawInput.includes('/s/') || rawInput.startsWith('s/')) {
+        el.note.className = 'preview-crawler-note badge-success';
+        el.note.innerHTML = `✅ <b>Dedicated Crawler Endpoint</b>: <code>s/${symbol}/</code> serves static HTML Open Graph tags and high-resolution chart card (<code>s/${symbol}/preview.png</code>) directly to iMessage, WhatsApp, and SMS crawlers.`;
+      } else if (symbol) {
+        el.note.className = 'preview-crawler-note badge-success';
+        el.note.innerHTML = `✅ <b>Security Link Preview</b>: Showing high-resolution light-theme price chart and 9-period performance card for <b>${symbol}</b>.`;
+      } else {
+        el.note.innerHTML = `💡 Showing overview preview for S&amp;P 500 Screener &amp; Ranker.`;
+      }
+    }
+
+    function handleUserInput(input) {
+      const trimmed = (input || '').trim();
+      const parsed = parseState(trimmed);
+      const symbol = parsed.symbol || '';
+
+      if (el.select) el.select.value = symbol;
+      if (el.urlInput) el.urlInput.value = trimmed;
+
+      if (symbol) {
+        location.hash = `symbol=${encodeURIComponent(symbol)}`;
+      } else {
+        history.replaceState(null, '', location.pathname);
+      }
+
+      updateNoteForInput(trimmed, symbol);
+      updatePreview(symbol);
+    }
+
     function syncFromUrl() {
       const parsed = parseState(location.hash || location.search);
       const symbol = parsed.symbol || '';
       if (el.select.value !== symbol) {
         el.select.value = symbol;
       }
+      if (el.urlInput && !el.urlInput.value && symbol) {
+        el.urlInput.value = location.hash ? location.hash.slice(1) : `s/${symbol}/`;
+      }
+      updateNoteForInput(location.hash || (symbol ? `s/${symbol}/` : ''), symbol);
       updatePreview(symbol);
     }
 
@@ -764,15 +955,55 @@
         console.warn('Could not load data.json for preview selector', err);
       }
 
+      // Dropdown selector
       el.select.addEventListener('change', (e) => {
         const symbol = e.target.value;
+        if (el.urlInput) {
+          el.urlInput.value = symbol ? `https://alphadyn.github.io/apps/sp500-ranker/s/${symbol}/` : '';
+        }
         if (symbol) {
           location.hash = `symbol=${encodeURIComponent(symbol)}`;
         } else {
           history.replaceState(null, '', location.pathname);
         }
+        updateNoteForInput(symbol ? `s/${symbol}/` : '', symbol);
         updatePreview(symbol);
       });
+
+      // Top URL unfurl form
+      if (el.urlForm) {
+        el.urlForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          handleUserInput(el.urlInput.value);
+        });
+      }
+
+      // Quick pills
+      document.querySelectorAll('.quick-pill').forEach((pill) => {
+        pill.addEventListener('click', () => {
+          const target = pill.dataset.target || '';
+          if (el.urlInput) el.urlInput.value = target;
+          handleUserInput(target);
+        });
+      });
+
+      // Phone composer form
+      if (el.composerForm) {
+        el.composerForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const text = (el.composerInput.value || '').trim();
+          if (!text) return;
+
+          const parsed = parseState(text);
+          const symbol = parsed.symbol;
+          if (symbol) {
+            handleUserInput(text);
+          } else {
+            el.message.textContent = text;
+          }
+          el.composerInput.value = '';
+        });
+      }
 
       el.link.addEventListener('click', (e) => {
         if (e.target.closest('.graph-range-pills') || e.target.closest('button')) {

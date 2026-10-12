@@ -40,6 +40,7 @@ jobs:
 
       - name: Test and build S&P 500 Ranker snapshot
         run: |
+          python3 -m pip install --disable-pip-version-check -r sp500-ranker/requirements-build.txt
           python3 -m unittest discover -s sp500-ranker -p test_build_data.py
           node --test sp500-ranker/ranking.test.js sp500-ranker/history.test.js
           python3 sp500-ranker/build_data.py

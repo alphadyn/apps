@@ -150,8 +150,10 @@ const defaultMetadata = {
   ogTitle: document.querySelector('meta[property="og:title"]')?.content,
   ogDescription: document.querySelector('meta[property="og:description"]')?.content,
   ogUrl: document.querySelector('meta[property="og:url"]')?.content,
+  ogImage: document.querySelector('meta[property="og:image"]')?.content,
   twitterTitle: document.querySelector('meta[name="twitter:title"]')?.content,
   twitterDescription: document.querySelector('meta[name="twitter:description"]')?.content,
+  twitterImage: document.querySelector('meta[name="twitter:image"]')?.content,
 };
 
 function setMetaContent(selector, attr, value) {
@@ -169,8 +171,11 @@ function updateLinkPreview(security) {
     setMetaContent('meta[property="og:title"]', 'content', defaultMetadata.ogTitle);
     setMetaContent('meta[property="og:description"]', 'content', defaultMetadata.ogDescription);
     setMetaContent('meta[property="og:url"]', 'content', defaultMetadata.ogUrl);
+    setMetaContent('meta[property="og:image"]', 'content', defaultMetadata.ogImage);
+    setMetaContent('meta[property="og:image:secure_url"]', 'content', defaultMetadata.ogImage);
     setMetaContent('meta[name="twitter:title"]', 'content', defaultMetadata.twitterTitle);
     setMetaContent('meta[name="twitter:description"]', 'content', defaultMetadata.twitterDescription);
+    setMetaContent('meta[name="twitter:image"]', 'content', defaultMetadata.twitterImage);
     return;
   }
 
@@ -178,14 +183,18 @@ function updateLinkPreview(security) {
   if (!summary) return;
 
   const permalink = new URL(`s/${encodeURIComponent(security.symbol)}/`, location.href).href;
+  const previewImg = new URL(`s/${encodeURIComponent(security.symbol)}/preview.png?v=1`, location.href).href;
   document.title = summary.title;
   setMetaContent('meta[name="description"]', 'content', summary.description);
   setMetaContent('link[rel="canonical"]', 'href', permalink);
   setMetaContent('meta[property="og:title"]', 'content', summary.title);
   setMetaContent('meta[property="og:description"]', 'content', summary.description);
   setMetaContent('meta[property="og:url"]', 'content', permalink);
+  setMetaContent('meta[property="og:image"]', 'content', previewImg);
+  setMetaContent('meta[property="og:image:secure_url"]', 'content', previewImg);
   setMetaContent('meta[name="twitter:title"]', 'content', summary.title);
   setMetaContent('meta[name="twitter:description"]', 'content', summary.description);
+  setMetaContent('meta[name="twitter:image"]', 'content', previewImg);
 }
 
 const escapeHtml = (text) => String(text ?? '').replace(/[&<>"']/g, (char) => (

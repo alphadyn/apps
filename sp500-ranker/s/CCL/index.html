@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>CCL · Carnival Corporation — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Carnival Corporation (CCL): $26.35 (−7.4% 1Y). Performance: 1W +2.3%, 1M +16.1%, 3M −1.4%, YTD −13.7%, 1Y −7.4%, 5Y +10.6%. Market Cap: $35.4B, P/E: 11.3, Net Income: $3.14B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/CCL/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/CCL/">
+  <meta property="og:title" content="CCL · Carnival Corporation — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Carnival Corporation (CCL): $26.35 (−7.4% 1Y). Performance: 1W +2.3%, 1M +16.1%, 3M −1.4%, YTD −13.7%, 1Y −7.4%, 5Y +10.6%. Market Cap: $35.4B, P/E: 11.3, Net Income: $3.14B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="CCL · Carnival Corporation — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CCL · Carnival Corporation — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Carnival Corporation (CCL): $26.35 (−7.4% 1Y). Performance: 1W +2.3%, 1M +16.1%, 3M −1.4%, YTD −13.7%, 1Y −7.4%, 5Y +10.6%. Market Cap: $35.4B, P/E: 11.3, Net Income: $3.14B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">CCL</span>
+    <h1>Carnival Corporation</h1>
+    <div class="quote-row">
+      <span class="price">$26.35</span>
+      <span class="change down">−7.4% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−7.4%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for CCL">
+    <defs>
+      <linearGradient id="chart-fill-CCL" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="81.4" x2="416" y2="81.4" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,81.4 L13.6,90.4 L15.2,85.6 L16.8,75.4 L18.4,76.8 L20.0,84.2 L21.7,83.0 L23.3,76.6 L24.9,63.4 L26.5,63.1 L28.1,69.7 L29.7,70.2 L31.3,69.9 L32.9,88.4 L34.5,88.2 L36.1,82.8 L37.8,76.9 L39.4,78.3 L41.0,109.0 L42.6,99.7 L44.2,105.9 L45.8,101.7 L47.4,99.8 L49.0,101.0 L50.6,97.0 L52.2,108.7 L53.8,110.1 L55.5,117.9 L57.1,113.1 L58.7,109.4 L60.3,118.3 L61.9,103.7 L63.5,124.9 L65.1,113.6 L66.7,117.0 L68.3,112.9 L69.9,111.1 L71.6,112.2 L73.2,109.8 L74.8,112.4 L76.4,111.8 L78.0,110.2 L79.6,116.1 L81.2,107.0 L82.8,88.6 L84.4,91.2 L86.0,79.6 L87.6,84.3 L89.3,86.3 L90.9,82.7 L92.5,49.9 L94.1,37.1 L95.7,43.5 L97.3,48.3 L98.9,54.8 L100.5,54.6 L102.1,53.4 L103.7,56.7 L105.4,52.2 L107.0,45.5 L108.6,35.9 L110.2,38.2 L111.8,43.1 L113.4,38.0 L115.0,44.1 L116.6,51.4 L118.2,61.0 L119.8,69.7 L121.5,75.8 L123.1,86.5 L124.7,83.8 L126.3,80.9 L127.9,80.2 L129.5,78.8 L131.1,78.6 L132.7,78.2 L134.3,49.5 L135.9,62.9 L137.5,34.2 L139.2,40.2 L140.8,38.4 L142.4,46.0 L144.0,16.0 L145.6,29.9 L147.2,23.6 L148.8,26.6 L150.4,32.4 L152.0,42.2 L153.6,31.5 L155.3,33.1 L156.9,44.8 L158.5,39.6 L160.1,58.1 L161.7,44.1 L163.3,43.0 L164.9,31.2 L166.5,44.8 L168.1,73.2 L169.7,80.4 L171.3,86.6 L173.0,96.6 L174.6,112.8 L176.2,105.7 L177.8,107.8 L179.4,110.7 L181.0,134.9 L182.6,134.0 L184.2,125.4 L185.8,121.0 L187.4,132.0 L189.1,122.8 L190.7,132.5 L192.3,116.8 L193.9,116.6 L195.5,113.5 L197.1,118.8 L198.7,131.7 L200.3,134.4 L201.9,111.7 L203.5,103.5 L205.1,114.6 L206.8,110.7 L208.4,119.8 L210.0,86.3 L211.6,88.5 L213.2,86.9 L214.8,89.7 L216.4,78.6 L218.0,77.0 L219.6,94.8 L221.2,72.3 L222.9,74.8 L224.5,94.3 L226.1,99.2 L227.7,102.6 L229.3,96.5 L230.9,101.2 L232.5,106.8 L234.1,115.3 L235.7,104.3 L237.3,102.5 L238.9,114.2 L240.6,113.0 L242.2,92.4 L243.8,98.5 L245.4,105.8 L247.0,116.9 L248.6,123.9 L250.2,121.8 L251.8,119.8 L253.4,126.4 L255.0,123.2 L256.7,135.2 L258.3,110.0 L259.9,108.2 L261.5,110.5 L263.1,101.9 L264.7,86.9 L266.3,87.4 L267.9,86.0 L269.5,92.5 L271.1,91.0 L272.7,96.5 L274.4,88.5 L276.0,93.7 L277.6,98.4 L279.2,89.9 L280.8,110.4 L282.4,85.3 L284.0,72.8 L285.6,61.7 L287.2,52.5 L288.8,64.2 L290.5,52.8 L292.1,60.9 L293.7,78.2 L295.3,76.0 L296.9,81.3 L298.5,74.1 L300.1,72.7 L301.7,80.0 L303.3,80.6 L304.9,87.8 L306.5,92.5 L308.2,102.3 L309.8,114.6 L311.4,101.8 L313.0,100.5 L314.6,103.1 L316.2,104.4 L317.8,103.3 L319.4,100.2 L321.0,105.5 L322.6,109.8 L324.3,108.4 L325.9,109.1 L327.5,118.9 L329.1,106.4 L330.7,97.1 L332.3,84.0 L333.9,88.9 L335.5,89.4 L337.1,88.9 L338.7,78.0 L340.4,67.9 L342.0,67.0 L343.6,77.4 L345.2,75.0 L346.8,89.7 L348.4,89.9 L350.0,90.6 L351.6,81.7 L353.2,85.3 L354.8,89.9 L356.4,95.3 L358.1,102.2 L359.7,117.7 L361.3,113.5 L362.9,113.7 L364.5,108.7 L366.1,115.1 L367.7,122.7 L369.3,124.9 L370.9,135.2 L372.5,143.0 L374.2,137.0 L375.8,140.1 L377.4,139.7 L379.0,143.4 L380.6,149.3 L382.2,152.0 L383.8,148.7 L385.4,150.9 L387.0,156.2 L388.6,153.4 L390.2,155.5 L391.9,159.4 L393.5,153.9 L395.1,154.2 L396.7,159.9 L398.3,160.0 L399.9,154.6 L401.5,155.9 L403.1,120.8 L404.7,127.5 L406.3,121.3 L408.0,113.1 L409.6,115.5 L411.2,103.5 L412.8,108.5 L414.4,108.8 L416.0,106.2 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-CCL)"/>
+    <path d="M12.0,81.4 L13.6,90.4 L15.2,85.6 L16.8,75.4 L18.4,76.8 L20.0,84.2 L21.7,83.0 L23.3,76.6 L24.9,63.4 L26.5,63.1 L28.1,69.7 L29.7,70.2 L31.3,69.9 L32.9,88.4 L34.5,88.2 L36.1,82.8 L37.8,76.9 L39.4,78.3 L41.0,109.0 L42.6,99.7 L44.2,105.9 L45.8,101.7 L47.4,99.8 L49.0,101.0 L50.6,97.0 L52.2,108.7 L53.8,110.1 L55.5,117.9 L57.1,113.1 L58.7,109.4 L60.3,118.3 L61.9,103.7 L63.5,124.9 L65.1,113.6 L66.7,117.0 L68.3,112.9 L69.9,111.1 L71.6,112.2 L73.2,109.8 L74.8,112.4 L76.4,111.8 L78.0,110.2 L79.6,116.1 L81.2,107.0 L82.8,88.6 L84.4,91.2 L86.0,79.6 L87.6,84.3 L89.3,86.3 L90.9,82.7 L92.5,49.9 L94.1,37.1 L95.7,43.5 L97.3,48.3 L98.9,54.8 L100.5,54.6 L102.1,53.4 L103.7,56.7 L105.4,52.2 L107.0,45.5 L108.6,35.9 L110.2,38.2 L111.8,43.1 L113.4,38.0 L115.0,44.1 L116.6,51.4 L118.2,61.0 L119.8,69.7 L121.5,75.8 L123.1,86.5 L124.7,83.8 L126.3,80.9 L127.9,80.2 L129.5,78.8 L131.1,78.6 L132.7,78.2 L134.3,49.5 L135.9,62.9 L137.5,34.2 L139.2,40.2 L140.8,38.4 L142.4,46.0 L144.0,16.0 L145.6,29.9 L147.2,23.6 L148.8,26.6 L150.4,32.4 L152.0,42.2 L153.6,31.5 L155.3,33.1 L156.9,44.8 L158.5,39.6 L160.1,58.1 L161.7,44.1 L163.3,43.0 L164.9,31.2 L166.5,44.8 L168.1,73.2 L169.7,80.4 L171.3,86.6 L173.0,96.6 L174.6,112.8 L176.2,105.7 L177.8,107.8 L179.4,110.7 L181.0,134.9 L182.6,134.0 L184.2,125.4 L185.8,121.0 L187.4,132.0 L189.1,122.8 L190.7,132.5 L192.3,116.8 L193.9,116.6 L195.5,113.5 L197.1,118.8 L198.7,131.7 L200.3,134.4 L201.9,111.7 L203.5,103.5 L205.1,114.6 L206.8,110.7 L208.4,119.8 L210.0,86.3 L211.6,88.5 L213.2,86.9 L214.8,89.7 L216.4,78.6 L218.0,77.0 L219.6,94.8 L221.2,72.3 L222.9,74.8 L224.5,94.3 L226.1,99.2 L227.7,102.6 L229.3,96.5 L230.9,101.2 L232.5,106.8 L234.1,115.3 L235.7,104.3 L237.3,102.5 L238.9,114.2 L240.6,113.0 L242.2,92.4 L243.8,98.5 L245.4,105.8 L247.0,116.9 L248.6,123.9 L250.2,121.8 L251.8,119.8 L253.4,126.4 L255.0,123.2 L256.7,135.2 L258.3,110.0 L259.9,108.2 L261.5,110.5 L263.1,101.9 L264.7,86.9 L266.3,87.4 L267.9,86.0 L269.5,92.5 L271.1,91.0 L272.7,96.5 L274.4,88.5 L276.0,93.7 L277.6,98.4 L279.2,89.9 L280.8,110.4 L282.4,85.3 L284.0,72.8 L285.6,61.7 L287.2,52.5 L288.8,64.2 L290.5,52.8 L292.1,60.9 L293.7,78.2 L295.3,76.0 L296.9,81.3 L298.5,74.1 L300.1,72.7 L301.7,80.0 L303.3,80.6 L304.9,87.8 L306.5,92.5 L308.2,102.3 L309.8,114.6 L311.4,101.8 L313.0,100.5 L314.6,103.1 L316.2,104.4 L317.8,103.3 L319.4,100.2 L321.0,105.5 L322.6,109.8 L324.3,108.4 L325.9,109.1 L327.5,118.9 L329.1,106.4 L330.7,97.1 L332.3,84.0 L333.9,88.9 L335.5,89.4 L337.1,88.9 L338.7,78.0 L340.4,67.9 L342.0,67.0 L343.6,77.4 L345.2,75.0 L346.8,89.7 L348.4,89.9 L350.0,90.6 L351.6,81.7 L353.2,85.3 L354.8,89.9 L356.4,95.3 L358.1,102.2 L359.7,117.7 L361.3,113.5 L362.9,113.7 L364.5,108.7 L366.1,115.1 L367.7,122.7 L369.3,124.9 L370.9,135.2 L372.5,143.0 L374.2,137.0 L375.8,140.1 L377.4,139.7 L379.0,143.4 L380.6,149.3 L382.2,152.0 L383.8,148.7 L385.4,150.9 L387.0,156.2 L388.6,153.4 L390.2,155.5 L391.9,159.4 L393.5,153.9 L395.1,154.2 L396.7,159.9 L398.3,160.0 L399.9,154.6 L401.5,155.9 L403.1,120.8 L404.7,127.5 L406.3,121.3 L408.0,113.1 L409.6,115.5 L411.2,103.5 L412.8,108.5 L414.4,108.8 L416.0,106.2" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="106.2" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$26.35</text>
+    <text x="474" y="81.4" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$28.45</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+2.3%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+16.1%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−1.4%</strong></div><div class="perf-chip down"><span class="perf-label">YTD</span><strong class="perf-value">−13.7%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−7.4%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+30.4%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+10.6%</strong></div><div class="perf-chip down"><span class="perf-label">10Y</span><strong class="perf-value">−44.8%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+569.2%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$35.4B</strong></span>
+      <span>P/E: <strong>11.3</strong></span>
+      <span>Net Income: <strong>$3.14B</strong></span>
+    </div>
+
+    <p class="summary">Carnival Corporation (CCL): $26.35 (−7.4% 1Y). Performance: 1W +2.3%, 1M +16.1%, 3M −1.4%, YTD −13.7%, 1Y −7.4%, 5Y +10.6%. Market Cap: $35.4B, P/E: 11.3, Net Income: $3.14B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=CCL">Open CCL in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=CCL");</script>
+</body>
+</html>

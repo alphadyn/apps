@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>WELL · Welltower — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Welltower (WELL): $225.47 (+34.8% 1Y). Performance: 1W −1.0%, 1M −4.4%, 3M −2.9%, YTD +21.5%, 1Y +34.8%, 5Y +172.7%. Market Cap: $163B, P/E: 115.5, Net Income: $1.41B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/WELL/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/WELL/">
+  <meta property="og:title" content="WELL · Welltower — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Welltower (WELL): $225.47 (+34.8% 1Y). Performance: 1W −1.0%, 1M −4.4%, 3M −2.9%, YTD +21.5%, 1Y +34.8%, 5Y +172.7%. Market Cap: $163B, P/E: 115.5, Net Income: $1.41B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="WELL · Welltower — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="WELL · Welltower — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Welltower (WELL): $225.47 (+34.8% 1Y). Performance: 1W −1.0%, 1M −4.4%, 3M −2.9%, YTD +21.5%, 1Y +34.8%, 5Y +172.7%. Market Cap: $163B, P/E: 115.5, Net Income: $1.41B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">WELL</span>
+    <h1>Welltower</h1>
+    <div class="quote-row">
+      <span class="price">$225.47</span>
+      <span class="change up">+34.8% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+34.8%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for WELL">
+    <defs>
+      <linearGradient id="chart-fill-WELL" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="157.8" x2="416" y2="157.8" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,157.8 L13.6,160.0 L15.2,158.5 L16.8,154.3 L18.4,149.3 L20.0,149.7 L21.7,144.7 L23.3,140.3 L24.9,144.7 L26.5,143.3 L28.1,143.1 L29.7,139.9 L31.3,132.1 L32.9,137.0 L34.5,141.6 L36.1,135.0 L37.8,134.8 L39.4,132.6 L41.0,129.2 L42.6,125.9 L44.2,123.5 L45.8,119.4 L47.4,118.0 L49.0,115.9 L50.6,117.0 L52.2,118.0 L53.8,113.4 L55.5,107.6 L57.1,105.9 L58.7,108.2 L60.3,107.1 L61.9,103.2 L63.5,99.2 L65.1,95.4 L66.7,92.6 L68.3,89.3 L69.9,96.5 L71.6,97.7 L73.2,99.8 L74.8,96.6 L76.4,95.8 L78.0,101.6 L79.6,110.1 L81.2,118.0 L82.8,128.2 L84.4,125.2 L86.0,119.0 L87.6,119.1 L89.3,121.2 L90.9,124.0 L92.5,126.4 L94.1,125.7 L95.7,125.0 L97.3,123.6 L98.9,123.4 L100.5,120.4 L102.1,123.1 L103.7,127.1 L105.4,124.9 L107.0,128.6 L108.6,127.0 L110.2,127.0 L111.8,125.9 L113.4,126.3 L115.0,125.3 L116.6,122.7 L118.2,121.9 L119.8,122.8 L121.5,117.5 L123.1,123.1 L124.7,126.5 L126.3,133.2 L127.9,130.3 L129.5,130.4 L131.1,130.7 L132.7,129.9 L134.3,127.0 L135.9,122.5 L137.5,124.1 L139.2,124.0 L140.8,127.3 L142.4,118.0 L144.0,109.9 L145.6,107.7 L147.2,101.7 L148.8,89.9 L150.4,89.4 L152.0,85.1 L153.6,77.2 L155.3,88.7 L156.9,89.7 L158.5,89.4 L160.1,87.1 L161.7,87.5 L163.3,89.3 L164.9,88.9 L166.5,91.2 L168.1,86.1 L169.7,89.7 L171.3,91.6 L173.0,94.6 L174.6,95.9 L176.2,90.2 L177.8,90.1 L179.4,94.1 L181.0,92.7 L182.6,90.0 L184.2,86.0 L185.8,81.1 L187.4,87.7 L189.1,92.9 L190.7,109.8 L192.3,111.4 L193.9,108.7 L195.5,108.5 L197.1,110.5 L198.7,110.1 L200.3,110.9 L201.9,106.9 L203.5,105.0 L205.1,99.2 L206.8,101.5 L208.4,100.4 L210.0,95.2 L211.6,92.5 L213.2,90.4 L214.8,91.4 L216.4,84.7 L218.0,84.1 L219.6,78.8 L221.2,85.5 L222.9,87.3 L224.5,92.4 L226.1,103.6 L227.7,89.3 L229.3,88.4 L230.9,86.3 L232.5,79.3 L234.1,82.8 L235.7,74.1 L237.3,74.8 L238.9,74.4 L240.6,79.1 L242.2,75.5 L243.8,81.4 L245.4,78.6 L247.0,78.2 L248.6,73.8 L250.2,69.4 L251.8,73.4 L253.4,80.1 L255.0,82.0 L256.7,73.0 L258.3,71.9 L259.9,76.3 L261.5,76.0 L263.1,72.7 L264.7,79.3 L266.3,85.9 L267.9,94.1 L269.5,107.5 L271.1,110.8 L272.7,103.7 L274.4,101.6 L276.0,91.5 L277.6,103.1 L279.2,91.7 L280.8,84.1 L282.4,85.2 L284.0,79.3 L285.6,81.6 L287.2,80.5 L288.8,92.1 L290.5,91.9 L292.1,83.9 L293.7,73.5 L295.3,67.2 L296.9,63.4 L298.5,57.4 L300.1,56.7 L301.7,58.0 L303.3,52.6 L304.9,42.8 L306.5,48.4 L308.2,40.2 L309.8,46.4 L311.4,49.4 L313.0,50.2 L314.6,45.3 L316.2,42.9 L317.8,47.4 L319.4,33.7 L321.0,30.7 L322.6,28.1 L324.3,25.5 L325.9,27.8 L327.5,24.4 L329.1,16.0 L330.7,22.2 L332.3,30.2 L333.9,34.4 L335.5,43.5 L337.1,45.5 L338.7,47.7 L340.4,50.3 L342.0,40.8 L343.6,42.9 L345.2,41.3 L346.8,44.5 L348.4,59.6 L350.0,52.4 L351.6,45.5 L353.2,43.7 L354.8,44.0 L356.4,43.8 L358.1,43.3 L359.7,40.5 L361.3,37.5 L362.9,36.2 L364.5,34.3 L366.1,33.6 L367.7,36.8 L369.3,39.4 L370.9,42.5 L372.5,35.5 L374.2,38.5 L375.8,34.3 L377.4,42.6 L379.0,40.8 L380.6,43.0 L382.2,43.4 L383.8,43.5 L385.4,45.9 L387.0,48.3 L388.6,45.4 L390.2,49.1 L391.9,54.8 L393.5,48.3 L395.1,52.2 L396.7,53.1 L398.3,46.9 L399.9,50.6 L401.5,47.9 L403.1,48.1 L404.7,52.5 L406.3,58.0 L408.0,56.7 L409.6,62.7 L411.2,60.0 L412.8,67.7 L414.4,64.5 L416.0,60.5 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-WELL)"/>
+    <path d="M12.0,157.8 L13.6,160.0 L15.2,158.5 L16.8,154.3 L18.4,149.3 L20.0,149.7 L21.7,144.7 L23.3,140.3 L24.9,144.7 L26.5,143.3 L28.1,143.1 L29.7,139.9 L31.3,132.1 L32.9,137.0 L34.5,141.6 L36.1,135.0 L37.8,134.8 L39.4,132.6 L41.0,129.2 L42.6,125.9 L44.2,123.5 L45.8,119.4 L47.4,118.0 L49.0,115.9 L50.6,117.0 L52.2,118.0 L53.8,113.4 L55.5,107.6 L57.1,105.9 L58.7,108.2 L60.3,107.1 L61.9,103.2 L63.5,99.2 L65.1,95.4 L66.7,92.6 L68.3,89.3 L69.9,96.5 L71.6,97.7 L73.2,99.8 L74.8,96.6 L76.4,95.8 L78.0,101.6 L79.6,110.1 L81.2,118.0 L82.8,128.2 L84.4,125.2 L86.0,119.0 L87.6,119.1 L89.3,121.2 L90.9,124.0 L92.5,126.4 L94.1,125.7 L95.7,125.0 L97.3,123.6 L98.9,123.4 L100.5,120.4 L102.1,123.1 L103.7,127.1 L105.4,124.9 L107.0,128.6 L108.6,127.0 L110.2,127.0 L111.8,125.9 L113.4,126.3 L115.0,125.3 L116.6,122.7 L118.2,121.9 L119.8,122.8 L121.5,117.5 L123.1,123.1 L124.7,126.5 L126.3,133.2 L127.9,130.3 L129.5,130.4 L131.1,130.7 L132.7,129.9 L134.3,127.0 L135.9,122.5 L137.5,124.1 L139.2,124.0 L140.8,127.3 L142.4,118.0 L144.0,109.9 L145.6,107.7 L147.2,101.7 L148.8,89.9 L150.4,89.4 L152.0,85.1 L153.6,77.2 L155.3,88.7 L156.9,89.7 L158.5,89.4 L160.1,87.1 L161.7,87.5 L163.3,89.3 L164.9,88.9 L166.5,91.2 L168.1,86.1 L169.7,89.7 L171.3,91.6 L173.0,94.6 L174.6,95.9 L176.2,90.2 L177.8,90.1 L179.4,94.1 L181.0,92.7 L182.6,90.0 L184.2,86.0 L185.8,81.1 L187.4,87.7 L189.1,92.9 L190.7,109.8 L192.3,111.4 L193.9,108.7 L195.5,108.5 L197.1,110.5 L198.7,110.1 L200.3,110.9 L201.9,106.9 L203.5,105.0 L205.1,99.2 L206.8,101.5 L208.4,100.4 L210.0,95.2 L211.6,92.5 L213.2,90.4 L214.8,91.4 L216.4,84.7 L218.0,84.1 L219.6,78.8 L221.2,85.5 L222.9,87.3 L224.5,92.4 L226.1,103.6 L227.7,89.3 L229.3,88.4 L230.9,86.3 L232.5,79.3 L234.1,82.8 L235.7,74.1 L237.3,74.8 L238.9,74.4 L240.6,79.1 L242.2,75.5 L243.8,81.4 L245.4,78.6 L247.0,78.2 L248.6,73.8 L250.2,69.4 L251.8,73.4 L253.4,80.1 L255.0,82.0 L256.7,73.0 L258.3,71.9 L259.9,76.3 L261.5,76.0 L263.1,72.7 L264.7,79.3 L266.3,85.9 L267.9,94.1 L269.5,107.5 L271.1,110.8 L272.7,103.7 L274.4,101.6 L276.0,91.5 L277.6,103.1 L279.2,91.7 L280.8,84.1 L282.4,85.2 L284.0,79.3 L285.6,81.6 L287.2,80.5 L288.8,92.1 L290.5,91.9 L292.1,83.9 L293.7,73.5 L295.3,67.2 L296.9,63.4 L298.5,57.4 L300.1,56.7 L301.7,58.0 L303.3,52.6 L304.9,42.8 L306.5,48.4 L308.2,40.2 L309.8,46.4 L311.4,49.4 L313.0,50.2 L314.6,45.3 L316.2,42.9 L317.8,47.4 L319.4,33.7 L321.0,30.7 L322.6,28.1 L324.3,25.5 L325.9,27.8 L327.5,24.4 L329.1,16.0 L330.7,22.2 L332.3,30.2 L333.9,34.4 L335.5,43.5 L337.1,45.5 L338.7,47.7 L340.4,50.3 L342.0,40.8 L343.6,42.9 L345.2,41.3 L346.8,44.5 L348.4,59.6 L350.0,52.4 L351.6,45.5 L353.2,43.7 L354.8,44.0 L356.4,43.8 L358.1,43.3 L359.7,40.5 L361.3,37.5 L362.9,36.2 L364.5,34.3 L366.1,33.6 L367.7,36.8 L369.3,39.4 L370.9,42.5 L372.5,35.5 L374.2,38.5 L375.8,34.3 L377.4,42.6 L379.0,40.8 L380.6,43.0 L382.2,43.4 L383.8,43.5 L385.4,45.9 L387.0,48.3 L388.6,45.4 L390.2,49.1 L391.9,54.8 L393.5,48.3 L395.1,52.2 L396.7,53.1 L398.3,46.9 L399.9,50.6 L401.5,47.9 L403.1,48.1 L404.7,52.5 L406.3,58.0 L408.0,56.7 L409.6,62.7 L411.2,60.0 L412.8,67.7 L414.4,64.5 L416.0,60.5" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="60.5" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$225.47</text>
+    <text x="474" y="157.8" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$167.27</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip down"><span class="perf-label">1W</span><strong class="perf-value">−1.0%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−4.4%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−2.9%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+21.5%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+34.8%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+81.3%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+172.7%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+224.2%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+3369%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$163B</strong></span>
+      <span>P/E: <strong>115.5</strong></span>
+      <span>Net Income: <strong>$1.41B</strong></span>
+    </div>
+
+    <p class="summary">Welltower (WELL): $225.47 (+34.8% 1Y). Performance: 1W −1.0%, 1M −4.4%, 3M −2.9%, YTD +21.5%, 1Y +34.8%, 5Y +172.7%. Market Cap: $163B, P/E: 115.5, Net Income: $1.41B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=WELL">Open WELL in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=WELL");</script>
+</body>
+</html>

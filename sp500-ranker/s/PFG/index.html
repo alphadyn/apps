@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>PFG · Principal Financial Group — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Principal Financial Group (PFG): $107.24 (+29.7% 1Y). Performance: 1W −4.2%, 1M −5.9%, 3M −4.0%, YTD +21.6%, 1Y +29.7%, 5Y +55.6%. Market Cap: $23.0B, P/E: 14.7, Net Income: $1.56B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/PFG/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/PFG/">
+  <meta property="og:title" content="PFG · Principal Financial Group — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Principal Financial Group (PFG): $107.24 (+29.7% 1Y). Performance: 1W −4.2%, 1M −5.9%, 3M −4.0%, YTD +21.6%, 1Y +29.7%, 5Y +55.6%. Market Cap: $23.0B, P/E: 14.7, Net Income: $1.56B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="PFG · Principal Financial Group — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="PFG · Principal Financial Group — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Principal Financial Group (PFG): $107.24 (+29.7% 1Y). Performance: 1W −4.2%, 1M −5.9%, 3M −4.0%, YTD +21.6%, 1Y +29.7%, 5Y +55.6%. Market Cap: $23.0B, P/E: 14.7, Net Income: $1.56B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">PFG</span>
+    <h1>Principal Financial Group</h1>
+    <div class="quote-row">
+      <span class="price">$107.24</span>
+      <span class="change up">+29.7% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+29.7%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for PFG">
+    <defs>
+      <linearGradient id="chart-fill-PFG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="144.6" x2="416" y2="144.6" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,144.6 L13.6,156.3 L15.2,155.4 L16.8,149.6 L18.4,151.0 L20.0,160.0 L21.7,159.1 L23.3,157.9 L24.9,156.4 L26.5,157.3 L28.1,156.2 L29.7,155.6 L31.3,155.8 L32.9,146.3 L34.5,145.5 L36.1,144.4 L37.8,139.7 L39.4,143.4 L41.0,146.8 L42.6,150.1 L44.2,145.5 L45.8,144.0 L47.4,141.4 L49.0,138.5 L50.6,135.3 L52.2,137.6 L53.8,138.2 L55.5,150.6 L57.1,146.4 L58.7,143.1 L60.3,145.8 L61.9,138.8 L63.5,137.9 L65.1,137.4 L66.7,137.7 L68.3,136.9 L69.9,138.2 L71.6,138.7 L73.2,132.9 L74.8,132.9 L76.4,127.2 L78.0,129.5 L79.6,124.8 L81.2,117.5 L82.8,112.8 L84.4,118.5 L86.0,116.1 L87.6,120.0 L89.3,120.6 L90.9,120.7 L92.5,122.1 L94.1,121.1 L95.7,120.1 L97.3,119.8 L98.9,120.6 L100.5,121.8 L102.1,122.3 L103.7,124.8 L105.4,120.4 L107.0,116.5 L108.6,111.9 L110.2,115.2 L111.8,112.1 L113.4,117.3 L115.0,117.6 L116.6,121.8 L118.2,114.0 L119.8,114.8 L121.5,123.8 L123.1,123.6 L124.7,114.4 L126.3,110.6 L127.9,114.0 L129.5,107.6 L131.1,110.3 L132.7,103.8 L134.3,101.2 L135.9,101.4 L137.5,96.8 L139.2,99.3 L140.8,95.4 L142.4,98.6 L144.0,92.0 L145.6,97.0 L147.2,105.3 L148.8,108.2 L150.4,116.5 L152.0,116.9 L153.6,111.2 L155.3,109.5 L156.9,110.6 L158.5,97.7 L160.1,108.7 L161.7,100.9 L163.3,101.5 L164.9,91.4 L166.5,98.9 L168.1,97.4 L169.7,105.2 L171.3,105.8 L173.0,105.8 L174.6,110.2 L176.2,116.1 L177.8,119.3 L179.4,124.8 L181.0,132.0 L182.6,133.3 L184.2,131.1 L185.8,126.5 L187.4,130.2 L189.1,133.0 L190.7,136.0 L192.3,130.7 L193.9,126.5 L195.5,122.9 L197.1,122.1 L198.7,129.1 L200.3,124.7 L201.9,117.9 L203.5,118.0 L205.1,118.0 L206.8,114.3 L208.4,114.5 L210.0,103.3 L211.6,110.0 L213.2,111.9 L214.8,105.6 L216.4,103.5 L218.0,101.5 L219.6,104.0 L221.2,96.2 L222.9,96.1 L224.5,97.8 L226.1,91.7 L227.7,93.2 L229.3,84.8 L230.9,83.4 L232.5,82.2 L234.1,83.8 L235.7,79.2 L237.3,78.5 L238.9,84.4 L240.6,79.3 L242.2,76.9 L243.8,82.3 L245.4,80.6 L247.0,81.8 L248.6,79.4 L250.2,80.9 L251.8,79.7 L253.4,80.5 L255.0,73.8 L256.7,78.3 L258.3,72.4 L259.9,68.4 L261.5,68.6 L263.1,65.5 L264.7,66.0 L266.3,70.5 L267.9,69.4 L269.5,72.0 L271.1,70.6 L272.7,78.2 L274.4,69.8 L276.0,63.7 L277.6,64.4 L279.2,58.5 L280.8,49.4 L282.4,47.7 L284.0,42.5 L285.6,44.4 L287.2,42.3 L288.8,45.8 L290.5,48.1 L292.1,42.1 L293.7,38.1 L295.3,58.4 L296.9,62.9 L298.5,54.6 L300.1,51.9 L301.7,54.5 L303.3,50.4 L304.9,43.4 L306.5,37.4 L308.2,36.2 L309.8,43.9 L311.4,40.6 L313.0,38.5 L314.6,33.6 L316.2,36.1 L317.8,35.9 L319.4,35.3 L321.0,32.4 L322.6,39.2 L324.3,48.1 L325.9,52.8 L327.5,56.2 L329.1,48.7 L330.7,41.9 L332.3,31.9 L333.9,35.1 L335.5,32.4 L337.1,33.3 L338.7,28.1 L340.4,27.7 L342.0,29.1 L343.6,27.1 L345.2,34.3 L346.8,32.9 L348.4,35.7 L350.0,33.0 L351.6,28.8 L353.2,32.3 L354.8,35.9 L356.4,35.3 L358.1,40.7 L359.7,44.6 L361.3,43.9 L362.9,39.8 L364.5,40.8 L366.1,38.6 L367.7,38.8 L369.3,41.5 L370.9,46.0 L372.5,48.8 L374.2,41.8 L375.8,16.0 L377.4,22.6 L379.0,28.5 L380.6,32.1 L382.2,28.7 L383.8,24.4 L385.4,21.8 L387.0,16.5 L388.6,22.7 L390.2,25.2 L391.9,19.0 L393.5,23.3 L395.1,33.7 L396.7,32.5 L398.3,31.6 L399.9,29.4 L401.5,29.9 L403.1,32.3 L404.7,39.5 L406.3,38.5 L408.0,39.5 L409.6,42.8 L411.2,47.6 L412.8,51.1 L414.4,47.4 L416.0,56.5 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-PFG)"/>
+    <path d="M12.0,144.6 L13.6,156.3 L15.2,155.4 L16.8,149.6 L18.4,151.0 L20.0,160.0 L21.7,159.1 L23.3,157.9 L24.9,156.4 L26.5,157.3 L28.1,156.2 L29.7,155.6 L31.3,155.8 L32.9,146.3 L34.5,145.5 L36.1,144.4 L37.8,139.7 L39.4,143.4 L41.0,146.8 L42.6,150.1 L44.2,145.5 L45.8,144.0 L47.4,141.4 L49.0,138.5 L50.6,135.3 L52.2,137.6 L53.8,138.2 L55.5,150.6 L57.1,146.4 L58.7,143.1 L60.3,145.8 L61.9,138.8 L63.5,137.9 L65.1,137.4 L66.7,137.7 L68.3,136.9 L69.9,138.2 L71.6,138.7 L73.2,132.9 L74.8,132.9 L76.4,127.2 L78.0,129.5 L79.6,124.8 L81.2,117.5 L82.8,112.8 L84.4,118.5 L86.0,116.1 L87.6,120.0 L89.3,120.6 L90.9,120.7 L92.5,122.1 L94.1,121.1 L95.7,120.1 L97.3,119.8 L98.9,120.6 L100.5,121.8 L102.1,122.3 L103.7,124.8 L105.4,120.4 L107.0,116.5 L108.6,111.9 L110.2,115.2 L111.8,112.1 L113.4,117.3 L115.0,117.6 L116.6,121.8 L118.2,114.0 L119.8,114.8 L121.5,123.8 L123.1,123.6 L124.7,114.4 L126.3,110.6 L127.9,114.0 L129.5,107.6 L131.1,110.3 L132.7,103.8 L134.3,101.2 L135.9,101.4 L137.5,96.8 L139.2,99.3 L140.8,95.4 L142.4,98.6 L144.0,92.0 L145.6,97.0 L147.2,105.3 L148.8,108.2 L150.4,116.5 L152.0,116.9 L153.6,111.2 L155.3,109.5 L156.9,110.6 L158.5,97.7 L160.1,108.7 L161.7,100.9 L163.3,101.5 L164.9,91.4 L166.5,98.9 L168.1,97.4 L169.7,105.2 L171.3,105.8 L173.0,105.8 L174.6,110.2 L176.2,116.1 L177.8,119.3 L179.4,124.8 L181.0,132.0 L182.6,133.3 L184.2,131.1 L185.8,126.5 L187.4,130.2 L189.1,133.0 L190.7,136.0 L192.3,130.7 L193.9,126.5 L195.5,122.9 L197.1,122.1 L198.7,129.1 L200.3,124.7 L201.9,117.9 L203.5,118.0 L205.1,118.0 L206.8,114.3 L208.4,114.5 L210.0,103.3 L211.6,110.0 L213.2,111.9 L214.8,105.6 L216.4,103.5 L218.0,101.5 L219.6,104.0 L221.2,96.2 L222.9,96.1 L224.5,97.8 L226.1,91.7 L227.7,93.2 L229.3,84.8 L230.9,83.4 L232.5,82.2 L234.1,83.8 L235.7,79.2 L237.3,78.5 L238.9,84.4 L240.6,79.3 L242.2,76.9 L243.8,82.3 L245.4,80.6 L247.0,81.8 L248.6,79.4 L250.2,80.9 L251.8,79.7 L253.4,80.5 L255.0,73.8 L256.7,78.3 L258.3,72.4 L259.9,68.4 L261.5,68.6 L263.1,65.5 L264.7,66.0 L266.3,70.5 L267.9,69.4 L269.5,72.0 L271.1,70.6 L272.7,78.2 L274.4,69.8 L276.0,63.7 L277.6,64.4 L279.2,58.5 L280.8,49.4 L282.4,47.7 L284.0,42.5 L285.6,44.4 L287.2,42.3 L288.8,45.8 L290.5,48.1 L292.1,42.1 L293.7,38.1 L295.3,58.4 L296.9,62.9 L298.5,54.6 L300.1,51.9 L301.7,54.5 L303.3,50.4 L304.9,43.4 L306.5,37.4 L308.2,36.2 L309.8,43.9 L311.4,40.6 L313.0,38.5 L314.6,33.6 L316.2,36.1 L317.8,35.9 L319.4,35.3 L321.0,32.4 L322.6,39.2 L324.3,48.1 L325.9,52.8 L327.5,56.2 L329.1,48.7 L330.7,41.9 L332.3,31.9 L333.9,35.1 L335.5,32.4 L337.1,33.3 L338.7,28.1 L340.4,27.7 L342.0,29.1 L343.6,27.1 L345.2,34.3 L346.8,32.9 L348.4,35.7 L350.0,33.0 L351.6,28.8 L353.2,32.3 L354.8,35.9 L356.4,35.3 L358.1,40.7 L359.7,44.6 L361.3,43.9 L362.9,39.8 L364.5,40.8 L366.1,38.6 L367.7,38.8 L369.3,41.5 L370.9,46.0 L372.5,48.8 L374.2,41.8 L375.8,16.0 L377.4,22.6 L379.0,28.5 L380.6,32.1 L382.2,28.7 L383.8,24.4 L385.4,21.8 L387.0,16.5 L388.6,22.7 L390.2,25.2 L391.9,19.0 L393.5,23.3 L395.1,33.7 L396.7,32.5 L398.3,31.6 L399.9,29.4 L401.5,29.9 L403.1,32.3 L404.7,39.5 L406.3,38.5 L408.0,39.5 L409.6,42.8 L411.2,47.6 L412.8,51.1 L414.4,47.4 L416.0,56.5" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="56.5" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$107.24</text>
+    <text x="474" y="144.6" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$82.69</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip down"><span class="perf-label">1W</span><strong class="perf-value">−4.2%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−5.9%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−4.0%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+21.6%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+29.7%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+22.5%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+55.6%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+105.2%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+398.8%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$23.0B</strong></span>
+      <span>P/E: <strong>14.7</strong></span>
+      <span>Net Income: <strong>$1.56B</strong></span>
+    </div>
+
+    <p class="summary">Principal Financial Group (PFG): $107.24 (+29.7% 1Y). Performance: 1W −4.2%, 1M −5.9%, 3M −4.0%, YTD +21.6%, 1Y +29.7%, 5Y +55.6%. Market Cap: $23.0B, P/E: 14.7, Net Income: $1.56B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=PFG">Open PFG in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=PFG");</script>
+</body>
+</html>

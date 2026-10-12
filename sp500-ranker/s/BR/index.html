@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>BR · Broadridge Financial Solutions — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Broadridge Financial Solutions (BR): $165.45 (−29.3% 1Y). Performance: 1W +5.4%, 1M −1.6%, 3M +12.3%, YTD −25.9%, 1Y −29.3%, 5Y −2.1%. Market Cap: $18.7B, P/E: 16.6, Net Income: $1.12B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/BR/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/BR/">
+  <meta property="og:title" content="BR · Broadridge Financial Solutions — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Broadridge Financial Solutions (BR): $165.45 (−29.3% 1Y). Performance: 1W +5.4%, 1M −1.6%, 3M +12.3%, YTD −25.9%, 1Y −29.3%, 5Y −2.1%. Market Cap: $18.7B, P/E: 16.6, Net Income: $1.12B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="BR · Broadridge Financial Solutions — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="BR · Broadridge Financial Solutions — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Broadridge Financial Solutions (BR): $165.45 (−29.3% 1Y). Performance: 1W +5.4%, 1M −1.6%, 3M +12.3%, YTD −25.9%, 1Y −29.3%, 5Y −2.1%. Market Cap: $18.7B, P/E: 16.6, Net Income: $1.12B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">BR</span>
+    <h1>Broadridge Financial Solutions</h1>
+    <div class="quote-row">
+      <span class="price">$165.45</span>
+      <span class="change down">−29.3% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−29.3%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for BR">
+    <defs>
+      <linearGradient id="chart-fill-BR" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="17.3" x2="416" y2="17.3" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,17.3 L13.6,19.1 L15.2,19.4 L16.8,16.0 L18.4,21.1 L20.0,28.5 L21.7,24.7 L23.3,22.3 L24.9,19.9 L26.5,19.0 L28.1,20.2 L29.7,19.9 L31.3,20.5 L32.9,23.5 L34.5,37.9 L36.1,36.3 L37.8,37.1 L39.4,36.0 L41.0,33.6 L42.6,39.8 L44.2,41.3 L45.8,35.2 L47.4,33.1 L49.0,33.6 L50.6,32.4 L52.2,29.6 L53.8,28.9 L55.5,30.8 L57.1,30.6 L58.7,28.6 L60.3,27.4 L61.9,25.6 L63.5,28.7 L65.1,25.8 L66.7,26.7 L68.3,26.0 L69.9,28.2 L71.6,26.7 L73.2,22.6 L74.8,22.0 L76.4,20.3 L78.0,26.8 L79.6,30.0 L81.2,27.7 L82.8,21.1 L84.4,23.2 L86.0,24.4 L87.6,26.9 L89.3,25.0 L90.9,28.1 L92.5,29.1 L94.1,25.8 L95.7,27.1 L97.3,25.6 L98.9,25.9 L100.5,27.0 L102.1,30.1 L103.7,33.1 L105.4,37.0 L107.0,33.6 L108.6,35.2 L110.2,38.5 L111.8,33.5 L113.4,32.8 L115.0,33.3 L116.6,36.0 L118.2,36.3 L119.8,38.6 L121.5,39.7 L123.1,53.2 L124.7,56.7 L126.3,52.5 L127.9,55.7 L129.5,53.8 L131.1,57.3 L132.7,59.6 L134.3,72.5 L135.9,70.8 L137.5,69.0 L139.2,87.0 L140.8,80.9 L142.4,76.0 L144.0,92.8 L145.6,94.0 L147.2,106.4 L148.8,113.6 L150.4,109.3 L152.0,104.7 L153.6,104.0 L155.3,98.3 L156.9,101.0 L158.5,99.9 L160.1,101.7 L161.7,98.8 L163.3,99.4 L164.9,90.8 L166.5,87.1 L168.1,86.2 L169.7,84.7 L171.3,82.9 L173.0,79.8 L174.6,71.1 L176.2,82.5 L177.8,86.0 L179.4,91.0 L181.0,99.3 L182.6,98.0 L184.2,97.6 L185.8,98.2 L187.4,102.9 L189.1,103.7 L190.7,103.7 L192.3,108.8 L193.9,117.8 L195.5,119.6 L197.1,124.7 L198.7,128.2 L200.3,119.5 L201.9,120.9 L203.5,124.5 L205.1,123.1 L206.8,120.9 L208.4,124.6 L210.0,123.1 L211.6,132.0 L213.2,137.3 L214.8,128.3 L216.4,126.5 L218.0,123.3 L219.6,121.0 L221.2,120.3 L222.9,122.6 L224.5,121.8 L226.1,123.6 L227.7,130.3 L229.3,131.6 L230.9,129.7 L232.5,126.2 L234.1,123.4 L235.7,133.2 L237.3,131.4 L238.9,133.4 L240.6,135.8 L242.2,134.9 L243.8,134.8 L245.4,139.7 L247.0,140.2 L248.6,139.6 L250.2,147.7 L251.8,148.5 L253.4,145.3 L255.0,138.0 L256.7,139.8 L258.3,140.1 L259.9,138.9 L261.5,138.2 L263.1,143.4 L264.7,143.1 L266.3,139.3 L267.9,133.6 L269.5,124.5 L271.1,132.0 L272.7,135.2 L274.4,133.0 L276.0,137.0 L277.6,140.4 L279.2,138.9 L280.8,144.1 L282.4,146.4 L284.0,146.4 L285.6,149.4 L287.2,147.8 L288.8,153.9 L290.5,156.9 L292.1,158.9 L293.7,158.7 L295.3,153.3 L296.9,158.8 L298.5,156.4 L300.1,160.0 L301.7,157.8 L303.3,152.1 L304.9,147.7 L306.5,146.5 L308.2,141.0 L309.8,143.2 L311.4,142.8 L313.0,142.6 L314.6,137.4 L316.2,144.7 L317.8,142.7 L319.4,134.5 L321.0,139.1 L322.6,138.9 L324.3,146.2 L325.9,147.4 L327.5,147.0 L329.1,140.5 L330.7,134.9 L332.3,127.1 L333.9,125.6 L335.5,132.0 L337.1,133.2 L338.7,128.3 L340.4,112.3 L342.0,119.5 L343.6,117.6 L345.2,115.1 L346.8,105.1 L348.4,109.0 L350.0,111.1 L351.6,106.8 L353.2,108.6 L354.8,113.1 L356.4,110.2 L358.1,101.3 L359.7,97.7 L361.3,92.4 L362.9,87.7 L364.5,88.6 L366.1,93.2 L367.7,91.1 L369.3,90.3 L370.9,92.1 L372.5,95.0 L374.2,98.4 L375.8,97.1 L377.4,105.9 L379.0,112.0 L380.6,112.8 L382.2,112.6 L383.8,113.3 L385.4,103.7 L387.0,109.7 L388.6,114.2 L390.2,118.2 L391.9,120.0 L393.5,117.8 L395.1,120.1 L396.7,119.5 L398.3,120.6 L399.9,119.0 L401.5,120.3 L403.1,123.1 L404.7,122.9 L406.3,122.8 L408.0,128.9 L409.6,125.8 L411.2,126.4 L412.8,124.3 L414.4,116.9 L416.0,116.6 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-BR)"/>
+    <path d="M12.0,17.3 L13.6,19.1 L15.2,19.4 L16.8,16.0 L18.4,21.1 L20.0,28.5 L21.7,24.7 L23.3,22.3 L24.9,19.9 L26.5,19.0 L28.1,20.2 L29.7,19.9 L31.3,20.5 L32.9,23.5 L34.5,37.9 L36.1,36.3 L37.8,37.1 L39.4,36.0 L41.0,33.6 L42.6,39.8 L44.2,41.3 L45.8,35.2 L47.4,33.1 L49.0,33.6 L50.6,32.4 L52.2,29.6 L53.8,28.9 L55.5,30.8 L57.1,30.6 L58.7,28.6 L60.3,27.4 L61.9,25.6 L63.5,28.7 L65.1,25.8 L66.7,26.7 L68.3,26.0 L69.9,28.2 L71.6,26.7 L73.2,22.6 L74.8,22.0 L76.4,20.3 L78.0,26.8 L79.6,30.0 L81.2,27.7 L82.8,21.1 L84.4,23.2 L86.0,24.4 L87.6,26.9 L89.3,25.0 L90.9,28.1 L92.5,29.1 L94.1,25.8 L95.7,27.1 L97.3,25.6 L98.9,25.9 L100.5,27.0 L102.1,30.1 L103.7,33.1 L105.4,37.0 L107.0,33.6 L108.6,35.2 L110.2,38.5 L111.8,33.5 L113.4,32.8 L115.0,33.3 L116.6,36.0 L118.2,36.3 L119.8,38.6 L121.5,39.7 L123.1,53.2 L124.7,56.7 L126.3,52.5 L127.9,55.7 L129.5,53.8 L131.1,57.3 L132.7,59.6 L134.3,72.5 L135.9,70.8 L137.5,69.0 L139.2,87.0 L140.8,80.9 L142.4,76.0 L144.0,92.8 L145.6,94.0 L147.2,106.4 L148.8,113.6 L150.4,109.3 L152.0,104.7 L153.6,104.0 L155.3,98.3 L156.9,101.0 L158.5,99.9 L160.1,101.7 L161.7,98.8 L163.3,99.4 L164.9,90.8 L166.5,87.1 L168.1,86.2 L169.7,84.7 L171.3,82.9 L173.0,79.8 L174.6,71.1 L176.2,82.5 L177.8,86.0 L179.4,91.0 L181.0,99.3 L182.6,98.0 L184.2,97.6 L185.8,98.2 L187.4,102.9 L189.1,103.7 L190.7,103.7 L192.3,108.8 L193.9,117.8 L195.5,119.6 L197.1,124.7 L198.7,128.2 L200.3,119.5 L201.9,120.9 L203.5,124.5 L205.1,123.1 L206.8,120.9 L208.4,124.6 L210.0,123.1 L211.6,132.0 L213.2,137.3 L214.8,128.3 L216.4,126.5 L218.0,123.3 L219.6,121.0 L221.2,120.3 L222.9,122.6 L224.5,121.8 L226.1,123.6 L227.7,130.3 L229.3,131.6 L230.9,129.7 L232.5,126.2 L234.1,123.4 L235.7,133.2 L237.3,131.4 L238.9,133.4 L240.6,135.8 L242.2,134.9 L243.8,134.8 L245.4,139.7 L247.0,140.2 L248.6,139.6 L250.2,147.7 L251.8,148.5 L253.4,145.3 L255.0,138.0 L256.7,139.8 L258.3,140.1 L259.9,138.9 L261.5,138.2 L263.1,143.4 L264.7,143.1 L266.3,139.3 L267.9,133.6 L269.5,124.5 L271.1,132.0 L272.7,135.2 L274.4,133.0 L276.0,137.0 L277.6,140.4 L279.2,138.9 L280.8,144.1 L282.4,146.4 L284.0,146.4 L285.6,149.4 L287.2,147.8 L288.8,153.9 L290.5,156.9 L292.1,158.9 L293.7,158.7 L295.3,153.3 L296.9,158.8 L298.5,156.4 L300.1,160.0 L301.7,157.8 L303.3,152.1 L304.9,147.7 L306.5,146.5 L308.2,141.0 L309.8,143.2 L311.4,142.8 L313.0,142.6 L314.6,137.4 L316.2,144.7 L317.8,142.7 L319.4,134.5 L321.0,139.1 L322.6,138.9 L324.3,146.2 L325.9,147.4 L327.5,147.0 L329.1,140.5 L330.7,134.9 L332.3,127.1 L333.9,125.6 L335.5,132.0 L337.1,133.2 L338.7,128.3 L340.4,112.3 L342.0,119.5 L343.6,117.6 L345.2,115.1 L346.8,105.1 L348.4,109.0 L350.0,111.1 L351.6,106.8 L353.2,108.6 L354.8,113.1 L356.4,110.2 L358.1,101.3 L359.7,97.7 L361.3,92.4 L362.9,87.7 L364.5,88.6 L366.1,93.2 L367.7,91.1 L369.3,90.3 L370.9,92.1 L372.5,95.0 L374.2,98.4 L375.8,97.1 L377.4,105.9 L379.0,112.0 L380.6,112.8 L382.2,112.6 L383.8,113.3 L385.4,103.7 L387.0,109.7 L388.6,114.2 L390.2,118.2 L391.9,120.0 L393.5,117.8 L395.1,120.1 L396.7,119.5 L398.3,120.6 L399.9,119.0 L401.5,120.3 L403.1,123.1 L404.7,122.9 L406.3,122.8 L408.0,128.9 L409.6,125.8 L411.2,126.4 L412.8,124.3 L414.4,116.9 L416.0,116.6" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="116.6" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$165.45</text>
+    <text x="474" y="17.3" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$234.12</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+5.4%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−1.6%</strong></div><div class="perf-chip up"><span class="perf-label">3M</span><strong class="perf-value">+12.3%</strong></div><div class="perf-chip down"><span class="perf-label">YTD</span><strong class="perf-value">−25.9%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−29.3%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−24.7%</strong></div><div class="perf-chip down"><span class="perf-label">5Y</span><strong class="perf-value">−2.1%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+147.3%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+713.8%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$18.7B</strong></span>
+      <span>P/E: <strong>16.6</strong></span>
+      <span>Net Income: <strong>$1.12B</strong></span>
+    </div>
+
+    <p class="summary">Broadridge Financial Solutions (BR): $165.45 (−29.3% 1Y). Performance: 1W +5.4%, 1M −1.6%, 3M +12.3%, YTD −25.9%, 1Y −29.3%, 5Y −2.1%. Market Cap: $18.7B, P/E: 16.6, Net Income: $1.12B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=BR">Open BR in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=BR");</script>
+</body>
+</html>

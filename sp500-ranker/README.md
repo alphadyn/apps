@@ -31,13 +31,22 @@ Each range measures from the last close on or before its start date (Dec 31 of t
 
 ## Link preview
 
-Shared links unfurl in iMessage, SMS/RCS, WhatsApp, Slack, and similar apps. The preview uses the Open Graph and Twitter Card tags in `index.html`, which point to the absolute URL of `social-preview.png` (1200×630). `apple-touch-icon.png` is the home-screen and bookmark icon. The artwork contains no market data, so it never goes stale. To regenerate it (requires Pillow):
+Shared links unfurl in iMessage, SMS/RCS, WhatsApp, Slack, and similar apps.
+
+- **Constituent-specific previews**: When a specific security is displayed in the app, the live document metadata (`<title>`, `<meta name="description">`, `og:title`, `og:description`, `og:url`, `twitter:title`, `twitter:description`, `canonical`) dynamically highlights that security's details: current price, 1Y price return, market capitalization, P/E ratio, and net income.
+- **Dedicated crawler pages**: For message crawlers that do not execute client-side JavaScript, static preview pages are generated under `s/<symbol>/` (e.g. `s/NVDA/`, `s/AAPL/`) with that company's exact metrics. When a user taps or clicks the link, the page seamlessly opens the constituent's interactive detail view in the screener.
+- **Messages / SMS preview mockup**: Open [share-preview.html](share-preview.html) to interactively preview what text message and SMS unfurls look like both for the general screener and for any specific constituent.
+- **Social preview artwork**: Previews feature `social-preview.png` (1200×630). To regenerate the social preview artwork (requires Pillow):
 
 ```bash
 python3 generate_social_preview.py
 ```
 
-Hash deep links such as `#symbol=AAPL` share the same generic preview, because the URL fragment is never sent to the server.
+To build or update the crawler share pages for all constituents:
+
+```bash
+python3 build_share_pages.py
+```
 
 ## Files
 
@@ -46,6 +55,8 @@ Hash deep links such as `#symbol=AAPL` share the same generic preview, because t
 | [index.html](index.html), [styles.css](styles.css), [app.js](app.js) | Page, styles, and DOM wiring |
 | [ranking.js](ranking.js) | Pure ranking, URL-state, and formatting logic |
 | [history.js](history.js), [detail.js](detail.js) | Range math and chart helpers; the security detail view |
+| [share-preview.html](share-preview.html) | Mobile Messages / SMS link preview mockup |
+| [build_share_pages.py](build_share_pages.py), [test_build_share_pages.py](test_build_share_pages.py) | Builds static crawler-readable preview pages for all 503 constituents |
 | [generate_social_preview.py](generate_social_preview.py) | Renders `social-preview.png` and `apple-touch-icon.png` |
 | [build_data.py](build_data.py) | Builds `data.json` and `history/*.json` from public sources |
 | [ranking.test.js](ranking.test.js), [history.test.js](history.test.js), [test_build_data.py](test_build_data.py) | Unit tests |

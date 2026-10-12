@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>PRU · Prudential Financial — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Prudential Financial (PRU): $113.09 (+10.3% 1Y). Performance: 1W +0.4%, 1M −3.8%, 3M −1.7%, YTD +0.2%, 1Y +10.3%, 5Y +3.1%. Market Cap: $39.0B, P/E: 10.0, Net Income: $3.92B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/PRU/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/PRU/">
+  <meta property="og:title" content="PRU · Prudential Financial — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Prudential Financial (PRU): $113.09 (+10.3% 1Y). Performance: 1W +0.4%, 1M −3.8%, 3M −1.7%, YTD +0.2%, 1Y +10.3%, 5Y +3.1%. Market Cap: $39.0B, P/E: 10.0, Net Income: $3.92B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="PRU · Prudential Financial — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="PRU · Prudential Financial — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Prudential Financial (PRU): $113.09 (+10.3% 1Y). Performance: 1W +0.4%, 1M −3.8%, 3M −1.7%, YTD +0.2%, 1Y +10.3%, 5Y +3.1%. Market Cap: $39.0B, P/E: 10.0, Net Income: $3.92B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">PRU</span>
+    <h1>Prudential Financial</h1>
+    <div class="quote-row">
+      <span class="price">$113.09</span>
+      <span class="change up">+10.3% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+10.3%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for PRU">
+    <defs>
+      <linearGradient id="chart-fill-PRU" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="114.1" x2="416" y2="114.1" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,114.1 L13.6,129.0 L15.2,119.8 L16.8,109.1 L18.4,111.6 L20.0,125.9 L21.7,122.3 L23.3,118.6 L24.9,117.1 L26.5,116.1 L28.1,117.6 L29.7,115.8 L31.3,115.6 L32.9,118.9 L34.5,120.1 L36.1,111.8 L37.8,107.8 L39.4,105.1 L41.0,103.3 L42.6,106.0 L44.2,102.6 L45.8,97.9 L47.4,94.8 L49.0,95.9 L50.6,91.4 L52.2,91.1 L53.8,94.1 L55.5,110.0 L57.1,113.8 L58.7,109.8 L60.3,107.3 L61.9,95.9 L63.5,94.0 L65.1,88.9 L66.7,90.6 L68.3,89.4 L69.9,89.5 L71.6,91.1 L73.2,83.6 L74.8,80.7 L76.4,74.5 L78.0,76.0 L79.6,74.5 L81.2,61.1 L82.8,51.1 L84.4,51.5 L86.0,48.7 L87.6,51.0 L89.3,57.1 L90.9,57.6 L92.5,60.1 L94.1,60.7 L95.7,63.6 L97.3,62.0 L98.9,64.5 L100.5,67.3 L102.1,65.7 L103.7,69.2 L105.4,64.9 L107.0,49.8 L108.6,48.4 L110.2,52.0 L111.8,43.9 L113.4,46.6 L115.0,48.1 L116.6,53.2 L118.2,48.3 L119.8,53.8 L121.5,74.4 L123.1,88.9 L124.7,84.0 L126.3,87.1 L127.9,91.8 L129.5,86.2 L131.1,93.0 L132.7,91.8 L134.3,82.3 L135.9,76.9 L137.5,74.3 L139.2,94.0 L140.8,115.8 L142.4,126.0 L144.0,113.1 L145.6,115.7 L147.2,110.8 L148.8,102.4 L150.4,107.2 L152.0,105.2 L153.6,111.0 L155.3,106.4 L156.9,113.4 L158.5,110.3 L160.1,121.4 L161.7,123.5 L163.3,121.5 L164.9,115.2 L166.5,132.3 L168.1,125.4 L169.7,130.7 L171.3,130.5 L173.0,129.0 L174.6,137.7 L176.2,142.9 L177.8,144.9 L179.4,147.2 L181.0,158.5 L182.6,160.0 L184.2,154.7 L185.8,149.2 L187.4,156.0 L189.1,157.8 L190.7,155.5 L192.3,150.0 L193.9,147.8 L195.5,145.8 L197.1,145.8 L198.7,154.4 L200.3,149.2 L201.9,135.3 L203.5,134.0 L205.1,135.7 L206.8,134.7 L208.4,136.5 L210.0,139.8 L211.6,137.8 L213.2,138.7 L214.8,131.8 L216.4,130.6 L218.0,127.7 L219.6,126.2 L221.2,118.1 L222.9,113.9 L224.5,140.7 L226.1,147.6 L227.7,149.8 L229.3,150.4 L230.9,144.4 L232.5,138.7 L234.1,140.8 L235.7,133.4 L237.3,131.2 L238.9,135.4 L240.6,124.1 L242.2,124.5 L243.8,127.7 L245.4,121.7 L247.0,120.4 L248.6,114.0 L250.2,114.9 L251.8,111.3 L253.4,116.8 L255.0,112.3 L256.7,120.2 L258.3,111.2 L259.9,106.8 L261.5,107.3 L263.1,113.8 L264.7,118.8 L266.3,122.6 L267.9,122.4 L269.5,123.1 L271.1,113.4 L272.7,121.8 L274.4,110.8 L276.0,105.1 L277.6,109.1 L279.2,109.1 L280.8,102.8 L282.4,96.9 L284.0,88.3 L285.6,87.5 L287.2,85.4 L288.8,94.8 L290.5,96.8 L292.1,89.3 L293.7,88.4 L295.3,98.0 L296.9,94.7 L298.5,89.4 L300.1,85.2 L301.7,90.8 L303.3,77.1 L304.9,68.9 L306.5,63.2 L308.2,58.0 L309.8,70.2 L311.4,60.0 L313.0,58.4 L314.6,54.9 L316.2,60.9 L317.8,59.9 L319.4,45.9 L321.0,42.3 L322.6,47.1 L324.3,44.4 L325.9,43.3 L327.5,47.7 L329.1,38.5 L330.7,30.1 L332.3,21.2 L333.9,26.9 L335.5,26.3 L337.1,29.3 L338.7,25.3 L340.4,22.9 L342.0,37.6 L343.6,31.8 L345.2,32.7 L346.8,29.1 L348.4,28.2 L350.0,26.4 L351.6,17.7 L353.2,16.0 L354.8,18.5 L356.4,18.6 L358.1,28.6 L359.7,35.7 L361.3,33.3 L362.9,26.7 L364.5,37.6 L366.1,37.3 L367.7,36.7 L369.3,39.2 L370.9,48.7 L372.5,50.7 L374.2,39.0 L375.8,24.4 L377.4,29.5 L379.0,41.0 L380.6,48.8 L382.2,44.9 L383.8,41.6 L385.4,40.5 L387.0,41.3 L388.6,51.2 L390.2,47.3 L391.9,45.3 L393.5,44.7 L395.1,48.5 L396.7,48.8 L398.3,43.7 L399.9,40.7 L401.5,55.3 L403.1,59.8 L404.7,66.2 L406.3,68.2 L408.0,70.5 L409.6,66.6 L411.2,66.4 L412.8,71.5 L414.4,66.4 L416.0,68.3 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-PRU)"/>
+    <path d="M12.0,114.1 L13.6,129.0 L15.2,119.8 L16.8,109.1 L18.4,111.6 L20.0,125.9 L21.7,122.3 L23.3,118.6 L24.9,117.1 L26.5,116.1 L28.1,117.6 L29.7,115.8 L31.3,115.6 L32.9,118.9 L34.5,120.1 L36.1,111.8 L37.8,107.8 L39.4,105.1 L41.0,103.3 L42.6,106.0 L44.2,102.6 L45.8,97.9 L47.4,94.8 L49.0,95.9 L50.6,91.4 L52.2,91.1 L53.8,94.1 L55.5,110.0 L57.1,113.8 L58.7,109.8 L60.3,107.3 L61.9,95.9 L63.5,94.0 L65.1,88.9 L66.7,90.6 L68.3,89.4 L69.9,89.5 L71.6,91.1 L73.2,83.6 L74.8,80.7 L76.4,74.5 L78.0,76.0 L79.6,74.5 L81.2,61.1 L82.8,51.1 L84.4,51.5 L86.0,48.7 L87.6,51.0 L89.3,57.1 L90.9,57.6 L92.5,60.1 L94.1,60.7 L95.7,63.6 L97.3,62.0 L98.9,64.5 L100.5,67.3 L102.1,65.7 L103.7,69.2 L105.4,64.9 L107.0,49.8 L108.6,48.4 L110.2,52.0 L111.8,43.9 L113.4,46.6 L115.0,48.1 L116.6,53.2 L118.2,48.3 L119.8,53.8 L121.5,74.4 L123.1,88.9 L124.7,84.0 L126.3,87.1 L127.9,91.8 L129.5,86.2 L131.1,93.0 L132.7,91.8 L134.3,82.3 L135.9,76.9 L137.5,74.3 L139.2,94.0 L140.8,115.8 L142.4,126.0 L144.0,113.1 L145.6,115.7 L147.2,110.8 L148.8,102.4 L150.4,107.2 L152.0,105.2 L153.6,111.0 L155.3,106.4 L156.9,113.4 L158.5,110.3 L160.1,121.4 L161.7,123.5 L163.3,121.5 L164.9,115.2 L166.5,132.3 L168.1,125.4 L169.7,130.7 L171.3,130.5 L173.0,129.0 L174.6,137.7 L176.2,142.9 L177.8,144.9 L179.4,147.2 L181.0,158.5 L182.6,160.0 L184.2,154.7 L185.8,149.2 L187.4,156.0 L189.1,157.8 L190.7,155.5 L192.3,150.0 L193.9,147.8 L195.5,145.8 L197.1,145.8 L198.7,154.4 L200.3,149.2 L201.9,135.3 L203.5,134.0 L205.1,135.7 L206.8,134.7 L208.4,136.5 L210.0,139.8 L211.6,137.8 L213.2,138.7 L214.8,131.8 L216.4,130.6 L218.0,127.7 L219.6,126.2 L221.2,118.1 L222.9,113.9 L224.5,140.7 L226.1,147.6 L227.7,149.8 L229.3,150.4 L230.9,144.4 L232.5,138.7 L234.1,140.8 L235.7,133.4 L237.3,131.2 L238.9,135.4 L240.6,124.1 L242.2,124.5 L243.8,127.7 L245.4,121.7 L247.0,120.4 L248.6,114.0 L250.2,114.9 L251.8,111.3 L253.4,116.8 L255.0,112.3 L256.7,120.2 L258.3,111.2 L259.9,106.8 L261.5,107.3 L263.1,113.8 L264.7,118.8 L266.3,122.6 L267.9,122.4 L269.5,123.1 L271.1,113.4 L272.7,121.8 L274.4,110.8 L276.0,105.1 L277.6,109.1 L279.2,109.1 L280.8,102.8 L282.4,96.9 L284.0,88.3 L285.6,87.5 L287.2,85.4 L288.8,94.8 L290.5,96.8 L292.1,89.3 L293.7,88.4 L295.3,98.0 L296.9,94.7 L298.5,89.4 L300.1,85.2 L301.7,90.8 L303.3,77.1 L304.9,68.9 L306.5,63.2 L308.2,58.0 L309.8,70.2 L311.4,60.0 L313.0,58.4 L314.6,54.9 L316.2,60.9 L317.8,59.9 L319.4,45.9 L321.0,42.3 L322.6,47.1 L324.3,44.4 L325.9,43.3 L327.5,47.7 L329.1,38.5 L330.7,30.1 L332.3,21.2 L333.9,26.9 L335.5,26.3 L337.1,29.3 L338.7,25.3 L340.4,22.9 L342.0,37.6 L343.6,31.8 L345.2,32.7 L346.8,29.1 L348.4,28.2 L350.0,26.4 L351.6,17.7 L353.2,16.0 L354.8,18.5 L356.4,18.6 L358.1,28.6 L359.7,35.7 L361.3,33.3 L362.9,26.7 L364.5,37.6 L366.1,37.3 L367.7,36.7 L369.3,39.2 L370.9,48.7 L372.5,50.7 L374.2,39.0 L375.8,24.4 L377.4,29.5 L379.0,41.0 L380.6,48.8 L382.2,44.9 L383.8,41.6 L385.4,40.5 L387.0,41.3 L388.6,51.2 L390.2,47.3 L391.9,45.3 L393.5,44.7 L395.1,48.5 L396.7,48.8 L398.3,43.7 L399.9,40.7 L401.5,55.3 L403.1,59.8 L404.7,66.2 L406.3,68.2 L408.0,70.5 L409.6,66.6 L411.2,66.4 L412.8,71.5 L414.4,66.4 L416.0,68.3" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="68.3" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$113.09</text>
+    <text x="474" y="114.1" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$102.56</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+0.4%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−3.8%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−1.7%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+0.2%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+10.3%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−7.4%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+3.1%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+33.8%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+281.0%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$39.0B</strong></span>
+      <span>P/E: <strong>10.0</strong></span>
+      <span>Net Income: <strong>$3.92B</strong></span>
+    </div>
+
+    <p class="summary">Prudential Financial (PRU): $113.09 (+10.3% 1Y). Performance: 1W +0.4%, 1M −3.8%, 3M −1.7%, YTD +0.2%, 1Y +10.3%, 5Y +3.1%. Market Cap: $39.0B, P/E: 10.0, Net Income: $3.92B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=PRU">Open PRU in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=PRU");</script>
+</body>
+</html>

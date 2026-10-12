@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>META · Meta Platforms — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Meta Platforms (META): $718.67 (−2.0% 1Y). Performance: 1W −1.3%, 1M +9.9%, 3M +13.8%, YTD +8.9%, 1Y −2.0%, 5Y +117.7%. Market Cap: $1.83T, P/E: 26.9, Net Income: $68.1B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/META/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/META/">
+  <meta property="og:title" content="META · Meta Platforms — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Meta Platforms (META): $718.67 (−2.0% 1Y). Performance: 1W −1.3%, 1M +9.9%, 3M +13.8%, YTD +8.9%, 1Y −2.0%, 5Y +117.7%. Market Cap: $1.83T, P/E: 26.9, Net Income: $68.1B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="META · Meta Platforms — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="META · Meta Platforms — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Meta Platforms (META): $718.67 (−2.0% 1Y). Performance: 1W −1.3%, 1M +9.9%, 3M +13.8%, YTD +8.9%, 1Y −2.0%, 5Y +117.7%. Market Cap: $1.83T, P/E: 26.9, Net Income: $68.1B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">META</span>
+    <h1>Meta Platforms</h1>
+    <div class="quote-row">
+      <span class="price">$718.67</span>
+      <span class="change down">−2.0% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−2.0%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for META">
+    <defs>
+      <linearGradient id="chart-fill-META" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="41.2" x2="416" y2="41.2" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,41.2 L13.6,57.3 L15.2,51.4 L16.8,55.4 L18.4,50.3 L20.0,53.5 L21.7,50.7 L23.3,42.0 L24.9,41.3 L26.5,41.3 L28.1,40.9 L29.7,38.4 L31.3,31.3 L32.9,31.0 L34.5,30.8 L36.1,79.5 L37.8,89.9 L39.4,96.0 L41.0,101.9 L42.6,97.0 L44.2,106.7 L45.8,105.1 L47.4,99.4 L49.0,102.1 L50.6,112.4 L52.2,111.9 L53.8,112.1 L55.5,116.4 L57.1,118.9 L58.7,123.1 L60.3,123.7 L61.9,120.8 L63.5,110.1 L65.1,96.8 L66.7,98.3 L68.3,90.1 L69.9,94.2 L71.6,90.6 L73.2,94.9 L74.8,82.4 L76.4,75.6 L78.0,79.3 L79.6,85.0 L81.2,88.9 L82.8,87.4 L84.4,92.2 L86.0,90.4 L87.6,84.9 L89.3,89.2 L90.9,80.7 L92.5,83.9 L94.1,82.4 L95.7,80.4 L97.3,78.9 L98.9,81.3 L100.5,84.0 L102.1,79.8 L103.7,83.2 L105.4,88.7 L107.0,83.9 L108.6,82.9 L110.2,89.7 L111.8,91.2 L113.4,87.2 L115.0,93.5 L116.6,99.8 L118.2,108.7 L119.8,105.6 L121.5,106.0 L123.1,115.2 L124.7,110.1 L126.3,90.3 L127.9,83.9 L129.5,76.2 L131.1,75.8 L132.7,78.2 L134.3,38.5 L135.9,50.9 L137.5,56.7 L139.2,65.1 L140.8,78.1 L142.4,77.4 L144.0,82.4 L145.6,73.4 L147.2,77.1 L148.8,78.3 L150.4,89.1 L152.0,94.8 L153.6,95.1 L155.3,92.8 L156.9,91.9 L158.5,85.7 L160.1,96.2 L161.7,95.1 L163.3,86.8 L164.9,84.9 L166.5,90.0 L168.1,86.9 L169.7,86.0 L171.3,78.8 L173.0,82.9 L174.6,91.9 L176.2,90.4 L177.8,86.6 L179.4,86.2 L181.0,95.7 L182.6,109.7 L184.2,101.8 L185.8,104.6 L187.4,108.6 L189.1,113.7 L190.7,121.2 L192.3,115.2 L193.9,121.6 L195.5,120.5 L197.1,147.5 L198.7,160.0 L200.3,153.9 L201.9,133.5 L203.5,129.4 L205.1,132.1 L206.8,133.0 L208.4,131.8 L210.0,110.4 L211.6,101.3 L213.2,100.5 L214.8,97.8 L216.4,81.8 L218.0,76.6 L219.6,73.6 L221.2,66.9 L222.9,77.0 L224.5,78.2 L226.1,74.8 L227.7,83.7 L229.3,74.6 L230.9,72.6 L232.5,76.7 L234.1,78.0 L235.7,110.7 L237.3,112.5 L238.9,111.6 L240.6,114.7 L242.2,110.2 L243.8,107.9 L245.4,112.0 L247.0,118.2 L248.6,115.8 L250.2,108.0 L251.8,107.0 L253.4,109.4 L255.0,111.1 L256.7,116.0 L258.3,114.6 L259.9,113.3 L261.5,111.7 L263.1,110.5 L264.7,97.4 L266.3,97.4 L267.9,98.9 L269.5,117.3 L271.1,118.9 L272.7,104.4 L274.4,101.8 L276.0,121.5 L277.6,125.9 L279.2,126.3 L280.8,134.1 L282.4,135.6 L284.0,136.4 L285.6,121.3 L287.2,117.4 L288.8,136.1 L290.5,130.6 L292.1,138.2 L293.7,139.1 L295.3,141.7 L296.9,150.2 L298.5,146.0 L300.1,138.9 L301.7,138.5 L303.3,110.2 L304.9,127.3 L306.5,117.4 L308.2,108.6 L309.8,115.7 L311.4,99.5 L313.0,78.0 L314.6,85.1 L316.2,82.6 L317.8,71.0 L319.4,80.6 L321.0,91.2 L322.6,91.3 L324.3,92.5 L325.9,102.0 L327.5,114.0 L329.1,120.3 L330.7,121.0 L332.3,121.3 L333.9,125.8 L335.5,152.4 L337.1,142.3 L338.7,123.1 L340.4,124.4 L342.0,124.0 L343.6,123.3 L345.2,122.0 L346.8,120.4 L348.4,118.0 L350.0,129.6 L351.6,120.4 L353.2,123.3 L354.8,135.3 L356.4,149.7 L358.1,148.4 L359.7,148.5 L361.3,146.2 L362.9,141.0 L364.5,134.7 L366.1,131.2 L367.7,134.1 L369.3,130.1 L370.9,133.3 L372.5,129.8 L374.2,121.6 L375.8,111.4 L377.4,107.9 L379.0,109.8 L380.6,86.8 L382.2,92.2 L383.8,90.1 L385.4,80.0 L387.0,77.4 L388.6,75.6 L390.2,70.5 L391.9,79.9 L393.5,36.8 L395.1,39.4 L396.7,35.1 L398.3,16.0 L399.9,30.8 L401.5,51.4 L403.1,38.2 L404.7,46.0 L406.3,45.5 L408.0,44.3 L409.6,36.4 L411.2,38.1 L412.8,48.2 L414.4,48.4 L416.0,49.7 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-META)"/>
+    <path d="M12.0,41.2 L13.6,57.3 L15.2,51.4 L16.8,55.4 L18.4,50.3 L20.0,53.5 L21.7,50.7 L23.3,42.0 L24.9,41.3 L26.5,41.3 L28.1,40.9 L29.7,38.4 L31.3,31.3 L32.9,31.0 L34.5,30.8 L36.1,79.5 L37.8,89.9 L39.4,96.0 L41.0,101.9 L42.6,97.0 L44.2,106.7 L45.8,105.1 L47.4,99.4 L49.0,102.1 L50.6,112.4 L52.2,111.9 L53.8,112.1 L55.5,116.4 L57.1,118.9 L58.7,123.1 L60.3,123.7 L61.9,120.8 L63.5,110.1 L65.1,96.8 L66.7,98.3 L68.3,90.1 L69.9,94.2 L71.6,90.6 L73.2,94.9 L74.8,82.4 L76.4,75.6 L78.0,79.3 L79.6,85.0 L81.2,88.9 L82.8,87.4 L84.4,92.2 L86.0,90.4 L87.6,84.9 L89.3,89.2 L90.9,80.7 L92.5,83.9 L94.1,82.4 L95.7,80.4 L97.3,78.9 L98.9,81.3 L100.5,84.0 L102.1,79.8 L103.7,83.2 L105.4,88.7 L107.0,83.9 L108.6,82.9 L110.2,89.7 L111.8,91.2 L113.4,87.2 L115.0,93.5 L116.6,99.8 L118.2,108.7 L119.8,105.6 L121.5,106.0 L123.1,115.2 L124.7,110.1 L126.3,90.3 L127.9,83.9 L129.5,76.2 L131.1,75.8 L132.7,78.2 L134.3,38.5 L135.9,50.9 L137.5,56.7 L139.2,65.1 L140.8,78.1 L142.4,77.4 L144.0,82.4 L145.6,73.4 L147.2,77.1 L148.8,78.3 L150.4,89.1 L152.0,94.8 L153.6,95.1 L155.3,92.8 L156.9,91.9 L158.5,85.7 L160.1,96.2 L161.7,95.1 L163.3,86.8 L164.9,84.9 L166.5,90.0 L168.1,86.9 L169.7,86.0 L171.3,78.8 L173.0,82.9 L174.6,91.9 L176.2,90.4 L177.8,86.6 L179.4,86.2 L181.0,95.7 L182.6,109.7 L184.2,101.8 L185.8,104.6 L187.4,108.6 L189.1,113.7 L190.7,121.2 L192.3,115.2 L193.9,121.6 L195.5,120.5 L197.1,147.5 L198.7,160.0 L200.3,153.9 L201.9,133.5 L203.5,129.4 L205.1,132.1 L206.8,133.0 L208.4,131.8 L210.0,110.4 L211.6,101.3 L213.2,100.5 L214.8,97.8 L216.4,81.8 L218.0,76.6 L219.6,73.6 L221.2,66.9 L222.9,77.0 L224.5,78.2 L226.1,74.8 L227.7,83.7 L229.3,74.6 L230.9,72.6 L232.5,76.7 L234.1,78.0 L235.7,110.7 L237.3,112.5 L238.9,111.6 L240.6,114.7 L242.2,110.2 L243.8,107.9 L245.4,112.0 L247.0,118.2 L248.6,115.8 L250.2,108.0 L251.8,107.0 L253.4,109.4 L255.0,111.1 L256.7,116.0 L258.3,114.6 L259.9,113.3 L261.5,111.7 L263.1,110.5 L264.7,97.4 L266.3,97.4 L267.9,98.9 L269.5,117.3 L271.1,118.9 L272.7,104.4 L274.4,101.8 L276.0,121.5 L277.6,125.9 L279.2,126.3 L280.8,134.1 L282.4,135.6 L284.0,136.4 L285.6,121.3 L287.2,117.4 L288.8,136.1 L290.5,130.6 L292.1,138.2 L293.7,139.1 L295.3,141.7 L296.9,150.2 L298.5,146.0 L300.1,138.9 L301.7,138.5 L303.3,110.2 L304.9,127.3 L306.5,117.4 L308.2,108.6 L309.8,115.7 L311.4,99.5 L313.0,78.0 L314.6,85.1 L316.2,82.6 L317.8,71.0 L319.4,80.6 L321.0,91.2 L322.6,91.3 L324.3,92.5 L325.9,102.0 L327.5,114.0 L329.1,120.3 L330.7,121.0 L332.3,121.3 L333.9,125.8 L335.5,152.4 L337.1,142.3 L338.7,123.1 L340.4,124.4 L342.0,124.0 L343.6,123.3 L345.2,122.0 L346.8,120.4 L348.4,118.0 L350.0,129.6 L351.6,120.4 L353.2,123.3 L354.8,135.3 L356.4,149.7 L358.1,148.4 L359.7,148.5 L361.3,146.2 L362.9,141.0 L364.5,134.7 L366.1,131.2 L367.7,134.1 L369.3,130.1 L370.9,133.3 L372.5,129.8 L374.2,121.6 L375.8,111.4 L377.4,107.9 L379.0,109.8 L380.6,86.8 L382.2,92.2 L383.8,90.1 L385.4,80.0 L387.0,77.4 L388.6,75.6 L390.2,70.5 L391.9,79.9 L393.5,36.8 L395.1,39.4 L396.7,35.1 L398.3,16.0 L399.9,30.8 L401.5,51.4 L403.1,38.2 L404.7,46.0 L406.3,45.5 L408.0,44.3 L409.6,36.4 L411.2,38.1 L412.8,48.2 L414.4,48.4 L416.0,49.7" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="49.7" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$718.67</text>
+    <text x="474" y="41.2" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$733.51</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip down"><span class="perf-label">1W</span><strong class="perf-value">−1.3%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+9.9%</strong></div><div class="perf-chip up"><span class="perf-label">3M</span><strong class="perf-value">+13.8%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+8.9%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−2.0%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+21.7%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+117.7%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+457.2%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+1780%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$1.83T</strong></span>
+      <span>P/E: <strong>26.9</strong></span>
+      <span>Net Income: <strong>$68.1B</strong></span>
+    </div>
+
+    <p class="summary">Meta Platforms (META): $718.67 (−2.0% 1Y). Performance: 1W −1.3%, 1M +9.9%, 3M +13.8%, YTD +8.9%, 1Y −2.0%, 5Y +117.7%. Market Cap: $1.83T, P/E: 26.9, Net Income: $68.1B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=META">Open META in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=META");</script>
+</body>
+</html>

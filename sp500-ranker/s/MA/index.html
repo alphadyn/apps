@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>MA · Mastercard — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Mastercard (MA): $589.14 (+4.4% 1Y). Performance: 1W +6.7%, 1M +3.8%, 3M +12.6%, YTD +3.2%, 1Y +4.4%, 5Y +66.0%. Market Cap: $516B, P/E: 31.8, Net Income: $16.3B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/MA/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/MA/">
+  <meta property="og:title" content="MA · Mastercard — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Mastercard (MA): $589.14 (+4.4% 1Y). Performance: 1W +6.7%, 1M +3.8%, 3M +12.6%, YTD +3.2%, 1Y +4.4%, 5Y +66.0%. Market Cap: $516B, P/E: 31.8, Net Income: $16.3B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="MA · Mastercard — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MA · Mastercard — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Mastercard (MA): $589.14 (+4.4% 1Y). Performance: 1W +6.7%, 1M +3.8%, 3M +12.6%, YTD +3.2%, 1Y +4.4%, 5Y +66.0%. Market Cap: $516B, P/E: 31.8, Net Income: $16.3B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">MA</span>
+    <h1>Mastercard</h1>
+    <div class="quote-row">
+      <span class="price">$589.14</span>
+      <span class="change up">+4.4% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+4.4%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for MA">
+    <defs>
+      <linearGradient id="chart-fill-MA" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="55.6" x2="416" y2="55.6" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,55.6 L13.6,63.6 L15.2,61.6 L16.8,51.8 L18.4,57.6 L20.0,72.1 L21.7,59.6 L23.3,53.6 L24.9,47.2 L26.5,48.0 L28.1,45.3 L29.7,45.4 L31.3,46.9 L32.9,54.1 L34.5,66.8 L36.1,67.8 L37.8,69.7 L39.4,78.6 L41.0,68.9 L42.6,68.2 L44.2,68.3 L45.8,69.7 L47.4,68.6 L49.0,62.6 L50.6,59.4 L52.2,65.7 L53.8,76.7 L55.5,86.7 L57.1,97.1 L58.7,94.0 L60.3,96.8 L61.9,82.7 L63.5,85.6 L65.1,75.9 L66.7,77.6 L68.3,71.4 L69.9,78.7 L71.6,76.5 L73.2,67.8 L74.8,80.6 L76.4,77.0 L78.0,82.7 L79.6,85.9 L81.2,84.5 L82.8,57.0 L84.4,47.3 L86.0,50.5 L87.6,54.0 L89.3,54.6 L90.9,53.8 L92.5,47.0 L94.1,43.1 L95.7,42.4 L97.3,38.9 L98.9,38.7 L100.5,40.6 L102.1,41.2 L103.7,48.5 L105.4,57.2 L107.0,51.1 L108.6,37.9 L110.2,38.4 L111.8,38.2 L113.4,43.3 L115.0,53.7 L116.6,77.6 L118.2,75.5 L119.8,80.2 L121.5,83.8 L123.1,92.4 L124.7,97.1 L126.3,91.2 L127.9,100.3 L129.5,97.4 L131.1,105.2 L132.7,104.1 L134.3,79.0 L135.9,84.5 L137.5,65.9 L139.2,71.1 L140.8,68.0 L142.4,69.8 L144.0,73.4 L145.6,88.4 L147.2,82.7 L148.8,86.0 L150.4,97.3 L152.0,107.5 L153.6,103.5 L155.3,96.7 L156.9,105.3 L158.5,98.4 L160.1,132.5 L161.7,130.3 L163.3,117.5 L164.9,111.5 L166.5,108.8 L168.1,104.5 L169.7,100.8 L171.3,102.3 L173.0,100.4 L174.6,103.0 L176.2,108.2 L177.8,111.6 L179.4,123.6 L181.0,131.1 L182.6,130.3 L184.2,118.5 L185.8,120.7 L187.4,141.0 L189.1,138.0 L190.7,132.2 L192.3,127.6 L193.9,129.3 L195.5,125.0 L197.1,127.2 L198.7,145.8 L200.3,134.8 L201.9,128.5 L203.5,137.4 L205.1,135.4 L206.8,126.4 L208.4,130.0 L210.0,120.1 L211.6,124.1 L213.2,129.6 L214.8,118.4 L216.4,113.3 L218.0,105.7 L219.6,107.3 L221.2,104.2 L222.9,109.4 L224.5,115.3 L226.1,116.7 L227.7,125.4 L229.3,123.4 L230.9,120.9 L232.5,119.5 L234.1,99.8 L235.7,124.8 L237.3,133.2 L238.9,122.8 L240.6,131.3 L242.2,137.2 L243.8,127.0 L245.4,133.1 L247.0,130.5 L248.6,128.3 L250.2,138.6 L251.8,139.4 L253.4,134.6 L255.0,121.6 L256.7,128.4 L258.3,130.3 L259.9,128.5 L261.5,129.7 L263.1,135.9 L264.7,133.6 L266.3,135.1 L267.9,134.8 L269.5,133.4 L271.1,153.1 L272.7,160.0 L274.4,148.5 L276.0,138.1 L277.6,144.2 L279.2,133.4 L280.8,140.3 L282.4,143.2 L284.0,139.3 L285.6,138.6 L287.2,126.6 L288.8,135.9 L290.5,139.5 L292.1,145.9 L293.7,141.5 L295.3,134.3 L296.9,140.5 L298.5,129.2 L300.1,117.3 L301.7,112.8 L303.3,102.9 L304.9,83.9 L306.5,90.9 L308.2,92.6 L309.8,105.8 L311.4,102.0 L313.0,98.1 L314.6,85.8 L316.2,85.4 L317.8,88.6 L319.4,70.2 L321.0,79.1 L322.6,74.8 L324.3,85.1 L325.9,92.2 L327.5,94.1 L329.1,83.6 L330.7,70.0 L332.3,57.6 L333.9,57.0 L335.5,41.3 L337.1,46.0 L338.7,48.4 L340.4,48.3 L342.0,49.0 L343.6,42.8 L345.2,57.4 L346.8,57.2 L348.4,59.1 L350.0,61.0 L351.6,52.8 L353.2,50.3 L354.8,58.2 L356.4,44.7 L358.1,45.3 L359.7,45.2 L361.3,37.6 L362.9,16.0 L364.5,16.5 L366.1,17.6 L367.7,25.1 L369.3,21.1 L370.9,27.8 L372.5,37.1 L374.2,29.2 L375.8,31.9 L377.4,39.2 L379.0,48.5 L380.6,52.3 L382.2,54.7 L383.8,50.4 L385.4,44.6 L387.0,45.8 L388.6,52.0 L390.2,54.3 L391.9,54.9 L393.5,52.1 L395.1,65.3 L396.7,60.8 L398.3,53.9 L399.9,52.1 L401.5,51.5 L403.1,56.7 L404.7,70.3 L406.3,72.0 L408.0,69.4 L409.6,55.6 L411.2,53.3 L412.8,49.4 L414.4,44.2 L416.0,28.0 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-MA)"/>
+    <path d="M12.0,55.6 L13.6,63.6 L15.2,61.6 L16.8,51.8 L18.4,57.6 L20.0,72.1 L21.7,59.6 L23.3,53.6 L24.9,47.2 L26.5,48.0 L28.1,45.3 L29.7,45.4 L31.3,46.9 L32.9,54.1 L34.5,66.8 L36.1,67.8 L37.8,69.7 L39.4,78.6 L41.0,68.9 L42.6,68.2 L44.2,68.3 L45.8,69.7 L47.4,68.6 L49.0,62.6 L50.6,59.4 L52.2,65.7 L53.8,76.7 L55.5,86.7 L57.1,97.1 L58.7,94.0 L60.3,96.8 L61.9,82.7 L63.5,85.6 L65.1,75.9 L66.7,77.6 L68.3,71.4 L69.9,78.7 L71.6,76.5 L73.2,67.8 L74.8,80.6 L76.4,77.0 L78.0,82.7 L79.6,85.9 L81.2,84.5 L82.8,57.0 L84.4,47.3 L86.0,50.5 L87.6,54.0 L89.3,54.6 L90.9,53.8 L92.5,47.0 L94.1,43.1 L95.7,42.4 L97.3,38.9 L98.9,38.7 L100.5,40.6 L102.1,41.2 L103.7,48.5 L105.4,57.2 L107.0,51.1 L108.6,37.9 L110.2,38.4 L111.8,38.2 L113.4,43.3 L115.0,53.7 L116.6,77.6 L118.2,75.5 L119.8,80.2 L121.5,83.8 L123.1,92.4 L124.7,97.1 L126.3,91.2 L127.9,100.3 L129.5,97.4 L131.1,105.2 L132.7,104.1 L134.3,79.0 L135.9,84.5 L137.5,65.9 L139.2,71.1 L140.8,68.0 L142.4,69.8 L144.0,73.4 L145.6,88.4 L147.2,82.7 L148.8,86.0 L150.4,97.3 L152.0,107.5 L153.6,103.5 L155.3,96.7 L156.9,105.3 L158.5,98.4 L160.1,132.5 L161.7,130.3 L163.3,117.5 L164.9,111.5 L166.5,108.8 L168.1,104.5 L169.7,100.8 L171.3,102.3 L173.0,100.4 L174.6,103.0 L176.2,108.2 L177.8,111.6 L179.4,123.6 L181.0,131.1 L182.6,130.3 L184.2,118.5 L185.8,120.7 L187.4,141.0 L189.1,138.0 L190.7,132.2 L192.3,127.6 L193.9,129.3 L195.5,125.0 L197.1,127.2 L198.7,145.8 L200.3,134.8 L201.9,128.5 L203.5,137.4 L205.1,135.4 L206.8,126.4 L208.4,130.0 L210.0,120.1 L211.6,124.1 L213.2,129.6 L214.8,118.4 L216.4,113.3 L218.0,105.7 L219.6,107.3 L221.2,104.2 L222.9,109.4 L224.5,115.3 L226.1,116.7 L227.7,125.4 L229.3,123.4 L230.9,120.9 L232.5,119.5 L234.1,99.8 L235.7,124.8 L237.3,133.2 L238.9,122.8 L240.6,131.3 L242.2,137.2 L243.8,127.0 L245.4,133.1 L247.0,130.5 L248.6,128.3 L250.2,138.6 L251.8,139.4 L253.4,134.6 L255.0,121.6 L256.7,128.4 L258.3,130.3 L259.9,128.5 L261.5,129.7 L263.1,135.9 L264.7,133.6 L266.3,135.1 L267.9,134.8 L269.5,133.4 L271.1,153.1 L272.7,160.0 L274.4,148.5 L276.0,138.1 L277.6,144.2 L279.2,133.4 L280.8,140.3 L282.4,143.2 L284.0,139.3 L285.6,138.6 L287.2,126.6 L288.8,135.9 L290.5,139.5 L292.1,145.9 L293.7,141.5 L295.3,134.3 L296.9,140.5 L298.5,129.2 L300.1,117.3 L301.7,112.8 L303.3,102.9 L304.9,83.9 L306.5,90.9 L308.2,92.6 L309.8,105.8 L311.4,102.0 L313.0,98.1 L314.6,85.8 L316.2,85.4 L317.8,88.6 L319.4,70.2 L321.0,79.1 L322.6,74.8 L324.3,85.1 L325.9,92.2 L327.5,94.1 L329.1,83.6 L330.7,70.0 L332.3,57.6 L333.9,57.0 L335.5,41.3 L337.1,46.0 L338.7,48.4 L340.4,48.3 L342.0,49.0 L343.6,42.8 L345.2,57.4 L346.8,57.2 L348.4,59.1 L350.0,61.0 L351.6,52.8 L353.2,50.3 L354.8,58.2 L356.4,44.7 L358.1,45.3 L359.7,45.2 L361.3,37.6 L362.9,16.0 L364.5,16.5 L366.1,17.6 L367.7,25.1 L369.3,21.1 L370.9,27.8 L372.5,37.1 L374.2,29.2 L375.8,31.9 L377.4,39.2 L379.0,48.5 L380.6,52.3 L382.2,54.7 L383.8,50.4 L385.4,44.6 L387.0,45.8 L388.6,52.0 L390.2,54.3 L391.9,54.9 L393.5,52.1 L395.1,65.3 L396.7,60.8 L398.3,53.9 L399.9,52.1 L401.5,51.5 L403.1,56.7 L404.7,70.3 L406.3,72.0 L408.0,69.4 L409.6,55.6 L411.2,53.3 L412.8,49.4 L414.4,44.2 L416.0,28.0" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="28.0" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$589.14</text>
+    <text x="474" y="55.6" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$564.55</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+6.7%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+3.8%</strong></div><div class="perf-chip up"><span class="perf-label">3M</span><strong class="perf-value">+12.6%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+3.2%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+4.4%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+17.8%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+66.0%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+476.2%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+13012%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$516B</strong></span>
+      <span>P/E: <strong>31.8</strong></span>
+      <span>Net Income: <strong>$16.3B</strong></span>
+    </div>
+
+    <p class="summary">Mastercard (MA): $589.14 (+4.4% 1Y). Performance: 1W +6.7%, 1M +3.8%, 3M +12.6%, YTD +3.2%, 1Y +4.4%, 5Y +66.0%. Market Cap: $516B, P/E: 31.8, Net Income: $16.3B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=MA">Open MA in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=MA");</script>
+</body>
+</html>

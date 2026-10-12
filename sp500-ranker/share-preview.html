@@ -1,0 +1,800 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#eff2f5">
+  <meta name="robots" content="noindex,follow">
+  <title>S&P 500 Screener & Ranker · Text / SMS Link Preview</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #17212d;
+      background: #eef2f6;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      min-height: 100svh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 12px;
+      background: radial-gradient(ellipse at 50% 0%, #fff 0%, transparent 60%), #eef2f6;
+    }
+
+    .preview-controls {
+      width: min(100%, 420px);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .selector-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #64748b;
+      white-space: nowrap;
+    }
+
+    .security-select {
+      flex: 1;
+      height: 34px;
+      padding: 0 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #0f172a;
+      font-size: 13px;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      transition: border-color 0.15s;
+    }
+    .security-select:focus {
+      border-color: #0284c7;
+    }
+
+    .messages {
+      width: min(100%, 420px);
+      height: min(780px, calc(100svh - 68px));
+      min-height: 520px;
+      display: grid;
+      grid-template-rows: 32px 64px minmax(0, 1fr) 52px;
+      overflow: hidden;
+      border: 1px solid #d8e1e8;
+      border-radius: 28px;
+      background: #ffffff;
+      box-shadow: 0 24px 60px rgb(15 23 42 / 12%), 0 4px 12px rgb(15 23 42 / 6%);
+    }
+
+    .status-bar,
+    .status-icons,
+    .conversation-header,
+    .contact,
+    .message-row,
+    .composer {
+      display: flex;
+      align-items: center;
+    }
+
+    .status-bar {
+      justify-content: space-between;
+      padding: 0 18px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .status-icons { gap: 5px; }
+    .signal { display: flex; align-items: flex-end; gap: 1.5px; height: 11px; }
+    .signal i { width: 2px; border-radius: 1px; background: #1e293b; }
+    .signal i:nth-child(1) { height: 3px; }
+    .signal i:nth-child(2) { height: 5px; }
+    .signal i:nth-child(3) { height: 8px; }
+    .signal i:nth-child(4) { height: 11px; }
+    .wifi { width: 13px; height: 11px; }
+    .battery {
+      position: relative;
+      width: 19px;
+      height: 10px;
+      border: 1.2px solid #1e293b;
+      border-radius: 3px;
+    }
+    .battery::before {
+      position: absolute;
+      inset: 1.5px 3px 1.5px 1.5px;
+      border-radius: 1px;
+      background: #1e293b;
+      content: "";
+    }
+    .battery::after {
+      position: absolute;
+      top: 2px;
+      right: -3px;
+      width: 1.5px;
+      height: 4px;
+      border-radius: 0 1px 1px 0;
+      background: #1e293b;
+      content: "";
+    }
+
+    .conversation-header {
+      justify-content: space-between;
+      padding: 0 16px 6px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .back {
+      color: #0284c7;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .contact {
+      flex-direction: column;
+      gap: 2px;
+      font-size: 10px;
+      font-weight: 650;
+      color: #334155;
+    }
+    .avatar {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #e0f2fe;
+      color: #0369a1;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .video {
+      width: 24px;
+      height: 19px;
+      color: #0284c7;
+    }
+
+    .conversation {
+      min-height: 0;
+      padding: 20px 12px;
+      overflow-y: auto;
+    }
+    .date {
+      margin: 0 0 14px;
+      color: #94a3b8;
+      font-size: 10px;
+      text-align: center;
+      font-weight: 500;
+    }
+    .message-row {
+      align-items: flex-end;
+      gap: 7px;
+    }
+    .contact-dot {
+      width: 20px;
+      height: 20px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #e0f2fe;
+      color: #0369a1;
+      font-size: 9px;
+      font-weight: 700;
+    }
+    .bubble {
+      width: min(100%, 320px);
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px 16px 16px 4px;
+      background: #f1f5f9;
+    }
+    .message-text {
+      margin: 0;
+      padding: 9px 11px 7px;
+      font-size: 12px;
+      line-height: 1.35;
+      color: #0f172a;
+    }
+    .link-card {
+      display: block;
+      margin: 0 4px 4px;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+      border-radius: 11px;
+      background: #ffffff;
+      color: inherit;
+      text-decoration: none;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .link-card:focus-visible,
+    .link-card:hover {
+      outline: 2px solid #0284c7;
+      outline-offset: -2px;
+    }
+    .card-visual {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      background: #0d141e;
+    }
+    .cover {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1200 / 630;
+      object-fit: cover;
+      background: #0d141e;
+    }
+
+    /* Dynamic Graph styling inside preview card */
+    .preview-graph-card {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      padding: 10px 10px 6px;
+      background: #090e17;
+      border-bottom: 1px solid #1e293b;
+      color: #f8fafc;
+    }
+    .graph-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .graph-badge-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .graph-symbol-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 5px;
+      background: rgba(56, 189, 248, 0.18);
+      color: #38bdf8;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+    }
+    .graph-period-return {
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .graph-period-return.up { color: #10b981; }
+    .graph-period-return.down { color: #f43f5e; }
+
+    .graph-range-pills {
+      display: inline-flex;
+      gap: 2px;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 2px;
+      border-radius: 6px;
+    }
+    .graph-pill {
+      border: 0;
+      background: transparent;
+      color: #94a3b8;
+      font-size: 8px;
+      font-weight: 700;
+      padding: 2px 4px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+    .graph-pill:hover {
+      color: #f8fafc;
+    }
+    .graph-pill.active {
+      background: #38bdf8;
+      color: #0b1119;
+    }
+
+    .graph-svg-wrap {
+      width: 100%;
+      height: 120px;
+    }
+    .graph-svg-wrap svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .copy {
+      padding: 10px 11px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.25;
+      color: #0f172a;
+    }
+    .preview-stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 6px 10px;
+      margin: 5px 0 8px;
+      font-size: 10.5px;
+      color: #475569;
+    }
+    .preview-stats-row strong {
+      font-size: 13px;
+      color: #0f172a;
+      font-weight: 800;
+    }
+    .preview-ret-1y {
+      font-weight: 700;
+    }
+    .preview-ret-1y.up { color: #059669; }
+    .preview-ret-1y.down { color: #dc2626; }
+    .preview-stat-item b {
+      color: #1e293b;
+      font-weight: 700;
+    }
+
+    /* Multi-period performance breakdown grid */
+    .preview-perf-section {
+      margin: 8px 0;
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+    }
+    .preview-perf-title {
+      font-size: 8.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #64748b;
+      margin-bottom: 5px;
+    }
+    .preview-perf-chips {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(48px, 1fr));
+      gap: 3px;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3px 2px;
+      border-radius: 5px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      text-align: center;
+    }
+    .perf-chip .label {
+      font-size: 7.5px;
+      font-weight: 700;
+      color: #64748b;
+    }
+    .perf-chip .val {
+      font-size: 8.5px;
+      font-weight: 800;
+      margin-top: 1px;
+    }
+    .perf-chip.up {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+    .perf-chip.up .val { color: #047857; }
+    .perf-chip.down {
+      background: #fff1f2;
+      border-color: #fecdd3;
+    }
+    .perf-chip.down .val { color: #be123c; }
+
+    .description {
+      margin: 6px 0 8px;
+      color: #475569;
+      font-size: 9.5px;
+      line-height: 1.35;
+    }
+    .domain {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: #64748b;
+      font-size: 8.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      font-weight: 600;
+    }
+    .domain img {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+    }
+    .delivered {
+      margin: 4px 6px 0 0;
+      color: #94a3b8;
+      font-size: 9px;
+      text-align: right;
+    }
+
+    .composer {
+      gap: 8px;
+      padding: 6px 12px;
+      border-top: 1px solid #f1f5f9;
+    }
+    .add {
+      width: 26px;
+      height: 26px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #f1f5f9;
+      color: #64748b;
+      font-size: 18px;
+      font-weight: 400;
+    }
+    .input {
+      height: 30px;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      padding: 0 11px;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      color: #94a3b8;
+      font-size: 10.5px;
+    }
+    .mic {
+      width: 13px;
+      height: 18px;
+      color: #94a3b8;
+    }
+
+    @media (max-width: 440px) {
+      body { padding: 8px 6px; }
+      .messages { border-radius: 22px; }
+      .conversation { padding: 14px 8px; }
+      .bubble { width: min(100%, 290px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="preview-controls">
+    <label for="security-select" class="selector-label">Preview Mode:</label>
+    <select id="security-select" class="security-select" aria-label="Select security to preview link unfurl">
+      <option value="">S&amp;P 500 Screener &amp; Ranker (Overview)</option>
+    </select>
+  </div>
+
+  <main class="messages" aria-label="Text message with S&P 500 link preview">
+    <div class="status-bar">
+      <time datetime="09:41">9:41</time>
+      <div class="status-icons" aria-hidden="true">
+        <span class="signal"><i></i><i></i><i></i><i></i></span>
+        <svg class="wifi" viewBox="0 0 16 12" fill="none"><path d="M1 4c4-4 10-4 14 0M4 7c2-2 6-2 8 0M7 10c.6-.6 1.4-.6 2 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span class="battery"></span>
+      </div>
+    </div>
+    <header class="conversation-header">
+      <span class="back" aria-hidden="true">&#8249; Messages</span>
+      <div class="contact"><span class="avatar" aria-hidden="true">A</span><span>Alex</span></div>
+      <svg class="video" viewBox="0 0 32 24" fill="none" aria-hidden="true"><rect x="1" y="2" width="22" height="20" rx="6" stroke="currentColor" stroke-width="1.7"/><path d="m24 8 7-4v16l-7-4V8Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+    </header>
+    <section class="conversation" aria-label="Message conversation">
+      <p class="date">Today 9:41 AM</p>
+      <div class="message-row">
+        <span class="contact-dot" aria-hidden="true">A</span>
+        <article class="bubble">
+          <p class="message-text" id="preview-message">Take a look at this S&amp;P 500 stock screener and ranking tool.</p>
+          <a class="link-card" id="preview-link" href="https://alphadyn.github.io/apps/sp500-ranker/" aria-label="Open S&P 500 Screener & Ranker">
+            <div class="card-visual">
+              <img class="cover" id="preview-cover-img" src="social-preview.png?v=3" alt="S&amp;P 500 Screener &amp; Ranker preview banner">
+              <div class="preview-graph-card" id="preview-graph-card" style="display: none;">
+                <div class="graph-top-row">
+                  <div class="graph-badge-group">
+                    <span class="graph-symbol-badge" id="graph-symbol-badge">NVDA</span>
+                    <span class="graph-period-return" id="graph-period-return">+19.1% 1Y</span>
+                  </div>
+                  <div class="graph-range-pills" id="graph-range-pills" role="tablist" aria-label="Select preview graph period">
+                    <button type="button" class="graph-pill" data-range="1w">1W</button>
+                    <button type="button" class="graph-pill" data-range="1m">1M</button>
+                    <button type="button" class="graph-pill" data-range="3m">3M</button>
+                    <button type="button" class="graph-pill" data-range="ytd">YTD</button>
+                    <button type="button" class="graph-pill active" data-range="1y">1Y</button>
+                    <button type="button" class="graph-pill" data-range="5y">5Y</button>
+                    <button type="button" class="graph-pill" data-range="all">ALL</button>
+                  </div>
+                </div>
+                <div class="graph-svg-wrap" id="graph-svg-wrap"></div>
+              </div>
+            </div>
+
+            <div class="copy">
+              <h1 id="preview-title">S&amp;P 500 Screener &amp; Ranker</h1>
+              <div class="preview-stats-row" id="preview-stats-row" style="display: none;">
+                <strong id="preview-price">$0.00</strong>
+                <span class="preview-ret-1y" id="preview-ret-1y">+0.0% 1Y</span>
+                <span class="preview-stat-item">MCap <b id="preview-mcap">—</b></span>
+                <span class="preview-stat-item">P/E <b id="preview-pe">—</b></span>
+                <span class="preview-stat-item">Net Income <b id="preview-net-income">—</b></span>
+              </div>
+
+              <div class="preview-perf-section" id="preview-perf-section" style="display: none;">
+                <div class="preview-perf-title">Multi-Period Performance</div>
+                <div class="preview-perf-chips" id="preview-perf-chips"></div>
+              </div>
+
+              <p class="description" id="preview-description">Filter and rank every S&amp;P 500 company by market cap, P/E, price, net income, and performance across 9 periods. Interactive charts and 10 years of price history.</p>
+              <span class="domain"><img src="favicon.svg" alt="" aria-hidden="true"> alphadyn.github.io</span>
+            </div>
+          </a>
+        </article>
+      </div>
+      <p class="delivered">Delivered</p>
+    </section>
+    <footer class="composer" aria-hidden="true">
+      <span class="add">+</span>
+      <span class="input">iMessage</span>
+      <svg class="mic" viewBox="0 0 16 22" fill="none"><rect x="5" y="1" width="6" height="13" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 10v1a6 6 0 0 0 12 0v-1M8 17v4m-3 0h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </footer>
+  </main>
+
+  <script type="module">
+    import { formatSecuritySummary, parseState, formatPrice, formatPercent } from './ranking.js';
+    import { parseHistory, sliceRange } from './history.js';
+
+    const OVERVIEW_DATA = {
+      message: 'Take a look at this S&P 500 stock screener and ranking tool.',
+      title: 'S&P 500 Screener & Ranker',
+      description: 'Filter and rank every S&P 500 company by market cap, P/E, price, net income, and performance across 9 periods. Interactive charts and 10 years of price history.',
+      url: 'https://alphadyn.github.io/apps/sp500-ranker/',
+    };
+
+    const el = {
+      select: document.getElementById('security-select'),
+      message: document.getElementById('preview-message'),
+      title: document.getElementById('preview-title'),
+      desc: document.getElementById('preview-description'),
+      link: document.getElementById('preview-link'),
+      coverImg: document.getElementById('preview-cover-img'),
+      graphCard: document.getElementById('preview-graph-card'),
+      graphSymbolBadge: document.getElementById('graph-symbol-badge'),
+      graphPeriodReturn: document.getElementById('graph-period-return'),
+      graphSvgWrap: document.getElementById('graph-svg-wrap'),
+      graphPills: document.getElementById('graph-range-pills'),
+      statsRow: document.getElementById('preview-stats-row'),
+      price: document.getElementById('preview-price'),
+      ret1y: document.getElementById('preview-ret-1y'),
+      mcap: document.getElementById('preview-mcap'),
+      pe: document.getElementById('preview-pe'),
+      netIncome: document.getElementById('preview-net-income'),
+      perfSection: document.getElementById('preview-perf-section'),
+      perfChips: document.getElementById('preview-perf-chips'),
+    };
+
+    let allSecurities = [];
+    let currentSymbol = null;
+    let currentPoints = null;
+    let currentRange = '1y';
+    const historyCache = new Map();
+
+    async function loadPoints(symbol) {
+      if (historyCache.has(symbol)) return historyCache.get(symbol);
+      try {
+        const response = await fetch(`history/${encodeURIComponent(symbol)}.json`);
+        if (!response.ok) return null;
+        const payload = await response.json();
+        const points = parseHistory(payload);
+        historyCache.set(symbol, points);
+        return points;
+      } catch (err) {
+        console.warn('Failed to load history for', symbol, err);
+        return null;
+      }
+    }
+
+    function renderGraphSvg(points, rangeKey = '1y', width = 310, height = 110) {
+      if (!points || points.length < 2) {
+        return '<div style="display:grid;place-items:center;height:100%;color:#64748b;font-size:11px;">Graph unavailable</div>';
+      }
+      const slice = sliceRange(points, rangeKey);
+      if (!slice || slice.points.length < 2) {
+        return '<div style="display:grid;place-items:center;height:100%;color:#64748b;font-size:11px;">Graph unavailable</div>';
+      }
+
+      const slicePts = slice.points;
+      let low = Infinity;
+      let high = -Infinity;
+      for (const pt of slicePts) {
+        if (pt.close < low) low = pt.close;
+        if (pt.close > high) high = pt.close;
+      }
+      const pad = { top: 12, bottom: 14, left: 6, right: 48 };
+      const innerW = width - pad.left - pad.right;
+      const innerH = height - pad.top - pad.bottom;
+      const span = high > low ? high - low : 1;
+
+      const firstDay = slicePts[0].day;
+      const spanDays = slicePts.at(-1).day - firstDay || 1;
+
+      const xOf = (day) => pad.left + ((day - firstDay) / spanDays) * innerW;
+      const yOf = (c) => pad.top + ((high - c) / span) * innerH;
+
+      const lineD = slicePts.map((pt, i) => `${i ? 'L' : 'M'}${xOf(pt.day).toFixed(1)},${yOf(pt.close).toFixed(1)}`).join('');
+      const bottomY = pad.top + innerH;
+      const lastX = xOf(slicePts.at(-1).day);
+      const firstX = xOf(slicePts[0].day);
+      const areaD = `${lineD} L${lastX.toFixed(1)},${bottomY.toFixed(1)} L${firstX.toFixed(1)},${bottomY.toFixed(1)} Z`;
+
+      const isUp = slice.change >= 0;
+      const stroke = isUp ? '#10b981' : '#f43f5e';
+      const baseY = yOf(slice.base.close);
+
+      // Update period return header badge
+      const retText = formatPercent(slice.change);
+      el.graphPeriodReturn.textContent = `${retText} ${rangeKey.toUpperCase()}`;
+      el.graphPeriodReturn.className = `graph-period-return ${isUp ? 'up' : 'down'}`;
+
+      return `
+        <svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${rangeKey.toUpperCase()} price chart">
+          <defs>
+            <linearGradient id="preview-grad-${currentSymbol}" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="${stroke}" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="${stroke}" stop-opacity="0.0"/>
+            </linearGradient>
+          </defs>
+          <line x1="${pad.left}" y1="${baseY.toFixed(1)}" x2="${pad.left + innerW}" y2="${baseY.toFixed(1)}" stroke="rgba(255,255,255,0.18)" stroke-dasharray="3 3"/>
+          <path d="${areaD}" fill="url(#preview-grad-${currentSymbol})"/>
+          <path d="${lineD}" fill="none" stroke="${stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="${width - 4}" y="${yOf(slice.last.close).toFixed(1)}" fill="${stroke}" font-size="9.5" font-weight="700" text-anchor="end" dy="0.35em">${formatPrice(slice.last.close)}</text>
+          <text x="${width - 4}" y="${baseY.toFixed(1)}" fill="#94a3b8" font-size="8.5" font-weight="600" text-anchor="end" dy="0.35em">${formatPrice(slice.base.close)}</text>
+        </svg>
+      `;
+    }
+
+    async function updateGraph(symbol, rangeKey) {
+      if (!symbol) return;
+      el.graphSymbolBadge.textContent = symbol;
+      currentRange = rangeKey;
+
+      // Update active pill
+      el.graphPills.querySelectorAll('.graph-pill').forEach((pill) => {
+        pill.classList.toggle('active', pill.dataset.range === rangeKey);
+      });
+
+      const points = await loadPoints(symbol);
+      currentPoints = points;
+      el.graphSvgWrap.innerHTML = renderGraphSvg(points, rangeKey);
+    }
+
+    async function updatePreview(symbol) {
+      currentSymbol = symbol;
+      if (!symbol) {
+        el.coverImg.style.display = 'block';
+        el.graphCard.style.display = 'none';
+        el.statsRow.style.display = 'none';
+        el.perfSection.style.display = 'none';
+
+        el.message.textContent = OVERVIEW_DATA.message;
+        el.title.textContent = OVERVIEW_DATA.title;
+        el.desc.textContent = OVERVIEW_DATA.description;
+        el.link.href = OVERVIEW_DATA.url;
+        el.link.setAttribute('aria-label', `Open ${OVERVIEW_DATA.title}`);
+        return;
+      }
+
+      const security = allSecurities.find((item) => item.symbol === symbol);
+      if (!security) return;
+
+      const summary = formatSecuritySummary(security);
+      if (!summary) return;
+
+      // Switch cover from static image to live dynamic graph
+      el.coverImg.style.display = 'none';
+      el.graphCard.style.display = 'flex';
+      el.statsRow.style.display = 'flex';
+      el.perfSection.style.display = 'block';
+
+      el.message.textContent = summary.message;
+      el.title.textContent = `${summary.symbol} · ${summary.name}`;
+      el.price.textContent = summary.price;
+      el.ret1y.textContent = `${summary.ret1y} 1Y`;
+      const isUp1y = (security['1y'] ?? security.price_change_1y) >= 0;
+      el.ret1y.className = `preview-ret-1y ${isUp1y ? 'up' : 'down'}`;
+      el.mcap.textContent = summary.mcap;
+      el.pe.textContent = summary.pe;
+      el.netIncome.textContent = summary.netIncome;
+
+      // Render performance chips for all 9 periods
+      if (summary.performanceList) {
+        el.perfChips.innerHTML = summary.performanceList.map((p) => {
+          const tone = p.isUp ? 'up' : p.isDown ? 'down' : '';
+          return `
+            <div class="perf-chip ${tone}">
+              <span class="label">${p.label}</span>
+              <span class="val">${p.text}</span>
+            </div>
+          `;
+        }).join('');
+      }
+
+      el.desc.textContent = summary.description;
+      el.link.href = `https://alphadyn.github.io/apps/sp500-ranker/#symbol=${encodeURIComponent(security.symbol)}`;
+      el.link.setAttribute('aria-label', `Open ${summary.title}`);
+
+      await updateGraph(symbol, currentRange || '1y');
+    }
+
+    function syncFromUrl() {
+      const parsed = parseState(location.hash || location.search);
+      const symbol = parsed.symbol || '';
+      if (el.select.value !== symbol) {
+        el.select.value = symbol;
+      }
+      updatePreview(symbol);
+    }
+
+    async function init() {
+      try {
+        const response = await fetch('./data.json');
+        if (response.ok) {
+          const data = await response.json();
+          allSecurities = data.securities || [];
+
+          for (const s of allSecurities) {
+            const opt = document.createElement('option');
+            opt.value = s.symbol;
+            opt.textContent = `${s.symbol} — ${s.name}`;
+            el.select.appendChild(opt);
+          }
+        }
+      } catch (err) {
+        console.warn('Could not load data.json for preview selector', err);
+      }
+
+      el.select.addEventListener('change', (e) => {
+        const symbol = e.target.value;
+        if (symbol) {
+          location.hash = `symbol=${encodeURIComponent(symbol)}`;
+        } else {
+          history.replaceState(null, '', location.pathname);
+        }
+        updatePreview(symbol);
+      });
+
+      el.link.addEventListener('click', (e) => {
+        if (e.target.closest('.graph-range-pills') || e.target.closest('button')) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      });
+
+      // Range pills inside the dynamic graph
+      el.graphPills.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const pill = e.target.closest('.graph-pill');
+        if (!pill || !currentSymbol) return;
+        const range = pill.dataset.range;
+        if (!range || range === currentRange) return;
+        updateGraph(currentSymbol, range);
+      });
+
+      window.addEventListener('hashchange', syncFromUrl);
+      syncFromUrl();
+    }
+
+    init();
+  </script>
+</body>
+</html>

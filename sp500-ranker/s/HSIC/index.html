@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>HSIC · Henry Schein — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Henry Schein (HSIC): $84.01 (+30.1% 1Y). Performance: 1W −1.0%, 1M −4.5%, 3M +0.2%, YTD +11.2%, 1Y +30.1%, 5Y +5.2%. Market Cap: $9.36B, P/E: 23.2, Net Income: $403M. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/HSIC/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/HSIC/">
+  <meta property="og:title" content="HSIC · Henry Schein — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Henry Schein (HSIC): $84.01 (+30.1% 1Y). Performance: 1W −1.0%, 1M −4.5%, 3M +0.2%, YTD +11.2%, 1Y +30.1%, 5Y +5.2%. Market Cap: $9.36B, P/E: 23.2, Net Income: $403M. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="HSIC · Henry Schein — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="HSIC · Henry Schein — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Henry Schein (HSIC): $84.01 (+30.1% 1Y). Performance: 1W −1.0%, 1M −4.5%, 3M +0.2%, YTD +11.2%, 1Y +30.1%, 5Y +5.2%. Market Cap: $9.36B, P/E: 23.2, Net Income: $403M. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">HSIC</span>
+    <h1>Henry Schein</h1>
+    <div class="quote-row">
+      <span class="price">$84.01</span>
+      <span class="change up">+30.1% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+30.1%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for HSIC">
+    <defs>
+      <linearGradient id="chart-fill-HSIC" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="147.3" x2="416" y2="147.3" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,147.3 L13.6,154.3 L15.2,155.2 L16.8,153.2 L18.4,153.9 L20.0,160.0 L21.7,155.3 L23.3,150.5 L24.9,149.0 L26.5,152.6 L28.1,152.2 L29.7,151.0 L31.3,152.5 L32.9,154.1 L34.5,158.6 L36.1,155.7 L37.8,154.2 L39.4,147.0 L41.0,112.1 L42.6,110.2 L44.2,119.9 L45.8,110.7 L47.4,105.2 L49.0,104.1 L50.6,106.0 L52.2,103.5 L53.8,113.0 L55.5,113.9 L57.1,114.2 L58.7,117.2 L60.3,114.3 L61.9,103.2 L63.5,97.9 L65.1,92.7 L66.7,94.0 L68.3,97.4 L69.9,104.7 L71.6,111.9 L73.2,105.8 L74.8,103.5 L76.4,102.1 L78.0,105.9 L79.6,98.0 L81.2,90.8 L82.8,89.0 L84.4,87.5 L86.0,83.3 L87.6,85.0 L89.3,87.2 L90.9,85.1 L92.5,83.5 L94.1,82.3 L95.7,87.7 L97.3,89.3 L98.9,89.6 L100.5,88.0 L102.1,88.0 L103.7,92.3 L105.4,86.1 L107.0,77.5 L108.6,77.5 L110.2,79.5 L111.8,75.2 L113.4,82.0 L115.0,89.6 L116.6,91.1 L118.2,88.9 L119.8,79.8 L121.5,70.3 L123.1,81.6 L124.7,75.5 L126.3,77.9 L127.9,84.2 L129.5,82.3 L131.1,85.9 L132.7,94.8 L134.3,98.5 L135.9,92.8 L137.5,93.7 L139.2,104.5 L140.8,93.9 L142.4,85.2 L144.0,71.6 L145.6,69.7 L147.2,65.1 L148.8,61.8 L150.4,78.1 L152.0,79.3 L153.6,84.2 L155.3,80.1 L156.9,86.2 L158.5,72.4 L160.1,67.4 L161.7,53.5 L163.3,60.7 L164.9,62.9 L166.5,58.3 L168.1,63.4 L169.7,69.2 L171.3,67.3 L173.0,69.4 L174.6,82.2 L176.2,79.7 L177.8,88.8 L179.4,87.7 L181.0,95.4 L182.6,92.4 L184.2,97.2 L185.8,95.9 L187.4,104.6 L189.1,106.8 L190.7,108.8 L192.3,97.9 L193.9,100.1 L195.5,99.0 L197.1,101.7 L198.7,109.7 L200.3,106.7 L201.9,101.7 L203.5,105.0 L205.1,100.5 L206.8,95.9 L208.4,101.0 L210.0,92.6 L211.6,92.1 L213.2,93.5 L214.8,90.3 L216.4,84.2 L218.0,83.1 L219.6,84.2 L221.2,76.1 L222.9,74.5 L224.5,76.0 L226.1,79.7 L227.7,79.1 L229.3,82.5 L230.9,84.2 L232.5,89.6 L234.1,101.2 L235.7,97.3 L237.3,100.6 L238.9,110.1 L240.6,98.4 L242.2,108.0 L243.8,117.7 L245.4,116.1 L247.0,125.2 L248.6,123.4 L250.2,122.9 L251.8,107.2 L253.4,106.6 L255.0,106.8 L256.7,105.6 L258.3,104.1 L259.9,102.7 L261.5,99.2 L263.1,100.7 L264.7,91.9 L266.3,88.6 L267.9,87.3 L269.5,88.2 L271.1,90.0 L272.7,91.5 L274.4,88.7 L276.0,83.0 L277.6,80.0 L279.2,70.1 L280.8,76.0 L282.4,69.1 L284.0,64.0 L285.6,64.8 L287.2,64.2 L288.8,70.4 L290.5,70.6 L292.1,76.9 L293.7,69.7 L295.3,56.2 L296.9,51.8 L298.5,45.5 L300.1,48.8 L301.7,52.7 L303.3,47.7 L304.9,38.1 L306.5,37.2 L308.2,36.1 L309.8,54.2 L311.4,51.0 L313.0,48.3 L314.6,41.3 L316.2,35.7 L317.8,34.5 L319.4,29.0 L321.0,31.2 L322.6,39.3 L324.3,41.0 L325.9,46.2 L327.5,47.6 L329.1,42.9 L330.7,47.2 L332.3,41.7 L333.9,41.1 L335.5,44.4 L337.1,41.5 L338.7,37.7 L340.4,24.7 L342.0,22.3 L343.6,29.1 L345.2,29.6 L346.8,29.9 L348.4,24.4 L350.0,16.6 L351.6,19.7 L353.2,21.4 L354.8,22.7 L356.4,24.1 L358.1,23.8 L359.7,28.0 L361.3,27.8 L362.9,22.7 L364.5,22.0 L366.1,18.4 L367.7,18.9 L369.3,22.7 L370.9,21.3 L372.5,27.7 L374.2,18.3 L375.8,16.0 L377.4,21.2 L379.0,26.0 L380.6,30.4 L382.2,33.8 L383.8,28.5 L385.4,25.6 L387.0,32.7 L388.6,36.4 L390.2,45.1 L391.9,46.1 L393.5,44.3 L395.1,33.1 L396.7,45.0 L398.3,42.6 L399.9,38.4 L401.5,40.3 L403.1,45.4 L404.7,50.4 L406.3,45.6 L408.0,45.9 L409.6,49.1 L411.2,46.1 L412.8,52.0 L414.4,47.1 L416.0,50.2 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-HSIC)"/>
+    <path d="M12.0,147.3 L13.6,154.3 L15.2,155.2 L16.8,153.2 L18.4,153.9 L20.0,160.0 L21.7,155.3 L23.3,150.5 L24.9,149.0 L26.5,152.6 L28.1,152.2 L29.7,151.0 L31.3,152.5 L32.9,154.1 L34.5,158.6 L36.1,155.7 L37.8,154.2 L39.4,147.0 L41.0,112.1 L42.6,110.2 L44.2,119.9 L45.8,110.7 L47.4,105.2 L49.0,104.1 L50.6,106.0 L52.2,103.5 L53.8,113.0 L55.5,113.9 L57.1,114.2 L58.7,117.2 L60.3,114.3 L61.9,103.2 L63.5,97.9 L65.1,92.7 L66.7,94.0 L68.3,97.4 L69.9,104.7 L71.6,111.9 L73.2,105.8 L74.8,103.5 L76.4,102.1 L78.0,105.9 L79.6,98.0 L81.2,90.8 L82.8,89.0 L84.4,87.5 L86.0,83.3 L87.6,85.0 L89.3,87.2 L90.9,85.1 L92.5,83.5 L94.1,82.3 L95.7,87.7 L97.3,89.3 L98.9,89.6 L100.5,88.0 L102.1,88.0 L103.7,92.3 L105.4,86.1 L107.0,77.5 L108.6,77.5 L110.2,79.5 L111.8,75.2 L113.4,82.0 L115.0,89.6 L116.6,91.1 L118.2,88.9 L119.8,79.8 L121.5,70.3 L123.1,81.6 L124.7,75.5 L126.3,77.9 L127.9,84.2 L129.5,82.3 L131.1,85.9 L132.7,94.8 L134.3,98.5 L135.9,92.8 L137.5,93.7 L139.2,104.5 L140.8,93.9 L142.4,85.2 L144.0,71.6 L145.6,69.7 L147.2,65.1 L148.8,61.8 L150.4,78.1 L152.0,79.3 L153.6,84.2 L155.3,80.1 L156.9,86.2 L158.5,72.4 L160.1,67.4 L161.7,53.5 L163.3,60.7 L164.9,62.9 L166.5,58.3 L168.1,63.4 L169.7,69.2 L171.3,67.3 L173.0,69.4 L174.6,82.2 L176.2,79.7 L177.8,88.8 L179.4,87.7 L181.0,95.4 L182.6,92.4 L184.2,97.2 L185.8,95.9 L187.4,104.6 L189.1,106.8 L190.7,108.8 L192.3,97.9 L193.9,100.1 L195.5,99.0 L197.1,101.7 L198.7,109.7 L200.3,106.7 L201.9,101.7 L203.5,105.0 L205.1,100.5 L206.8,95.9 L208.4,101.0 L210.0,92.6 L211.6,92.1 L213.2,93.5 L214.8,90.3 L216.4,84.2 L218.0,83.1 L219.6,84.2 L221.2,76.1 L222.9,74.5 L224.5,76.0 L226.1,79.7 L227.7,79.1 L229.3,82.5 L230.9,84.2 L232.5,89.6 L234.1,101.2 L235.7,97.3 L237.3,100.6 L238.9,110.1 L240.6,98.4 L242.2,108.0 L243.8,117.7 L245.4,116.1 L247.0,125.2 L248.6,123.4 L250.2,122.9 L251.8,107.2 L253.4,106.6 L255.0,106.8 L256.7,105.6 L258.3,104.1 L259.9,102.7 L261.5,99.2 L263.1,100.7 L264.7,91.9 L266.3,88.6 L267.9,87.3 L269.5,88.2 L271.1,90.0 L272.7,91.5 L274.4,88.7 L276.0,83.0 L277.6,80.0 L279.2,70.1 L280.8,76.0 L282.4,69.1 L284.0,64.0 L285.6,64.8 L287.2,64.2 L288.8,70.4 L290.5,70.6 L292.1,76.9 L293.7,69.7 L295.3,56.2 L296.9,51.8 L298.5,45.5 L300.1,48.8 L301.7,52.7 L303.3,47.7 L304.9,38.1 L306.5,37.2 L308.2,36.1 L309.8,54.2 L311.4,51.0 L313.0,48.3 L314.6,41.3 L316.2,35.7 L317.8,34.5 L319.4,29.0 L321.0,31.2 L322.6,39.3 L324.3,41.0 L325.9,46.2 L327.5,47.6 L329.1,42.9 L330.7,47.2 L332.3,41.7 L333.9,41.1 L335.5,44.4 L337.1,41.5 L338.7,37.7 L340.4,24.7 L342.0,22.3 L343.6,29.1 L345.2,29.6 L346.8,29.9 L348.4,24.4 L350.0,16.6 L351.6,19.7 L353.2,21.4 L354.8,22.7 L356.4,24.1 L358.1,23.8 L359.7,28.0 L361.3,27.8 L362.9,22.7 L364.5,22.0 L366.1,18.4 L367.7,18.9 L369.3,22.7 L370.9,21.3 L372.5,27.7 L374.2,18.3 L375.8,16.0 L377.4,21.2 L379.0,26.0 L380.6,30.4 L382.2,33.8 L383.8,28.5 L385.4,25.6 L387.0,32.7 L388.6,36.4 L390.2,45.1 L391.9,46.1 L393.5,44.3 L395.1,33.1 L396.7,45.0 L398.3,42.6 L399.9,38.4 L401.5,40.3 L403.1,45.4 L404.7,50.4 L406.3,45.6 L408.0,45.9 L409.6,49.1 L411.2,46.1 L412.8,52.0 L414.4,47.1 L416.0,50.2" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="50.2" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$84.01</text>
+    <text x="474" y="147.3" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$64.57</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip down"><span class="perf-label">1W</span><strong class="perf-value">−1.0%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−4.5%</strong></div><div class="perf-chip up"><span class="perf-label">3M</span><strong class="perf-value">+0.2%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+11.2%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+30.1%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+19.1%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+5.2%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+32.4%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+1783%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$9.36B</strong></span>
+      <span>P/E: <strong>23.2</strong></span>
+      <span>Net Income: <strong>$403M</strong></span>
+    </div>
+
+    <p class="summary">Henry Schein (HSIC): $84.01 (+30.1% 1Y). Performance: 1W −1.0%, 1M −4.5%, 3M +0.2%, YTD +11.2%, 1Y +30.1%, 5Y +5.2%. Market Cap: $9.36B, P/E: 23.2, Net Income: $403M. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=HSIC">Open HSIC in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=HSIC");</script>
+</body>
+</html>

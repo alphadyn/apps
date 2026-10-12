@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>ECHO · EchoStar — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="EchoStar (ECHO): $94.84 (+24.0% 1Y). Performance: 1W +0.6%, 1M +3.9%, 3M −3.2%, YTD −12.8%, 1Y +24.0%, 5Y +270.2%. Market Cap: $27.6B, Net Income: −$14.5B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/ECHO/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/ECHO/">
+  <meta property="og:title" content="ECHO · EchoStar — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="EchoStar (ECHO): $94.84 (+24.0% 1Y). Performance: 1W +0.6%, 1M +3.9%, 3M −3.2%, YTD −12.8%, 1Y +24.0%, 5Y +270.2%. Market Cap: $27.6B, Net Income: −$14.5B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="ECHO · EchoStar — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ECHO · EchoStar — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="EchoStar (ECHO): $94.84 (+24.0% 1Y). Performance: 1W +0.6%, 1M +3.9%, 3M −3.2%, YTD −12.8%, 1Y +24.0%, 5Y +270.2%. Market Cap: $27.6B, Net Income: −$14.5B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">ECHO</span>
+    <h1>EchoStar</h1>
+    <div class="quote-row">
+      <span class="price">$94.84</span>
+      <span class="change up">+24.0% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+24.0%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for ECHO">
+    <defs>
+      <linearGradient id="chart-fill-ECHO" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="141.6" x2="416" y2="141.6" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,141.6 L13.6,146.4 L15.2,144.8 L16.8,144.4 L18.4,144.8 L20.0,149.6 L21.7,149.5 L23.3,146.1 L24.9,146.8 L26.5,149.8 L28.1,148.3 L29.7,146.2 L31.3,145.7 L32.9,144.9 L34.5,147.1 L36.1,148.0 L37.8,144.7 L39.4,143.8 L41.0,147.4 L42.6,149.6 L44.2,152.8 L45.8,147.4 L47.4,146.9 L49.0,151.6 L50.6,154.8 L52.2,154.1 L53.8,159.1 L55.5,160.0 L57.1,154.6 L58.7,155.8 L60.3,159.4 L61.9,156.7 L63.5,152.3 L65.1,152.2 L66.7,152.4 L68.3,147.8 L69.9,148.3 L71.6,146.3 L73.2,146.3 L74.8,145.4 L76.4,131.0 L78.0,119.0 L79.6,108.8 L81.2,88.7 L82.8,88.0 L84.4,82.2 L86.0,88.8 L87.6,89.4 L89.3,94.7 L90.9,91.4 L92.5,88.9 L94.1,79.3 L95.7,83.4 L97.3,83.0 L98.9,85.6 L100.5,80.0 L102.1,78.7 L103.7,79.7 L105.4,73.0 L107.0,75.9 L108.6,65.5 L110.2,73.0 L111.8,63.8 L113.4,57.9 L115.0,46.3 L116.6,50.7 L118.2,36.6 L119.8,51.1 L121.5,51.6 L123.1,54.1 L124.7,53.1 L126.3,42.6 L127.9,45.4 L129.5,58.5 L131.1,46.8 L132.7,41.4 L134.3,70.5 L135.9,71.0 L137.5,64.6 L139.2,67.9 L140.8,75.8 L142.4,82.9 L144.0,74.1 L145.6,67.2 L147.2,66.3 L148.8,77.0 L150.4,76.2 L152.0,71.1 L153.6,71.4 L155.3,68.6 L156.9,67.9 L158.5,76.5 L160.1,82.1 L161.7,83.4 L163.3,82.9 L164.9,80.3 L166.5,66.5 L168.1,60.5 L169.7,63.9 L171.3,69.4 L173.0,75.5 L174.6,84.4 L176.2,77.3 L177.8,80.0 L179.4,73.0 L181.0,81.6 L182.6,80.4 L184.2,68.8 L185.8,72.8 L187.4,81.5 L189.1,78.9 L190.7,77.5 L192.3,78.1 L193.9,75.5 L195.5,59.7 L197.1,74.5 L198.7,67.1 L200.3,72.9 L201.9,63.6 L203.5,56.8 L205.1,41.2 L206.8,44.6 L208.4,48.8 L210.0,52.5 L211.6,57.8 L213.2,41.4 L214.8,47.3 L216.4,37.8 L218.0,36.0 L219.6,33.9 L221.2,32.5 L222.9,28.9 L224.5,50.5 L226.1,53.4 L227.7,55.0 L229.3,62.7 L230.9,54.8 L232.5,50.8 L234.1,58.4 L235.7,51.9 L237.3,51.8 L238.9,57.3 L240.6,63.0 L242.2,46.9 L243.8,52.9 L245.4,44.2 L247.0,40.3 L248.6,39.9 L250.2,32.5 L251.8,28.9 L253.4,24.8 L255.0,26.3 L256.7,26.2 L258.3,16.0 L259.9,41.7 L261.5,49.9 L263.1,51.9 L264.7,53.2 L266.3,36.6 L267.9,40.3 L269.5,43.7 L271.1,51.1 L272.7,56.2 L274.4,49.0 L276.0,65.1 L277.6,64.4 L279.2,64.1 L280.8,67.1 L282.4,42.3 L284.0,69.3 L285.6,62.0 L287.2,56.1 L288.8,73.9 L290.5,78.8 L292.1,84.1 L293.7,88.9 L295.3,96.7 L296.9,101.8 L298.5,101.6 L300.1,94.8 L301.7,93.5 L303.3,94.7 L304.9,93.5 L306.5,99.7 L308.2,100.4 L309.8,103.6 L311.4,100.3 L313.0,104.1 L314.6,110.1 L316.2,107.0 L317.8,103.0 L319.4,112.7 L321.0,111.8 L322.6,115.0 L324.3,106.5 L325.9,111.2 L327.5,112.7 L329.1,119.7 L330.7,122.0 L332.3,123.5 L333.9,127.4 L335.5,123.1 L337.1,127.0 L338.7,124.0 L340.4,112.6 L342.0,120.0 L343.6,121.3 L345.2,115.6 L346.8,117.3 L348.4,119.5 L350.0,110.8 L351.6,112.4 L353.2,112.0 L354.8,110.8 L356.4,115.6 L358.1,118.6 L359.7,121.6 L361.3,121.8 L362.9,124.6 L364.5,122.3 L366.1,124.1 L367.7,122.4 L369.3,121.7 L370.9,122.5 L372.5,123.2 L374.2,122.0 L375.8,116.0 L377.4,116.0 L379.0,109.1 L380.6,113.1 L382.2,112.1 L383.8,109.6 L385.4,108.1 L387.0,111.6 L388.6,109.0 L390.2,107.8 L391.9,109.0 L393.5,105.3 L395.1,105.1 L396.7,110.4 L398.3,114.9 L399.9,115.4 L401.5,117.1 L403.1,115.8 L404.7,116.8 L406.3,119.0 L408.0,107.5 L409.6,99.8 L411.2,96.4 L412.8,100.8 L414.4,109.2 L416.0,106.3 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-ECHO)"/>
+    <path d="M12.0,141.6 L13.6,146.4 L15.2,144.8 L16.8,144.4 L18.4,144.8 L20.0,149.6 L21.7,149.5 L23.3,146.1 L24.9,146.8 L26.5,149.8 L28.1,148.3 L29.7,146.2 L31.3,145.7 L32.9,144.9 L34.5,147.1 L36.1,148.0 L37.8,144.7 L39.4,143.8 L41.0,147.4 L42.6,149.6 L44.2,152.8 L45.8,147.4 L47.4,146.9 L49.0,151.6 L50.6,154.8 L52.2,154.1 L53.8,159.1 L55.5,160.0 L57.1,154.6 L58.7,155.8 L60.3,159.4 L61.9,156.7 L63.5,152.3 L65.1,152.2 L66.7,152.4 L68.3,147.8 L69.9,148.3 L71.6,146.3 L73.2,146.3 L74.8,145.4 L76.4,131.0 L78.0,119.0 L79.6,108.8 L81.2,88.7 L82.8,88.0 L84.4,82.2 L86.0,88.8 L87.6,89.4 L89.3,94.7 L90.9,91.4 L92.5,88.9 L94.1,79.3 L95.7,83.4 L97.3,83.0 L98.9,85.6 L100.5,80.0 L102.1,78.7 L103.7,79.7 L105.4,73.0 L107.0,75.9 L108.6,65.5 L110.2,73.0 L111.8,63.8 L113.4,57.9 L115.0,46.3 L116.6,50.7 L118.2,36.6 L119.8,51.1 L121.5,51.6 L123.1,54.1 L124.7,53.1 L126.3,42.6 L127.9,45.4 L129.5,58.5 L131.1,46.8 L132.7,41.4 L134.3,70.5 L135.9,71.0 L137.5,64.6 L139.2,67.9 L140.8,75.8 L142.4,82.9 L144.0,74.1 L145.6,67.2 L147.2,66.3 L148.8,77.0 L150.4,76.2 L152.0,71.1 L153.6,71.4 L155.3,68.6 L156.9,67.9 L158.5,76.5 L160.1,82.1 L161.7,83.4 L163.3,82.9 L164.9,80.3 L166.5,66.5 L168.1,60.5 L169.7,63.9 L171.3,69.4 L173.0,75.5 L174.6,84.4 L176.2,77.3 L177.8,80.0 L179.4,73.0 L181.0,81.6 L182.6,80.4 L184.2,68.8 L185.8,72.8 L187.4,81.5 L189.1,78.9 L190.7,77.5 L192.3,78.1 L193.9,75.5 L195.5,59.7 L197.1,74.5 L198.7,67.1 L200.3,72.9 L201.9,63.6 L203.5,56.8 L205.1,41.2 L206.8,44.6 L208.4,48.8 L210.0,52.5 L211.6,57.8 L213.2,41.4 L214.8,47.3 L216.4,37.8 L218.0,36.0 L219.6,33.9 L221.2,32.5 L222.9,28.9 L224.5,50.5 L226.1,53.4 L227.7,55.0 L229.3,62.7 L230.9,54.8 L232.5,50.8 L234.1,58.4 L235.7,51.9 L237.3,51.8 L238.9,57.3 L240.6,63.0 L242.2,46.9 L243.8,52.9 L245.4,44.2 L247.0,40.3 L248.6,39.9 L250.2,32.5 L251.8,28.9 L253.4,24.8 L255.0,26.3 L256.7,26.2 L258.3,16.0 L259.9,41.7 L261.5,49.9 L263.1,51.9 L264.7,53.2 L266.3,36.6 L267.9,40.3 L269.5,43.7 L271.1,51.1 L272.7,56.2 L274.4,49.0 L276.0,65.1 L277.6,64.4 L279.2,64.1 L280.8,67.1 L282.4,42.3 L284.0,69.3 L285.6,62.0 L287.2,56.1 L288.8,73.9 L290.5,78.8 L292.1,84.1 L293.7,88.9 L295.3,96.7 L296.9,101.8 L298.5,101.6 L300.1,94.8 L301.7,93.5 L303.3,94.7 L304.9,93.5 L306.5,99.7 L308.2,100.4 L309.8,103.6 L311.4,100.3 L313.0,104.1 L314.6,110.1 L316.2,107.0 L317.8,103.0 L319.4,112.7 L321.0,111.8 L322.6,115.0 L324.3,106.5 L325.9,111.2 L327.5,112.7 L329.1,119.7 L330.7,122.0 L332.3,123.5 L333.9,127.4 L335.5,123.1 L337.1,127.0 L338.7,124.0 L340.4,112.6 L342.0,120.0 L343.6,121.3 L345.2,115.6 L346.8,117.3 L348.4,119.5 L350.0,110.8 L351.6,112.4 L353.2,112.0 L354.8,110.8 L356.4,115.6 L358.1,118.6 L359.7,121.6 L361.3,121.8 L362.9,124.6 L364.5,122.3 L366.1,124.1 L367.7,122.4 L369.3,121.7 L370.9,122.5 L372.5,123.2 L374.2,122.0 L375.8,116.0 L377.4,116.0 L379.0,109.1 L380.6,113.1 L382.2,112.1 L383.8,109.6 L385.4,108.1 L387.0,111.6 L388.6,109.0 L390.2,107.8 L391.9,109.0 L393.5,105.3 L395.1,105.1 L396.7,110.4 L398.3,114.9 L399.9,115.4 L401.5,117.1 L403.1,115.8 L404.7,116.8 L406.3,119.0 L408.0,107.5 L409.6,99.8 L411.2,96.4 L412.8,100.8 L414.4,109.2 L416.0,106.3" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="106.3" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$94.84</text>
+    <text x="474" y="141.6" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$76.50</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+0.6%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+3.9%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−3.2%</strong></div><div class="perf-chip down"><span class="perf-label">YTD</span><strong class="perf-value">−12.8%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+24.0%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+262.4%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+270.2%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+147.5%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+246.9%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$27.6B</strong></span>
+      <span>P/E: <strong>—</strong></span>
+      <span>Net Income: <strong>−$14.5B</strong></span>
+    </div>
+
+    <p class="summary">EchoStar (ECHO): $94.84 (+24.0% 1Y). Performance: 1W +0.6%, 1M +3.9%, 3M −3.2%, YTD −12.8%, 1Y +24.0%, 5Y +270.2%. Market Cap: $27.6B, Net Income: −$14.5B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=ECHO">Open ECHO in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=ECHO");</script>
+</body>
+</html>

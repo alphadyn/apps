@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>SBUX · Starbucks — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Starbucks (SBUX): $90.75 (+13.8% 1Y). Performance: 1W −4.2%, 1M −9.3%, 3M −14.7%, YTD +7.8%, 1Y +13.8%, 5Y −18.4%. Market Cap: $103B, P/E: 52.2, Net Income: $1.98B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/SBUX/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/SBUX/">
+  <meta property="og:title" content="SBUX · Starbucks — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Starbucks (SBUX): $90.75 (+13.8% 1Y). Performance: 1W −4.2%, 1M −9.3%, 3M −14.7%, YTD +7.8%, 1Y +13.8%, 5Y −18.4%. Market Cap: $103B, P/E: 52.2, Net Income: $1.98B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="SBUX · Starbucks — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SBUX · Starbucks — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Starbucks (SBUX): $90.75 (+13.8% 1Y). Performance: 1W −4.2%, 1M −9.3%, 3M −14.7%, YTD +7.8%, 1Y +13.8%, 5Y −18.4%. Market Cap: $103B, P/E: 52.2, Net Income: $1.98B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">SBUX</span>
+    <h1>Starbucks</h1>
+    <div class="quote-row">
+      <span class="price">$90.75</span>
+      <span class="change up">+13.8% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+13.8%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for SBUX">
+    <defs>
+      <linearGradient id="chart-fill-SBUX" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="153.7" x2="416" y2="153.7" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,153.7 L13.6,160.0 L15.2,152.5 L16.8,147.1 L18.4,138.9 L20.0,131.9 L21.7,127.0 L23.3,131.0 L24.9,124.4 L26.5,126.3 L28.1,126.6 L29.7,123.5 L31.3,118.1 L32.9,126.6 L34.5,132.7 L36.1,137.6 L37.8,148.5 L39.4,148.0 L41.0,154.5 L42.6,138.8 L44.2,142.0 L45.8,126.0 L47.4,130.6 L49.0,121.9 L50.6,117.9 L52.2,121.8 L53.8,129.8 L55.5,135.0 L57.1,136.7 L58.7,135.0 L60.3,140.1 L61.9,127.0 L63.5,136.6 L65.1,124.3 L66.7,120.6 L68.3,118.6 L69.9,129.1 L71.6,127.7 L73.2,118.6 L74.8,128.7 L76.4,128.1 L78.0,136.3 L79.6,141.7 L81.2,134.2 L82.8,129.9 L84.4,127.0 L86.0,126.8 L87.6,128.3 L89.3,127.7 L90.9,107.5 L92.5,112.8 L94.1,123.1 L95.7,134.2 L97.3,130.8 L98.9,128.3 L100.5,126.0 L102.1,127.5 L103.7,132.5 L105.4,133.6 L107.0,121.2 L108.6,107.4 L110.2,120.6 L111.8,113.5 L113.4,110.1 L115.0,105.0 L116.6,102.1 L118.2,99.3 L119.8,89.1 L121.5,90.5 L123.1,87.3 L124.7,74.0 L126.3,76.9 L127.9,68.3 L129.5,74.5 L131.1,77.4 L132.7,80.1 L134.3,86.2 L135.9,95.4 L137.5,96.7 L139.2,90.2 L140.8,71.4 L142.4,75.7 L144.0,59.5 L145.6,61.8 L147.2,68.7 L148.8,61.1 L150.4,72.4 L152.0,86.6 L153.6,79.0 L155.3,77.2 L156.9,77.0 L158.5,68.9 L160.1,81.9 L161.7,73.6 L163.3,66.8 L164.9,66.1 L166.5,66.4 L168.1,72.4 L169.7,72.8 L171.3,70.6 L173.0,63.2 L174.6,61.8 L176.2,58.0 L177.8,53.2 L179.4,50.0 L181.0,56.1 L182.6,61.0 L184.2,67.3 L185.8,68.5 L187.4,92.0 L189.1,76.9 L190.7,92.6 L192.3,86.4 L193.9,95.3 L195.5,91.9 L197.1,98.9 L198.7,120.0 L200.3,120.5 L201.9,106.7 L203.5,102.7 L205.1,103.0 L206.8,81.9 L208.4,79.8 L210.0,70.3 L211.6,71.7 L213.2,73.2 L214.8,69.0 L216.4,64.2 L218.0,64.9 L219.6,64.8 L221.2,56.9 L222.9,61.9 L224.5,67.4 L226.1,59.2 L227.7,59.1 L229.3,63.3 L230.9,67.0 L232.5,69.9 L234.1,30.6 L235.7,31.4 L237.3,28.7 L238.9,33.1 L240.6,33.3 L242.2,26.1 L243.8,36.5 L245.4,33.3 L247.0,29.4 L248.6,25.4 L250.2,28.4 L251.8,26.3 L253.4,24.3 L255.0,25.3 L256.7,26.4 L258.3,25.8 L259.9,37.2 L261.5,42.0 L263.1,50.1 L264.7,46.9 L266.3,53.3 L267.9,60.9 L269.5,73.6 L271.1,78.4 L272.7,76.6 L274.4,85.0 L276.0,79.5 L277.6,81.7 L279.2,69.3 L280.8,62.9 L282.4,46.0 L284.0,42.4 L285.6,49.3 L287.2,48.9 L288.8,57.8 L290.5,53.8 L292.1,56.2 L293.7,51.9 L295.3,40.0 L296.9,41.8 L298.5,34.9 L300.1,37.5 L301.7,46.4 L303.3,40.7 L304.9,36.5 L306.5,46.8 L308.2,39.6 L309.8,38.4 L311.4,26.2 L313.0,28.2 L314.6,21.8 L316.2,27.4 L317.8,32.5 L319.4,16.9 L321.0,30.6 L322.6,33.9 L324.3,35.6 L325.9,37.9 L327.5,41.6 L329.1,41.4 L330.7,39.4 L332.3,42.1 L333.9,37.1 L335.5,28.9 L337.1,31.8 L338.7,40.8 L340.4,33.1 L342.0,28.2 L343.6,32.2 L345.2,30.2 L346.8,34.7 L348.4,25.0 L350.0,16.3 L351.6,16.0 L353.2,20.1 L354.8,19.0 L356.4,28.2 L358.1,33.1 L359.7,37.8 L361.3,23.0 L362.9,21.1 L364.5,29.4 L366.1,16.3 L367.7,22.2 L369.3,19.3 L370.9,27.0 L372.5,27.5 L374.2,24.8 L375.8,29.1 L377.4,35.5 L379.0,47.3 L380.6,56.7 L382.2,60.7 L383.8,62.9 L385.4,61.4 L387.0,73.3 L388.6,69.6 L390.2,72.9 L391.9,76.9 L393.5,81.3 L395.1,80.3 L396.7,85.0 L398.3,87.3 L399.9,81.5 L401.5,79.6 L403.1,78.8 L404.7,85.8 L406.3,81.4 L408.0,82.2 L409.6,83.6 L411.2,75.5 L412.8,87.6 L414.4,89.4 L416.0,101.2 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-SBUX)"/>
+    <path d="M12.0,153.7 L13.6,160.0 L15.2,152.5 L16.8,147.1 L18.4,138.9 L20.0,131.9 L21.7,127.0 L23.3,131.0 L24.9,124.4 L26.5,126.3 L28.1,126.6 L29.7,123.5 L31.3,118.1 L32.9,126.6 L34.5,132.7 L36.1,137.6 L37.8,148.5 L39.4,148.0 L41.0,154.5 L42.6,138.8 L44.2,142.0 L45.8,126.0 L47.4,130.6 L49.0,121.9 L50.6,117.9 L52.2,121.8 L53.8,129.8 L55.5,135.0 L57.1,136.7 L58.7,135.0 L60.3,140.1 L61.9,127.0 L63.5,136.6 L65.1,124.3 L66.7,120.6 L68.3,118.6 L69.9,129.1 L71.6,127.7 L73.2,118.6 L74.8,128.7 L76.4,128.1 L78.0,136.3 L79.6,141.7 L81.2,134.2 L82.8,129.9 L84.4,127.0 L86.0,126.8 L87.6,128.3 L89.3,127.7 L90.9,107.5 L92.5,112.8 L94.1,123.1 L95.7,134.2 L97.3,130.8 L98.9,128.3 L100.5,126.0 L102.1,127.5 L103.7,132.5 L105.4,133.6 L107.0,121.2 L108.6,107.4 L110.2,120.6 L111.8,113.5 L113.4,110.1 L115.0,105.0 L116.6,102.1 L118.2,99.3 L119.8,89.1 L121.5,90.5 L123.1,87.3 L124.7,74.0 L126.3,76.9 L127.9,68.3 L129.5,74.5 L131.1,77.4 L132.7,80.1 L134.3,86.2 L135.9,95.4 L137.5,96.7 L139.2,90.2 L140.8,71.4 L142.4,75.7 L144.0,59.5 L145.6,61.8 L147.2,68.7 L148.8,61.1 L150.4,72.4 L152.0,86.6 L153.6,79.0 L155.3,77.2 L156.9,77.0 L158.5,68.9 L160.1,81.9 L161.7,73.6 L163.3,66.8 L164.9,66.1 L166.5,66.4 L168.1,72.4 L169.7,72.8 L171.3,70.6 L173.0,63.2 L174.6,61.8 L176.2,58.0 L177.8,53.2 L179.4,50.0 L181.0,56.1 L182.6,61.0 L184.2,67.3 L185.8,68.5 L187.4,92.0 L189.1,76.9 L190.7,92.6 L192.3,86.4 L193.9,95.3 L195.5,91.9 L197.1,98.9 L198.7,120.0 L200.3,120.5 L201.9,106.7 L203.5,102.7 L205.1,103.0 L206.8,81.9 L208.4,79.8 L210.0,70.3 L211.6,71.7 L213.2,73.2 L214.8,69.0 L216.4,64.2 L218.0,64.9 L219.6,64.8 L221.2,56.9 L222.9,61.9 L224.5,67.4 L226.1,59.2 L227.7,59.1 L229.3,63.3 L230.9,67.0 L232.5,69.9 L234.1,30.6 L235.7,31.4 L237.3,28.7 L238.9,33.1 L240.6,33.3 L242.2,26.1 L243.8,36.5 L245.4,33.3 L247.0,29.4 L248.6,25.4 L250.2,28.4 L251.8,26.3 L253.4,24.3 L255.0,25.3 L256.7,26.4 L258.3,25.8 L259.9,37.2 L261.5,42.0 L263.1,50.1 L264.7,46.9 L266.3,53.3 L267.9,60.9 L269.5,73.6 L271.1,78.4 L272.7,76.6 L274.4,85.0 L276.0,79.5 L277.6,81.7 L279.2,69.3 L280.8,62.9 L282.4,46.0 L284.0,42.4 L285.6,49.3 L287.2,48.9 L288.8,57.8 L290.5,53.8 L292.1,56.2 L293.7,51.9 L295.3,40.0 L296.9,41.8 L298.5,34.9 L300.1,37.5 L301.7,46.4 L303.3,40.7 L304.9,36.5 L306.5,46.8 L308.2,39.6 L309.8,38.4 L311.4,26.2 L313.0,28.2 L314.6,21.8 L316.2,27.4 L317.8,32.5 L319.4,16.9 L321.0,30.6 L322.6,33.9 L324.3,35.6 L325.9,37.9 L327.5,41.6 L329.1,41.4 L330.7,39.4 L332.3,42.1 L333.9,37.1 L335.5,28.9 L337.1,31.8 L338.7,40.8 L340.4,33.1 L342.0,28.2 L343.6,32.2 L345.2,30.2 L346.8,34.7 L348.4,25.0 L350.0,16.3 L351.6,16.0 L353.2,20.1 L354.8,19.0 L356.4,28.2 L358.1,33.1 L359.7,37.8 L361.3,23.0 L362.9,21.1 L364.5,29.4 L366.1,16.3 L367.7,22.2 L369.3,19.3 L370.9,27.0 L372.5,27.5 L374.2,24.8 L375.8,29.1 L377.4,35.5 L379.0,47.3 L380.6,56.7 L382.2,60.7 L383.8,62.9 L385.4,61.4 L387.0,73.3 L388.6,69.6 L390.2,72.9 L391.9,76.9 L393.5,81.3 L395.1,80.3 L396.7,85.0 L398.3,87.3 L399.9,81.5 L401.5,79.6 L403.1,78.8 L404.7,85.8 L406.3,81.4 L408.0,82.2 L409.6,83.6 L411.2,75.5 L412.8,87.6 L414.4,89.4 L416.0,101.2" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="101.2" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$90.75</text>
+    <text x="474" y="153.7" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$79.78</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip down"><span class="perf-label">1W</span><strong class="perf-value">−4.2%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−9.3%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−14.7%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+7.8%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+13.8%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−5.4%</strong></div><div class="perf-chip down"><span class="perf-label">5Y</span><strong class="perf-value">−18.4%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+69.8%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+26914%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$103B</strong></span>
+      <span>P/E: <strong>52.2</strong></span>
+      <span>Net Income: <strong>$1.98B</strong></span>
+    </div>
+
+    <p class="summary">Starbucks (SBUX): $90.75 (+13.8% 1Y). Performance: 1W −4.2%, 1M −9.3%, 3M −14.7%, YTD +7.8%, 1Y +13.8%, 5Y −18.4%. Market Cap: $103B, P/E: 52.2, Net Income: $1.98B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=SBUX">Open SBUX in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=SBUX");</script>
+</body>
+</html>

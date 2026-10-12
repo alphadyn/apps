@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>ORCL · Oracle Corporation — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Oracle Corporation (ORCL): $141.40 (−52.4% 1Y). Performance: 1W −0.6%, 1M −12.5%, 3M −2.0%, YTD −27.5%, 1Y −52.4%, 5Y +49.8%. Market Cap: $429B, P/E: 22.7, Net Income: $18.9B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/ORCL/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/ORCL/">
+  <meta property="og:title" content="ORCL · Oracle Corporation — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Oracle Corporation (ORCL): $141.40 (−52.4% 1Y). Performance: 1W −0.6%, 1M −12.5%, 3M −2.0%, YTD −27.5%, 1Y −52.4%, 5Y +49.8%. Market Cap: $429B, P/E: 22.7, Net Income: $18.9B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="ORCL · Oracle Corporation — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ORCL · Oracle Corporation — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Oracle Corporation (ORCL): $141.40 (−52.4% 1Y). Performance: 1W −0.6%, 1M −12.5%, 3M −2.0%, YTD −27.5%, 1Y −52.4%, 5Y +49.8%. Market Cap: $429B, P/E: 22.7, Net Income: $18.9B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">ORCL</span>
+    <h1>Oracle Corporation</h1>
+    <div class="quote-row">
+      <span class="price">$141.40</span>
+      <span class="change down">−52.4% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−52.4%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for ORCL">
+    <defs>
+      <linearGradient id="chart-fill-ORCL" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="27.7" x2="416" y2="27.7" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,27.7 L13.6,30.6 L15.2,19.6 L16.8,26.2 L18.4,22.8 L20.0,16.0 L21.7,31.8 L23.3,42.0 L24.9,43.5 L26.5,45.3 L28.1,39.9 L29.7,37.6 L31.3,39.0 L32.9,39.4 L34.5,43.4 L36.1,56.8 L37.8,52.6 L39.4,56.1 L41.0,63.1 L42.6,61.6 L44.2,66.3 L45.8,69.6 L47.4,68.5 L49.0,71.9 L50.6,78.5 L52.2,85.4 L53.8,81.6 L55.5,83.7 L57.1,83.3 L58.7,79.6 L60.3,90.4 L61.9,99.1 L63.5,98.0 L65.1,100.3 L66.7,94.6 L68.3,96.8 L69.9,97.5 L71.6,97.4 L73.2,92.6 L74.8,87.8 L76.4,85.4 L78.0,83.2 L79.6,82.5 L81.2,81.4 L82.8,99.0 L84.4,105.5 L86.0,109.1 L87.6,106.4 L89.3,113.8 L90.9,112.7 L92.5,104.0 L94.1,99.4 L95.7,101.6 L97.3,100.0 L98.9,99.6 L100.5,101.5 L102.1,100.2 L103.7,101.9 L105.4,101.3 L107.0,103.6 L108.6,102.7 L110.2,103.4 L111.8,105.7 L113.4,99.3 L115.0,94.8 L116.6,96.5 L118.2,102.8 L119.8,105.6 L121.5,104.7 L123.1,112.8 L124.7,117.2 L126.3,114.0 L127.9,114.8 L129.5,110.9 L131.1,116.4 L132.7,118.0 L134.3,120.7 L135.9,123.9 L137.5,127.2 L139.2,131.1 L140.8,137.0 L142.4,144.4 L144.0,139.8 L145.6,129.7 L147.2,127.3 L148.8,129.3 L150.4,129.8 L152.0,127.2 L153.6,131.7 L155.3,130.1 L156.9,129.8 L158.5,135.9 L160.1,140.9 L161.7,137.3 L163.3,136.1 L164.9,134.3 L166.5,137.9 L168.1,135.1 L169.7,135.3 L171.3,132.8 L173.0,131.1 L174.6,132.4 L176.2,133.4 L177.8,135.0 L179.4,125.0 L181.0,127.9 L182.6,130.8 L184.2,130.2 L185.8,131.1 L187.4,132.4 L189.1,130.5 L190.7,134.8 L192.3,131.4 L193.9,136.7 L195.5,137.4 L197.1,139.8 L198.7,142.1 L200.3,142.7 L201.9,136.6 L203.5,138.0 L205.1,137.2 L206.8,137.8 L208.4,139.5 L210.0,139.2 L211.6,143.4 L213.2,143.2 L214.8,130.5 L216.4,125.1 L218.0,120.1 L219.6,113.9 L221.2,116.3 L222.9,114.5 L224.5,111.9 L226.1,107.3 L227.7,115.4 L229.3,117.6 L230.9,117.8 L232.5,122.9 L234.1,124.5 L235.7,126.3 L237.3,118.7 L238.9,112.5 L240.6,108.8 L242.2,102.5 L243.8,102.1 L245.4,101.1 L247.0,102.7 L248.6,107.8 L250.2,105.6 L251.8,101.4 L253.4,103.3 L255.0,107.9 L256.7,111.7 L258.3,106.8 L259.9,105.6 L261.5,103.9 L263.1,103.2 L264.7,104.8 L266.3,95.5 L267.9,79.4 L269.5,63.2 L271.1,65.8 L272.7,76.1 L274.4,71.7 L276.0,88.2 L277.6,89.6 L279.2,94.0 L280.8,97.3 L282.4,109.7 L284.0,109.7 L285.6,103.5 L287.2,106.7 L288.8,110.2 L290.5,109.6 L292.1,116.3 L293.7,123.5 L295.3,129.1 L296.9,132.8 L298.5,135.6 L300.1,136.2 L301.7,137.0 L303.3,140.0 L304.9,141.6 L306.5,139.1 L308.2,140.6 L309.8,141.5 L311.4,138.7 L313.0,141.3 L314.6,148.0 L316.2,150.6 L317.8,147.3 L319.4,153.3 L321.0,151.7 L322.6,155.4 L324.3,151.2 L325.9,152.1 L327.5,156.3 L329.1,160.0 L330.7,156.4 L332.3,156.4 L333.9,158.0 L335.5,150.9 L337.1,149.2 L338.7,140.5 L340.4,137.6 L342.0,138.6 L343.6,139.3 L345.2,136.7 L346.8,133.8 L348.4,137.8 L350.0,132.2 L351.6,130.0 L353.2,134.2 L354.8,137.0 L356.4,139.8 L358.1,139.0 L359.7,140.3 L361.3,137.1 L362.9,140.0 L364.5,138.4 L366.1,135.4 L367.7,133.1 L369.3,133.9 L370.9,135.2 L372.5,140.9 L374.2,137.6 L375.8,131.6 L377.4,128.2 L379.0,125.4 L380.6,126.1 L382.2,132.4 L383.8,134.3 L385.4,138.3 L387.0,141.6 L388.6,139.5 L390.2,134.1 L391.9,136.3 L393.5,135.6 L395.1,135.1 L396.7,138.5 L398.3,142.1 L399.9,143.9 L401.5,147.2 L403.1,143.4 L404.7,143.8 L406.3,143.2 L408.0,140.1 L409.6,140.0 L411.2,138.3 L412.8,139.2 L414.4,144.9 L416.0,140.8 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-ORCL)"/>
+    <path d="M12.0,27.7 L13.6,30.6 L15.2,19.6 L16.8,26.2 L18.4,22.8 L20.0,16.0 L21.7,31.8 L23.3,42.0 L24.9,43.5 L26.5,45.3 L28.1,39.9 L29.7,37.6 L31.3,39.0 L32.9,39.4 L34.5,43.4 L36.1,56.8 L37.8,52.6 L39.4,56.1 L41.0,63.1 L42.6,61.6 L44.2,66.3 L45.8,69.6 L47.4,68.5 L49.0,71.9 L50.6,78.5 L52.2,85.4 L53.8,81.6 L55.5,83.7 L57.1,83.3 L58.7,79.6 L60.3,90.4 L61.9,99.1 L63.5,98.0 L65.1,100.3 L66.7,94.6 L68.3,96.8 L69.9,97.5 L71.6,97.4 L73.2,92.6 L74.8,87.8 L76.4,85.4 L78.0,83.2 L79.6,82.5 L81.2,81.4 L82.8,99.0 L84.4,105.5 L86.0,109.1 L87.6,106.4 L89.3,113.8 L90.9,112.7 L92.5,104.0 L94.1,99.4 L95.7,101.6 L97.3,100.0 L98.9,99.6 L100.5,101.5 L102.1,100.2 L103.7,101.9 L105.4,101.3 L107.0,103.6 L108.6,102.7 L110.2,103.4 L111.8,105.7 L113.4,99.3 L115.0,94.8 L116.6,96.5 L118.2,102.8 L119.8,105.6 L121.5,104.7 L123.1,112.8 L124.7,117.2 L126.3,114.0 L127.9,114.8 L129.5,110.9 L131.1,116.4 L132.7,118.0 L134.3,120.7 L135.9,123.9 L137.5,127.2 L139.2,131.1 L140.8,137.0 L142.4,144.4 L144.0,139.8 L145.6,129.7 L147.2,127.3 L148.8,129.3 L150.4,129.8 L152.0,127.2 L153.6,131.7 L155.3,130.1 L156.9,129.8 L158.5,135.9 L160.1,140.9 L161.7,137.3 L163.3,136.1 L164.9,134.3 L166.5,137.9 L168.1,135.1 L169.7,135.3 L171.3,132.8 L173.0,131.1 L174.6,132.4 L176.2,133.4 L177.8,135.0 L179.4,125.0 L181.0,127.9 L182.6,130.8 L184.2,130.2 L185.8,131.1 L187.4,132.4 L189.1,130.5 L190.7,134.8 L192.3,131.4 L193.9,136.7 L195.5,137.4 L197.1,139.8 L198.7,142.1 L200.3,142.7 L201.9,136.6 L203.5,138.0 L205.1,137.2 L206.8,137.8 L208.4,139.5 L210.0,139.2 L211.6,143.4 L213.2,143.2 L214.8,130.5 L216.4,125.1 L218.0,120.1 L219.6,113.9 L221.2,116.3 L222.9,114.5 L224.5,111.9 L226.1,107.3 L227.7,115.4 L229.3,117.6 L230.9,117.8 L232.5,122.9 L234.1,124.5 L235.7,126.3 L237.3,118.7 L238.9,112.5 L240.6,108.8 L242.2,102.5 L243.8,102.1 L245.4,101.1 L247.0,102.7 L248.6,107.8 L250.2,105.6 L251.8,101.4 L253.4,103.3 L255.0,107.9 L256.7,111.7 L258.3,106.8 L259.9,105.6 L261.5,103.9 L263.1,103.2 L264.7,104.8 L266.3,95.5 L267.9,79.4 L269.5,63.2 L271.1,65.8 L272.7,76.1 L274.4,71.7 L276.0,88.2 L277.6,89.6 L279.2,94.0 L280.8,97.3 L282.4,109.7 L284.0,109.7 L285.6,103.5 L287.2,106.7 L288.8,110.2 L290.5,109.6 L292.1,116.3 L293.7,123.5 L295.3,129.1 L296.9,132.8 L298.5,135.6 L300.1,136.2 L301.7,137.0 L303.3,140.0 L304.9,141.6 L306.5,139.1 L308.2,140.6 L309.8,141.5 L311.4,138.7 L313.0,141.3 L314.6,148.0 L316.2,150.6 L317.8,147.3 L319.4,153.3 L321.0,151.7 L322.6,155.4 L324.3,151.2 L325.9,152.1 L327.5,156.3 L329.1,160.0 L330.7,156.4 L332.3,156.4 L333.9,158.0 L335.5,150.9 L337.1,149.2 L338.7,140.5 L340.4,137.6 L342.0,138.6 L343.6,139.3 L345.2,136.7 L346.8,133.8 L348.4,137.8 L350.0,132.2 L351.6,130.0 L353.2,134.2 L354.8,137.0 L356.4,139.8 L358.1,139.0 L359.7,140.3 L361.3,137.1 L362.9,140.0 L364.5,138.4 L366.1,135.4 L367.7,133.1 L369.3,133.9 L370.9,135.2 L372.5,140.9 L374.2,137.6 L375.8,131.6 L377.4,128.2 L379.0,125.4 L380.6,126.1 L382.2,132.4 L383.8,134.3 L385.4,138.3 L387.0,141.6 L388.6,139.5 L390.2,134.1 L391.9,136.3 L393.5,135.6 L395.1,135.1 L396.7,138.5 L398.3,142.1 L399.9,143.9 L401.5,147.2 L403.1,143.4 L404.7,143.8 L406.3,143.2 L408.0,140.1 L409.6,140.0 L411.2,138.3 L412.8,139.2 L414.4,144.9 L416.0,140.8" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="140.8" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$141.40</text>
+    <text x="474" y="27.7" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$296.96</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip down"><span class="perf-label">1W</span><strong class="perf-value">−0.6%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−12.5%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−2.0%</strong></div><div class="perf-chip down"><span class="perf-label">YTD</span><strong class="perf-value">−27.5%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−52.4%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−20.7%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+49.8%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+265.3%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+210536%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$429B</strong></span>
+      <span>P/E: <strong>22.7</strong></span>
+      <span>Net Income: <strong>$18.9B</strong></span>
+    </div>
+
+    <p class="summary">Oracle Corporation (ORCL): $141.40 (−52.4% 1Y). Performance: 1W −0.6%, 1M −12.5%, 3M −2.0%, YTD −27.5%, 1Y −52.4%, 5Y +49.8%. Market Cap: $429B, P/E: 22.7, Net Income: $18.9B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=ORCL">Open ORCL in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=ORCL");</script>
+</body>
+</html>

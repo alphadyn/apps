@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>GWW · W. W. Grainger — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="W. W. Grainger (GWW): $1,289.79 (+33.2% 1Y). Performance: 1W +0.7%, 1M +0.9%, 3M −5.5%, YTD +27.8%, 1Y +33.2%, 5Y +209.1%. Market Cap: $60.8B, P/E: 32.5, Net Income: $1.87B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/GWW/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/GWW/">
+  <meta property="og:title" content="GWW · W. W. Grainger — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="W. W. Grainger (GWW): $1,289.79 (+33.2% 1Y). Performance: 1W +0.7%, 1M +0.9%, 3M −5.5%, YTD +27.8%, 1Y +33.2%, 5Y +209.1%. Market Cap: $60.8B, P/E: 32.5, Net Income: $1.87B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="GWW · W. W. Grainger — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="GWW · W. W. Grainger — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="W. W. Grainger (GWW): $1,289.79 (+33.2% 1Y). Performance: 1W +0.7%, 1M +0.9%, 3M −5.5%, YTD +27.8%, 1Y +33.2%, 5Y +209.1%. Market Cap: $60.8B, P/E: 32.5, Net Income: $1.87B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">GWW</span>
+    <h1>W. W. Grainger</h1>
+    <div class="quote-row">
+      <span class="price">$1,289.79</span>
+      <span class="change up">+33.2% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+33.2%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for GWW">
+    <defs>
+      <linearGradient id="chart-fill-GWW" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="145.0" x2="416" y2="145.0" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,145.0 L13.6,151.3 L15.2,154.8 L16.8,147.6 L18.4,148.2 L20.0,149.2 L21.7,149.0 L23.3,144.3 L24.9,144.1 L26.5,145.2 L28.1,146.3 L29.7,145.1 L31.3,142.1 L32.9,146.5 L34.5,147.9 L36.1,148.7 L37.8,141.9 L39.4,145.7 L41.0,148.8 L42.6,146.8 L44.2,149.7 L45.8,149.0 L47.4,150.5 L49.0,151.8 L50.6,152.0 L52.2,155.0 L53.8,157.6 L55.5,158.4 L57.1,160.0 L58.7,158.7 L60.3,157.9 L61.9,149.9 L63.5,156.5 L65.1,153.0 L66.7,152.0 L68.3,150.9 L69.9,152.1 L71.6,147.2 L73.2,144.2 L74.8,144.9 L76.4,142.9 L78.0,147.8 L79.6,147.9 L81.2,137.0 L82.8,126.0 L84.4,128.9 L86.0,126.9 L87.6,129.1 L89.3,129.7 L90.9,129.8 L92.5,128.2 L94.1,125.3 L95.7,128.5 L97.3,126.5 L98.9,128.4 L100.5,127.8 L102.1,129.4 L103.7,133.0 L105.4,134.5 L107.0,131.2 L108.6,127.0 L110.2,134.3 L111.8,125.7 L113.4,126.8 L115.0,126.0 L116.6,123.2 L118.2,119.8 L119.8,116.8 L121.5,115.2 L123.1,125.5 L124.7,118.2 L126.3,115.8 L127.9,118.4 L129.5,120.8 L131.1,118.5 L132.7,114.8 L134.3,111.2 L135.9,111.9 L137.5,107.0 L139.2,89.5 L140.8,77.6 L142.4,81.1 L144.0,76.8 L145.6,79.1 L147.2,79.7 L148.8,75.4 L150.4,100.9 L152.0,96.5 L153.6,96.3 L155.3,95.8 L156.9,97.6 L158.5,97.8 L160.1,100.9 L161.7,97.9 L163.3,100.8 L164.9,104.2 L166.5,92.6 L168.1,90.3 L169.7,90.6 L171.3,91.5 L173.0,92.3 L174.6,102.1 L176.2,101.3 L177.8,104.0 L179.4,102.8 L181.0,111.2 L182.6,113.6 L184.2,117.7 L185.8,116.1 L187.4,122.0 L189.1,122.8 L190.7,123.2 L192.3,119.4 L193.9,116.2 L195.5,113.1 L197.1,116.2 L198.7,118.7 L200.3,118.6 L201.9,108.6 L203.5,103.6 L205.1,100.7 L206.8,100.8 L208.4,103.5 L210.0,92.0 L211.6,84.4 L213.2,84.4 L214.8,87.5 L216.4,89.4 L218.0,93.0 L219.6,95.9 L221.2,87.2 L222.9,87.1 L224.5,84.7 L226.1,89.8 L227.7,86.6 L229.3,91.6 L230.9,88.6 L232.5,88.0 L234.1,92.6 L235.7,87.6 L237.3,91.4 L238.9,93.3 L240.6,95.5 L242.2,85.1 L243.8,66.0 L245.4,66.1 L247.0,68.4 L248.6,64.7 L250.2,60.4 L251.8,51.1 L253.4,54.6 L255.0,56.8 L256.7,62.9 L258.3,63.0 L259.9,64.4 L261.5,61.9 L263.1,61.5 L264.7,62.4 L266.3,62.0 L267.9,65.9 L269.5,63.3 L271.1,55.8 L272.7,51.1 L274.4,49.5 L276.0,46.4 L277.6,45.0 L279.2,37.5 L280.8,41.1 L282.4,42.2 L284.0,41.6 L285.6,42.2 L287.2,40.5 L288.8,43.1 L290.5,26.9 L292.1,34.0 L293.7,40.3 L295.3,33.7 L296.9,24.1 L298.5,30.4 L300.1,30.5 L301.7,28.4 L303.3,35.0 L304.9,33.6 L306.5,25.5 L308.2,29.6 L309.8,31.6 L311.4,27.1 L313.0,23.8 L314.6,19.1 L316.2,25.2 L317.8,25.1 L319.4,16.0 L321.0,18.1 L322.6,25.2 L324.3,28.0 L325.9,30.3 L327.5,26.3 L329.1,21.8 L330.7,16.9 L332.3,16.9 L333.9,28.8 L335.5,29.9 L337.1,21.9 L338.7,25.2 L340.4,46.2 L342.0,50.8 L343.6,51.5 L345.2,53.0 L346.8,47.1 L348.4,45.8 L350.0,44.9 L351.6,40.0 L353.2,39.6 L354.8,41.1 L356.4,42.2 L358.1,44.3 L359.7,46.3 L361.3,42.7 L362.9,39.8 L364.5,45.9 L366.1,35.8 L367.7,40.1 L369.3,44.5 L370.9,43.5 L372.5,43.6 L374.2,50.9 L375.8,42.5 L377.4,39.1 L379.0,49.6 L380.6,52.7 L382.2,54.9 L383.8,52.3 L385.4,53.1 L387.0,55.4 L388.6,58.8 L390.2,57.5 L391.9,56.3 L393.5,53.0 L395.1,55.7 L396.7,55.1 L398.3,52.5 L399.9,63.3 L401.5,59.6 L403.1,61.6 L404.7,62.5 L406.3,51.8 L408.0,52.2 L409.6,50.3 L411.2,53.6 L412.8,57.2 L414.4,55.7 L416.0,49.4 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-GWW)"/>
+    <path d="M12.0,145.0 L13.6,151.3 L15.2,154.8 L16.8,147.6 L18.4,148.2 L20.0,149.2 L21.7,149.0 L23.3,144.3 L24.9,144.1 L26.5,145.2 L28.1,146.3 L29.7,145.1 L31.3,142.1 L32.9,146.5 L34.5,147.9 L36.1,148.7 L37.8,141.9 L39.4,145.7 L41.0,148.8 L42.6,146.8 L44.2,149.7 L45.8,149.0 L47.4,150.5 L49.0,151.8 L50.6,152.0 L52.2,155.0 L53.8,157.6 L55.5,158.4 L57.1,160.0 L58.7,158.7 L60.3,157.9 L61.9,149.9 L63.5,156.5 L65.1,153.0 L66.7,152.0 L68.3,150.9 L69.9,152.1 L71.6,147.2 L73.2,144.2 L74.8,144.9 L76.4,142.9 L78.0,147.8 L79.6,147.9 L81.2,137.0 L82.8,126.0 L84.4,128.9 L86.0,126.9 L87.6,129.1 L89.3,129.7 L90.9,129.8 L92.5,128.2 L94.1,125.3 L95.7,128.5 L97.3,126.5 L98.9,128.4 L100.5,127.8 L102.1,129.4 L103.7,133.0 L105.4,134.5 L107.0,131.2 L108.6,127.0 L110.2,134.3 L111.8,125.7 L113.4,126.8 L115.0,126.0 L116.6,123.2 L118.2,119.8 L119.8,116.8 L121.5,115.2 L123.1,125.5 L124.7,118.2 L126.3,115.8 L127.9,118.4 L129.5,120.8 L131.1,118.5 L132.7,114.8 L134.3,111.2 L135.9,111.9 L137.5,107.0 L139.2,89.5 L140.8,77.6 L142.4,81.1 L144.0,76.8 L145.6,79.1 L147.2,79.7 L148.8,75.4 L150.4,100.9 L152.0,96.5 L153.6,96.3 L155.3,95.8 L156.9,97.6 L158.5,97.8 L160.1,100.9 L161.7,97.9 L163.3,100.8 L164.9,104.2 L166.5,92.6 L168.1,90.3 L169.7,90.6 L171.3,91.5 L173.0,92.3 L174.6,102.1 L176.2,101.3 L177.8,104.0 L179.4,102.8 L181.0,111.2 L182.6,113.6 L184.2,117.7 L185.8,116.1 L187.4,122.0 L189.1,122.8 L190.7,123.2 L192.3,119.4 L193.9,116.2 L195.5,113.1 L197.1,116.2 L198.7,118.7 L200.3,118.6 L201.9,108.6 L203.5,103.6 L205.1,100.7 L206.8,100.8 L208.4,103.5 L210.0,92.0 L211.6,84.4 L213.2,84.4 L214.8,87.5 L216.4,89.4 L218.0,93.0 L219.6,95.9 L221.2,87.2 L222.9,87.1 L224.5,84.7 L226.1,89.8 L227.7,86.6 L229.3,91.6 L230.9,88.6 L232.5,88.0 L234.1,92.6 L235.7,87.6 L237.3,91.4 L238.9,93.3 L240.6,95.5 L242.2,85.1 L243.8,66.0 L245.4,66.1 L247.0,68.4 L248.6,64.7 L250.2,60.4 L251.8,51.1 L253.4,54.6 L255.0,56.8 L256.7,62.9 L258.3,63.0 L259.9,64.4 L261.5,61.9 L263.1,61.5 L264.7,62.4 L266.3,62.0 L267.9,65.9 L269.5,63.3 L271.1,55.8 L272.7,51.1 L274.4,49.5 L276.0,46.4 L277.6,45.0 L279.2,37.5 L280.8,41.1 L282.4,42.2 L284.0,41.6 L285.6,42.2 L287.2,40.5 L288.8,43.1 L290.5,26.9 L292.1,34.0 L293.7,40.3 L295.3,33.7 L296.9,24.1 L298.5,30.4 L300.1,30.5 L301.7,28.4 L303.3,35.0 L304.9,33.6 L306.5,25.5 L308.2,29.6 L309.8,31.6 L311.4,27.1 L313.0,23.8 L314.6,19.1 L316.2,25.2 L317.8,25.1 L319.4,16.0 L321.0,18.1 L322.6,25.2 L324.3,28.0 L325.9,30.3 L327.5,26.3 L329.1,21.8 L330.7,16.9 L332.3,16.9 L333.9,28.8 L335.5,29.9 L337.1,21.9 L338.7,25.2 L340.4,46.2 L342.0,50.8 L343.6,51.5 L345.2,53.0 L346.8,47.1 L348.4,45.8 L350.0,44.9 L351.6,40.0 L353.2,39.6 L354.8,41.1 L356.4,42.2 L358.1,44.3 L359.7,46.3 L361.3,42.7 L362.9,39.8 L364.5,45.9 L366.1,35.8 L367.7,40.1 L369.3,44.5 L370.9,43.5 L372.5,43.6 L374.2,50.9 L375.8,42.5 L377.4,39.1 L379.0,49.6 L380.6,52.7 L382.2,54.9 L383.8,52.3 L385.4,53.1 L387.0,55.4 L388.6,58.8 L390.2,57.5 L391.9,56.3 L393.5,53.0 L395.1,55.7 L396.7,55.1 L398.3,52.5 L399.9,63.3 L401.5,59.6 L403.1,61.6 L404.7,62.5 L406.3,51.8 L408.0,52.2 L409.6,50.3 L411.2,53.6 L412.8,57.2 L414.4,55.7 L416.0,49.4" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="49.4" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$1,289.79</text>
+    <text x="474" y="145.0" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$968.53</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+0.7%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+0.9%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−5.5%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+27.8%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+33.2%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+25.3%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+209.1%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+474.7%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+27143%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$60.8B</strong></span>
+      <span>P/E: <strong>32.5</strong></span>
+      <span>Net Income: <strong>$1.87B</strong></span>
+    </div>
+
+    <p class="summary">W. W. Grainger (GWW): $1,289.79 (+33.2% 1Y). Performance: 1W +0.7%, 1M +0.9%, 3M −5.5%, YTD +27.8%, 1Y +33.2%, 5Y +209.1%. Market Cap: $60.8B, P/E: 32.5, Net Income: $1.87B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=GWW">Open GWW in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=GWW");</script>
+</body>
+</html>

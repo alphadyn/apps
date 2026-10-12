@@ -293,9 +293,17 @@
     <div class="detail-inner">
       <div class="detail-navigation">
         <button type="button" class="detail-back" id="detail-back">← Back to rankings</button>
-        <div class="detail-rank-nav" aria-label="Navigate ranked securities">
-          <button type="button" id="detail-previous" aria-label="Previous security in ranking (up arrow)" title="Previous security (↑)">↑</button>
-          <button type="button" id="detail-next" aria-label="Next security in ranking (down arrow)" title="Next security (↓)">↓</button>
+        <div class="detail-nav-actions">
+          <button type="button" class="detail-share" id="detail-share" title="Share link to this security" aria-label="Share security link">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14">
+              <path d="M4 12v4a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-4M14 6l-4-4-4 4M10 2v12"/>
+            </svg>
+            <span id="detail-share-text">Share</span>
+          </button>
+          <div class="detail-rank-nav" aria-label="Navigate ranked securities">
+            <button type="button" id="detail-previous" aria-label="Previous security in ranking (up arrow)" title="Previous security (↑)">↑</button>
+            <button type="button" id="detail-next" aria-label="Next security in ranking (down arrow)" title="Next security (↓)">↓</button>
+          </div>
         </div>
       </div>
       <header class="detail-header">

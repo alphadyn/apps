@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>MRSH · Marsh McLennan — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Marsh McLennan (MRSH): $175.76 (−14.7% 1Y). Performance: 1W +3.4%, 1M −0.6%, 3M −1.8%, YTD −5.3%, 1Y −14.7%, 5Y +12.2%. Market Cap: $83.9B, P/E: 21.1, Net Income: $3.98B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/MRSH/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/MRSH/">
+  <meta property="og:title" content="MRSH · Marsh McLennan — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Marsh McLennan (MRSH): $175.76 (−14.7% 1Y). Performance: 1W +3.4%, 1M −0.6%, 3M −1.8%, YTD −5.3%, 1Y −14.7%, 5Y +12.2%. Market Cap: $83.9B, P/E: 21.1, Net Income: $3.98B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="MRSH · Marsh McLennan — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MRSH · Marsh McLennan — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Marsh McLennan (MRSH): $175.76 (−14.7% 1Y). Performance: 1W +3.4%, 1M −0.6%, 3M −1.8%, YTD −5.3%, 1Y −14.7%, 5Y +12.2%. Market Cap: $83.9B, P/E: 21.1, Net Income: $3.98B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">MRSH</span>
+    <h1>Marsh McLennan</h1>
+    <div class="quote-row">
+      <span class="price">$175.76</span>
+      <span class="change down">−14.7% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−14.7%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for MRSH">
+    <defs>
+      <linearGradient id="chart-fill-MRSH" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="19.0" x2="416" y2="19.0" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,19.0 L13.6,16.0 L15.2,20.8 L16.8,16.0 L18.4,25.2 L20.0,75.5 L21.7,66.5 L23.3,65.6 L24.9,68.4 L26.5,67.3 L28.1,70.9 L29.7,75.3 L31.3,72.2 L32.9,86.1 L34.5,94.3 L36.1,98.1 L37.8,99.6 L39.4,102.6 L41.0,92.8 L42.6,98.9 L44.2,104.2 L45.8,94.1 L47.4,99.7 L49.0,88.7 L50.6,86.2 L52.2,83.1 L53.8,86.1 L55.5,91.8 L57.1,93.6 L58.7,102.6 L60.3,97.3 L61.9,91.6 L63.5,95.5 L65.1,88.4 L66.7,86.5 L68.3,84.3 L69.9,82.7 L71.6,84.6 L73.2,83.1 L74.8,85.0 L76.4,89.0 L78.0,89.7 L79.6,90.6 L81.2,91.6 L82.8,84.2 L84.4,76.3 L86.0,73.1 L87.6,73.5 L89.3,75.9 L90.9,77.7 L92.5,80.7 L94.1,78.3 L95.7,77.2 L97.3,72.3 L98.9,74.0 L100.5,72.2 L102.1,73.0 L103.7,78.3 L105.4,87.1 L107.0,73.0 L108.6,78.2 L110.2,85.9 L111.8,74.3 L113.4,76.9 L115.0,78.0 L116.6,86.5 L118.2,84.8 L119.8,87.7 L121.5,87.3 L123.1,91.4 L124.7,95.2 L126.3,92.4 L127.9,85.1 L129.5,83.7 L131.1,96.7 L132.7,99.6 L134.3,71.3 L135.9,70.6 L137.5,70.4 L139.2,69.7 L140.8,66.0 L142.4,72.5 L144.0,79.7 L145.6,120.0 L147.2,107.8 L148.8,114.6 L150.4,113.6 L152.0,111.5 L153.6,106.4 L155.3,99.8 L156.9,97.6 L158.5,96.3 L160.1,103.0 L161.7,98.8 L163.3,91.1 L164.9,79.0 L166.5,74.8 L168.1,75.7 L169.7,82.0 L171.3,80.3 L173.0,79.8 L174.6,85.4 L176.2,94.4 L177.8,111.7 L179.4,111.8 L181.0,120.7 L182.6,117.0 L184.2,112.4 L185.8,117.6 L187.4,120.3 L189.1,120.6 L190.7,104.5 L192.3,112.0 L193.9,114.3 L195.5,111.1 L197.1,111.3 L198.7,125.7 L200.3,109.6 L201.9,113.3 L203.5,117.8 L205.1,109.9 L206.8,109.3 L208.4,115.6 L210.0,106.4 L211.6,114.2 L213.2,128.6 L214.8,113.0 L216.4,115.0 L218.0,109.1 L219.6,86.8 L221.2,106.5 L222.9,110.0 L224.5,97.2 L226.1,107.3 L227.7,111.6 L229.3,123.0 L230.9,122.8 L232.5,120.9 L234.1,120.9 L235.7,129.9 L237.3,134.3 L238.9,129.4 L240.6,131.2 L242.2,140.9 L243.8,134.8 L245.4,142.8 L247.0,147.7 L248.6,142.4 L250.2,154.7 L251.8,152.2 L253.4,149.2 L255.0,134.9 L256.7,134.6 L258.3,142.4 L259.9,137.4 L261.5,140.3 L263.1,146.5 L264.7,150.5 L266.3,153.6 L267.9,152.3 L269.5,144.8 L271.1,148.2 L272.7,160.0 L274.4,148.6 L276.0,136.5 L277.6,144.9 L279.2,136.2 L280.8,131.5 L282.4,128.6 L284.0,127.1 L285.6,134.3 L287.2,132.6 L288.8,140.0 L290.5,145.3 L292.1,151.9 L293.7,141.1 L295.3,135.0 L296.9,145.8 L298.5,126.1 L300.1,132.8 L301.7,132.9 L303.3,117.1 L304.9,98.5 L306.5,109.6 L308.2,100.1 L309.8,97.0 L311.4,97.2 L313.0,99.2 L314.6,89.9 L316.2,99.9 L317.8,105.2 L319.4,88.1 L321.0,88.0 L322.6,88.2 L324.3,89.7 L325.9,105.9 L327.5,104.7 L329.1,92.1 L330.7,84.7 L332.3,59.0 L333.9,43.3 L335.5,60.9 L337.1,66.2 L338.7,57.1 L340.4,61.1 L342.0,61.1 L343.6,55.8 L345.2,60.5 L346.8,63.0 L348.4,61.7 L350.0,68.6 L351.6,69.1 L353.2,71.6 L354.8,82.1 L356.4,75.8 L358.1,67.6 L359.7,64.7 L361.3,59.5 L362.9,51.8 L364.5,55.5 L366.1,55.9 L367.7,65.3 L369.3,57.7 L370.9,65.9 L372.5,72.3 L374.2,71.6 L375.8,69.8 L377.4,77.7 L379.0,92.8 L380.6,103.4 L382.2,102.1 L383.8,103.2 L385.4,93.0 L387.0,95.0 L388.6,103.7 L390.2,110.0 L391.9,108.7 L393.5,115.4 L395.1,123.2 L396.7,122.2 L398.3,123.5 L399.9,120.0 L401.5,126.1 L403.1,122.0 L404.7,121.1 L406.3,117.9 L408.0,123.1 L409.6,122.0 L411.2,118.2 L412.8,112.7 L414.4,103.9 L416.0,106.6 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-MRSH)"/>
+    <path d="M12.0,19.0 L13.6,16.0 L15.2,20.8 L16.8,16.0 L18.4,25.2 L20.0,75.5 L21.7,66.5 L23.3,65.6 L24.9,68.4 L26.5,67.3 L28.1,70.9 L29.7,75.3 L31.3,72.2 L32.9,86.1 L34.5,94.3 L36.1,98.1 L37.8,99.6 L39.4,102.6 L41.0,92.8 L42.6,98.9 L44.2,104.2 L45.8,94.1 L47.4,99.7 L49.0,88.7 L50.6,86.2 L52.2,83.1 L53.8,86.1 L55.5,91.8 L57.1,93.6 L58.7,102.6 L60.3,97.3 L61.9,91.6 L63.5,95.5 L65.1,88.4 L66.7,86.5 L68.3,84.3 L69.9,82.7 L71.6,84.6 L73.2,83.1 L74.8,85.0 L76.4,89.0 L78.0,89.7 L79.6,90.6 L81.2,91.6 L82.8,84.2 L84.4,76.3 L86.0,73.1 L87.6,73.5 L89.3,75.9 L90.9,77.7 L92.5,80.7 L94.1,78.3 L95.7,77.2 L97.3,72.3 L98.9,74.0 L100.5,72.2 L102.1,73.0 L103.7,78.3 L105.4,87.1 L107.0,73.0 L108.6,78.2 L110.2,85.9 L111.8,74.3 L113.4,76.9 L115.0,78.0 L116.6,86.5 L118.2,84.8 L119.8,87.7 L121.5,87.3 L123.1,91.4 L124.7,95.2 L126.3,92.4 L127.9,85.1 L129.5,83.7 L131.1,96.7 L132.7,99.6 L134.3,71.3 L135.9,70.6 L137.5,70.4 L139.2,69.7 L140.8,66.0 L142.4,72.5 L144.0,79.7 L145.6,120.0 L147.2,107.8 L148.8,114.6 L150.4,113.6 L152.0,111.5 L153.6,106.4 L155.3,99.8 L156.9,97.6 L158.5,96.3 L160.1,103.0 L161.7,98.8 L163.3,91.1 L164.9,79.0 L166.5,74.8 L168.1,75.7 L169.7,82.0 L171.3,80.3 L173.0,79.8 L174.6,85.4 L176.2,94.4 L177.8,111.7 L179.4,111.8 L181.0,120.7 L182.6,117.0 L184.2,112.4 L185.8,117.6 L187.4,120.3 L189.1,120.6 L190.7,104.5 L192.3,112.0 L193.9,114.3 L195.5,111.1 L197.1,111.3 L198.7,125.7 L200.3,109.6 L201.9,113.3 L203.5,117.8 L205.1,109.9 L206.8,109.3 L208.4,115.6 L210.0,106.4 L211.6,114.2 L213.2,128.6 L214.8,113.0 L216.4,115.0 L218.0,109.1 L219.6,86.8 L221.2,106.5 L222.9,110.0 L224.5,97.2 L226.1,107.3 L227.7,111.6 L229.3,123.0 L230.9,122.8 L232.5,120.9 L234.1,120.9 L235.7,129.9 L237.3,134.3 L238.9,129.4 L240.6,131.2 L242.2,140.9 L243.8,134.8 L245.4,142.8 L247.0,147.7 L248.6,142.4 L250.2,154.7 L251.8,152.2 L253.4,149.2 L255.0,134.9 L256.7,134.6 L258.3,142.4 L259.9,137.4 L261.5,140.3 L263.1,146.5 L264.7,150.5 L266.3,153.6 L267.9,152.3 L269.5,144.8 L271.1,148.2 L272.7,160.0 L274.4,148.6 L276.0,136.5 L277.6,144.9 L279.2,136.2 L280.8,131.5 L282.4,128.6 L284.0,127.1 L285.6,134.3 L287.2,132.6 L288.8,140.0 L290.5,145.3 L292.1,151.9 L293.7,141.1 L295.3,135.0 L296.9,145.8 L298.5,126.1 L300.1,132.8 L301.7,132.9 L303.3,117.1 L304.9,98.5 L306.5,109.6 L308.2,100.1 L309.8,97.0 L311.4,97.2 L313.0,99.2 L314.6,89.9 L316.2,99.9 L317.8,105.2 L319.4,88.1 L321.0,88.0 L322.6,88.2 L324.3,89.7 L325.9,105.9 L327.5,104.7 L329.1,92.1 L330.7,84.7 L332.3,59.0 L333.9,43.3 L335.5,60.9 L337.1,66.2 L338.7,57.1 L340.4,61.1 L342.0,61.1 L343.6,55.8 L345.2,60.5 L346.8,63.0 L348.4,61.7 L350.0,68.6 L351.6,69.1 L353.2,71.6 L354.8,82.1 L356.4,75.8 L358.1,67.6 L359.7,64.7 L361.3,59.5 L362.9,51.8 L364.5,55.5 L366.1,55.9 L367.7,65.3 L369.3,57.7 L370.9,65.9 L372.5,72.3 L374.2,71.6 L375.8,69.8 L377.4,77.7 L379.0,92.8 L380.6,103.4 L382.2,102.1 L383.8,103.2 L385.4,93.0 L387.0,95.0 L388.6,103.7 L390.2,110.0 L391.9,108.7 L393.5,115.4 L395.1,123.2 L396.7,122.2 L398.3,123.5 L399.9,120.0 L401.5,126.1 L403.1,122.0 L404.7,121.1 L406.3,117.9 L408.0,123.1 L409.6,122.0 L411.2,118.2 L412.8,112.7 L414.4,103.9 L416.0,106.6" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="106.6" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$175.76</text>
+    <text x="474" y="19.0" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$206.00</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+3.4%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−0.6%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−1.8%</strong></div><div class="perf-chip down"><span class="perf-label">YTD</span><strong class="perf-value">−5.3%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−14.7%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−22.5%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+12.2%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+163.7%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+5841%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$83.9B</strong></span>
+      <span>P/E: <strong>21.1</strong></span>
+      <span>Net Income: <strong>$3.98B</strong></span>
+    </div>
+
+    <p class="summary">Marsh McLennan (MRSH): $175.76 (−14.7% 1Y). Performance: 1W +3.4%, 1M −0.6%, 3M −1.8%, YTD −5.3%, 1Y −14.7%, 5Y +12.2%. Market Cap: $83.9B, P/E: 21.1, Net Income: $3.98B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=MRSH">Open MRSH in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=MRSH");</script>
+</body>
+</html>

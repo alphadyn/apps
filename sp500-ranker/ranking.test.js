@@ -5,6 +5,7 @@ import {
   addCriterion, criterionRanks, filterRanked, formatMoney, formatPercent, formatPrice, moveCriterion,
   parseState, rankSecurities, removeCriterion, serializeState, toggleDirection,
   filterSecurities, rankFilteredSecurities, parseMoneyInput, parsePercentInput, formatPE, getSecurityPE,
+  formatSecuritySummary,
 } from './ranking.js';
 
 const rows = [
@@ -87,6 +88,45 @@ test('state round-trips through the URL hash', () => {
     sorts: [{ key: 'price', direction: 'desc' }], method: 'priority', symbol: null, range: '1y',
   });
   assert.equal(parseState('#symbol=aapl').symbol, 'AAPL');
+  assert.equal(parseState('?symbol=NVDA').symbol, 'NVDA');
+  assert.equal(parseState('#MSFT').symbol, 'MSFT');
+});
+
+test('formatSecuritySummary formats highlighted link preview details for a security', () => {
+  const security = {
+    symbol: 'NVDA',
+    name: 'Nvidia',
+    price: 229.28,
+    price_change_1y: 0.191,
+    market_cap: 5_600_000_000_000,
+    pe: 58.4,
+    net_income: 63_100_000_000,
+    performance: {
+      '1w': 0.016,
+      '1m': 0.178,
+      '3m': 0.277,
+      ytd: 0.253,
+      '1y': 0.191,
+      '2y': 0.178,
+      '5y': 0.119,
+      '10y': 2.6,
+      all: 4.91,
+    },
+  };
+  const summary = formatSecuritySummary(security);
+  assert.equal(summary.symbol, 'NVDA');
+  assert.equal(summary.name, 'Nvidia');
+  assert.equal(summary.price, '$229.28');
+  assert.equal(summary.ret1y, '+19.1%');
+  assert.equal(summary.pe, '58.4');
+  assert.equal(summary.mcap, '$5.60T');
+  assert.equal(summary.netIncome, '$63.1B');
+  assert.equal(summary.title, 'NVDA · Nvidia — S&P 500 Screener & Ranker');
+  assert.match(summary.description, /Nvidia \(NVDA\): \$229\.28 \(\+19\.1% 1Y\)\. Performance: 1W \+1\.6%, 1M \+17\.8%, 3M \+27\.7%, YTD \+25\.3%, 1Y \+19\.1%, 5Y \+11\.9%\. Market Cap: \$5\.60T, P\/E: 58\.4, Net Income: \$63\.1B/);
+  assert.match(summary.message, /Take a look at NVDA on S&P 500 Screener & Ranker \(1Y: \+19\.1%, YTD: \+25\.3%\)\./);
+  assert.equal(summary.performanceList.length, 9);
+  assert.equal(summary.performanceList[0].key, '1w');
+  assert.equal(summary.performanceList[0].text, '+1.6%');
 });
 
 test('formatters', () => {

@@ -522,9 +522,13 @@ body.detail-open { overflow: hidden; }
 @keyframes detail-in { from { opacity: 0; transform: translateY(8px) scale(.99); } }
 .detail::backdrop { background: rgb(23 35 51 / .34); backdrop-filter: blur(4px); }
 .detail-inner { max-height: calc(100vh - 42px); padding: 22px 28px 28px; overflow-y: auto; }
-.detail-navigation { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.detail-navigation { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 8px; }
 .detail-back { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text-2); font-size: .85rem; font-weight: 500; }
 .detail-back:hover { border-color: var(--border-strong); color: var(--text); }
+.detail-nav-actions { display: inline-flex; align-items: center; gap: 8px; }
+.detail-share { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text-2); font-size: .84rem; font-weight: 600; cursor: pointer; transition: all .15s ease; }
+.detail-share:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.detail-share svg { width: 14px; height: 14px; flex-shrink: 0; }
 .detail-rank-nav { display: inline-flex; gap: 6px; }
 .detail-rank-nav button { width: 34px; height: 34px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text-2); font-size: 1.1rem; font-weight: 700; }
 .detail-rank-nav button:not(:disabled):hover { border-color: var(--accent-2); color: var(--text); }

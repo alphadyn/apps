@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>OMC · Omnicom Group — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Omnicom Group (OMC): $76.48 (−1.4% 1Y). Performance: 1W +3.1%, 1M −2.3%, 3M −5.4%, YTD −5.3%, 1Y −1.4%, 5Y +1.7%. Market Cap: $21.0B, P/E: 333.1, Net Income: $63.0M. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/OMC/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/OMC/">
+  <meta property="og:title" content="OMC · Omnicom Group — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Omnicom Group (OMC): $76.48 (−1.4% 1Y). Performance: 1W +3.1%, 1M −2.3%, 3M −5.4%, YTD −5.3%, 1Y −1.4%, 5Y +1.7%. Market Cap: $21.0B, P/E: 333.1, Net Income: $63.0M. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="OMC · Omnicom Group — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="OMC · Omnicom Group — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Omnicom Group (OMC): $76.48 (−1.4% 1Y). Performance: 1W +3.1%, 1M −2.3%, 3M −5.4%, YTD −5.3%, 1Y −1.4%, 5Y +1.7%. Market Cap: $21.0B, P/E: 333.1, Net Income: $63.0M. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">OMC</span>
+    <h1>Omnicom Group</h1>
+    <div class="quote-row">
+      <span class="price">$76.48</span>
+      <span class="change down">−1.4% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−1.4%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for OMC">
+    <defs>
+      <linearGradient id="chart-fill-OMC" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="91.4" x2="416" y2="91.4" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,91.4 L13.6,98.7 L15.2,98.6 L16.8,85.0 L18.4,80.0 L20.0,93.9 L21.7,91.9 L23.3,87.4 L24.9,84.0 L26.5,67.2 L28.1,73.2 L29.7,82.1 L31.3,80.7 L32.9,95.9 L34.5,107.0 L36.1,108.3 L37.8,108.5 L39.4,121.7 L41.0,118.3 L42.6,119.3 L44.2,122.0 L45.8,113.4 L47.4,123.7 L49.0,115.9 L50.6,114.7 L52.2,121.5 L53.8,127.0 L55.5,121.7 L57.1,118.3 L58.7,128.6 L60.3,131.8 L61.9,109.5 L63.5,109.8 L65.1,122.9 L66.7,131.9 L68.3,131.1 L69.9,128.5 L71.6,125.4 L73.2,135.2 L74.8,140.7 L76.4,119.0 L78.0,120.9 L79.6,120.3 L81.2,92.6 L82.8,74.9 L84.4,73.7 L86.0,72.2 L87.6,71.2 L89.3,57.5 L90.9,64.4 L92.5,73.9 L94.1,77.8 L95.7,84.0 L97.3,75.7 L98.9,75.2 L100.5,72.3 L102.1,70.6 L103.7,70.4 L105.4,66.6 L107.0,86.4 L108.6,77.9 L110.2,91.5 L111.8,83.4 L113.4,81.5 L115.0,87.6 L116.6,92.0 L118.2,74.2 L119.8,69.8 L121.5,76.8 L123.1,88.5 L124.7,84.8 L126.3,80.5 L127.9,76.8 L129.5,73.0 L131.1,88.5 L132.7,98.4 L134.3,103.5 L135.9,95.1 L137.5,98.5 L139.2,155.2 L140.8,147.6 L142.4,147.7 L144.0,142.7 L145.6,136.9 L147.2,121.5 L148.8,146.4 L150.4,160.0 L152.0,148.5 L153.6,155.3 L155.3,140.8 L156.9,69.2 L158.5,53.7 L160.1,70.4 L161.7,59.1 L163.3,57.4 L164.9,44.1 L166.5,40.3 L168.1,39.8 L169.7,44.7 L171.3,36.9 L173.0,43.7 L174.6,42.6 L176.2,48.9 L177.8,68.9 L179.4,75.0 L181.0,89.3 L182.6,90.0 L184.2,83.9 L185.8,86.1 L187.4,101.5 L189.1,103.1 L190.7,108.2 L192.3,104.4 L193.9,106.0 L195.5,103.7 L197.1,106.6 L198.7,116.5 L200.3,106.5 L201.9,106.6 L203.5,107.2 L205.1,109.9 L206.8,102.3 L208.4,104.3 L210.0,96.2 L211.6,109.4 L213.2,110.2 L214.8,102.0 L216.4,98.8 L218.0,92.1 L219.6,83.6 L221.2,84.2 L222.9,85.4 L224.5,88.2 L226.1,88.0 L227.7,96.5 L229.3,103.7 L230.9,101.9 L232.5,96.1 L234.1,100.7 L235.7,97.2 L237.3,95.9 L238.9,100.2 L240.6,91.1 L242.2,95.9 L243.8,95.9 L245.4,94.9 L247.0,107.6 L248.6,101.7 L250.2,113.7 L251.8,131.4 L253.4,136.3 L255.0,121.0 L256.7,129.7 L258.3,129.4 L259.9,116.8 L261.5,109.1 L263.1,112.6 L264.7,109.6 L266.3,114.7 L267.9,123.9 L269.5,102.2 L271.1,107.2 L272.7,117.0 L274.4,104.4 L276.0,106.6 L277.6,108.2 L279.2,104.4 L280.8,115.4 L282.4,104.7 L284.0,97.5 L285.6,98.6 L287.2,92.9 L288.8,99.9 L290.5,132.9 L292.1,124.9 L293.7,122.2 L295.3,117.5 L296.9,119.1 L298.5,121.3 L300.1,115.7 L301.7,123.1 L303.3,101.3 L304.9,84.6 L306.5,76.1 L308.2,69.8 L309.8,84.7 L311.4,69.9 L313.0,62.6 L314.6,58.5 L316.2,70.4 L317.8,69.2 L319.4,47.7 L321.0,63.9 L322.6,59.7 L324.3,80.7 L325.9,79.5 L327.5,89.4 L329.1,77.7 L330.7,59.4 L332.3,34.1 L333.9,58.3 L335.5,78.0 L337.1,84.0 L338.7,80.3 L340.4,63.4 L342.0,64.0 L343.6,58.7 L345.2,40.6 L346.8,44.5 L348.4,35.9 L350.0,38.8 L351.6,19.9 L353.2,25.1 L354.8,39.1 L356.4,33.5 L358.1,26.0 L359.7,28.4 L361.3,25.3 L362.9,16.0 L364.5,20.9 L366.1,23.0 L367.7,23.0 L369.3,20.4 L370.9,25.4 L372.5,34.9 L374.2,63.7 L375.8,44.0 L377.4,58.0 L379.0,67.9 L380.6,86.7 L382.2,79.1 L383.8,82.0 L385.4,68.3 L387.0,76.4 L388.6,79.9 L390.2,84.7 L391.9,98.2 L393.5,104.7 L395.1,106.4 L396.7,105.4 L398.3,110.6 L399.9,101.0 L401.5,108.0 L403.1,114.3 L404.7,117.7 L406.3,110.6 L408.0,114.3 L409.6,107.0 L411.2,108.0 L412.8,109.5 L414.4,99.0 L416.0,98.8 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-OMC)"/>
+    <path d="M12.0,91.4 L13.6,98.7 L15.2,98.6 L16.8,85.0 L18.4,80.0 L20.0,93.9 L21.7,91.9 L23.3,87.4 L24.9,84.0 L26.5,67.2 L28.1,73.2 L29.7,82.1 L31.3,80.7 L32.9,95.9 L34.5,107.0 L36.1,108.3 L37.8,108.5 L39.4,121.7 L41.0,118.3 L42.6,119.3 L44.2,122.0 L45.8,113.4 L47.4,123.7 L49.0,115.9 L50.6,114.7 L52.2,121.5 L53.8,127.0 L55.5,121.7 L57.1,118.3 L58.7,128.6 L60.3,131.8 L61.9,109.5 L63.5,109.8 L65.1,122.9 L66.7,131.9 L68.3,131.1 L69.9,128.5 L71.6,125.4 L73.2,135.2 L74.8,140.7 L76.4,119.0 L78.0,120.9 L79.6,120.3 L81.2,92.6 L82.8,74.9 L84.4,73.7 L86.0,72.2 L87.6,71.2 L89.3,57.5 L90.9,64.4 L92.5,73.9 L94.1,77.8 L95.7,84.0 L97.3,75.7 L98.9,75.2 L100.5,72.3 L102.1,70.6 L103.7,70.4 L105.4,66.6 L107.0,86.4 L108.6,77.9 L110.2,91.5 L111.8,83.4 L113.4,81.5 L115.0,87.6 L116.6,92.0 L118.2,74.2 L119.8,69.8 L121.5,76.8 L123.1,88.5 L124.7,84.8 L126.3,80.5 L127.9,76.8 L129.5,73.0 L131.1,88.5 L132.7,98.4 L134.3,103.5 L135.9,95.1 L137.5,98.5 L139.2,155.2 L140.8,147.6 L142.4,147.7 L144.0,142.7 L145.6,136.9 L147.2,121.5 L148.8,146.4 L150.4,160.0 L152.0,148.5 L153.6,155.3 L155.3,140.8 L156.9,69.2 L158.5,53.7 L160.1,70.4 L161.7,59.1 L163.3,57.4 L164.9,44.1 L166.5,40.3 L168.1,39.8 L169.7,44.7 L171.3,36.9 L173.0,43.7 L174.6,42.6 L176.2,48.9 L177.8,68.9 L179.4,75.0 L181.0,89.3 L182.6,90.0 L184.2,83.9 L185.8,86.1 L187.4,101.5 L189.1,103.1 L190.7,108.2 L192.3,104.4 L193.9,106.0 L195.5,103.7 L197.1,106.6 L198.7,116.5 L200.3,106.5 L201.9,106.6 L203.5,107.2 L205.1,109.9 L206.8,102.3 L208.4,104.3 L210.0,96.2 L211.6,109.4 L213.2,110.2 L214.8,102.0 L216.4,98.8 L218.0,92.1 L219.6,83.6 L221.2,84.2 L222.9,85.4 L224.5,88.2 L226.1,88.0 L227.7,96.5 L229.3,103.7 L230.9,101.9 L232.5,96.1 L234.1,100.7 L235.7,97.2 L237.3,95.9 L238.9,100.2 L240.6,91.1 L242.2,95.9 L243.8,95.9 L245.4,94.9 L247.0,107.6 L248.6,101.7 L250.2,113.7 L251.8,131.4 L253.4,136.3 L255.0,121.0 L256.7,129.7 L258.3,129.4 L259.9,116.8 L261.5,109.1 L263.1,112.6 L264.7,109.6 L266.3,114.7 L267.9,123.9 L269.5,102.2 L271.1,107.2 L272.7,117.0 L274.4,104.4 L276.0,106.6 L277.6,108.2 L279.2,104.4 L280.8,115.4 L282.4,104.7 L284.0,97.5 L285.6,98.6 L287.2,92.9 L288.8,99.9 L290.5,132.9 L292.1,124.9 L293.7,122.2 L295.3,117.5 L296.9,119.1 L298.5,121.3 L300.1,115.7 L301.7,123.1 L303.3,101.3 L304.9,84.6 L306.5,76.1 L308.2,69.8 L309.8,84.7 L311.4,69.9 L313.0,62.6 L314.6,58.5 L316.2,70.4 L317.8,69.2 L319.4,47.7 L321.0,63.9 L322.6,59.7 L324.3,80.7 L325.9,79.5 L327.5,89.4 L329.1,77.7 L330.7,59.4 L332.3,34.1 L333.9,58.3 L335.5,78.0 L337.1,84.0 L338.7,80.3 L340.4,63.4 L342.0,64.0 L343.6,58.7 L345.2,40.6 L346.8,44.5 L348.4,35.9 L350.0,38.8 L351.6,19.9 L353.2,25.1 L354.8,39.1 L356.4,33.5 L358.1,26.0 L359.7,28.4 L361.3,25.3 L362.9,16.0 L364.5,20.9 L366.1,23.0 L367.7,23.0 L369.3,20.4 L370.9,25.4 L372.5,34.9 L374.2,63.7 L375.8,44.0 L377.4,58.0 L379.0,67.9 L380.6,86.7 L382.2,79.1 L383.8,82.0 L385.4,68.3 L387.0,76.4 L388.6,79.9 L390.2,84.7 L391.9,98.2 L393.5,104.7 L395.1,106.4 L396.7,105.4 L398.3,110.6 L399.9,101.0 L401.5,108.0 L403.1,114.3 L404.7,117.7 L406.3,110.6 L408.0,114.3 L409.6,107.0 L411.2,108.0 L412.8,109.5 L414.4,99.0 L416.0,98.8" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="98.8" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$76.48</text>
+    <text x="474" y="91.4" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$77.60</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+3.1%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−2.3%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−5.4%</strong></div><div class="perf-chip down"><span class="perf-label">YTD</span><strong class="perf-value">−5.3%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−1.4%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−25.6%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+1.7%</strong></div><div class="perf-chip down"><span class="perf-label">10Y</span><strong class="perf-value">−7.0%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+4946%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$21.0B</strong></span>
+      <span>P/E: <strong>333.1</strong></span>
+      <span>Net Income: <strong>$63.0M</strong></span>
+    </div>
+
+    <p class="summary">Omnicom Group (OMC): $76.48 (−1.4% 1Y). Performance: 1W +3.1%, 1M −2.3%, 3M −5.4%, YTD −5.3%, 1Y −1.4%, 5Y +1.7%. Market Cap: $21.0B, P/E: 333.1, Net Income: $63.0M. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=OMC">Open OMC in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=OMC");</script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>JKHY · Jack Henry &amp; Associates — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Jack Henry &amp; Associates (JKHY): $149.31 (0.0% 1Y). Performance: 1W +4.7%, 1M −5.8%, 3M −0.6%, YTD −18.2%, 1Y 0.0%, 5Y −10.1%. Market Cap: $10.5B, P/E: 20.8, Net Income: $503M. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/JKHY/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/JKHY/">
+  <meta property="og:title" content="JKHY · Jack Henry &amp; Associates — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Jack Henry &amp; Associates (JKHY): $149.31 (0.0% 1Y). Performance: 1W +4.7%, 1M −5.8%, 3M −0.6%, YTD −18.2%, 1Y 0.0%, 5Y −10.1%. Market Cap: $10.5B, P/E: 20.8, Net Income: $503M. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="JKHY · Jack Henry &amp; Associates — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="JKHY · Jack Henry &amp; Associates — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Jack Henry &amp; Associates (JKHY): $149.31 (0.0% 1Y). Performance: 1W +4.7%, 1M −5.8%, 3M −0.6%, YTD −18.2%, 1Y 0.0%, 5Y −10.1%. Market Cap: $10.5B, P/E: 20.8, Net Income: $503M. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">JKHY</span>
+    <h1>Jack Henry &amp; Associates</h1>
+    <div class="quote-row">
+      <span class="price">$149.31</span>
+      <span class="change down">0.0% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">0.0%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for JKHY">
+    <defs>
+      <linearGradient id="chart-fill-JKHY" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="106.1" x2="416" y2="106.1" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,106.1 L13.6,101.5 L15.2,100.1 L16.8,96.1 L18.4,95.4 L20.0,98.6 L21.7,98.6 L23.3,94.1 L24.9,90.3 L26.5,90.1 L28.1,92.8 L29.7,92.5 L31.3,91.6 L32.9,95.7 L34.5,104.9 L36.1,104.9 L37.8,106.9 L39.4,103.4 L41.0,99.6 L42.6,84.2 L44.2,77.4 L45.8,82.2 L47.4,78.4 L49.0,71.9 L50.6,68.9 L52.2,72.9 L53.8,75.5 L55.5,76.3 L57.1,75.7 L58.7,71.8 L60.3,67.7 L61.9,61.4 L63.5,61.8 L65.1,55.5 L66.7,54.9 L68.3,53.7 L69.9,54.3 L71.6,57.5 L73.2,50.3 L74.8,41.5 L76.4,38.7 L78.0,40.2 L79.6,41.9 L81.2,32.0 L82.8,27.3 L84.4,26.6 L86.0,26.3 L87.6,27.8 L89.3,25.4 L90.9,33.1 L92.5,32.9 L94.1,31.1 L95.7,31.2 L97.3,31.4 L98.9,29.5 L100.5,28.9 L102.1,32.8 L103.7,37.1 L105.4,45.7 L107.0,39.2 L108.6,30.7 L110.2,29.8 L111.8,26.1 L113.4,23.2 L115.0,20.8 L116.6,24.6 L118.2,16.0 L119.8,18.8 L121.5,20.7 L123.1,28.0 L124.7,25.9 L126.3,24.1 L127.9,31.6 L129.5,36.1 L131.1,44.4 L132.7,42.6 L134.3,46.5 L135.9,43.9 L137.5,43.9 L139.2,71.0 L140.8,55.2 L142.4,48.6 L144.0,56.0 L145.6,59.8 L147.2,61.8 L148.8,72.1 L150.4,89.1 L152.0,90.7 L153.6,86.8 L155.3,86.4 L156.9,81.5 L158.5,85.5 L160.1,92.8 L161.7,91.8 L163.3,91.1 L164.9,81.6 L166.5,78.7 L168.1,75.1 L169.7,65.6 L171.3,66.3 L173.0,69.2 L174.6,59.2 L176.2,59.7 L177.8,60.9 L179.4,69.3 L181.0,70.7 L182.6,65.6 L184.2,68.6 L185.8,69.8 L187.4,73.1 L189.1,74.6 L190.7,72.7 L192.3,77.0 L193.9,86.2 L195.5,89.3 L197.1,89.7 L198.7,97.8 L200.3,91.3 L201.9,87.9 L203.5,93.0 L205.1,89.1 L206.8,87.8 L208.4,87.4 L210.0,88.1 L211.6,97.6 L213.2,110.5 L214.8,101.8 L216.4,101.7 L218.0,97.6 L219.6,96.0 L221.2,96.2 L222.9,96.6 L224.5,93.2 L226.1,92.4 L227.7,103.4 L229.3,102.3 L230.9,102.6 L232.5,98.8 L234.1,96.9 L235.7,96.9 L237.3,96.3 L238.9,99.4 L240.6,106.0 L242.2,119.5 L243.8,112.9 L245.4,113.3 L247.0,117.9 L248.6,115.6 L250.2,122.5 L251.8,137.9 L253.4,132.0 L255.0,127.3 L256.7,124.4 L258.3,125.9 L259.9,126.4 L261.5,125.1 L263.1,131.0 L264.7,133.3 L266.3,133.4 L267.9,133.1 L269.5,125.1 L271.1,133.8 L272.7,139.8 L274.4,144.8 L276.0,146.1 L277.6,153.9 L279.2,151.8 L280.8,151.3 L282.4,154.7 L284.0,150.0 L285.6,145.6 L287.2,147.8 L288.8,158.3 L290.5,154.2 L292.1,160.0 L293.7,156.2 L295.3,150.3 L296.9,149.0 L298.5,135.9 L300.1,132.3 L301.7,130.2 L303.3,120.5 L304.9,111.2 L306.5,112.2 L308.2,111.5 L309.8,110.1 L311.4,104.2 L313.0,104.0 L314.6,103.2 L316.2,114.3 L317.8,107.9 L319.4,96.7 L321.0,101.2 L322.6,98.1 L324.3,107.0 L325.9,112.7 L327.5,108.4 L329.1,103.5 L330.7,98.5 L332.3,89.2 L333.9,81.5 L335.5,95.8 L337.1,96.3 L338.7,91.1 L340.4,90.9 L342.0,95.6 L343.6,90.2 L345.2,92.3 L346.8,94.1 L348.4,97.1 L350.0,99.9 L351.6,92.5 L353.2,97.8 L354.8,104.9 L356.4,98.2 L358.1,77.5 L359.7,73.3 L361.3,71.0 L362.9,62.0 L364.5,55.5 L366.1,58.1 L367.7,63.8 L369.3,63.6 L370.9,67.4 L372.5,67.0 L374.2,69.2 L375.8,66.4 L377.4,72.1 L379.0,84.2 L380.6,87.0 L382.2,80.9 L383.8,81.5 L385.4,74.4 L387.0,96.2 L388.6,86.0 L390.2,91.7 L391.9,94.6 L393.5,101.4 L395.1,106.5 L396.7,108.1 L398.3,109.4 L399.9,109.3 L401.5,109.2 L403.1,112.5 L404.7,118.7 L406.3,117.5 L408.0,120.2 L409.6,114.8 L411.2,116.3 L412.8,113.6 L414.4,106.7 L416.0,106.1 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-JKHY)"/>
+    <path d="M12.0,106.1 L13.6,101.5 L15.2,100.1 L16.8,96.1 L18.4,95.4 L20.0,98.6 L21.7,98.6 L23.3,94.1 L24.9,90.3 L26.5,90.1 L28.1,92.8 L29.7,92.5 L31.3,91.6 L32.9,95.7 L34.5,104.9 L36.1,104.9 L37.8,106.9 L39.4,103.4 L41.0,99.6 L42.6,84.2 L44.2,77.4 L45.8,82.2 L47.4,78.4 L49.0,71.9 L50.6,68.9 L52.2,72.9 L53.8,75.5 L55.5,76.3 L57.1,75.7 L58.7,71.8 L60.3,67.7 L61.9,61.4 L63.5,61.8 L65.1,55.5 L66.7,54.9 L68.3,53.7 L69.9,54.3 L71.6,57.5 L73.2,50.3 L74.8,41.5 L76.4,38.7 L78.0,40.2 L79.6,41.9 L81.2,32.0 L82.8,27.3 L84.4,26.6 L86.0,26.3 L87.6,27.8 L89.3,25.4 L90.9,33.1 L92.5,32.9 L94.1,31.1 L95.7,31.2 L97.3,31.4 L98.9,29.5 L100.5,28.9 L102.1,32.8 L103.7,37.1 L105.4,45.7 L107.0,39.2 L108.6,30.7 L110.2,29.8 L111.8,26.1 L113.4,23.2 L115.0,20.8 L116.6,24.6 L118.2,16.0 L119.8,18.8 L121.5,20.7 L123.1,28.0 L124.7,25.9 L126.3,24.1 L127.9,31.6 L129.5,36.1 L131.1,44.4 L132.7,42.6 L134.3,46.5 L135.9,43.9 L137.5,43.9 L139.2,71.0 L140.8,55.2 L142.4,48.6 L144.0,56.0 L145.6,59.8 L147.2,61.8 L148.8,72.1 L150.4,89.1 L152.0,90.7 L153.6,86.8 L155.3,86.4 L156.9,81.5 L158.5,85.5 L160.1,92.8 L161.7,91.8 L163.3,91.1 L164.9,81.6 L166.5,78.7 L168.1,75.1 L169.7,65.6 L171.3,66.3 L173.0,69.2 L174.6,59.2 L176.2,59.7 L177.8,60.9 L179.4,69.3 L181.0,70.7 L182.6,65.6 L184.2,68.6 L185.8,69.8 L187.4,73.1 L189.1,74.6 L190.7,72.7 L192.3,77.0 L193.9,86.2 L195.5,89.3 L197.1,89.7 L198.7,97.8 L200.3,91.3 L201.9,87.9 L203.5,93.0 L205.1,89.1 L206.8,87.8 L208.4,87.4 L210.0,88.1 L211.6,97.6 L213.2,110.5 L214.8,101.8 L216.4,101.7 L218.0,97.6 L219.6,96.0 L221.2,96.2 L222.9,96.6 L224.5,93.2 L226.1,92.4 L227.7,103.4 L229.3,102.3 L230.9,102.6 L232.5,98.8 L234.1,96.9 L235.7,96.9 L237.3,96.3 L238.9,99.4 L240.6,106.0 L242.2,119.5 L243.8,112.9 L245.4,113.3 L247.0,117.9 L248.6,115.6 L250.2,122.5 L251.8,137.9 L253.4,132.0 L255.0,127.3 L256.7,124.4 L258.3,125.9 L259.9,126.4 L261.5,125.1 L263.1,131.0 L264.7,133.3 L266.3,133.4 L267.9,133.1 L269.5,125.1 L271.1,133.8 L272.7,139.8 L274.4,144.8 L276.0,146.1 L277.6,153.9 L279.2,151.8 L280.8,151.3 L282.4,154.7 L284.0,150.0 L285.6,145.6 L287.2,147.8 L288.8,158.3 L290.5,154.2 L292.1,160.0 L293.7,156.2 L295.3,150.3 L296.9,149.0 L298.5,135.9 L300.1,132.3 L301.7,130.2 L303.3,120.5 L304.9,111.2 L306.5,112.2 L308.2,111.5 L309.8,110.1 L311.4,104.2 L313.0,104.0 L314.6,103.2 L316.2,114.3 L317.8,107.9 L319.4,96.7 L321.0,101.2 L322.6,98.1 L324.3,107.0 L325.9,112.7 L327.5,108.4 L329.1,103.5 L330.7,98.5 L332.3,89.2 L333.9,81.5 L335.5,95.8 L337.1,96.3 L338.7,91.1 L340.4,90.9 L342.0,95.6 L343.6,90.2 L345.2,92.3 L346.8,94.1 L348.4,97.1 L350.0,99.9 L351.6,92.5 L353.2,97.8 L354.8,104.9 L356.4,98.2 L358.1,77.5 L359.7,73.3 L361.3,71.0 L362.9,62.0 L364.5,55.5 L366.1,58.1 L367.7,63.8 L369.3,63.6 L370.9,67.4 L372.5,67.0 L374.2,69.2 L375.8,66.4 L377.4,72.1 L379.0,84.2 L380.6,87.0 L382.2,80.9 L383.8,81.5 L385.4,74.4 L387.0,96.2 L388.6,86.0 L390.2,91.7 L391.9,94.6 L393.5,101.4 L395.1,106.5 L396.7,108.1 L398.3,109.4 L399.9,109.3 L401.5,109.2 L403.1,112.5 L404.7,118.7 L406.3,117.5 L408.0,120.2 L409.6,114.8 L411.2,116.3 L412.8,113.6 L414.4,106.7 L416.0,106.1" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="106.1" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$149.31</text>
+    <text x="474" y="106.1" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$149.32</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+4.7%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−5.8%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−0.6%</strong></div><div class="perf-chip down"><span class="perf-label">YTD</span><strong class="perf-value">−18.2%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">0.0%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−18.2%</strong></div><div class="perf-chip down"><span class="perf-label">5Y</span><strong class="perf-value">−10.1%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+79.5%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+41247%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$10.5B</strong></span>
+      <span>P/E: <strong>20.8</strong></span>
+      <span>Net Income: <strong>$503M</strong></span>
+    </div>
+
+    <p class="summary">Jack Henry &amp; Associates (JKHY): $149.31 (0.0% 1Y). Performance: 1W +4.7%, 1M −5.8%, 3M −0.6%, YTD −18.2%, 1Y 0.0%, 5Y −10.1%. Market Cap: $10.5B, P/E: 20.8, Net Income: $503M. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=JKHY">Open JKHY in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=JKHY");</script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>TROW · T. Rowe Price — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="T. Rowe Price (TROW): $105.16 (−0.8% 1Y). Performance: 1W +0.5%, 1M −2.4%, 3M −10.2%, YTD +2.7%, 1Y −0.8%, 5Y −46.2%. Market Cap: $22.4B, P/E: 10.1, Net Income: $2.22B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/TROW/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/TROW/">
+  <meta property="og:title" content="TROW · T. Rowe Price — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="T. Rowe Price (TROW): $105.16 (−0.8% 1Y). Performance: 1W +0.5%, 1M −2.4%, 3M −10.2%, YTD +2.7%, 1Y −0.8%, 5Y −46.2%. Market Cap: $22.4B, P/E: 10.1, Net Income: $2.22B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="TROW · T. Rowe Price — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="TROW · T. Rowe Price — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="T. Rowe Price (TROW): $105.16 (−0.8% 1Y). Performance: 1W +0.5%, 1M −2.4%, 3M −10.2%, YTD +2.7%, 1Y −0.8%, 5Y −46.2%. Market Cap: $22.4B, P/E: 10.1, Net Income: $2.22B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">TROW</span>
+    <h1>T. Rowe Price</h1>
+    <div class="quote-row">
+      <span class="price">$105.16</span>
+      <span class="change down">−0.8% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−0.8%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for TROW">
+    <defs>
+      <linearGradient id="chart-fill-TROW" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="79.6" x2="416" y2="79.6" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,79.6 L13.6,98.2 L15.2,82.2 L16.8,79.1 L18.4,80.8 L20.0,91.2 L21.7,89.0 L23.3,86.8 L24.9,86.7 L26.5,92.8 L28.1,93.9 L29.7,89.6 L31.3,84.0 L32.9,83.8 L34.5,89.7 L36.1,95.3 L37.8,93.7 L39.4,97.0 L41.0,98.8 L42.6,94.3 L44.2,95.2 L45.8,93.2 L47.4,91.8 L49.0,89.1 L50.6,84.6 L52.2,88.9 L53.8,97.0 L55.5,114.4 L57.1,114.2 L58.7,114.5 L60.3,114.9 L61.9,102.7 L63.5,102.1 L65.1,99.4 L66.7,95.5 L68.3,94.3 L69.9,97.5 L71.6,93.9 L73.2,83.5 L74.8,80.5 L76.4,77.3 L78.0,85.6 L79.6,82.2 L81.2,89.5 L82.8,83.8 L84.4,84.1 L86.0,89.3 L87.6,88.1 L89.3,88.1 L90.9,90.5 L92.5,90.7 L94.1,84.5 L95.7,87.6 L97.3,85.0 L98.9,84.7 L100.5,85.6 L102.1,89.2 L103.7,94.3 L105.4,85.2 L107.0,77.6 L108.6,67.4 L110.2,79.6 L111.8,69.2 L113.4,74.3 L115.0,76.2 L116.6,89.7 L118.2,79.3 L119.8,74.3 L121.5,77.6 L123.1,89.0 L124.7,79.1 L126.3,75.2 L127.9,81.1 L129.5,79.3 L131.1,82.4 L132.7,82.7 L134.3,84.4 L135.9,80.9 L137.5,77.0 L139.2,93.2 L140.8,116.1 L142.4,136.3 L144.0,126.0 L145.6,121.0 L147.2,117.6 L148.8,129.2 L150.4,131.7 L152.0,129.3 L153.6,129.1 L155.3,124.5 L156.9,126.9 L158.5,122.7 L160.1,132.1 L161.7,125.1 L163.3,123.2 L164.9,118.3 L166.5,125.8 L168.1,124.6 L169.7,130.7 L171.3,136.5 L173.0,136.3 L174.6,142.9 L176.2,142.3 L177.8,148.0 L179.4,147.3 L181.0,153.0 L182.6,150.3 L184.2,155.2 L185.8,151.1 L187.4,154.6 L189.1,156.3 L190.7,160.0 L192.3,152.7 L193.9,149.4 L195.5,146.2 L197.1,143.6 L198.7,150.8 L200.3,148.5 L201.9,144.0 L203.5,145.1 L205.1,143.9 L206.8,147.3 L208.4,147.7 L210.0,137.2 L211.6,135.8 L213.2,138.5 L214.8,126.8 L216.4,120.8 L218.0,119.7 L219.6,121.2 L221.2,116.2 L222.9,111.7 L224.5,107.5 L226.1,103.0 L227.7,106.0 L229.3,107.8 L230.9,98.4 L232.5,100.8 L234.1,102.1 L235.7,92.3 L237.3,90.1 L238.9,91.5 L240.6,87.3 L242.2,79.1 L243.8,89.4 L245.4,82.3 L247.0,84.7 L248.6,92.4 L250.2,91.8 L251.8,94.2 L253.4,95.8 L255.0,94.3 L256.7,97.0 L258.3,96.5 L259.9,96.1 L261.5,90.2 L263.1,88.5 L264.7,85.7 L266.3,89.6 L267.9,85.6 L269.5,88.1 L271.1,86.5 L272.7,87.7 L274.4,75.7 L276.0,79.7 L277.6,81.9 L279.2,80.0 L280.8,77.9 L282.4,70.4 L284.0,64.9 L285.6,69.0 L287.2,67.7 L288.8,71.0 L290.5,72.9 L292.1,71.5 L293.7,79.6 L295.3,82.9 L296.9,78.2 L298.5,62.3 L300.1,45.6 L301.7,48.4 L303.3,38.6 L304.9,28.7 L306.5,26.4 L308.2,22.2 L309.8,31.1 L311.4,34.8 L313.0,28.7 L314.6,48.6 L316.2,38.8 L317.8,28.6 L319.4,27.4 L321.0,33.6 L322.6,37.1 L324.3,32.5 L325.9,39.0 L327.5,43.3 L329.1,37.0 L330.7,26.0 L332.3,16.0 L333.9,27.4 L335.5,25.7 L337.1,56.3 L338.7,49.1 L340.4,39.9 L342.0,43.2 L343.6,48.7 L345.2,47.1 L346.8,48.1 L348.4,48.2 L350.0,57.6 L351.6,58.1 L353.2,61.1 L354.8,61.5 L356.4,62.1 L358.1,54.3 L359.7,54.5 L361.3,57.3 L362.9,54.1 L364.5,51.7 L366.1,53.0 L367.7,53.8 L369.3,58.4 L370.9,58.2 L372.5,67.5 L374.2,65.9 L375.8,59.8 L377.4,64.3 L379.0,65.7 L380.6,72.6 L382.2,73.3 L383.8,78.4 L385.4,80.4 L387.0,86.8 L388.6,94.2 L390.2,92.4 L391.9,87.1 L393.5,85.2 L395.1,87.0 L396.7,85.4 L398.3,86.6 L399.9,81.6 L401.5,88.5 L403.1,85.7 L404.7,87.5 L406.3,80.3 L408.0,85.2 L409.6,88.0 L411.2,89.4 L412.8,87.5 L414.4,86.8 L416.0,83.0 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-TROW)"/>
+    <path d="M12.0,79.6 L13.6,98.2 L15.2,82.2 L16.8,79.1 L18.4,80.8 L20.0,91.2 L21.7,89.0 L23.3,86.8 L24.9,86.7 L26.5,92.8 L28.1,93.9 L29.7,89.6 L31.3,84.0 L32.9,83.8 L34.5,89.7 L36.1,95.3 L37.8,93.7 L39.4,97.0 L41.0,98.8 L42.6,94.3 L44.2,95.2 L45.8,93.2 L47.4,91.8 L49.0,89.1 L50.6,84.6 L52.2,88.9 L53.8,97.0 L55.5,114.4 L57.1,114.2 L58.7,114.5 L60.3,114.9 L61.9,102.7 L63.5,102.1 L65.1,99.4 L66.7,95.5 L68.3,94.3 L69.9,97.5 L71.6,93.9 L73.2,83.5 L74.8,80.5 L76.4,77.3 L78.0,85.6 L79.6,82.2 L81.2,89.5 L82.8,83.8 L84.4,84.1 L86.0,89.3 L87.6,88.1 L89.3,88.1 L90.9,90.5 L92.5,90.7 L94.1,84.5 L95.7,87.6 L97.3,85.0 L98.9,84.7 L100.5,85.6 L102.1,89.2 L103.7,94.3 L105.4,85.2 L107.0,77.6 L108.6,67.4 L110.2,79.6 L111.8,69.2 L113.4,74.3 L115.0,76.2 L116.6,89.7 L118.2,79.3 L119.8,74.3 L121.5,77.6 L123.1,89.0 L124.7,79.1 L126.3,75.2 L127.9,81.1 L129.5,79.3 L131.1,82.4 L132.7,82.7 L134.3,84.4 L135.9,80.9 L137.5,77.0 L139.2,93.2 L140.8,116.1 L142.4,136.3 L144.0,126.0 L145.6,121.0 L147.2,117.6 L148.8,129.2 L150.4,131.7 L152.0,129.3 L153.6,129.1 L155.3,124.5 L156.9,126.9 L158.5,122.7 L160.1,132.1 L161.7,125.1 L163.3,123.2 L164.9,118.3 L166.5,125.8 L168.1,124.6 L169.7,130.7 L171.3,136.5 L173.0,136.3 L174.6,142.9 L176.2,142.3 L177.8,148.0 L179.4,147.3 L181.0,153.0 L182.6,150.3 L184.2,155.2 L185.8,151.1 L187.4,154.6 L189.1,156.3 L190.7,160.0 L192.3,152.7 L193.9,149.4 L195.5,146.2 L197.1,143.6 L198.7,150.8 L200.3,148.5 L201.9,144.0 L203.5,145.1 L205.1,143.9 L206.8,147.3 L208.4,147.7 L210.0,137.2 L211.6,135.8 L213.2,138.5 L214.8,126.8 L216.4,120.8 L218.0,119.7 L219.6,121.2 L221.2,116.2 L222.9,111.7 L224.5,107.5 L226.1,103.0 L227.7,106.0 L229.3,107.8 L230.9,98.4 L232.5,100.8 L234.1,102.1 L235.7,92.3 L237.3,90.1 L238.9,91.5 L240.6,87.3 L242.2,79.1 L243.8,89.4 L245.4,82.3 L247.0,84.7 L248.6,92.4 L250.2,91.8 L251.8,94.2 L253.4,95.8 L255.0,94.3 L256.7,97.0 L258.3,96.5 L259.9,96.1 L261.5,90.2 L263.1,88.5 L264.7,85.7 L266.3,89.6 L267.9,85.6 L269.5,88.1 L271.1,86.5 L272.7,87.7 L274.4,75.7 L276.0,79.7 L277.6,81.9 L279.2,80.0 L280.8,77.9 L282.4,70.4 L284.0,64.9 L285.6,69.0 L287.2,67.7 L288.8,71.0 L290.5,72.9 L292.1,71.5 L293.7,79.6 L295.3,82.9 L296.9,78.2 L298.5,62.3 L300.1,45.6 L301.7,48.4 L303.3,38.6 L304.9,28.7 L306.5,26.4 L308.2,22.2 L309.8,31.1 L311.4,34.8 L313.0,28.7 L314.6,48.6 L316.2,38.8 L317.8,28.6 L319.4,27.4 L321.0,33.6 L322.6,37.1 L324.3,32.5 L325.9,39.0 L327.5,43.3 L329.1,37.0 L330.7,26.0 L332.3,16.0 L333.9,27.4 L335.5,25.7 L337.1,56.3 L338.7,49.1 L340.4,39.9 L342.0,43.2 L343.6,48.7 L345.2,47.1 L346.8,48.1 L348.4,48.2 L350.0,57.6 L351.6,58.1 L353.2,61.1 L354.8,61.5 L356.4,62.1 L358.1,54.3 L359.7,54.5 L361.3,57.3 L362.9,54.1 L364.5,51.7 L366.1,53.0 L367.7,53.8 L369.3,58.4 L370.9,58.2 L372.5,67.5 L374.2,65.9 L375.8,59.8 L377.4,64.3 L379.0,65.7 L380.6,72.6 L382.2,73.3 L383.8,78.4 L385.4,80.4 L387.0,86.8 L388.6,94.2 L390.2,92.4 L391.9,87.1 L393.5,85.2 L395.1,87.0 L396.7,85.4 L398.3,86.6 L399.9,81.6 L401.5,88.5 L403.1,85.7 L404.7,87.5 L406.3,80.3 L408.0,85.2 L409.6,88.0 L411.2,89.4 L412.8,87.5 L414.4,86.8 L416.0,83.0" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="83.0" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$105.16</text>
+    <text x="474" y="79.6" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$106.01</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+0.5%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−2.4%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−10.2%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+2.7%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−0.8%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−2.1%</strong></div><div class="perf-chip down"><span class="perf-label">5Y</span><strong class="perf-value">−46.2%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+57.9%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+11504%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$22.4B</strong></span>
+      <span>P/E: <strong>10.1</strong></span>
+      <span>Net Income: <strong>$2.22B</strong></span>
+    </div>
+
+    <p class="summary">T. Rowe Price (TROW): $105.16 (−0.8% 1Y). Performance: 1W +0.5%, 1M −2.4%, 3M −10.2%, YTD +2.7%, 1Y −0.8%, 5Y −46.2%. Market Cap: $22.4B, P/E: 10.1, Net Income: $2.22B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=TROW">Open TROW in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=TROW");</script>
+</body>
+</html>

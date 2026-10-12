@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>IEX · IDEX Corporation — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="IDEX Corporation (IEX): $234.29 (+41.3% 1Y). Performance: 1W +0.6%, 1M +4.1%, 3M +6.6%, YTD +31.7%, 1Y +41.3%, 5Y +10.6%. Market Cap: $17.3B, P/E: 33.2, Net Income: $520M. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/IEX/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/IEX/">
+  <meta property="og:title" content="IEX · IDEX Corporation — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="IDEX Corporation (IEX): $234.29 (+41.3% 1Y). Performance: 1W +0.6%, 1M +4.1%, 3M +6.6%, YTD +31.7%, 1Y +41.3%, 5Y +10.6%. Market Cap: $17.3B, P/E: 33.2, Net Income: $520M. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="IEX · IDEX Corporation — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="IEX · IDEX Corporation — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="IDEX Corporation (IEX): $234.29 (+41.3% 1Y). Performance: 1W +0.6%, 1M +4.1%, 3M +6.6%, YTD +31.7%, 1Y +41.3%, 5Y +10.6%. Market Cap: $17.3B, P/E: 33.2, Net Income: $520M. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">IEX</span>
+    <h1>IDEX Corporation</h1>
+    <div class="quote-row">
+      <span class="price">$234.29</span>
+      <span class="change up">+41.3% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+41.3%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for IEX">
+    <defs>
+      <linearGradient id="chart-fill-IEX" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="150.9" x2="416" y2="150.9" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,150.9 L13.6,159.4 L15.2,160.0 L16.8,154.9 L18.4,155.8 L20.0,152.4 L21.7,150.1 L23.3,149.6 L24.9,144.7 L26.5,150.0 L28.1,146.4 L29.7,147.2 L31.3,147.8 L32.9,149.0 L34.5,137.3 L36.1,142.9 L37.8,140.8 L39.4,146.6 L41.0,147.3 L42.6,146.6 L44.2,149.2 L45.8,147.1 L47.4,145.6 L49.0,144.3 L50.6,144.2 L52.2,148.8 L53.8,153.4 L55.5,156.5 L57.1,158.5 L58.7,158.5 L60.3,156.1 L61.9,142.3 L63.5,143.6 L65.1,136.8 L66.7,136.7 L68.3,136.3 L69.9,135.1 L71.6,134.2 L73.2,128.6 L74.8,127.1 L76.4,129.8 L78.0,132.7 L79.6,137.1 L81.2,131.7 L82.8,123.1 L84.4,127.3 L86.0,127.7 L87.6,130.5 L89.3,132.0 L90.9,129.9 L92.5,129.4 L94.1,126.2 L95.7,124.8 L97.3,125.0 L98.9,124.8 L100.5,125.4 L102.1,126.7 L103.7,129.1 L105.4,127.1 L107.0,123.9 L108.6,118.4 L110.2,124.5 L111.8,116.8 L113.4,116.9 L115.0,113.9 L116.6,112.1 L118.2,106.3 L119.8,97.7 L121.5,94.8 L123.1,101.3 L124.7,90.9 L126.3,93.1 L127.9,97.8 L129.5,97.8 L131.1,98.5 L132.7,95.7 L134.3,89.7 L135.9,91.8 L137.5,92.4 L139.2,86.3 L140.8,67.1 L142.4,65.8 L144.0,68.7 L145.6,69.8 L147.2,62.9 L148.8,68.5 L150.4,79.9 L152.0,70.4 L153.6,72.6 L155.3,73.0 L156.9,75.0 L158.5,75.7 L160.1,77.2 L161.7,74.0 L163.3,78.1 L164.9,71.9 L166.5,72.1 L168.1,68.4 L169.7,73.0 L171.3,73.5 L173.0,83.2 L174.6,93.0 L176.2,93.6 L177.8,96.8 L179.4,99.2 L181.0,110.7 L182.6,110.6 L184.2,108.1 L185.8,106.6 L187.4,107.0 L189.1,112.0 L190.7,117.9 L192.3,109.8 L193.9,102.1 L195.5,104.4 L197.1,107.8 L198.7,113.5 L200.3,119.1 L201.9,108.1 L203.5,103.7 L205.1,106.5 L206.8,105.9 L208.4,104.0 L210.0,93.1 L211.6,89.7 L213.2,87.3 L214.8,80.0 L216.4,80.4 L218.0,90.1 L219.6,87.9 L221.2,78.5 L222.9,77.7 L224.5,80.6 L226.1,82.7 L227.7,77.2 L229.3,80.7 L230.9,75.9 L232.5,79.5 L234.1,57.9 L235.7,57.0 L237.3,62.2 L238.9,63.3 L240.6,60.7 L242.2,56.4 L243.8,62.4 L245.4,58.7 L247.0,63.9 L248.6,64.2 L250.2,67.1 L251.8,68.6 L253.4,75.3 L255.0,73.6 L256.7,79.9 L258.3,74.4 L259.9,79.1 L261.5,73.4 L263.1,69.1 L264.7,68.0 L266.3,71.1 L267.9,69.7 L269.5,75.5 L271.1,67.3 L272.7,61.5 L274.4,59.8 L276.0,61.5 L277.6,55.6 L279.2,49.2 L280.8,63.0 L282.4,58.7 L284.0,55.8 L285.6,49.4 L287.2,46.2 L288.8,46.4 L290.5,44.2 L292.1,43.4 L293.7,51.0 L295.3,49.2 L296.9,38.5 L298.5,40.1 L300.1,42.3 L301.7,40.5 L303.3,44.1 L304.9,46.2 L306.5,45.0 L308.2,51.2 L309.8,56.0 L311.4,53.6 L313.0,49.2 L314.6,50.4 L316.2,48.1 L317.8,46.6 L319.4,36.9 L321.0,44.2 L322.6,50.8 L324.3,50.9 L325.9,47.4 L327.5,49.1 L329.1,47.2 L330.7,46.2 L332.3,44.7 L333.9,35.9 L335.5,28.2 L337.1,34.2 L338.7,30.1 L340.4,20.8 L342.0,22.4 L343.6,28.3 L345.2,27.0 L346.8,29.1 L348.4,21.8 L350.0,16.0 L351.6,18.5 L353.2,18.9 L354.8,16.2 L356.4,27.5 L358.1,27.0 L359.7,28.2 L361.3,27.1 L362.9,28.3 L364.5,34.5 L366.1,26.2 L367.7,27.8 L369.3,34.5 L370.9,37.5 L372.5,47.9 L374.2,44.8 L375.8,47.5 L377.4,46.3 L379.0,42.9 L380.6,43.9 L382.2,50.4 L383.8,45.5 L385.4,49.2 L387.0,48.0 L388.6,50.4 L390.2,49.7 L391.9,46.4 L393.5,48.5 L395.1,42.8 L396.7,35.6 L398.3,37.7 L399.9,34.9 L401.5,32.9 L403.1,34.2 L404.7,38.7 L406.3,35.3 L408.0,29.6 L409.6,25.5 L411.2,23.7 L412.8,29.8 L414.4,31.8 L416.0,27.3 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-IEX)"/>
+    <path d="M12.0,150.9 L13.6,159.4 L15.2,160.0 L16.8,154.9 L18.4,155.8 L20.0,152.4 L21.7,150.1 L23.3,149.6 L24.9,144.7 L26.5,150.0 L28.1,146.4 L29.7,147.2 L31.3,147.8 L32.9,149.0 L34.5,137.3 L36.1,142.9 L37.8,140.8 L39.4,146.6 L41.0,147.3 L42.6,146.6 L44.2,149.2 L45.8,147.1 L47.4,145.6 L49.0,144.3 L50.6,144.2 L52.2,148.8 L53.8,153.4 L55.5,156.5 L57.1,158.5 L58.7,158.5 L60.3,156.1 L61.9,142.3 L63.5,143.6 L65.1,136.8 L66.7,136.7 L68.3,136.3 L69.9,135.1 L71.6,134.2 L73.2,128.6 L74.8,127.1 L76.4,129.8 L78.0,132.7 L79.6,137.1 L81.2,131.7 L82.8,123.1 L84.4,127.3 L86.0,127.7 L87.6,130.5 L89.3,132.0 L90.9,129.9 L92.5,129.4 L94.1,126.2 L95.7,124.8 L97.3,125.0 L98.9,124.8 L100.5,125.4 L102.1,126.7 L103.7,129.1 L105.4,127.1 L107.0,123.9 L108.6,118.4 L110.2,124.5 L111.8,116.8 L113.4,116.9 L115.0,113.9 L116.6,112.1 L118.2,106.3 L119.8,97.7 L121.5,94.8 L123.1,101.3 L124.7,90.9 L126.3,93.1 L127.9,97.8 L129.5,97.8 L131.1,98.5 L132.7,95.7 L134.3,89.7 L135.9,91.8 L137.5,92.4 L139.2,86.3 L140.8,67.1 L142.4,65.8 L144.0,68.7 L145.6,69.8 L147.2,62.9 L148.8,68.5 L150.4,79.9 L152.0,70.4 L153.6,72.6 L155.3,73.0 L156.9,75.0 L158.5,75.7 L160.1,77.2 L161.7,74.0 L163.3,78.1 L164.9,71.9 L166.5,72.1 L168.1,68.4 L169.7,73.0 L171.3,73.5 L173.0,83.2 L174.6,93.0 L176.2,93.6 L177.8,96.8 L179.4,99.2 L181.0,110.7 L182.6,110.6 L184.2,108.1 L185.8,106.6 L187.4,107.0 L189.1,112.0 L190.7,117.9 L192.3,109.8 L193.9,102.1 L195.5,104.4 L197.1,107.8 L198.7,113.5 L200.3,119.1 L201.9,108.1 L203.5,103.7 L205.1,106.5 L206.8,105.9 L208.4,104.0 L210.0,93.1 L211.6,89.7 L213.2,87.3 L214.8,80.0 L216.4,80.4 L218.0,90.1 L219.6,87.9 L221.2,78.5 L222.9,77.7 L224.5,80.6 L226.1,82.7 L227.7,77.2 L229.3,80.7 L230.9,75.9 L232.5,79.5 L234.1,57.9 L235.7,57.0 L237.3,62.2 L238.9,63.3 L240.6,60.7 L242.2,56.4 L243.8,62.4 L245.4,58.7 L247.0,63.9 L248.6,64.2 L250.2,67.1 L251.8,68.6 L253.4,75.3 L255.0,73.6 L256.7,79.9 L258.3,74.4 L259.9,79.1 L261.5,73.4 L263.1,69.1 L264.7,68.0 L266.3,71.1 L267.9,69.7 L269.5,75.5 L271.1,67.3 L272.7,61.5 L274.4,59.8 L276.0,61.5 L277.6,55.6 L279.2,49.2 L280.8,63.0 L282.4,58.7 L284.0,55.8 L285.6,49.4 L287.2,46.2 L288.8,46.4 L290.5,44.2 L292.1,43.4 L293.7,51.0 L295.3,49.2 L296.9,38.5 L298.5,40.1 L300.1,42.3 L301.7,40.5 L303.3,44.1 L304.9,46.2 L306.5,45.0 L308.2,51.2 L309.8,56.0 L311.4,53.6 L313.0,49.2 L314.6,50.4 L316.2,48.1 L317.8,46.6 L319.4,36.9 L321.0,44.2 L322.6,50.8 L324.3,50.9 L325.9,47.4 L327.5,49.1 L329.1,47.2 L330.7,46.2 L332.3,44.7 L333.9,35.9 L335.5,28.2 L337.1,34.2 L338.7,30.1 L340.4,20.8 L342.0,22.4 L343.6,28.3 L345.2,27.0 L346.8,29.1 L348.4,21.8 L350.0,16.0 L351.6,18.5 L353.2,18.9 L354.8,16.2 L356.4,27.5 L358.1,27.0 L359.7,28.2 L361.3,27.1 L362.9,28.3 L364.5,34.5 L366.1,26.2 L367.7,27.8 L369.3,34.5 L370.9,37.5 L372.5,47.9 L374.2,44.8 L375.8,47.5 L377.4,46.3 L379.0,42.9 L380.6,43.9 L382.2,50.4 L383.8,45.5 L385.4,49.2 L387.0,48.0 L388.6,50.4 L390.2,49.7 L391.9,46.4 L393.5,48.5 L395.1,42.8 L396.7,35.6 L398.3,37.7 L399.9,34.9 L401.5,32.9 L403.1,34.2 L404.7,38.7 L406.3,35.3 L408.0,29.6 L409.6,25.5 L411.2,23.7 L412.8,29.8 L414.4,31.8 L416.0,27.3" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="27.3" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$234.29</text>
+    <text x="474" y="150.9" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$165.85</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+0.6%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+4.1%</strong></div><div class="perf-chip up"><span class="perf-label">3M</span><strong class="perf-value">+6.6%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+31.7%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+41.3%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+12.8%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+10.6%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+159.2%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+8010%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$17.3B</strong></span>
+      <span>P/E: <strong>33.2</strong></span>
+      <span>Net Income: <strong>$520M</strong></span>
+    </div>
+
+    <p class="summary">IDEX Corporation (IEX): $234.29 (+41.3% 1Y). Performance: 1W +0.6%, 1M +4.1%, 3M +6.6%, YTD +31.7%, 1Y +41.3%, 5Y +10.6%. Market Cap: $17.3B, P/E: 33.2, Net Income: $520M. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=IEX">Open IEX in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=IEX");</script>
+</body>
+</html>

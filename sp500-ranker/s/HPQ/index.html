@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>HPQ · HP Inc. — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="HP Inc. (HPQ): $30.20 (+12.0% 1Y). Performance: 1W −6.0%, 1M −6.8%, 3M +25.2%, YTD +35.5%, 1Y +12.0%, 5Y +8.3%. Market Cap: $27.2B, P/E: 11.1, Net Income: $2.45B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/HPQ/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/HPQ/">
+  <meta property="og:title" content="HPQ · HP Inc. — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="HP Inc. (HPQ): $30.20 (+12.0% 1Y). Performance: 1W −6.0%, 1M −6.8%, 3M +25.2%, YTD +35.5%, 1Y +12.0%, 5Y +8.3%. Market Cap: $27.2B, P/E: 11.1, Net Income: $2.45B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="HPQ · HP Inc. — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="HPQ · HP Inc. — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="HP Inc. (HPQ): $30.20 (+12.0% 1Y). Performance: 1W −6.0%, 1M −6.8%, 3M +25.2%, YTD +35.5%, 1Y +12.0%, 5Y +8.3%. Market Cap: $27.2B, P/E: 11.1, Net Income: $2.45B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">HPQ</span>
+    <h1>HP Inc.</h1>
+    <div class="quote-row">
+      <span class="price">$30.20</span>
+      <span class="change up">+12.0% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+12.0%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for HPQ">
+    <defs>
+      <linearGradient id="chart-fill-HPQ" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="86.9" x2="416" y2="86.9" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,86.9 L13.6,98.7 L15.2,83.7 L16.8,73.8 L18.4,73.2 L20.0,85.0 L21.7,83.6 L23.3,81.2 L24.9,77.0 L26.5,81.2 L28.1,79.7 L29.7,81.2 L31.3,79.0 L32.9,77.7 L34.5,80.8 L36.1,82.4 L37.8,81.1 L39.4,86.6 L41.0,95.5 L42.6,89.7 L44.2,93.6 L45.8,92.7 L47.4,100.9 L49.0,105.6 L50.6,101.6 L52.2,103.5 L53.8,107.2 L55.5,121.1 L57.1,122.4 L58.7,124.4 L60.3,123.2 L61.9,112.0 L63.5,108.5 L65.1,109.0 L66.7,111.8 L68.3,108.2 L69.9,108.4 L71.6,102.1 L73.2,101.7 L74.8,95.8 L76.4,95.7 L78.0,102.7 L79.6,100.2 L81.2,99.2 L82.8,99.9 L84.4,105.5 L86.0,107.6 L87.6,104.8 L89.3,108.1 L90.9,116.2 L92.5,117.8 L94.1,118.6 L95.7,120.6 L97.3,118.7 L98.9,117.8 L100.5,122.2 L102.1,120.8 L103.7,126.0 L105.4,127.3 L107.0,131.2 L108.6,127.1 L110.2,135.9 L111.8,133.4 L113.4,132.8 L115.0,135.2 L116.6,136.0 L118.2,138.6 L119.8,139.9 L121.5,141.9 L123.1,146.7 L124.7,148.9 L126.3,146.4 L127.9,149.8 L129.5,149.5 L131.1,150.2 L132.7,152.9 L134.3,150.1 L135.9,149.7 L137.5,146.6 L139.2,153.3 L140.8,146.5 L142.4,152.1 L144.0,147.9 L145.6,149.8 L147.2,146.6 L148.8,147.0 L150.4,154.4 L152.0,151.2 L153.6,157.6 L155.3,158.7 L156.9,158.8 L158.5,156.8 L160.1,158.7 L161.7,160.0 L163.3,159.9 L164.9,154.9 L166.5,153.4 L168.1,155.8 L169.7,153.2 L171.3,151.8 L173.0,150.5 L174.6,149.5 L176.2,153.9 L177.8,155.1 L179.4,157.8 L181.0,153.8 L182.6,153.9 L184.2,156.0 L185.8,155.4 L187.4,159.8 L189.1,157.7 L190.7,159.4 L192.3,157.2 L193.9,154.2 L195.5,149.5 L197.1,150.7 L198.7,149.7 L200.3,152.9 L201.9,151.6 L203.5,153.8 L205.1,149.1 L206.8,153.8 L208.4,156.6 L210.0,154.2 L211.6,158.5 L213.2,159.5 L214.8,151.4 L216.4,153.4 L218.0,151.4 L219.6,147.3 L221.2,146.0 L222.9,148.4 L224.5,135.9 L226.1,141.3 L227.7,143.8 L229.3,146.8 L230.9,147.0 L232.5,147.2 L234.1,143.8 L235.7,137.8 L237.3,138.1 L238.9,138.3 L240.6,135.4 L242.2,133.2 L243.8,136.8 L245.4,122.7 L247.0,131.1 L248.6,136.0 L250.2,134.5 L251.8,138.6 L253.4,138.2 L255.0,137.3 L256.7,136.9 L258.3,136.1 L259.9,129.2 L261.5,101.3 L263.1,108.1 L264.7,99.2 L266.3,103.2 L267.9,86.3 L269.5,67.2 L271.1,84.2 L272.7,94.7 L274.4,92.5 L276.0,98.5 L277.6,100.2 L279.2,103.8 L280.8,105.9 L282.4,106.0 L284.0,101.3 L285.6,106.7 L287.2,109.2 L288.8,118.5 L290.5,115.8 L292.1,115.5 L293.7,114.4 L295.3,117.6 L296.9,120.7 L298.5,121.0 L300.1,123.0 L301.7,128.8 L303.3,128.2 L304.9,128.9 L306.5,123.3 L308.2,120.3 L309.8,113.5 L311.4,110.6 L313.0,109.8 L314.6,105.2 L316.2,106.4 L317.8,113.8 L319.4,110.5 L321.0,104.7 L322.6,109.8 L324.3,104.9 L325.9,102.5 L327.5,107.4 L329.1,97.1 L330.7,90.4 L332.3,75.9 L333.9,74.9 L335.5,87.8 L337.1,84.4 L338.7,85.7 L340.4,71.5 L342.0,74.0 L343.6,76.8 L345.2,61.2 L346.8,63.3 L348.4,69.4 L350.0,67.7 L351.6,50.8 L353.2,60.7 L354.8,66.7 L356.4,62.0 L358.1,62.2 L359.7,66.1 L361.3,64.1 L362.9,73.5 L364.5,65.7 L366.1,57.3 L367.7,64.8 L369.3,57.3 L370.9,61.5 L372.5,50.7 L374.2,45.1 L375.8,45.6 L377.4,39.7 L379.0,51.9 L380.6,41.7 L382.2,38.9 L383.8,16.0 L385.4,28.2 L387.0,29.8 L388.6,39.2 L390.2,22.8 L391.9,25.0 L393.5,37.1 L395.1,44.7 L396.7,43.7 L398.3,52.2 L399.9,50.8 L401.5,50.7 L403.1,55.6 L404.7,51.0 L406.3,43.7 L408.0,44.0 L409.6,49.4 L411.2,47.2 L412.8,43.0 L414.4,41.3 L416.0,60.0 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-HPQ)"/>
+    <path d="M12.0,86.9 L13.6,98.7 L15.2,83.7 L16.8,73.8 L18.4,73.2 L20.0,85.0 L21.7,83.6 L23.3,81.2 L24.9,77.0 L26.5,81.2 L28.1,79.7 L29.7,81.2 L31.3,79.0 L32.9,77.7 L34.5,80.8 L36.1,82.4 L37.8,81.1 L39.4,86.6 L41.0,95.5 L42.6,89.7 L44.2,93.6 L45.8,92.7 L47.4,100.9 L49.0,105.6 L50.6,101.6 L52.2,103.5 L53.8,107.2 L55.5,121.1 L57.1,122.4 L58.7,124.4 L60.3,123.2 L61.9,112.0 L63.5,108.5 L65.1,109.0 L66.7,111.8 L68.3,108.2 L69.9,108.4 L71.6,102.1 L73.2,101.7 L74.8,95.8 L76.4,95.7 L78.0,102.7 L79.6,100.2 L81.2,99.2 L82.8,99.9 L84.4,105.5 L86.0,107.6 L87.6,104.8 L89.3,108.1 L90.9,116.2 L92.5,117.8 L94.1,118.6 L95.7,120.6 L97.3,118.7 L98.9,117.8 L100.5,122.2 L102.1,120.8 L103.7,126.0 L105.4,127.3 L107.0,131.2 L108.6,127.1 L110.2,135.9 L111.8,133.4 L113.4,132.8 L115.0,135.2 L116.6,136.0 L118.2,138.6 L119.8,139.9 L121.5,141.9 L123.1,146.7 L124.7,148.9 L126.3,146.4 L127.9,149.8 L129.5,149.5 L131.1,150.2 L132.7,152.9 L134.3,150.1 L135.9,149.7 L137.5,146.6 L139.2,153.3 L140.8,146.5 L142.4,152.1 L144.0,147.9 L145.6,149.8 L147.2,146.6 L148.8,147.0 L150.4,154.4 L152.0,151.2 L153.6,157.6 L155.3,158.7 L156.9,158.8 L158.5,156.8 L160.1,158.7 L161.7,160.0 L163.3,159.9 L164.9,154.9 L166.5,153.4 L168.1,155.8 L169.7,153.2 L171.3,151.8 L173.0,150.5 L174.6,149.5 L176.2,153.9 L177.8,155.1 L179.4,157.8 L181.0,153.8 L182.6,153.9 L184.2,156.0 L185.8,155.4 L187.4,159.8 L189.1,157.7 L190.7,159.4 L192.3,157.2 L193.9,154.2 L195.5,149.5 L197.1,150.7 L198.7,149.7 L200.3,152.9 L201.9,151.6 L203.5,153.8 L205.1,149.1 L206.8,153.8 L208.4,156.6 L210.0,154.2 L211.6,158.5 L213.2,159.5 L214.8,151.4 L216.4,153.4 L218.0,151.4 L219.6,147.3 L221.2,146.0 L222.9,148.4 L224.5,135.9 L226.1,141.3 L227.7,143.8 L229.3,146.8 L230.9,147.0 L232.5,147.2 L234.1,143.8 L235.7,137.8 L237.3,138.1 L238.9,138.3 L240.6,135.4 L242.2,133.2 L243.8,136.8 L245.4,122.7 L247.0,131.1 L248.6,136.0 L250.2,134.5 L251.8,138.6 L253.4,138.2 L255.0,137.3 L256.7,136.9 L258.3,136.1 L259.9,129.2 L261.5,101.3 L263.1,108.1 L264.7,99.2 L266.3,103.2 L267.9,86.3 L269.5,67.2 L271.1,84.2 L272.7,94.7 L274.4,92.5 L276.0,98.5 L277.6,100.2 L279.2,103.8 L280.8,105.9 L282.4,106.0 L284.0,101.3 L285.6,106.7 L287.2,109.2 L288.8,118.5 L290.5,115.8 L292.1,115.5 L293.7,114.4 L295.3,117.6 L296.9,120.7 L298.5,121.0 L300.1,123.0 L301.7,128.8 L303.3,128.2 L304.9,128.9 L306.5,123.3 L308.2,120.3 L309.8,113.5 L311.4,110.6 L313.0,109.8 L314.6,105.2 L316.2,106.4 L317.8,113.8 L319.4,110.5 L321.0,104.7 L322.6,109.8 L324.3,104.9 L325.9,102.5 L327.5,107.4 L329.1,97.1 L330.7,90.4 L332.3,75.9 L333.9,74.9 L335.5,87.8 L337.1,84.4 L338.7,85.7 L340.4,71.5 L342.0,74.0 L343.6,76.8 L345.2,61.2 L346.8,63.3 L348.4,69.4 L350.0,67.7 L351.6,50.8 L353.2,60.7 L354.8,66.7 L356.4,62.0 L358.1,62.2 L359.7,66.1 L361.3,64.1 L362.9,73.5 L364.5,65.7 L366.1,57.3 L367.7,64.8 L369.3,57.3 L370.9,61.5 L372.5,50.7 L374.2,45.1 L375.8,45.6 L377.4,39.7 L379.0,51.9 L380.6,41.7 L382.2,38.9 L383.8,16.0 L385.4,28.2 L387.0,29.8 L388.6,39.2 L390.2,22.8 L391.9,25.0 L393.5,37.1 L395.1,44.7 L396.7,43.7 L398.3,52.2 L399.9,50.8 L401.5,50.7 L403.1,55.6 L404.7,51.0 L406.3,43.7 L408.0,44.0 L409.6,49.4 L411.2,47.2 L412.8,43.0 L414.4,41.3 L416.0,60.0" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="60.0" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$30.20</text>
+    <text x="474" y="86.9" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$26.97</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip down"><span class="perf-label">1W</span><strong class="perf-value">−6.0%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−6.8%</strong></div><div class="perf-chip up"><span class="perf-label">3M</span><strong class="perf-value">+25.2%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+35.5%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+12.0%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−17.4%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+8.3%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+93.8%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+25597%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$27.2B</strong></span>
+      <span>P/E: <strong>11.1</strong></span>
+      <span>Net Income: <strong>$2.45B</strong></span>
+    </div>
+
+    <p class="summary">HP Inc. (HPQ): $30.20 (+12.0% 1Y). Performance: 1W −6.0%, 1M −6.8%, 3M +25.2%, YTD +35.5%, 1Y +12.0%, 5Y +8.3%. Market Cap: $27.2B, P/E: 11.1, Net Income: $2.45B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=HPQ">Open HPQ in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=HPQ");</script>
+</body>
+</html>

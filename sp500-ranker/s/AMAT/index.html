@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>AMAT · Applied Materials — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Applied Materials (AMAT): $507.03 (+130.2% 1Y). Performance: 1W −6.1%, 1M +8.1%, 3M −13.9%, YTD +97.3%, 1Y +130.2%, 5Y +301.7%. Market Cap: $402B, P/E: 43.4, Net Income: $9.27B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/AMAT/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/AMAT/">
+  <meta property="og:title" content="AMAT · Applied Materials — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Applied Materials (AMAT): $507.03 (+130.2% 1Y). Performance: 1W −6.1%, 1M +8.1%, 3M −13.9%, YTD +97.3%, 1Y +130.2%, 5Y +301.7%. Market Cap: $402B, P/E: 43.4, Net Income: $9.27B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="AMAT · Applied Materials — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AMAT · Applied Materials — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Applied Materials (AMAT): $507.03 (+130.2% 1Y). Performance: 1W −6.1%, 1M +8.1%, 3M −13.9%, YTD +97.3%, 1Y +130.2%, 5Y +301.7%. Market Cap: $402B, P/E: 43.4, Net Income: $9.27B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">AMAT</span>
+    <h1>Applied Materials</h1>
+    <div class="quote-row">
+      <span class="price">$507.03</span>
+      <span class="change up">+130.2% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+130.2%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for AMAT">
+    <defs>
+      <linearGradient id="chart-fill-AMAT" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="157.1" x2="416" y2="157.1" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,157.1 L13.6,160.0 L15.2,157.3 L16.8,157.7 L18.4,155.1 L20.0,155.0 L21.7,155.8 L23.3,154.9 L24.9,155.5 L26.5,157.0 L28.1,154.8 L29.7,154.7 L31.3,154.0 L32.9,155.0 L34.5,152.8 L36.1,153.7 L37.8,153.5 L39.4,152.2 L41.0,154.3 L42.6,151.3 L44.2,153.4 L45.8,154.4 L47.4,152.9 L49.0,154.7 L50.6,154.2 L52.2,156.3 L53.8,155.5 L55.5,154.7 L57.1,155.7 L58.7,152.9 L60.3,157.1 L61.9,156.1 L63.5,154.1 L65.1,150.9 L66.7,148.8 L68.3,148.1 L69.9,147.4 L71.6,144.5 L73.2,143.5 L74.8,143.3 L76.4,143.7 L78.0,143.7 L79.6,143.9 L81.2,141.7 L82.8,143.1 L84.4,146.2 L86.0,145.6 L87.6,146.3 L89.3,149.2 L90.9,147.8 L92.5,147.0 L94.1,146.2 L95.7,145.9 L97.3,145.7 L98.9,145.4 L100.5,145.1 L102.1,146.0 L103.7,146.8 L105.4,143.5 L107.0,139.1 L108.6,135.8 L110.2,136.9 L111.8,139.9 L113.4,134.4 L115.0,132.7 L116.6,133.4 L118.2,134.2 L119.8,129.4 L121.5,127.1 L123.1,129.6 L124.7,127.6 L126.3,129.5 L127.9,128.4 L129.5,129.3 L131.1,125.5 L132.7,124.4 L134.3,123.1 L135.9,128.5 L137.5,126.8 L139.2,129.5 L140.8,135.4 L142.4,133.6 L144.0,128.4 L145.6,126.1 L147.2,126.6 L148.8,123.5 L150.4,126.8 L152.0,119.3 L153.6,118.1 L155.3,115.3 L156.9,115.1 L158.5,113.6 L160.1,114.1 L161.7,112.9 L163.3,108.1 L164.9,113.5 L166.5,114.4 L168.1,114.5 L169.7,120.3 L171.3,118.5 L173.0,121.7 L174.6,127.8 L176.2,123.8 L177.8,121.8 L179.4,120.4 L181.0,124.3 L182.6,123.1 L184.2,121.8 L185.8,120.0 L187.4,120.8 L189.1,118.7 L190.7,118.7 L192.3,117.4 L193.9,114.0 L195.5,115.3 L197.1,123.9 L198.7,124.3 L200.3,128.2 L201.9,123.0 L203.5,119.6 L205.1,121.1 L206.8,120.0 L208.4,119.5 L210.0,110.7 L211.6,107.3 L213.2,106.8 L214.8,107.9 L216.4,107.9 L218.0,108.3 L219.6,109.5 L221.2,107.5 L222.9,109.0 L224.5,108.2 L226.1,105.7 L227.7,105.6 L229.3,101.9 L230.9,105.3 L232.5,112.0 L234.1,111.5 L235.7,108.2 L237.3,109.7 L238.9,109.1 L240.6,103.6 L242.2,98.6 L243.8,103.7 L245.4,96.7 L247.0,94.4 L248.6,97.9 L250.2,96.4 L251.8,95.3 L253.4,96.4 L255.0,102.8 L256.7,104.7 L258.3,99.1 L259.9,99.0 L261.5,97.6 L263.1,91.3 L264.7,93.1 L266.3,92.7 L267.9,92.6 L269.5,90.3 L271.1,81.4 L272.7,78.4 L274.4,78.1 L276.0,91.8 L277.6,80.8 L279.2,78.8 L280.8,79.4 L282.4,63.8 L284.0,59.7 L285.6,54.5 L287.2,59.4 L288.8,52.5 L290.5,45.7 L292.1,39.2 L293.7,54.5 L295.3,53.6 L296.9,31.4 L298.5,43.0 L300.1,24.0 L301.7,16.0 L303.3,36.2 L304.9,49.7 L306.5,52.5 L308.2,63.3 L309.8,58.8 L311.4,53.7 L313.0,49.8 L314.6,57.4 L316.2,51.7 L317.8,56.3 L319.4,61.5 L321.0,70.3 L322.6,71.4 L324.3,60.5 L325.9,63.5 L327.5,61.0 L329.1,68.4 L330.7,73.8 L332.3,85.2 L333.9,96.4 L335.5,78.1 L337.1,76.4 L338.7,73.5 L340.4,65.5 L342.0,69.0 L343.6,70.9 L345.2,67.6 L346.8,72.4 L348.4,71.4 L350.0,65.1 L351.6,68.9 L353.2,76.6 L354.8,68.7 L356.4,74.6 L358.1,79.7 L359.7,79.7 L361.3,80.7 L362.9,83.0 L364.5,84.2 L366.1,84.3 L367.7,83.5 L369.3,89.3 L370.9,90.3 L372.5,94.9 L374.2,95.9 L375.8,96.6 L377.4,91.3 L379.0,86.2 L380.6,87.3 L382.2,91.5 L383.8,90.8 L385.4,99.9 L387.0,100.7 L388.6,102.3 L390.2,101.8 L391.9,94.1 L393.5,88.6 L395.1,86.3 L396.7,85.8 L398.3,85.8 L399.9,82.8 L401.5,82.3 L403.1,75.2 L404.7,75.4 L406.3,70.4 L408.0,67.4 L409.6,66.7 L411.2,70.1 L412.8,72.8 L414.4,75.9 L416.0,76.6 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-AMAT)"/>
+    <path d="M12.0,157.1 L13.6,160.0 L15.2,157.3 L16.8,157.7 L18.4,155.1 L20.0,155.0 L21.7,155.8 L23.3,154.9 L24.9,155.5 L26.5,157.0 L28.1,154.8 L29.7,154.7 L31.3,154.0 L32.9,155.0 L34.5,152.8 L36.1,153.7 L37.8,153.5 L39.4,152.2 L41.0,154.3 L42.6,151.3 L44.2,153.4 L45.8,154.4 L47.4,152.9 L49.0,154.7 L50.6,154.2 L52.2,156.3 L53.8,155.5 L55.5,154.7 L57.1,155.7 L58.7,152.9 L60.3,157.1 L61.9,156.1 L63.5,154.1 L65.1,150.9 L66.7,148.8 L68.3,148.1 L69.9,147.4 L71.6,144.5 L73.2,143.5 L74.8,143.3 L76.4,143.7 L78.0,143.7 L79.6,143.9 L81.2,141.7 L82.8,143.1 L84.4,146.2 L86.0,145.6 L87.6,146.3 L89.3,149.2 L90.9,147.8 L92.5,147.0 L94.1,146.2 L95.7,145.9 L97.3,145.7 L98.9,145.4 L100.5,145.1 L102.1,146.0 L103.7,146.8 L105.4,143.5 L107.0,139.1 L108.6,135.8 L110.2,136.9 L111.8,139.9 L113.4,134.4 L115.0,132.7 L116.6,133.4 L118.2,134.2 L119.8,129.4 L121.5,127.1 L123.1,129.6 L124.7,127.6 L126.3,129.5 L127.9,128.4 L129.5,129.3 L131.1,125.5 L132.7,124.4 L134.3,123.1 L135.9,128.5 L137.5,126.8 L139.2,129.5 L140.8,135.4 L142.4,133.6 L144.0,128.4 L145.6,126.1 L147.2,126.6 L148.8,123.5 L150.4,126.8 L152.0,119.3 L153.6,118.1 L155.3,115.3 L156.9,115.1 L158.5,113.6 L160.1,114.1 L161.7,112.9 L163.3,108.1 L164.9,113.5 L166.5,114.4 L168.1,114.5 L169.7,120.3 L171.3,118.5 L173.0,121.7 L174.6,127.8 L176.2,123.8 L177.8,121.8 L179.4,120.4 L181.0,124.3 L182.6,123.1 L184.2,121.8 L185.8,120.0 L187.4,120.8 L189.1,118.7 L190.7,118.7 L192.3,117.4 L193.9,114.0 L195.5,115.3 L197.1,123.9 L198.7,124.3 L200.3,128.2 L201.9,123.0 L203.5,119.6 L205.1,121.1 L206.8,120.0 L208.4,119.5 L210.0,110.7 L211.6,107.3 L213.2,106.8 L214.8,107.9 L216.4,107.9 L218.0,108.3 L219.6,109.5 L221.2,107.5 L222.9,109.0 L224.5,108.2 L226.1,105.7 L227.7,105.6 L229.3,101.9 L230.9,105.3 L232.5,112.0 L234.1,111.5 L235.7,108.2 L237.3,109.7 L238.9,109.1 L240.6,103.6 L242.2,98.6 L243.8,103.7 L245.4,96.7 L247.0,94.4 L248.6,97.9 L250.2,96.4 L251.8,95.3 L253.4,96.4 L255.0,102.8 L256.7,104.7 L258.3,99.1 L259.9,99.0 L261.5,97.6 L263.1,91.3 L264.7,93.1 L266.3,92.7 L267.9,92.6 L269.5,90.3 L271.1,81.4 L272.7,78.4 L274.4,78.1 L276.0,91.8 L277.6,80.8 L279.2,78.8 L280.8,79.4 L282.4,63.8 L284.0,59.7 L285.6,54.5 L287.2,59.4 L288.8,52.5 L290.5,45.7 L292.1,39.2 L293.7,54.5 L295.3,53.6 L296.9,31.4 L298.5,43.0 L300.1,24.0 L301.7,16.0 L303.3,36.2 L304.9,49.7 L306.5,52.5 L308.2,63.3 L309.8,58.8 L311.4,53.7 L313.0,49.8 L314.6,57.4 L316.2,51.7 L317.8,56.3 L319.4,61.5 L321.0,70.3 L322.6,71.4 L324.3,60.5 L325.9,63.5 L327.5,61.0 L329.1,68.4 L330.7,73.8 L332.3,85.2 L333.9,96.4 L335.5,78.1 L337.1,76.4 L338.7,73.5 L340.4,65.5 L342.0,69.0 L343.6,70.9 L345.2,67.6 L346.8,72.4 L348.4,71.4 L350.0,65.1 L351.6,68.9 L353.2,76.6 L354.8,68.7 L356.4,74.6 L358.1,79.7 L359.7,79.7 L361.3,80.7 L362.9,83.0 L364.5,84.2 L366.1,84.3 L367.7,83.5 L369.3,89.3 L370.9,90.3 L372.5,94.9 L374.2,95.9 L375.8,96.6 L377.4,91.3 L379.0,86.2 L380.6,87.3 L382.2,91.5 L383.8,90.8 L385.4,99.9 L387.0,100.7 L388.6,102.3 L390.2,101.8 L391.9,94.1 L393.5,88.6 L395.1,86.3 L396.7,85.8 L398.3,85.8 L399.9,82.8 L401.5,82.3 L403.1,75.2 L404.7,75.4 L406.3,70.4 L408.0,67.4 L409.6,66.7 L411.2,70.1 L412.8,72.8 L414.4,75.9 L416.0,76.6" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="76.6" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$507.03</text>
+    <text x="474" y="157.1" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$220.30</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip down"><span class="perf-label">1W</span><strong class="perf-value">−6.1%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+8.1%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−13.9%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+97.3%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+130.2%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+147.3%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+301.7%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+1604%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+503435%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$402B</strong></span>
+      <span>P/E: <strong>43.4</strong></span>
+      <span>Net Income: <strong>$9.27B</strong></span>
+    </div>
+
+    <p class="summary">Applied Materials (AMAT): $507.03 (+130.2% 1Y). Performance: 1W −6.1%, 1M +8.1%, 3M −13.9%, YTD +97.3%, 1Y +130.2%, 5Y +301.7%. Market Cap: $402B, P/E: 43.4, Net Income: $9.27B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=AMAT">Open AMAT in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=AMAT");</script>
+</body>
+</html>

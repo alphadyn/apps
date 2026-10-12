@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>CTAS · Cintas — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Cintas (CTAS): $202.41 (+5.6% 1Y). Performance: 1W +4.9%, 1M +1.2%, 3M +13.9%, YTD +7.6%, 1Y +5.6%, 5Y +101.0%. Market Cap: $80.4B, P/E: 39.0, Net Income: $2.06B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/CTAS/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/CTAS/">
+  <meta property="og:title" content="CTAS · Cintas — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Cintas (CTAS): $202.41 (+5.6% 1Y). Performance: 1W +4.9%, 1M +1.2%, 3M +13.9%, YTD +7.6%, 1Y +5.6%, 5Y +101.0%. Market Cap: $80.4B, P/E: 39.0, Net Income: $2.06B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="CTAS · Cintas — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CTAS · Cintas — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Cintas (CTAS): $202.41 (+5.6% 1Y). Performance: 1W +4.9%, 1M +1.2%, 3M +13.9%, YTD +7.6%, 1Y +5.6%, 5Y +101.0%. Market Cap: $80.4B, P/E: 39.0, Net Income: $2.06B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">CTAS</span>
+    <h1>Cintas</h1>
+    <div class="quote-row">
+      <span class="price">$202.41</span>
+      <span class="change up">+5.6% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+5.6%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for CTAS">
+    <defs>
+      <linearGradient id="chart-fill-CTAS" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="83.4" x2="416" y2="83.4" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,83.4 L13.6,93.7 L15.2,93.7 L16.8,92.9 L18.4,95.0 L20.0,103.4 L21.7,93.3 L23.3,81.8 L24.9,70.5 L26.5,78.5 L28.1,81.7 L29.7,85.9 L31.3,91.7 L32.9,88.4 L34.5,104.7 L36.1,104.5 L37.8,106.4 L39.4,109.7 L41.0,104.1 L42.6,99.5 L44.2,102.0 L45.8,101.5 L47.4,101.0 L49.0,99.6 L50.6,100.9 L52.2,93.8 L53.8,97.0 L55.5,105.1 L57.1,104.7 L58.7,105.9 L60.3,106.6 L61.9,99.5 L63.5,109.4 L65.1,105.3 L66.7,102.8 L68.3,98.9 L69.9,100.5 L71.6,103.9 L73.2,102.5 L74.8,104.3 L76.4,96.9 L78.0,107.2 L79.6,106.7 L81.2,100.2 L82.8,91.3 L84.4,94.8 L86.0,92.3 L87.6,94.6 L89.3,95.3 L90.9,88.4 L92.5,94.7 L94.1,82.7 L95.7,86.3 L97.3,84.9 L98.9,85.0 L100.5,85.3 L102.1,87.2 L103.7,93.4 L105.4,102.0 L107.0,100.4 L108.6,95.2 L110.2,97.1 L111.8,87.4 L113.4,79.6 L115.0,79.9 L116.6,80.7 L118.2,76.6 L119.8,72.9 L121.5,73.4 L123.1,77.9 L124.7,73.4 L126.3,79.8 L127.9,80.1 L129.5,77.5 L131.1,84.8 L132.7,90.4 L134.3,89.1 L135.9,84.3 L137.5,85.6 L139.2,86.1 L140.8,81.0 L142.4,76.9 L144.0,72.2 L145.6,75.2 L147.2,62.8 L148.8,60.0 L150.4,71.5 L152.0,78.8 L153.6,74.7 L155.3,70.7 L156.9,66.4 L158.5,60.9 L160.1,65.5 L161.7,64.9 L163.3,69.7 L164.9,65.6 L166.5,57.9 L168.1,56.6 L169.7,56.7 L171.3,60.6 L173.0,48.6 L174.6,51.1 L176.2,58.8 L177.8,71.0 L179.4,65.4 L181.0,79.2 L182.6,76.5 L184.2,80.7 L185.8,80.4 L187.4,100.5 L189.1,110.3 L190.7,117.1 L192.3,112.0 L193.9,120.4 L195.5,123.9 L197.1,145.6 L198.7,154.1 L200.3,146.1 L201.9,144.8 L203.5,136.9 L205.1,130.7 L206.8,137.9 L208.4,141.7 L210.0,130.0 L211.6,131.2 L213.2,129.1 L214.8,127.0 L216.4,125.8 L218.0,124.9 L219.6,122.0 L221.2,117.5 L222.9,118.8 L224.5,125.5 L226.1,129.8 L227.7,121.8 L229.3,126.4 L230.9,131.5 L232.5,131.0 L234.1,131.7 L235.7,129.7 L237.3,143.5 L238.9,150.9 L240.6,144.5 L242.2,144.2 L243.8,142.4 L245.4,150.7 L247.0,157.0 L248.6,154.9 L250.2,160.0 L251.8,153.5 L253.4,147.1 L255.0,130.2 L256.7,136.5 L258.3,138.8 L259.9,136.1 L261.5,134.5 L263.1,139.5 L264.7,142.8 L266.3,134.2 L267.9,139.0 L269.5,134.6 L271.1,133.5 L272.7,129.6 L274.4,115.4 L276.0,115.7 L277.6,132.5 L279.2,115.6 L280.8,114.2 L282.4,110.2 L284.0,125.4 L285.6,129.6 L287.2,124.2 L288.8,143.4 L290.5,140.2 L292.1,144.0 L293.7,145.7 L295.3,139.9 L296.9,144.9 L298.5,137.3 L300.1,145.0 L301.7,142.3 L303.3,131.0 L304.9,111.6 L306.5,120.1 L308.2,110.3 L309.8,114.8 L311.4,121.6 L313.0,116.3 L314.6,105.1 L316.2,103.5 L317.8,81.7 L319.4,43.9 L321.0,48.8 L322.6,56.0 L324.3,59.8 L325.9,57.2 L327.5,52.1 L329.1,44.9 L330.7,31.1 L332.3,20.4 L333.9,16.0 L335.5,42.5 L337.1,48.3 L338.7,50.0 L340.4,51.0 L342.0,57.1 L343.6,55.1 L345.2,52.6 L346.8,53.6 L348.4,46.6 L350.0,51.4 L351.6,59.0 L353.2,62.2 L354.8,66.9 L356.4,62.4 L358.1,52.6 L359.7,51.4 L361.3,50.6 L362.9,40.8 L364.5,48.0 L366.1,45.2 L367.7,49.6 L369.3,49.6 L370.9,56.1 L372.5,59.3 L374.2,66.1 L375.8,58.1 L377.4,59.7 L379.0,59.6 L380.6,60.8 L382.2,65.2 L383.8,56.9 L385.4,58.7 L387.0,63.8 L388.6,62.4 L390.2,66.5 L391.9,67.3 L393.5,69.4 L395.1,64.2 L396.7,82.8 L398.3,67.2 L399.9,61.2 L401.5,59.4 L403.1,67.1 L404.7,74.4 L406.3,72.9 L408.0,79.9 L409.6,73.4 L411.2,71.9 L412.8,68.6 L414.4,57.9 L416.0,54.4 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-CTAS)"/>
+    <path d="M12.0,83.4 L13.6,93.7 L15.2,93.7 L16.8,92.9 L18.4,95.0 L20.0,103.4 L21.7,93.3 L23.3,81.8 L24.9,70.5 L26.5,78.5 L28.1,81.7 L29.7,85.9 L31.3,91.7 L32.9,88.4 L34.5,104.7 L36.1,104.5 L37.8,106.4 L39.4,109.7 L41.0,104.1 L42.6,99.5 L44.2,102.0 L45.8,101.5 L47.4,101.0 L49.0,99.6 L50.6,100.9 L52.2,93.8 L53.8,97.0 L55.5,105.1 L57.1,104.7 L58.7,105.9 L60.3,106.6 L61.9,99.5 L63.5,109.4 L65.1,105.3 L66.7,102.8 L68.3,98.9 L69.9,100.5 L71.6,103.9 L73.2,102.5 L74.8,104.3 L76.4,96.9 L78.0,107.2 L79.6,106.7 L81.2,100.2 L82.8,91.3 L84.4,94.8 L86.0,92.3 L87.6,94.6 L89.3,95.3 L90.9,88.4 L92.5,94.7 L94.1,82.7 L95.7,86.3 L97.3,84.9 L98.9,85.0 L100.5,85.3 L102.1,87.2 L103.7,93.4 L105.4,102.0 L107.0,100.4 L108.6,95.2 L110.2,97.1 L111.8,87.4 L113.4,79.6 L115.0,79.9 L116.6,80.7 L118.2,76.6 L119.8,72.9 L121.5,73.4 L123.1,77.9 L124.7,73.4 L126.3,79.8 L127.9,80.1 L129.5,77.5 L131.1,84.8 L132.7,90.4 L134.3,89.1 L135.9,84.3 L137.5,85.6 L139.2,86.1 L140.8,81.0 L142.4,76.9 L144.0,72.2 L145.6,75.2 L147.2,62.8 L148.8,60.0 L150.4,71.5 L152.0,78.8 L153.6,74.7 L155.3,70.7 L156.9,66.4 L158.5,60.9 L160.1,65.5 L161.7,64.9 L163.3,69.7 L164.9,65.6 L166.5,57.9 L168.1,56.6 L169.7,56.7 L171.3,60.6 L173.0,48.6 L174.6,51.1 L176.2,58.8 L177.8,71.0 L179.4,65.4 L181.0,79.2 L182.6,76.5 L184.2,80.7 L185.8,80.4 L187.4,100.5 L189.1,110.3 L190.7,117.1 L192.3,112.0 L193.9,120.4 L195.5,123.9 L197.1,145.6 L198.7,154.1 L200.3,146.1 L201.9,144.8 L203.5,136.9 L205.1,130.7 L206.8,137.9 L208.4,141.7 L210.0,130.0 L211.6,131.2 L213.2,129.1 L214.8,127.0 L216.4,125.8 L218.0,124.9 L219.6,122.0 L221.2,117.5 L222.9,118.8 L224.5,125.5 L226.1,129.8 L227.7,121.8 L229.3,126.4 L230.9,131.5 L232.5,131.0 L234.1,131.7 L235.7,129.7 L237.3,143.5 L238.9,150.9 L240.6,144.5 L242.2,144.2 L243.8,142.4 L245.4,150.7 L247.0,157.0 L248.6,154.9 L250.2,160.0 L251.8,153.5 L253.4,147.1 L255.0,130.2 L256.7,136.5 L258.3,138.8 L259.9,136.1 L261.5,134.5 L263.1,139.5 L264.7,142.8 L266.3,134.2 L267.9,139.0 L269.5,134.6 L271.1,133.5 L272.7,129.6 L274.4,115.4 L276.0,115.7 L277.6,132.5 L279.2,115.6 L280.8,114.2 L282.4,110.2 L284.0,125.4 L285.6,129.6 L287.2,124.2 L288.8,143.4 L290.5,140.2 L292.1,144.0 L293.7,145.7 L295.3,139.9 L296.9,144.9 L298.5,137.3 L300.1,145.0 L301.7,142.3 L303.3,131.0 L304.9,111.6 L306.5,120.1 L308.2,110.3 L309.8,114.8 L311.4,121.6 L313.0,116.3 L314.6,105.1 L316.2,103.5 L317.8,81.7 L319.4,43.9 L321.0,48.8 L322.6,56.0 L324.3,59.8 L325.9,57.2 L327.5,52.1 L329.1,44.9 L330.7,31.1 L332.3,20.4 L333.9,16.0 L335.5,42.5 L337.1,48.3 L338.7,50.0 L340.4,51.0 L342.0,57.1 L343.6,55.1 L345.2,52.6 L346.8,53.6 L348.4,46.6 L350.0,51.4 L351.6,59.0 L353.2,62.2 L354.8,66.9 L356.4,62.4 L358.1,52.6 L359.7,51.4 L361.3,50.6 L362.9,40.8 L364.5,48.0 L366.1,45.2 L367.7,49.6 L369.3,49.6 L370.9,56.1 L372.5,59.3 L374.2,66.1 L375.8,58.1 L377.4,59.7 L379.0,59.6 L380.6,60.8 L382.2,65.2 L383.8,56.9 L385.4,58.7 L387.0,63.8 L388.6,62.4 L390.2,66.5 L391.9,67.3 L393.5,69.4 L395.1,64.2 L396.7,82.8 L398.3,67.2 L399.9,61.2 L401.5,59.4 L403.1,67.1 L404.7,74.4 L406.3,72.9 L408.0,79.9 L409.6,73.4 L411.2,71.9 L412.8,68.6 L414.4,57.9 L416.0,54.4" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="54.4" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$202.41</text>
+    <text x="474" y="83.4" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$191.75</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+4.9%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+1.2%</strong></div><div class="perf-chip up"><span class="perf-label">3M</span><strong class="perf-value">+13.9%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+7.6%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+5.6%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−3.2%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+101.0%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+633.0%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+85001%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$80.4B</strong></span>
+      <span>P/E: <strong>39.0</strong></span>
+      <span>Net Income: <strong>$2.06B</strong></span>
+    </div>
+
+    <p class="summary">Cintas (CTAS): $202.41 (+5.6% 1Y). Performance: 1W +4.9%, 1M +1.2%, 3M +13.9%, YTD +7.6%, 1Y +5.6%, 5Y +101.0%. Market Cap: $80.4B, P/E: 39.0, Net Income: $2.06B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=CTAS">Open CTAS in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=CTAS");</script>
+</body>
+</html>

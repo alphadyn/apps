@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>EQT · EQT Corporation — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="EQT Corporation (EQT): $52.83 (−3.8% 1Y). Performance: 1W +5.3%, 1M −3.3%, 3M +5.3%, YTD −1.4%, 1Y −3.8%, 5Y +153.0%. Market Cap: $33.0B, P/E: 12.2, Net Income: $2.71B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/EQT/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/EQT/">
+  <meta property="og:title" content="EQT · EQT Corporation — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="EQT Corporation (EQT): $52.83 (−3.8% 1Y). Performance: 1W +5.3%, 1M −3.3%, 3M +5.3%, YTD −1.4%, 1Y −3.8%, 5Y +153.0%. Market Cap: $33.0B, P/E: 12.2, Net Income: $2.71B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="EQT · EQT Corporation — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="EQT · EQT Corporation — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="EQT Corporation (EQT): $52.83 (−3.8% 1Y). Performance: 1W +5.3%, 1M −3.3%, 3M +5.3%, YTD −1.4%, 1Y −3.8%, 5Y +153.0%. Market Cap: $33.0B, P/E: 12.2, Net Income: $2.71B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">EQT</span>
+    <h1>EQT Corporation</h1>
+    <div class="quote-row">
+      <span class="price">$52.83</span>
+      <span class="change down">−3.8% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−3.8%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for EQT">
+    <defs>
+      <linearGradient id="chart-fill-EQT" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="112.7" x2="416" y2="112.7" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,112.7 L13.6,126.1 L15.2,122.1 L16.8,124.8 L18.4,108.9 L20.0,125.2 L21.7,119.0 L23.3,101.3 L24.9,106.8 L26.5,123.3 L28.1,122.8 L29.7,121.8 L31.3,121.4 L32.9,133.1 L34.5,135.9 L36.1,131.1 L37.8,122.7 L39.4,105.7 L41.0,105.8 L42.6,104.8 L44.2,102.6 L45.8,90.0 L47.4,82.8 L49.0,69.8 L50.6,68.7 L52.2,73.1 L53.8,75.7 L55.5,82.1 L57.1,84.2 L58.7,83.2 L60.3,102.1 L61.9,97.0 L63.5,93.2 L65.1,99.0 L66.7,82.4 L68.3,68.6 L69.9,71.1 L71.6,85.4 L73.2,66.3 L74.8,74.4 L76.4,69.9 L78.0,84.9 L79.6,86.0 L81.2,95.4 L82.8,104.2 L84.4,107.9 L86.0,110.9 L87.6,124.6 L89.3,116.9 L90.9,121.3 L92.5,120.5 L94.1,123.3 L95.7,115.7 L97.3,120.4 L98.9,120.1 L100.5,115.5 L102.1,114.9 L103.7,122.5 L105.4,123.6 L107.0,124.4 L108.6,123.9 L110.2,115.9 L111.8,132.9 L113.4,141.2 L115.0,133.3 L116.6,137.5 L118.2,147.4 L119.8,149.9 L121.5,145.3 L123.1,138.3 L124.7,113.4 L126.3,114.1 L127.9,108.3 L129.5,101.6 L131.1,116.5 L132.7,105.0 L134.3,102.2 L135.9,91.8 L137.5,114.0 L139.2,107.7 L140.8,109.2 L142.4,109.7 L144.0,98.8 L145.6,103.7 L147.2,109.2 L148.8,97.8 L150.4,95.9 L152.0,84.6 L153.6,91.7 L155.3,85.1 L156.9,76.7 L158.5,71.2 L160.1,82.2 L161.7,86.8 L163.3,79.6 L164.9,76.9 L166.5,64.4 L168.1,62.8 L169.7,63.0 L171.3,65.2 L173.0,62.5 L174.6,60.4 L176.2,58.4 L177.8,61.3 L179.4,46.5 L181.0,40.5 L182.6,42.5 L184.2,42.9 L185.8,42.0 L187.4,48.8 L189.1,40.2 L190.7,40.2 L192.3,36.1 L193.9,35.3 L195.5,16.0 L197.1,24.0 L198.7,18.8 L200.3,41.9 L201.9,47.9 L203.5,66.8 L205.1,77.2 L206.8,72.0 L208.4,69.8 L210.0,73.6 L211.6,78.9 L213.2,84.8 L214.8,92.1 L216.4,99.4 L218.0,99.0 L219.6,86.9 L221.2,86.3 L222.9,97.3 L224.5,97.4 L226.1,84.5 L227.7,82.9 L229.3,83.1 L230.9,85.1 L232.5,79.3 L234.1,81.6 L235.7,74.4 L237.3,84.9 L238.9,81.8 L240.6,84.5 L242.2,94.6 L243.8,103.1 L245.4,105.0 L247.0,101.3 L248.6,106.3 L250.2,105.2 L251.8,100.5 L253.4,103.1 L255.0,93.9 L256.7,76.7 L258.3,91.1 L259.9,91.8 L261.5,90.4 L263.1,103.1 L264.7,110.9 L266.3,109.5 L267.9,112.6 L269.5,110.2 L271.1,114.5 L272.7,116.1 L274.4,110.3 L276.0,121.4 L277.6,127.1 L279.2,129.3 L280.8,129.9 L282.4,140.4 L284.0,134.9 L285.6,143.7 L287.2,139.1 L288.8,140.9 L290.5,143.9 L292.1,135.6 L293.7,137.0 L295.3,138.3 L296.9,137.0 L298.5,129.2 L300.1,134.4 L301.7,125.7 L303.3,130.9 L304.9,129.9 L306.5,136.6 L308.2,136.2 L309.8,140.7 L311.4,148.2 L313.0,157.8 L314.6,151.4 L316.2,150.7 L317.8,154.9 L319.4,153.8 L321.0,152.6 L322.6,156.4 L324.3,150.8 L325.9,119.5 L327.5,124.1 L329.1,126.8 L330.7,134.4 L332.3,137.0 L333.9,130.2 L335.5,129.1 L337.1,124.8 L338.7,122.8 L340.4,128.7 L342.0,140.2 L343.6,137.4 L345.2,136.7 L346.8,119.0 L348.4,116.8 L350.0,119.1 L351.6,119.0 L353.2,116.4 L354.8,126.9 L356.4,126.0 L358.1,122.2 L359.7,120.4 L361.3,121.6 L362.9,121.1 L364.5,119.6 L366.1,113.7 L367.7,113.8 L369.3,115.3 L370.9,118.2 L372.5,107.7 L374.2,106.5 L375.8,107.6 L377.4,110.9 L379.0,111.2 L380.6,114.9 L382.2,112.4 L383.8,119.0 L385.4,125.4 L387.0,126.1 L388.6,146.2 L390.2,146.7 L391.9,149.3 L393.5,148.3 L395.1,143.3 L396.7,141.4 L398.3,135.4 L399.9,143.3 L401.5,150.3 L403.1,157.6 L404.7,160.0 L406.3,148.6 L408.0,148.0 L409.6,141.0 L411.2,130.9 L412.8,132.1 L414.4,127.4 L416.0,128.3 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-EQT)"/>
+    <path d="M12.0,112.7 L13.6,126.1 L15.2,122.1 L16.8,124.8 L18.4,108.9 L20.0,125.2 L21.7,119.0 L23.3,101.3 L24.9,106.8 L26.5,123.3 L28.1,122.8 L29.7,121.8 L31.3,121.4 L32.9,133.1 L34.5,135.9 L36.1,131.1 L37.8,122.7 L39.4,105.7 L41.0,105.8 L42.6,104.8 L44.2,102.6 L45.8,90.0 L47.4,82.8 L49.0,69.8 L50.6,68.7 L52.2,73.1 L53.8,75.7 L55.5,82.1 L57.1,84.2 L58.7,83.2 L60.3,102.1 L61.9,97.0 L63.5,93.2 L65.1,99.0 L66.7,82.4 L68.3,68.6 L69.9,71.1 L71.6,85.4 L73.2,66.3 L74.8,74.4 L76.4,69.9 L78.0,84.9 L79.6,86.0 L81.2,95.4 L82.8,104.2 L84.4,107.9 L86.0,110.9 L87.6,124.6 L89.3,116.9 L90.9,121.3 L92.5,120.5 L94.1,123.3 L95.7,115.7 L97.3,120.4 L98.9,120.1 L100.5,115.5 L102.1,114.9 L103.7,122.5 L105.4,123.6 L107.0,124.4 L108.6,123.9 L110.2,115.9 L111.8,132.9 L113.4,141.2 L115.0,133.3 L116.6,137.5 L118.2,147.4 L119.8,149.9 L121.5,145.3 L123.1,138.3 L124.7,113.4 L126.3,114.1 L127.9,108.3 L129.5,101.6 L131.1,116.5 L132.7,105.0 L134.3,102.2 L135.9,91.8 L137.5,114.0 L139.2,107.7 L140.8,109.2 L142.4,109.7 L144.0,98.8 L145.6,103.7 L147.2,109.2 L148.8,97.8 L150.4,95.9 L152.0,84.6 L153.6,91.7 L155.3,85.1 L156.9,76.7 L158.5,71.2 L160.1,82.2 L161.7,86.8 L163.3,79.6 L164.9,76.9 L166.5,64.4 L168.1,62.8 L169.7,63.0 L171.3,65.2 L173.0,62.5 L174.6,60.4 L176.2,58.4 L177.8,61.3 L179.4,46.5 L181.0,40.5 L182.6,42.5 L184.2,42.9 L185.8,42.0 L187.4,48.8 L189.1,40.2 L190.7,40.2 L192.3,36.1 L193.9,35.3 L195.5,16.0 L197.1,24.0 L198.7,18.8 L200.3,41.9 L201.9,47.9 L203.5,66.8 L205.1,77.2 L206.8,72.0 L208.4,69.8 L210.0,73.6 L211.6,78.9 L213.2,84.8 L214.8,92.1 L216.4,99.4 L218.0,99.0 L219.6,86.9 L221.2,86.3 L222.9,97.3 L224.5,97.4 L226.1,84.5 L227.7,82.9 L229.3,83.1 L230.9,85.1 L232.5,79.3 L234.1,81.6 L235.7,74.4 L237.3,84.9 L238.9,81.8 L240.6,84.5 L242.2,94.6 L243.8,103.1 L245.4,105.0 L247.0,101.3 L248.6,106.3 L250.2,105.2 L251.8,100.5 L253.4,103.1 L255.0,93.9 L256.7,76.7 L258.3,91.1 L259.9,91.8 L261.5,90.4 L263.1,103.1 L264.7,110.9 L266.3,109.5 L267.9,112.6 L269.5,110.2 L271.1,114.5 L272.7,116.1 L274.4,110.3 L276.0,121.4 L277.6,127.1 L279.2,129.3 L280.8,129.9 L282.4,140.4 L284.0,134.9 L285.6,143.7 L287.2,139.1 L288.8,140.9 L290.5,143.9 L292.1,135.6 L293.7,137.0 L295.3,138.3 L296.9,137.0 L298.5,129.2 L300.1,134.4 L301.7,125.7 L303.3,130.9 L304.9,129.9 L306.5,136.6 L308.2,136.2 L309.8,140.7 L311.4,148.2 L313.0,157.8 L314.6,151.4 L316.2,150.7 L317.8,154.9 L319.4,153.8 L321.0,152.6 L322.6,156.4 L324.3,150.8 L325.9,119.5 L327.5,124.1 L329.1,126.8 L330.7,134.4 L332.3,137.0 L333.9,130.2 L335.5,129.1 L337.1,124.8 L338.7,122.8 L340.4,128.7 L342.0,140.2 L343.6,137.4 L345.2,136.7 L346.8,119.0 L348.4,116.8 L350.0,119.1 L351.6,119.0 L353.2,116.4 L354.8,126.9 L356.4,126.0 L358.1,122.2 L359.7,120.4 L361.3,121.6 L362.9,121.1 L364.5,119.6 L366.1,113.7 L367.7,113.8 L369.3,115.3 L370.9,118.2 L372.5,107.7 L374.2,106.5 L375.8,107.6 L377.4,110.9 L379.0,111.2 L380.6,114.9 L382.2,112.4 L383.8,119.0 L385.4,125.4 L387.0,126.1 L388.6,146.2 L390.2,146.7 L391.9,149.3 L393.5,148.3 L395.1,143.3 L396.7,141.4 L398.3,135.4 L399.9,143.3 L401.5,150.3 L403.1,157.6 L404.7,160.0 L406.3,148.6 L408.0,148.0 L409.6,141.0 L411.2,130.9 L412.8,132.1 L414.4,127.4 L416.0,128.3" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="128.3" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$52.83</text>
+    <text x="474" y="112.7" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$54.92</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+5.3%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−3.3%</strong></div><div class="perf-chip up"><span class="perf-label">3M</span><strong class="perf-value">+5.3%</strong></div><div class="perf-chip down"><span class="perf-label">YTD</span><strong class="perf-value">−1.4%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−3.8%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+44.5%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+153.0%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+34.1%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+8046%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$33.0B</strong></span>
+      <span>P/E: <strong>12.2</strong></span>
+      <span>Net Income: <strong>$2.71B</strong></span>
+    </div>
+
+    <p class="summary">EQT Corporation (EQT): $52.83 (−3.8% 1Y). Performance: 1W +5.3%, 1M −3.3%, 3M +5.3%, YTD −1.4%, 1Y −3.8%, 5Y +153.0%. Market Cap: $33.0B, P/E: 12.2, Net Income: $2.71B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=EQT">Open EQT in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=EQT");</script>
+</body>
+</html>

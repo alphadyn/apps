@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>BSX · Boston Scientific — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Boston Scientific (BSX): $42.73 (−56.1% 1Y). Performance: 1W +0.3%, 1M −5.0%, 3M −5.0%, YTD −55.2%, 1Y −56.1%, 5Y −1.0%. Market Cap: $61.9B, P/E: 16.9, Net Income: $3.67B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/BSX/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/BSX/">
+  <meta property="og:title" content="BSX · Boston Scientific — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Boston Scientific (BSX): $42.73 (−56.1% 1Y). Performance: 1W +0.3%, 1M −5.0%, 3M −5.0%, YTD −55.2%, 1Y −56.1%, 5Y −1.0%. Market Cap: $61.9B, P/E: 16.9, Net Income: $3.67B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="BSX · Boston Scientific — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="BSX · Boston Scientific — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Boston Scientific (BSX): $42.73 (−56.1% 1Y). Performance: 1W +0.3%, 1M −5.0%, 3M −5.0%, YTD −55.2%, 1Y −56.1%, 5Y −1.0%. Market Cap: $61.9B, P/E: 16.9, Net Income: $3.67B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">BSX</span>
+    <h1>Boston Scientific</h1>
+    <div class="quote-row">
+      <span class="price">$42.73</span>
+      <span class="change down">−56.1% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−56.1%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for BSX">
+    <defs>
+      <linearGradient id="chart-fill-BSX" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="33.5" x2="416" y2="33.5" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,33.5 L13.6,37.7 L15.2,38.8 L16.8,35.9 L18.4,32.5 L20.0,32.4 L21.7,29.0 L23.3,26.1 L24.9,27.5 L26.5,18.6 L28.1,21.9 L29.7,24.8 L31.3,21.8 L32.9,25.1 L34.5,26.6 L36.1,26.0 L37.8,25.7 L39.4,30.5 L41.0,29.9 L42.6,29.8 L44.2,29.5 L45.8,27.3 L47.4,25.2 L49.0,21.6 L50.6,17.9 L52.2,16.0 L53.8,21.2 L55.5,23.3 L57.1,29.1 L58.7,34.1 L60.3,35.0 L61.9,34.4 L63.5,31.8 L65.1,24.2 L66.7,25.1 L68.3,23.7 L69.9,25.0 L71.6,29.5 L73.2,30.6 L74.8,32.5 L76.4,32.9 L78.0,41.3 L79.6,44.3 L81.2,43.9 L82.8,46.0 L84.4,44.2 L86.0,45.0 L87.6,43.3 L89.3,39.8 L90.9,36.1 L92.5,37.3 L94.1,35.4 L95.7,36.2 L97.3,36.1 L98.9,36.3 L100.5,36.9 L102.1,36.4 L103.7,37.9 L105.4,39.3 L107.0,37.6 L108.6,32.3 L110.2,30.4 L111.8,31.0 L113.4,32.7 L115.0,37.0 L116.6,40.6 L118.2,41.5 L119.8,50.0 L121.5,54.4 L123.1,47.3 L124.7,46.1 L126.3,47.1 L127.9,44.3 L129.5,42.0 L131.1,41.8 L132.7,41.4 L134.3,44.7 L135.9,42.0 L137.5,45.8 L139.2,46.3 L140.8,83.0 L142.4,78.1 L144.0,81.2 L145.6,86.1 L147.2,85.8 L148.8,87.6 L150.4,86.1 L152.0,84.7 L153.6,81.2 L155.3,81.2 L156.9,82.5 L158.5,85.0 L160.1,85.5 L161.7,83.8 L163.3,87.5 L164.9,82.4 L166.5,79.9 L168.1,81.3 L169.7,86.7 L171.3,90.4 L173.0,88.7 L174.6,92.4 L176.2,91.1 L177.8,95.5 L179.4,96.3 L181.0,98.7 L182.6,97.4 L184.2,95.9 L185.8,92.7 L187.4,92.5 L189.1,95.7 L190.7,96.6 L192.3,96.5 L193.9,99.7 L195.5,95.9 L197.1,95.1 L198.7,97.3 L200.3,111.5 L201.9,111.9 L203.5,113.6 L205.1,111.8 L206.8,112.3 L208.4,113.9 L210.0,112.3 L211.6,115.3 L213.2,114.1 L214.8,110.9 L216.4,109.5 L218.0,107.7 L219.6,110.4 L221.2,108.6 L222.9,115.9 L224.5,119.3 L226.1,107.1 L227.7,105.2 L229.3,113.5 L230.9,118.3 L232.5,121.7 L234.1,124.6 L235.7,123.6 L237.3,126.1 L238.9,125.3 L240.6,127.3 L242.2,127.2 L243.8,126.0 L245.4,131.9 L247.0,133.2 L248.6,131.6 L250.2,133.9 L251.8,132.8 L253.4,134.8 L255.0,127.4 L256.7,125.4 L258.3,125.7 L259.9,124.6 L261.5,123.2 L263.1,123.5 L264.7,139.8 L266.3,142.9 L267.9,144.7 L269.5,145.5 L271.1,146.1 L272.7,146.1 L274.4,143.5 L276.0,144.2 L277.6,143.8 L279.2,143.2 L280.8,144.6 L282.4,147.3 L284.0,147.9 L285.6,148.2 L287.2,147.9 L288.8,152.3 L290.5,151.6 L292.1,153.8 L293.7,150.9 L295.3,153.5 L296.9,154.0 L298.5,154.0 L300.1,155.7 L301.7,157.5 L303.3,156.6 L304.9,151.9 L306.5,153.1 L308.2,151.6 L309.8,152.7 L311.4,152.3 L313.0,152.8 L314.6,153.0 L316.2,157.6 L317.8,156.7 L319.4,153.1 L321.0,154.4 L322.6,155.0 L324.3,156.3 L325.9,156.8 L327.5,155.5 L329.1,153.9 L330.7,151.1 L332.3,149.8 L333.9,149.9 L335.5,150.0 L337.1,148.3 L338.7,144.4 L340.4,142.9 L342.0,146.0 L343.6,142.5 L345.2,142.4 L346.8,139.8 L348.4,138.2 L350.0,137.7 L351.6,137.0 L353.2,136.7 L354.8,137.6 L356.4,139.8 L358.1,136.3 L359.7,142.3 L361.3,140.0 L362.9,143.1 L364.5,141.2 L366.1,145.0 L367.7,148.4 L369.3,148.1 L370.9,144.7 L372.5,145.2 L374.2,144.6 L375.8,147.8 L377.4,145.9 L379.0,152.3 L380.6,152.3 L382.2,156.5 L383.8,156.8 L385.4,152.1 L387.0,154.8 L388.6,154.7 L390.2,155.5 L391.9,156.0 L393.5,155.1 L395.1,152.4 L396.7,153.1 L398.3,153.0 L399.9,154.7 L401.5,154.3 L403.1,154.8 L404.7,155.3 L406.3,156.3 L408.0,157.7 L409.6,158.1 L411.2,158.6 L412.8,160.0 L414.4,159.0 L416.0,157.4 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-BSX)"/>
+    <path d="M12.0,33.5 L13.6,37.7 L15.2,38.8 L16.8,35.9 L18.4,32.5 L20.0,32.4 L21.7,29.0 L23.3,26.1 L24.9,27.5 L26.5,18.6 L28.1,21.9 L29.7,24.8 L31.3,21.8 L32.9,25.1 L34.5,26.6 L36.1,26.0 L37.8,25.7 L39.4,30.5 L41.0,29.9 L42.6,29.8 L44.2,29.5 L45.8,27.3 L47.4,25.2 L49.0,21.6 L50.6,17.9 L52.2,16.0 L53.8,21.2 L55.5,23.3 L57.1,29.1 L58.7,34.1 L60.3,35.0 L61.9,34.4 L63.5,31.8 L65.1,24.2 L66.7,25.1 L68.3,23.7 L69.9,25.0 L71.6,29.5 L73.2,30.6 L74.8,32.5 L76.4,32.9 L78.0,41.3 L79.6,44.3 L81.2,43.9 L82.8,46.0 L84.4,44.2 L86.0,45.0 L87.6,43.3 L89.3,39.8 L90.9,36.1 L92.5,37.3 L94.1,35.4 L95.7,36.2 L97.3,36.1 L98.9,36.3 L100.5,36.9 L102.1,36.4 L103.7,37.9 L105.4,39.3 L107.0,37.6 L108.6,32.3 L110.2,30.4 L111.8,31.0 L113.4,32.7 L115.0,37.0 L116.6,40.6 L118.2,41.5 L119.8,50.0 L121.5,54.4 L123.1,47.3 L124.7,46.1 L126.3,47.1 L127.9,44.3 L129.5,42.0 L131.1,41.8 L132.7,41.4 L134.3,44.7 L135.9,42.0 L137.5,45.8 L139.2,46.3 L140.8,83.0 L142.4,78.1 L144.0,81.2 L145.6,86.1 L147.2,85.8 L148.8,87.6 L150.4,86.1 L152.0,84.7 L153.6,81.2 L155.3,81.2 L156.9,82.5 L158.5,85.0 L160.1,85.5 L161.7,83.8 L163.3,87.5 L164.9,82.4 L166.5,79.9 L168.1,81.3 L169.7,86.7 L171.3,90.4 L173.0,88.7 L174.6,92.4 L176.2,91.1 L177.8,95.5 L179.4,96.3 L181.0,98.7 L182.6,97.4 L184.2,95.9 L185.8,92.7 L187.4,92.5 L189.1,95.7 L190.7,96.6 L192.3,96.5 L193.9,99.7 L195.5,95.9 L197.1,95.1 L198.7,97.3 L200.3,111.5 L201.9,111.9 L203.5,113.6 L205.1,111.8 L206.8,112.3 L208.4,113.9 L210.0,112.3 L211.6,115.3 L213.2,114.1 L214.8,110.9 L216.4,109.5 L218.0,107.7 L219.6,110.4 L221.2,108.6 L222.9,115.9 L224.5,119.3 L226.1,107.1 L227.7,105.2 L229.3,113.5 L230.9,118.3 L232.5,121.7 L234.1,124.6 L235.7,123.6 L237.3,126.1 L238.9,125.3 L240.6,127.3 L242.2,127.2 L243.8,126.0 L245.4,131.9 L247.0,133.2 L248.6,131.6 L250.2,133.9 L251.8,132.8 L253.4,134.8 L255.0,127.4 L256.7,125.4 L258.3,125.7 L259.9,124.6 L261.5,123.2 L263.1,123.5 L264.7,139.8 L266.3,142.9 L267.9,144.7 L269.5,145.5 L271.1,146.1 L272.7,146.1 L274.4,143.5 L276.0,144.2 L277.6,143.8 L279.2,143.2 L280.8,144.6 L282.4,147.3 L284.0,147.9 L285.6,148.2 L287.2,147.9 L288.8,152.3 L290.5,151.6 L292.1,153.8 L293.7,150.9 L295.3,153.5 L296.9,154.0 L298.5,154.0 L300.1,155.7 L301.7,157.5 L303.3,156.6 L304.9,151.9 L306.5,153.1 L308.2,151.6 L309.8,152.7 L311.4,152.3 L313.0,152.8 L314.6,153.0 L316.2,157.6 L317.8,156.7 L319.4,153.1 L321.0,154.4 L322.6,155.0 L324.3,156.3 L325.9,156.8 L327.5,155.5 L329.1,153.9 L330.7,151.1 L332.3,149.8 L333.9,149.9 L335.5,150.0 L337.1,148.3 L338.7,144.4 L340.4,142.9 L342.0,146.0 L343.6,142.5 L345.2,142.4 L346.8,139.8 L348.4,138.2 L350.0,137.7 L351.6,137.0 L353.2,136.7 L354.8,137.6 L356.4,139.8 L358.1,136.3 L359.7,142.3 L361.3,140.0 L362.9,143.1 L364.5,141.2 L366.1,145.0 L367.7,148.4 L369.3,148.1 L370.9,144.7 L372.5,145.2 L374.2,144.6 L375.8,147.8 L377.4,145.9 L379.0,152.3 L380.6,152.3 L382.2,156.5 L383.8,156.8 L385.4,152.1 L387.0,154.8 L388.6,154.7 L390.2,155.5 L391.9,156.0 L393.5,155.1 L395.1,152.4 L396.7,153.1 L398.3,153.0 L399.9,154.7 L401.5,154.3 L403.1,154.8 L404.7,155.3 L406.3,156.3 L408.0,157.7 L409.6,158.1 L411.2,158.6 L412.8,160.0 L414.4,159.0 L416.0,157.4" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="157.4" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$42.73</text>
+    <text x="474" y="33.5" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$97.28</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+0.3%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−5.0%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−5.0%</strong></div><div class="perf-chip down"><span class="perf-label">YTD</span><strong class="perf-value">−55.2%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−56.1%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−50.7%</strong></div><div class="perf-chip down"><span class="perf-label">5Y</span><strong class="perf-value">−1.0%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+82.0%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+843.0%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$61.9B</strong></span>
+      <span>P/E: <strong>16.9</strong></span>
+      <span>Net Income: <strong>$3.67B</strong></span>
+    </div>
+
+    <p class="summary">Boston Scientific (BSX): $42.73 (−56.1% 1Y). Performance: 1W +0.3%, 1M −5.0%, 3M −5.0%, YTD −55.2%, 1Y −56.1%, 5Y −1.0%. Market Cap: $61.9B, P/E: 16.9, Net Income: $3.67B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=BSX">Open BSX in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=BSX");</script>
+</body>
+</html>

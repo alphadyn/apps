@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>EXPD · Expeditors International — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Expeditors International (EXPD): $193.24 (+66.3% 1Y). Performance: 1W +0.4%, 1M +2.6%, 3M +13.3%, YTD +29.7%, 1Y +66.3%, 5Y +69.1%. Market Cap: $25.1B, P/E: 27.3, Net Income: $919M. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/EXPD/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/EXPD/">
+  <meta property="og:title" content="EXPD · Expeditors International — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Expeditors International (EXPD): $193.24 (+66.3% 1Y). Performance: 1W +0.4%, 1M +2.6%, 3M +13.3%, YTD +29.7%, 1Y +66.3%, 5Y +69.1%. Market Cap: $25.1B, P/E: 27.3, Net Income: $919M. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="EXPD · Expeditors International — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="EXPD · Expeditors International — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Expeditors International (EXPD): $193.24 (+66.3% 1Y). Performance: 1W +0.4%, 1M +2.6%, 3M +13.3%, YTD +29.7%, 1Y +66.3%, 5Y +69.1%. Market Cap: $25.1B, P/E: 27.3, Net Income: $919M. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">EXPD</span>
+    <h1>Expeditors International</h1>
+    <div class="quote-row">
+      <span class="price">$193.24</span>
+      <span class="change up">+66.3% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+66.3%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for EXPD">
+    <defs>
+      <linearGradient id="chart-fill-EXPD" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="154.5" x2="416" y2="154.5" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,154.5 L13.6,160.0 L15.2,158.5 L16.8,152.4 L18.4,152.5 L20.0,150.9 L21.7,147.9 L23.3,147.0 L24.9,146.0 L26.5,150.3 L28.1,150.5 L29.7,151.7 L31.3,148.4 L32.9,148.9 L34.5,152.1 L36.1,147.4 L37.8,144.4 L39.4,143.4 L41.0,119.8 L42.6,115.9 L44.2,121.9 L45.8,116.8 L47.4,111.4 L49.0,113.1 L50.6,111.0 L52.2,115.0 L53.8,115.0 L55.5,108.3 L57.1,112.4 L58.7,113.8 L60.3,115.2 L61.9,106.5 L63.5,104.7 L65.1,98.7 L66.7,99.1 L68.3,100.0 L69.9,100.8 L71.6,100.7 L73.2,97.8 L74.8,93.6 L76.4,91.8 L78.0,97.9 L79.6,98.5 L81.2,92.0 L82.8,89.1 L84.4,91.3 L86.0,91.7 L87.6,94.5 L89.3,94.9 L90.9,93.2 L92.5,89.3 L94.1,89.1 L95.7,91.5 L97.3,91.7 L98.9,90.5 L100.5,92.6 L102.1,94.2 L103.7,96.2 L105.4,91.1 L107.0,86.6 L108.6,81.1 L110.2,82.2 L111.8,80.0 L113.4,78.6 L115.0,74.7 L116.6,75.4 L118.2,72.7 L119.8,70.0 L121.5,72.4 L123.1,78.2 L124.7,72.2 L126.3,75.2 L127.9,78.1 L129.5,78.7 L131.1,79.5 L132.7,76.5 L134.3,74.0 L135.9,75.7 L137.5,70.4 L139.2,72.7 L140.8,67.9 L142.4,69.9 L144.0,67.7 L145.6,70.2 L147.2,73.6 L148.8,73.3 L150.4,111.2 L152.0,100.7 L153.6,99.5 L155.3,95.2 L156.9,93.2 L158.5,83.2 L160.1,95.1 L161.7,114.3 L163.3,108.9 L164.9,103.8 L166.5,103.3 L168.1,102.2 L169.7,97.9 L171.3,100.0 L173.0,100.3 L174.6,100.0 L176.2,102.9 L177.8,109.8 L179.4,110.8 L181.0,108.3 L182.6,107.7 L184.2,107.3 L185.8,106.6 L187.4,104.0 L189.1,99.4 L190.7,100.9 L192.3,111.3 L193.9,108.7 L195.5,106.6 L197.1,107.5 L198.7,110.1 L200.3,109.6 L201.9,106.5 L203.5,104.6 L205.1,101.9 L206.8,102.5 L208.4,104.2 L210.0,100.5 L211.6,103.6 L213.2,106.8 L214.8,105.3 L216.4,103.5 L218.0,105.1 L219.6,99.8 L221.2,99.2 L222.9,95.7 L224.5,92.7 L226.1,97.2 L227.7,94.9 L229.3,98.8 L230.9,97.8 L232.5,99.1 L234.1,96.6 L235.7,98.2 L237.3,99.4 L238.9,112.7 L240.6,89.0 L242.2,92.2 L243.8,91.1 L245.4,82.6 L247.0,84.6 L248.6,86.6 L250.2,84.1 L251.8,88.0 L253.4,84.8 L255.0,82.4 L256.7,80.9 L258.3,79.5 L259.9,81.7 L261.5,79.4 L263.1,75.4 L264.7,74.0 L266.3,78.5 L267.9,80.2 L269.5,76.6 L271.1,80.5 L272.7,79.0 L274.4,76.4 L276.0,75.9 L277.6,70.5 L279.2,65.4 L280.8,68.3 L282.4,65.2 L284.0,64.9 L285.6,70.9 L287.2,69.5 L288.8,75.6 L290.5,74.3 L292.1,71.1 L293.7,74.3 L295.3,76.4 L296.9,73.7 L298.5,75.4 L300.1,73.2 L301.7,71.4 L303.3,64.6 L304.9,63.2 L306.5,66.5 L308.2,66.5 L309.8,68.9 L311.4,57.8 L313.0,55.3 L314.6,49.1 L316.2,44.3 L317.8,45.2 L319.4,37.6 L321.0,36.1 L322.6,45.8 L324.3,43.6 L325.9,45.6 L327.5,47.9 L329.1,49.5 L330.7,56.5 L332.3,56.4 L333.9,58.7 L335.5,64.2 L337.1,62.6 L338.7,57.8 L340.4,38.5 L342.0,38.6 L343.6,43.7 L345.2,43.4 L346.8,42.9 L348.4,46.1 L350.0,33.2 L351.6,28.6 L353.2,30.2 L354.8,26.4 L356.4,30.5 L358.1,29.7 L359.7,29.7 L361.3,27.2 L362.9,27.2 L364.5,25.0 L366.1,23.0 L367.7,22.0 L369.3,21.6 L370.9,23.9 L372.5,27.4 L374.2,30.2 L375.8,28.4 L377.4,25.5 L379.0,30.5 L380.6,26.3 L382.2,24.5 L383.8,18.7 L385.4,16.9 L387.0,16.4 L388.6,25.0 L390.2,25.0 L391.9,21.7 L393.5,19.5 L395.1,27.8 L396.7,26.8 L398.3,34.6 L399.9,27.8 L401.5,25.9 L403.1,26.6 L404.7,32.9 L406.3,27.3 L408.0,18.9 L409.6,16.0 L411.2,20.1 L412.8,21.8 L414.4,16.7 L416.0,17.6 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-EXPD)"/>
+    <path d="M12.0,154.5 L13.6,160.0 L15.2,158.5 L16.8,152.4 L18.4,152.5 L20.0,150.9 L21.7,147.9 L23.3,147.0 L24.9,146.0 L26.5,150.3 L28.1,150.5 L29.7,151.7 L31.3,148.4 L32.9,148.9 L34.5,152.1 L36.1,147.4 L37.8,144.4 L39.4,143.4 L41.0,119.8 L42.6,115.9 L44.2,121.9 L45.8,116.8 L47.4,111.4 L49.0,113.1 L50.6,111.0 L52.2,115.0 L53.8,115.0 L55.5,108.3 L57.1,112.4 L58.7,113.8 L60.3,115.2 L61.9,106.5 L63.5,104.7 L65.1,98.7 L66.7,99.1 L68.3,100.0 L69.9,100.8 L71.6,100.7 L73.2,97.8 L74.8,93.6 L76.4,91.8 L78.0,97.9 L79.6,98.5 L81.2,92.0 L82.8,89.1 L84.4,91.3 L86.0,91.7 L87.6,94.5 L89.3,94.9 L90.9,93.2 L92.5,89.3 L94.1,89.1 L95.7,91.5 L97.3,91.7 L98.9,90.5 L100.5,92.6 L102.1,94.2 L103.7,96.2 L105.4,91.1 L107.0,86.6 L108.6,81.1 L110.2,82.2 L111.8,80.0 L113.4,78.6 L115.0,74.7 L116.6,75.4 L118.2,72.7 L119.8,70.0 L121.5,72.4 L123.1,78.2 L124.7,72.2 L126.3,75.2 L127.9,78.1 L129.5,78.7 L131.1,79.5 L132.7,76.5 L134.3,74.0 L135.9,75.7 L137.5,70.4 L139.2,72.7 L140.8,67.9 L142.4,69.9 L144.0,67.7 L145.6,70.2 L147.2,73.6 L148.8,73.3 L150.4,111.2 L152.0,100.7 L153.6,99.5 L155.3,95.2 L156.9,93.2 L158.5,83.2 L160.1,95.1 L161.7,114.3 L163.3,108.9 L164.9,103.8 L166.5,103.3 L168.1,102.2 L169.7,97.9 L171.3,100.0 L173.0,100.3 L174.6,100.0 L176.2,102.9 L177.8,109.8 L179.4,110.8 L181.0,108.3 L182.6,107.7 L184.2,107.3 L185.8,106.6 L187.4,104.0 L189.1,99.4 L190.7,100.9 L192.3,111.3 L193.9,108.7 L195.5,106.6 L197.1,107.5 L198.7,110.1 L200.3,109.6 L201.9,106.5 L203.5,104.6 L205.1,101.9 L206.8,102.5 L208.4,104.2 L210.0,100.5 L211.6,103.6 L213.2,106.8 L214.8,105.3 L216.4,103.5 L218.0,105.1 L219.6,99.8 L221.2,99.2 L222.9,95.7 L224.5,92.7 L226.1,97.2 L227.7,94.9 L229.3,98.8 L230.9,97.8 L232.5,99.1 L234.1,96.6 L235.7,98.2 L237.3,99.4 L238.9,112.7 L240.6,89.0 L242.2,92.2 L243.8,91.1 L245.4,82.6 L247.0,84.6 L248.6,86.6 L250.2,84.1 L251.8,88.0 L253.4,84.8 L255.0,82.4 L256.7,80.9 L258.3,79.5 L259.9,81.7 L261.5,79.4 L263.1,75.4 L264.7,74.0 L266.3,78.5 L267.9,80.2 L269.5,76.6 L271.1,80.5 L272.7,79.0 L274.4,76.4 L276.0,75.9 L277.6,70.5 L279.2,65.4 L280.8,68.3 L282.4,65.2 L284.0,64.9 L285.6,70.9 L287.2,69.5 L288.8,75.6 L290.5,74.3 L292.1,71.1 L293.7,74.3 L295.3,76.4 L296.9,73.7 L298.5,75.4 L300.1,73.2 L301.7,71.4 L303.3,64.6 L304.9,63.2 L306.5,66.5 L308.2,66.5 L309.8,68.9 L311.4,57.8 L313.0,55.3 L314.6,49.1 L316.2,44.3 L317.8,45.2 L319.4,37.6 L321.0,36.1 L322.6,45.8 L324.3,43.6 L325.9,45.6 L327.5,47.9 L329.1,49.5 L330.7,56.5 L332.3,56.4 L333.9,58.7 L335.5,64.2 L337.1,62.6 L338.7,57.8 L340.4,38.5 L342.0,38.6 L343.6,43.7 L345.2,43.4 L346.8,42.9 L348.4,46.1 L350.0,33.2 L351.6,28.6 L353.2,30.2 L354.8,26.4 L356.4,30.5 L358.1,29.7 L359.7,29.7 L361.3,27.2 L362.9,27.2 L364.5,25.0 L366.1,23.0 L367.7,22.0 L369.3,21.6 L370.9,23.9 L372.5,27.4 L374.2,30.2 L375.8,28.4 L377.4,25.5 L379.0,30.5 L380.6,26.3 L382.2,24.5 L383.8,18.7 L385.4,16.9 L387.0,16.4 L388.6,25.0 L390.2,25.0 L391.9,21.7 L393.5,19.5 L395.1,27.8 L396.7,26.8 L398.3,34.6 L399.9,27.8 L401.5,25.9 L403.1,26.6 L404.7,32.9 L406.3,27.3 L408.0,18.9 L409.6,16.0 L411.2,20.1 L412.8,21.8 L414.4,16.7 L416.0,17.6" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="17.6" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$193.24</text>
+    <text x="474" y="154.5" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$116.22</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+0.4%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+2.6%</strong></div><div class="perf-chip up"><span class="perf-label">3M</span><strong class="perf-value">+13.3%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+29.7%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+66.3%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+59.4%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+69.1%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+275.0%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+114060%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$25.1B</strong></span>
+      <span>P/E: <strong>27.3</strong></span>
+      <span>Net Income: <strong>$919M</strong></span>
+    </div>
+
+    <p class="summary">Expeditors International (EXPD): $193.24 (+66.3% 1Y). Performance: 1W +0.4%, 1M +2.6%, 3M +13.3%, YTD +29.7%, 1Y +66.3%, 5Y +69.1%. Market Cap: $25.1B, P/E: 27.3, Net Income: $919M. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=EXPD">Open EXPD in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=EXPD");</script>
+</body>
+</html>

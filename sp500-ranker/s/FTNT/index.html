@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>FTNT · Fortinet — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Fortinet (FTNT): $194.75 (+126.0% 1Y). Performance: 1W +7.6%, 1M +23.9%, 3M +18.9%, YTD +145.2%, 1Y +126.0%, 5Y +217.0%. Market Cap: $143B, P/E: 67.4, Net Income: $2.12B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/FTNT/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/FTNT/">
+  <meta property="og:title" content="FTNT · Fortinet — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Fortinet (FTNT): $194.75 (+126.0% 1Y). Performance: 1W +7.6%, 1M +23.9%, 3M +18.9%, YTD +145.2%, 1Y +126.0%, 5Y +217.0%. Market Cap: $143B, P/E: 67.4, Net Income: $2.12B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="FTNT · Fortinet — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="FTNT · Fortinet — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Fortinet (FTNT): $194.75 (+126.0% 1Y). Performance: 1W +7.6%, 1M +23.9%, 3M +18.9%, YTD +145.2%, 1Y +126.0%, 5Y +217.0%. Market Cap: $143B, P/E: 67.4, Net Income: $2.12B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">FTNT</span>
+    <h1>Fortinet</h1>
+    <div class="quote-row">
+      <span class="price">$194.75</span>
+      <span class="change up">+126.0% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+126.0%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for FTNT">
+    <defs>
+      <linearGradient id="chart-fill-FTNT" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="146.8" x2="416" y2="146.8" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,146.8 L13.6,150.6 L15.2,149.2 L16.8,150.5 L18.4,149.9 L20.0,150.5 L21.7,150.1 L23.3,148.4 L24.9,148.5 L26.5,148.6 L28.1,148.3 L29.7,147.6 L31.3,147.9 L32.9,147.2 L34.5,149.2 L36.1,149.2 L37.8,146.5 L39.4,145.2 L41.0,148.0 L42.6,147.0 L44.2,153.6 L45.8,152.1 L47.4,151.5 L49.0,149.8 L50.6,151.7 L52.2,153.0 L53.8,151.5 L55.5,151.9 L57.1,154.1 L58.7,154.6 L60.3,156.6 L61.9,155.6 L63.5,154.5 L65.1,153.2 L66.7,153.6 L68.3,152.9 L69.9,152.1 L71.6,150.7 L73.2,150.9 L74.8,148.0 L76.4,145.9 L78.0,150.0 L79.6,150.0 L81.2,152.3 L82.8,151.3 L84.4,151.6 L86.0,152.4 L87.6,151.3 L89.3,155.0 L90.9,154.6 L92.5,154.0 L94.1,152.2 L95.7,153.5 L97.3,152.8 L98.9,152.4 L100.5,153.3 L102.1,153.9 L103.7,155.0 L105.4,156.8 L107.0,156.7 L108.6,156.1 L110.2,154.2 L111.8,156.6 L113.4,155.2 L115.0,155.9 L116.6,156.3 L118.2,158.6 L119.8,158.7 L121.5,159.8 L123.1,159.7 L124.7,159.4 L126.3,157.1 L127.9,152.3 L129.5,150.6 L131.1,152.2 L132.7,151.7 L134.3,152.4 L135.9,152.7 L137.5,152.7 L139.2,155.1 L140.8,152.9 L142.4,155.5 L144.0,150.9 L145.6,147.1 L147.2,147.6 L148.8,144.8 L150.4,149.1 L152.0,147.6 L153.6,152.2 L155.3,153.4 L156.9,152.2 L158.5,154.3 L160.1,159.6 L161.7,160.0 L163.3,157.4 L164.9,155.2 L166.5,155.4 L168.1,155.2 L169.7,152.9 L171.3,150.9 L173.0,148.9 L174.6,149.8 L176.2,149.7 L177.8,149.2 L179.4,150.1 L181.0,149.0 L182.6,150.1 L184.2,148.8 L185.8,150.4 L187.4,150.2 L189.1,150.5 L190.7,152.6 L192.3,150.9 L193.9,155.0 L195.5,155.6 L197.1,153.0 L198.7,156.4 L200.3,155.4 L201.9,152.2 L203.5,152.9 L205.1,151.2 L206.8,151.5 L208.4,149.8 L210.0,150.0 L211.6,153.5 L213.2,158.2 L214.8,155.8 L216.4,155.8 L218.0,154.7 L219.6,151.4 L221.2,152.0 L222.9,151.1 L224.5,147.9 L226.1,145.7 L227.7,150.9 L229.3,149.0 L230.9,147.4 L232.5,147.4 L234.1,146.9 L235.7,149.1 L237.3,146.7 L238.9,143.1 L240.6,142.3 L242.2,142.3 L243.8,120.6 L245.4,113.2 L247.0,111.6 L248.6,113.4 L250.2,108.8 L251.8,103.8 L253.4,102.7 L255.0,98.2 L256.7,96.9 L258.3,94.0 L259.9,94.7 L261.5,89.3 L263.1,89.2 L264.7,96.5 L266.3,94.4 L267.9,84.4 L269.5,73.4 L271.1,71.3 L272.7,74.2 L274.4,70.3 L276.0,76.3 L277.6,78.3 L279.2,83.9 L280.8,83.3 L282.4,75.9 L284.0,74.4 L285.6,70.5 L287.2,73.5 L288.8,77.0 L290.5,76.3 L292.1,75.5 L293.7,72.3 L295.3,75.6 L296.9,70.0 L298.5,68.3 L300.1,63.4 L301.7,65.6 L303.3,59.1 L304.9,62.4 L306.5,55.0 L308.2,59.5 L309.8,61.8 L311.4,53.4 L313.0,60.9 L314.6,57.1 L316.2,49.6 L317.8,52.4 L319.4,56.9 L321.0,55.9 L322.6,57.4 L324.3,60.2 L325.9,63.8 L327.5,68.1 L329.1,67.1 L330.7,67.0 L332.3,69.9 L333.9,66.0 L335.5,64.8 L337.1,55.5 L338.7,54.0 L340.4,47.9 L342.0,52.9 L343.6,57.7 L345.2,58.3 L346.8,52.8 L348.4,55.6 L350.0,56.9 L351.6,51.3 L353.2,57.9 L354.8,62.9 L356.4,60.3 L358.1,66.5 L359.7,69.0 L361.3,65.7 L362.9,67.5 L364.5,65.5 L366.1,60.8 L367.7,42.5 L369.3,50.6 L370.9,44.7 L372.5,55.6 L374.2,64.4 L375.8,62.3 L377.4,62.3 L379.0,60.9 L380.6,61.2 L382.2,59.3 L383.8,62.6 L385.4,45.6 L387.0,43.0 L388.6,43.7 L390.2,42.7 L391.9,46.0 L393.5,39.5 L395.1,40.7 L396.7,35.3 L398.3,35.4 L399.9,41.7 L401.5,38.2 L403.1,38.6 L404.7,35.3 L406.3,35.3 L408.0,32.6 L409.6,28.8 L411.2,20.2 L412.8,22.6 L414.4,22.8 L416.0,16.0 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-FTNT)"/>
+    <path d="M12.0,146.8 L13.6,150.6 L15.2,149.2 L16.8,150.5 L18.4,149.9 L20.0,150.5 L21.7,150.1 L23.3,148.4 L24.9,148.5 L26.5,148.6 L28.1,148.3 L29.7,147.6 L31.3,147.9 L32.9,147.2 L34.5,149.2 L36.1,149.2 L37.8,146.5 L39.4,145.2 L41.0,148.0 L42.6,147.0 L44.2,153.6 L45.8,152.1 L47.4,151.5 L49.0,149.8 L50.6,151.7 L52.2,153.0 L53.8,151.5 L55.5,151.9 L57.1,154.1 L58.7,154.6 L60.3,156.6 L61.9,155.6 L63.5,154.5 L65.1,153.2 L66.7,153.6 L68.3,152.9 L69.9,152.1 L71.6,150.7 L73.2,150.9 L74.8,148.0 L76.4,145.9 L78.0,150.0 L79.6,150.0 L81.2,152.3 L82.8,151.3 L84.4,151.6 L86.0,152.4 L87.6,151.3 L89.3,155.0 L90.9,154.6 L92.5,154.0 L94.1,152.2 L95.7,153.5 L97.3,152.8 L98.9,152.4 L100.5,153.3 L102.1,153.9 L103.7,155.0 L105.4,156.8 L107.0,156.7 L108.6,156.1 L110.2,154.2 L111.8,156.6 L113.4,155.2 L115.0,155.9 L116.6,156.3 L118.2,158.6 L119.8,158.7 L121.5,159.8 L123.1,159.7 L124.7,159.4 L126.3,157.1 L127.9,152.3 L129.5,150.6 L131.1,152.2 L132.7,151.7 L134.3,152.4 L135.9,152.7 L137.5,152.7 L139.2,155.1 L140.8,152.9 L142.4,155.5 L144.0,150.9 L145.6,147.1 L147.2,147.6 L148.8,144.8 L150.4,149.1 L152.0,147.6 L153.6,152.2 L155.3,153.4 L156.9,152.2 L158.5,154.3 L160.1,159.6 L161.7,160.0 L163.3,157.4 L164.9,155.2 L166.5,155.4 L168.1,155.2 L169.7,152.9 L171.3,150.9 L173.0,148.9 L174.6,149.8 L176.2,149.7 L177.8,149.2 L179.4,150.1 L181.0,149.0 L182.6,150.1 L184.2,148.8 L185.8,150.4 L187.4,150.2 L189.1,150.5 L190.7,152.6 L192.3,150.9 L193.9,155.0 L195.5,155.6 L197.1,153.0 L198.7,156.4 L200.3,155.4 L201.9,152.2 L203.5,152.9 L205.1,151.2 L206.8,151.5 L208.4,149.8 L210.0,150.0 L211.6,153.5 L213.2,158.2 L214.8,155.8 L216.4,155.8 L218.0,154.7 L219.6,151.4 L221.2,152.0 L222.9,151.1 L224.5,147.9 L226.1,145.7 L227.7,150.9 L229.3,149.0 L230.9,147.4 L232.5,147.4 L234.1,146.9 L235.7,149.1 L237.3,146.7 L238.9,143.1 L240.6,142.3 L242.2,142.3 L243.8,120.6 L245.4,113.2 L247.0,111.6 L248.6,113.4 L250.2,108.8 L251.8,103.8 L253.4,102.7 L255.0,98.2 L256.7,96.9 L258.3,94.0 L259.9,94.7 L261.5,89.3 L263.1,89.2 L264.7,96.5 L266.3,94.4 L267.9,84.4 L269.5,73.4 L271.1,71.3 L272.7,74.2 L274.4,70.3 L276.0,76.3 L277.6,78.3 L279.2,83.9 L280.8,83.3 L282.4,75.9 L284.0,74.4 L285.6,70.5 L287.2,73.5 L288.8,77.0 L290.5,76.3 L292.1,75.5 L293.7,72.3 L295.3,75.6 L296.9,70.0 L298.5,68.3 L300.1,63.4 L301.7,65.6 L303.3,59.1 L304.9,62.4 L306.5,55.0 L308.2,59.5 L309.8,61.8 L311.4,53.4 L313.0,60.9 L314.6,57.1 L316.2,49.6 L317.8,52.4 L319.4,56.9 L321.0,55.9 L322.6,57.4 L324.3,60.2 L325.9,63.8 L327.5,68.1 L329.1,67.1 L330.7,67.0 L332.3,69.9 L333.9,66.0 L335.5,64.8 L337.1,55.5 L338.7,54.0 L340.4,47.9 L342.0,52.9 L343.6,57.7 L345.2,58.3 L346.8,52.8 L348.4,55.6 L350.0,56.9 L351.6,51.3 L353.2,57.9 L354.8,62.9 L356.4,60.3 L358.1,66.5 L359.7,69.0 L361.3,65.7 L362.9,67.5 L364.5,65.5 L366.1,60.8 L367.7,42.5 L369.3,50.6 L370.9,44.7 L372.5,55.6 L374.2,64.4 L375.8,62.3 L377.4,62.3 L379.0,60.9 L380.6,61.2 L382.2,59.3 L383.8,62.6 L385.4,45.6 L387.0,43.0 L388.6,43.7 L390.2,42.7 L391.9,46.0 L393.5,39.5 L395.1,40.7 L396.7,35.3 L398.3,35.4 L399.9,41.7 L401.5,38.2 L403.1,38.6 L404.7,35.3 L406.3,35.3 L408.0,32.6 L409.6,28.8 L411.2,20.2 L412.8,22.6 L414.4,22.8 L416.0,16.0" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="16.0" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$194.75</text>
+    <text x="474" y="146.8" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$86.19</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+7.6%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+23.9%</strong></div><div class="perf-chip up"><span class="perf-label">3M</span><strong class="perf-value">+18.9%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+145.2%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+126.0%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+142.4%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+217.0%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+2683%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+11396%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$143B</strong></span>
+      <span>P/E: <strong>67.4</strong></span>
+      <span>Net Income: <strong>$2.12B</strong></span>
+    </div>
+
+    <p class="summary">Fortinet (FTNT): $194.75 (+126.0% 1Y). Performance: 1W +7.6%, 1M +23.9%, 3M +18.9%, YTD +145.2%, 1Y +126.0%, 5Y +217.0%. Market Cap: $143B, P/E: 67.4, Net Income: $2.12B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=FTNT">Open FTNT in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=FTNT");</script>
+</body>
+</html>

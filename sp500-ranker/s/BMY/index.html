@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>BMY · Bristol Myers Squibb — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Bristol Myers Squibb (BMY): $59.12 (+32.3% 1Y). Performance: 1W −3.3%, 1M −8.2%, 3M +2.0%, YTD +9.6%, 1Y +32.3%, 5Y +3.2%. Market Cap: $121B, P/E: 13.0, Net Income: $9.28B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/BMY/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/BMY/">
+  <meta property="og:title" content="BMY · Bristol Myers Squibb — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Bristol Myers Squibb (BMY): $59.12 (+32.3% 1Y). Performance: 1W −3.3%, 1M −8.2%, 3M +2.0%, YTD +9.6%, 1Y +32.3%, 5Y +3.2%. Market Cap: $121B, P/E: 13.0, Net Income: $9.28B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="BMY · Bristol Myers Squibb — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="BMY · Bristol Myers Squibb — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Bristol Myers Squibb (BMY): $59.12 (+32.3% 1Y). Performance: 1W −3.3%, 1M −8.2%, 3M +2.0%, YTD +9.6%, 1Y +32.3%, 5Y +3.2%. Market Cap: $121B, P/E: 13.0, Net Income: $9.28B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">BMY</span>
+    <h1>Bristol Myers Squibb</h1>
+    <div class="quote-row">
+      <span class="price">$59.12</span>
+      <span class="change up">+32.3% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+32.3%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for BMY">
+    <defs>
+      <linearGradient id="chart-fill-BMY" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="148.2" x2="416" y2="148.2" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,148.2 L13.6,152.3 L15.2,154.7 L16.8,153.2 L18.4,154.3 L20.0,155.5 L21.7,154.2 L23.3,154.4 L24.9,149.0 L26.5,149.9 L28.1,153.1 L29.7,153.1 L31.3,155.5 L32.9,158.8 L34.5,160.0 L36.1,142.9 L37.8,140.4 L39.4,140.7 L41.0,143.1 L42.6,138.1 L44.2,137.2 L45.8,136.9 L47.4,133.7 L49.0,125.4 L50.6,123.4 L52.2,125.9 L53.8,137.1 L55.5,136.2 L57.1,134.8 L58.7,142.0 L60.3,141.1 L61.9,139.4 L63.5,130.8 L65.1,123.6 L66.7,122.4 L68.3,122.7 L69.9,122.8 L71.6,128.1 L73.2,112.8 L74.8,107.2 L76.4,106.0 L78.0,108.8 L79.6,114.5 L81.2,111.4 L82.8,111.4 L84.4,104.6 L86.0,94.0 L87.6,94.3 L89.3,98.1 L90.9,99.4 L92.5,94.5 L94.1,91.9 L95.7,94.0 L97.3,91.6 L98.9,92.0 L100.5,95.0 L102.1,94.4 L103.7,95.9 L105.4,98.6 L107.0,100.9 L108.6,93.2 L110.2,80.2 L111.8,84.9 L113.4,85.1 L115.0,85.6 L116.6,84.8 L118.2,78.5 L119.8,80.8 L121.5,88.5 L123.1,94.4 L124.7,92.8 L126.3,90.3 L127.9,91.9 L129.5,92.2 L131.1,86.8 L132.7,92.1 L134.3,94.0 L135.9,89.7 L137.5,84.9 L139.2,84.4 L140.8,75.1 L142.4,64.4 L144.0,50.5 L145.6,57.4 L147.2,56.8 L148.8,62.1 L150.4,62.5 L152.0,57.5 L153.6,59.7 L155.3,63.2 L156.9,60.0 L158.5,58.0 L160.1,54.6 L161.7,52.7 L163.3,54.4 L164.9,55.5 L166.5,48.3 L168.1,48.5 L169.7,54.8 L171.3,48.5 L173.0,57.5 L174.6,60.1 L176.2,58.1 L177.8,61.0 L179.4,61.8 L181.0,67.6 L182.6,66.9 L184.2,63.3 L185.8,63.3 L187.4,65.3 L189.1,72.4 L190.7,75.9 L192.3,78.7 L193.9,76.4 L195.5,67.7 L197.1,64.9 L198.7,70.0 L200.3,63.2 L201.9,58.0 L203.5,51.9 L205.1,64.0 L206.8,65.5 L208.4,74.9 L210.0,66.2 L211.6,64.7 L213.2,69.5 L214.8,72.7 L216.4,72.5 L218.0,73.6 L219.6,67.6 L221.2,60.7 L222.9,66.6 L224.5,65.1 L226.1,68.5 L227.7,67.2 L229.3,69.0 L230.9,74.2 L232.5,71.5 L234.1,75.3 L235.7,58.4 L237.3,71.8 L238.9,76.5 L240.6,78.9 L242.2,81.0 L243.8,82.9 L245.4,83.4 L247.0,86.2 L248.6,81.8 L250.2,82.1 L251.8,79.9 L253.4,78.7 L255.0,76.9 L256.7,71.2 L258.3,70.0 L259.9,64.2 L261.5,64.8 L263.1,72.8 L264.7,75.7 L266.3,79.2 L267.9,77.6 L269.5,90.2 L271.1,93.0 L272.7,91.5 L274.4,80.9 L276.0,77.1 L277.6,86.7 L279.2,81.6 L280.8,86.6 L282.4,79.2 L284.0,77.9 L285.6,82.9 L287.2,84.8 L288.8,88.4 L290.5,95.6 L292.1,91.6 L293.7,87.0 L295.3,89.9 L296.9,87.7 L298.5,75.7 L300.1,69.8 L301.7,75.1 L303.3,81.8 L304.9,72.3 L306.5,80.3 L308.2,73.2 L309.8,75.6 L311.4,73.3 L313.0,75.4 L314.6,65.4 L316.2,78.9 L317.8,68.9 L319.4,58.8 L321.0,57.5 L322.6,60.8 L324.3,56.4 L325.9,57.4 L327.5,53.2 L329.1,49.9 L330.7,47.2 L332.3,41.4 L333.9,44.2 L335.5,34.2 L337.1,31.7 L338.7,30.8 L340.4,28.4 L342.0,41.2 L343.6,38.3 L345.2,35.0 L346.8,34.4 L348.4,41.3 L350.0,40.8 L351.6,35.4 L353.2,40.1 L354.8,35.5 L356.4,27.5 L358.1,18.7 L359.7,30.8 L361.3,22.1 L362.9,20.6 L364.5,17.0 L366.1,18.9 L367.7,22.4 L369.3,24.5 L370.9,23.2 L372.5,22.6 L374.2,18.4 L375.8,16.0 L377.4,23.2 L379.0,35.2 L380.6,36.8 L382.2,40.5 L383.8,41.1 L385.4,38.5 L387.0,40.6 L388.6,41.4 L390.2,45.7 L391.9,44.4 L393.5,46.9 L395.1,49.0 L396.7,55.2 L398.3,53.2 L399.9,45.5 L401.5,39.8 L403.1,45.5 L404.7,48.1 L406.3,53.5 L408.0,55.2 L409.6,68.4 L411.2,64.0 L412.8,63.4 L414.4,64.1 L416.0,66.7 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-BMY)"/>
+    <path d="M12.0,148.2 L13.6,152.3 L15.2,154.7 L16.8,153.2 L18.4,154.3 L20.0,155.5 L21.7,154.2 L23.3,154.4 L24.9,149.0 L26.5,149.9 L28.1,153.1 L29.7,153.1 L31.3,155.5 L32.9,158.8 L34.5,160.0 L36.1,142.9 L37.8,140.4 L39.4,140.7 L41.0,143.1 L42.6,138.1 L44.2,137.2 L45.8,136.9 L47.4,133.7 L49.0,125.4 L50.6,123.4 L52.2,125.9 L53.8,137.1 L55.5,136.2 L57.1,134.8 L58.7,142.0 L60.3,141.1 L61.9,139.4 L63.5,130.8 L65.1,123.6 L66.7,122.4 L68.3,122.7 L69.9,122.8 L71.6,128.1 L73.2,112.8 L74.8,107.2 L76.4,106.0 L78.0,108.8 L79.6,114.5 L81.2,111.4 L82.8,111.4 L84.4,104.6 L86.0,94.0 L87.6,94.3 L89.3,98.1 L90.9,99.4 L92.5,94.5 L94.1,91.9 L95.7,94.0 L97.3,91.6 L98.9,92.0 L100.5,95.0 L102.1,94.4 L103.7,95.9 L105.4,98.6 L107.0,100.9 L108.6,93.2 L110.2,80.2 L111.8,84.9 L113.4,85.1 L115.0,85.6 L116.6,84.8 L118.2,78.5 L119.8,80.8 L121.5,88.5 L123.1,94.4 L124.7,92.8 L126.3,90.3 L127.9,91.9 L129.5,92.2 L131.1,86.8 L132.7,92.1 L134.3,94.0 L135.9,89.7 L137.5,84.9 L139.2,84.4 L140.8,75.1 L142.4,64.4 L144.0,50.5 L145.6,57.4 L147.2,56.8 L148.8,62.1 L150.4,62.5 L152.0,57.5 L153.6,59.7 L155.3,63.2 L156.9,60.0 L158.5,58.0 L160.1,54.6 L161.7,52.7 L163.3,54.4 L164.9,55.5 L166.5,48.3 L168.1,48.5 L169.7,54.8 L171.3,48.5 L173.0,57.5 L174.6,60.1 L176.2,58.1 L177.8,61.0 L179.4,61.8 L181.0,67.6 L182.6,66.9 L184.2,63.3 L185.8,63.3 L187.4,65.3 L189.1,72.4 L190.7,75.9 L192.3,78.7 L193.9,76.4 L195.5,67.7 L197.1,64.9 L198.7,70.0 L200.3,63.2 L201.9,58.0 L203.5,51.9 L205.1,64.0 L206.8,65.5 L208.4,74.9 L210.0,66.2 L211.6,64.7 L213.2,69.5 L214.8,72.7 L216.4,72.5 L218.0,73.6 L219.6,67.6 L221.2,60.7 L222.9,66.6 L224.5,65.1 L226.1,68.5 L227.7,67.2 L229.3,69.0 L230.9,74.2 L232.5,71.5 L234.1,75.3 L235.7,58.4 L237.3,71.8 L238.9,76.5 L240.6,78.9 L242.2,81.0 L243.8,82.9 L245.4,83.4 L247.0,86.2 L248.6,81.8 L250.2,82.1 L251.8,79.9 L253.4,78.7 L255.0,76.9 L256.7,71.2 L258.3,70.0 L259.9,64.2 L261.5,64.8 L263.1,72.8 L264.7,75.7 L266.3,79.2 L267.9,77.6 L269.5,90.2 L271.1,93.0 L272.7,91.5 L274.4,80.9 L276.0,77.1 L277.6,86.7 L279.2,81.6 L280.8,86.6 L282.4,79.2 L284.0,77.9 L285.6,82.9 L287.2,84.8 L288.8,88.4 L290.5,95.6 L292.1,91.6 L293.7,87.0 L295.3,89.9 L296.9,87.7 L298.5,75.7 L300.1,69.8 L301.7,75.1 L303.3,81.8 L304.9,72.3 L306.5,80.3 L308.2,73.2 L309.8,75.6 L311.4,73.3 L313.0,75.4 L314.6,65.4 L316.2,78.9 L317.8,68.9 L319.4,58.8 L321.0,57.5 L322.6,60.8 L324.3,56.4 L325.9,57.4 L327.5,53.2 L329.1,49.9 L330.7,47.2 L332.3,41.4 L333.9,44.2 L335.5,34.2 L337.1,31.7 L338.7,30.8 L340.4,28.4 L342.0,41.2 L343.6,38.3 L345.2,35.0 L346.8,34.4 L348.4,41.3 L350.0,40.8 L351.6,35.4 L353.2,40.1 L354.8,35.5 L356.4,27.5 L358.1,18.7 L359.7,30.8 L361.3,22.1 L362.9,20.6 L364.5,17.0 L366.1,18.9 L367.7,22.4 L369.3,24.5 L370.9,23.2 L372.5,22.6 L374.2,18.4 L375.8,16.0 L377.4,23.2 L379.0,35.2 L380.6,36.8 L382.2,40.5 L383.8,41.1 L385.4,38.5 L387.0,40.6 L388.6,41.4 L390.2,45.7 L391.9,44.4 L393.5,46.9 L395.1,49.0 L396.7,55.2 L398.3,53.2 L399.9,45.5 L401.5,39.8 L403.1,45.5 L404.7,48.1 L406.3,53.5 L408.0,55.2 L409.6,68.4 L411.2,64.0 L412.8,63.4 L414.4,64.1 L416.0,66.7" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="66.7" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$59.12</text>
+    <text x="474" y="148.2" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$44.68</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip down"><span class="perf-label">1W</span><strong class="perf-value">−3.3%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−8.2%</strong></div><div class="perf-chip up"><span class="perf-label">3M</span><strong class="perf-value">+2.0%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+9.6%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+32.3%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+12.0%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+3.2%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+6.7%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+3036%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$121B</strong></span>
+      <span>P/E: <strong>13.0</strong></span>
+      <span>Net Income: <strong>$9.28B</strong></span>
+    </div>
+
+    <p class="summary">Bristol Myers Squibb (BMY): $59.12 (+32.3% 1Y). Performance: 1W −3.3%, 1M −8.2%, 3M +2.0%, YTD +9.6%, 1Y +32.3%, 5Y +3.2%. Market Cap: $121B, P/E: 13.0, Net Income: $9.28B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=BMY">Open BMY in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=BMY");</script>
+</body>
+</html>

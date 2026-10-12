@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>SLB · Schlumberger — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Schlumberger (SLB): $48.95 (+47.8% 1Y). Performance: 1W +0.4%, 1M −14.2%, 3M +3.6%, YTD +27.5%, 1Y +47.8%, 5Y +54.6%. Market Cap: $72.6B, P/E: 23.4, Net Income: $3.10B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/SLB/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/SLB/">
+  <meta property="og:title" content="SLB · Schlumberger — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Schlumberger (SLB): $48.95 (+47.8% 1Y). Performance: 1W +0.4%, 1M −14.2%, 3M +3.6%, YTD +27.5%, 1Y +47.8%, 5Y +54.6%. Market Cap: $72.6B, P/E: 23.4, Net Income: $3.10B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="SLB · Schlumberger — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SLB · Schlumberger — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Schlumberger (SLB): $48.95 (+47.8% 1Y). Performance: 1W +0.4%, 1M −14.2%, 3M +3.6%, YTD +27.5%, 1Y +47.8%, 5Y +54.6%. Market Cap: $72.6B, P/E: 23.4, Net Income: $3.10B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">SLB</span>
+    <h1>Schlumberger</h1>
+    <div class="quote-row">
+      <span class="price">$48.95</span>
+      <span class="change up">+47.8% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+47.8%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for SLB">
+    <defs>
+      <linearGradient id="chart-fill-SLB" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="152.8" x2="416" y2="152.8" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,152.8 L13.6,160.0 L15.2,157.2 L16.8,155.7 L18.4,155.7 L20.0,153.9 L21.7,155.4 L23.3,151.3 L24.9,150.9 L26.5,143.9 L28.1,138.2 L29.7,139.1 L31.3,137.5 L32.9,139.0 L34.5,134.1 L36.1,136.7 L37.8,138.0 L39.4,133.1 L41.0,137.7 L42.6,135.5 L44.2,136.5 L45.8,134.9 L47.4,133.7 L49.0,130.1 L50.6,137.9 L52.2,136.7 L53.8,133.5 L55.5,139.3 L57.1,138.1 L58.7,139.0 L60.3,142.4 L61.9,137.3 L63.5,139.8 L65.1,138.8 L66.7,140.0 L68.3,137.1 L69.9,135.2 L71.6,136.5 L73.2,130.4 L74.8,127.5 L76.4,125.8 L78.0,126.9 L79.6,126.6 L81.2,118.3 L82.8,116.3 L84.4,120.8 L86.0,123.6 L87.6,130.1 L89.3,125.4 L90.9,127.5 L92.5,127.7 L94.1,126.5 L95.7,127.1 L97.3,128.3 L98.9,129.2 L100.5,128.6 L102.1,125.3 L103.7,126.2 L105.4,117.0 L107.0,98.7 L108.6,99.6 L110.2,106.0 L111.8,95.5 L113.4,91.6 L115.0,91.9 L116.6,88.1 L118.2,82.6 L119.8,84.7 L121.5,83.8 L123.1,85.3 L124.7,74.8 L126.3,70.7 L127.9,71.6 L129.5,68.8 L131.1,63.9 L132.7,73.0 L134.3,75.1 L135.9,75.5 L137.5,77.1 L139.2,68.5 L140.8,60.4 L142.4,69.7 L144.0,63.7 L145.6,64.5 L147.2,65.6 L148.8,59.3 L150.4,64.0 L152.0,65.3 L153.6,68.1 L155.3,59.2 L156.9,59.4 L158.5,62.9 L160.1,61.0 L161.7,57.9 L163.3,58.8 L164.9,59.7 L166.5,60.4 L168.1,60.8 L169.7,74.5 L171.3,78.0 L173.0,80.4 L174.6,83.0 L176.2,81.5 L177.8,76.8 L179.4,76.5 L181.0,94.8 L182.6,94.0 L184.2,92.8 L185.8,86.9 L187.4,91.0 L189.1,78.3 L190.7,84.3 L192.3,71.1 L193.9,64.7 L195.5,57.7 L197.1,55.5 L198.7,49.5 L200.3,59.5 L201.9,60.2 L203.5,67.1 L205.1,70.1 L206.8,68.4 L208.4,65.5 L210.0,57.7 L211.6,54.4 L213.2,57.5 L214.8,57.5 L216.4,59.7 L218.0,55.0 L219.6,58.5 L221.2,53.8 L222.9,56.1 L224.5,53.2 L226.1,45.2 L227.7,43.2 L229.3,36.0 L230.9,40.7 L232.5,38.6 L234.1,38.3 L235.7,32.3 L237.3,32.1 L238.9,38.7 L240.6,36.8 L242.2,41.1 L243.8,52.0 L245.4,50.7 L247.0,42.2 L248.6,38.6 L250.2,39.9 L251.8,38.1 L253.4,39.9 L255.0,31.0 L256.7,32.9 L258.3,30.3 L259.9,30.5 L261.5,30.3 L263.1,26.8 L264.7,34.3 L266.3,41.3 L267.9,44.2 L269.5,43.1 L271.1,34.0 L272.7,32.5 L274.4,26.6 L276.0,42.5 L277.6,34.0 L279.2,37.6 L280.8,39.3 L282.4,36.8 L284.0,35.9 L285.6,48.4 L287.2,51.7 L288.8,65.6 L290.5,76.9 L292.1,77.6 L293.7,78.5 L295.3,84.4 L296.9,80.3 L298.5,82.5 L300.1,85.6 L301.7,85.1 L303.3,92.2 L304.9,92.0 L306.5,89.0 L308.2,85.4 L309.8,80.3 L311.4,81.3 L313.0,78.6 L314.6,80.6 L316.2,79.7 L317.8,79.7 L319.4,82.1 L321.0,82.5 L322.6,85.6 L324.3,84.5 L325.9,79.1 L327.5,81.4 L329.1,55.0 L330.7,59.5 L332.3,67.3 L333.9,72.5 L335.5,72.8 L337.1,69.3 L338.7,70.7 L340.4,63.1 L342.0,67.7 L343.6,59.4 L345.2,64.6 L346.8,51.0 L348.4,48.6 L350.0,54.0 L351.6,56.8 L353.2,48.1 L354.8,47.7 L356.4,51.0 L358.1,49.2 L359.7,49.2 L361.3,47.6 L362.9,47.0 L364.5,50.6 L366.1,49.0 L367.7,41.8 L369.3,30.1 L370.9,16.0 L372.5,31.0 L374.2,26.0 L375.8,29.6 L377.4,29.1 L379.0,31.2 L380.6,31.5 L382.2,36.8 L383.8,36.5 L385.4,50.4 L387.0,45.9 L388.6,55.6 L390.2,56.7 L391.9,61.6 L393.5,58.3 L395.1,56.5 L396.7,57.8 L398.3,60.0 L399.9,59.4 L401.5,59.7 L403.1,67.9 L404.7,73.7 L406.3,74.0 L408.0,73.6 L409.6,65.8 L411.2,67.2 L412.8,77.6 L414.4,72.4 L416.0,72.6 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-SLB)"/>
+    <path d="M12.0,152.8 L13.6,160.0 L15.2,157.2 L16.8,155.7 L18.4,155.7 L20.0,153.9 L21.7,155.4 L23.3,151.3 L24.9,150.9 L26.5,143.9 L28.1,138.2 L29.7,139.1 L31.3,137.5 L32.9,139.0 L34.5,134.1 L36.1,136.7 L37.8,138.0 L39.4,133.1 L41.0,137.7 L42.6,135.5 L44.2,136.5 L45.8,134.9 L47.4,133.7 L49.0,130.1 L50.6,137.9 L52.2,136.7 L53.8,133.5 L55.5,139.3 L57.1,138.1 L58.7,139.0 L60.3,142.4 L61.9,137.3 L63.5,139.8 L65.1,138.8 L66.7,140.0 L68.3,137.1 L69.9,135.2 L71.6,136.5 L73.2,130.4 L74.8,127.5 L76.4,125.8 L78.0,126.9 L79.6,126.6 L81.2,118.3 L82.8,116.3 L84.4,120.8 L86.0,123.6 L87.6,130.1 L89.3,125.4 L90.9,127.5 L92.5,127.7 L94.1,126.5 L95.7,127.1 L97.3,128.3 L98.9,129.2 L100.5,128.6 L102.1,125.3 L103.7,126.2 L105.4,117.0 L107.0,98.7 L108.6,99.6 L110.2,106.0 L111.8,95.5 L113.4,91.6 L115.0,91.9 L116.6,88.1 L118.2,82.6 L119.8,84.7 L121.5,83.8 L123.1,85.3 L124.7,74.8 L126.3,70.7 L127.9,71.6 L129.5,68.8 L131.1,63.9 L132.7,73.0 L134.3,75.1 L135.9,75.5 L137.5,77.1 L139.2,68.5 L140.8,60.4 L142.4,69.7 L144.0,63.7 L145.6,64.5 L147.2,65.6 L148.8,59.3 L150.4,64.0 L152.0,65.3 L153.6,68.1 L155.3,59.2 L156.9,59.4 L158.5,62.9 L160.1,61.0 L161.7,57.9 L163.3,58.8 L164.9,59.7 L166.5,60.4 L168.1,60.8 L169.7,74.5 L171.3,78.0 L173.0,80.4 L174.6,83.0 L176.2,81.5 L177.8,76.8 L179.4,76.5 L181.0,94.8 L182.6,94.0 L184.2,92.8 L185.8,86.9 L187.4,91.0 L189.1,78.3 L190.7,84.3 L192.3,71.1 L193.9,64.7 L195.5,57.7 L197.1,55.5 L198.7,49.5 L200.3,59.5 L201.9,60.2 L203.5,67.1 L205.1,70.1 L206.8,68.4 L208.4,65.5 L210.0,57.7 L211.6,54.4 L213.2,57.5 L214.8,57.5 L216.4,59.7 L218.0,55.0 L219.6,58.5 L221.2,53.8 L222.9,56.1 L224.5,53.2 L226.1,45.2 L227.7,43.2 L229.3,36.0 L230.9,40.7 L232.5,38.6 L234.1,38.3 L235.7,32.3 L237.3,32.1 L238.9,38.7 L240.6,36.8 L242.2,41.1 L243.8,52.0 L245.4,50.7 L247.0,42.2 L248.6,38.6 L250.2,39.9 L251.8,38.1 L253.4,39.9 L255.0,31.0 L256.7,32.9 L258.3,30.3 L259.9,30.5 L261.5,30.3 L263.1,26.8 L264.7,34.3 L266.3,41.3 L267.9,44.2 L269.5,43.1 L271.1,34.0 L272.7,32.5 L274.4,26.6 L276.0,42.5 L277.6,34.0 L279.2,37.6 L280.8,39.3 L282.4,36.8 L284.0,35.9 L285.6,48.4 L287.2,51.7 L288.8,65.6 L290.5,76.9 L292.1,77.6 L293.7,78.5 L295.3,84.4 L296.9,80.3 L298.5,82.5 L300.1,85.6 L301.7,85.1 L303.3,92.2 L304.9,92.0 L306.5,89.0 L308.2,85.4 L309.8,80.3 L311.4,81.3 L313.0,78.6 L314.6,80.6 L316.2,79.7 L317.8,79.7 L319.4,82.1 L321.0,82.5 L322.6,85.6 L324.3,84.5 L325.9,79.1 L327.5,81.4 L329.1,55.0 L330.7,59.5 L332.3,67.3 L333.9,72.5 L335.5,72.8 L337.1,69.3 L338.7,70.7 L340.4,63.1 L342.0,67.7 L343.6,59.4 L345.2,64.6 L346.8,51.0 L348.4,48.6 L350.0,54.0 L351.6,56.8 L353.2,48.1 L354.8,47.7 L356.4,51.0 L358.1,49.2 L359.7,49.2 L361.3,47.6 L362.9,47.0 L364.5,50.6 L366.1,49.0 L367.7,41.8 L369.3,30.1 L370.9,16.0 L372.5,31.0 L374.2,26.0 L375.8,29.6 L377.4,29.1 L379.0,31.2 L380.6,31.5 L382.2,36.8 L383.8,36.5 L385.4,50.4 L387.0,45.9 L388.6,55.6 L390.2,56.7 L391.9,61.6 L393.5,58.3 L395.1,56.5 L396.7,57.8 L398.3,60.0 L399.9,59.4 L401.5,59.7 L403.1,67.9 L404.7,73.7 L406.3,74.0 L408.0,73.6 L409.6,65.8 L411.2,67.2 L412.8,77.6 L414.4,72.4 L416.0,72.6" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="72.6" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$48.95</text>
+    <text x="474" y="152.8" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$33.13</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+0.4%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−14.2%</strong></div><div class="perf-chip up"><span class="perf-label">3M</span><strong class="perf-value">+3.6%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+27.5%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+47.8%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+10.7%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+54.6%</strong></div><div class="perf-chip down"><span class="perf-label">10Y</span><strong class="perf-value">−39.8%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+250.4%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$72.6B</strong></span>
+      <span>P/E: <strong>23.4</strong></span>
+      <span>Net Income: <strong>$3.10B</strong></span>
+    </div>
+
+    <p class="summary">Schlumberger (SLB): $48.95 (+47.8% 1Y). Performance: 1W +0.4%, 1M −14.2%, 3M +3.6%, YTD +27.5%, 1Y +47.8%, 5Y +54.6%. Market Cap: $72.6B, P/E: 23.4, Net Income: $3.10B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=SLB">Open SLB in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=SLB");</script>
+</body>
+</html>

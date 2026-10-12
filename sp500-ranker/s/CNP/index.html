@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>CNP · CenterPoint Energy — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="CenterPoint Energy (CNP): $38.60 (−1.3% 1Y). Performance: 1W +2.1%, 1M −2.9%, 3M −10.9%, YTD +0.7%, 1Y −1.3%, 5Y +51.1%. Market Cap: $25.4B, P/E: 23.7, Net Income: $1.07B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/CNP/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/CNP/">
+  <meta property="og:title" content="CNP · CenterPoint Energy — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="CenterPoint Energy (CNP): $38.60 (−1.3% 1Y). Performance: 1W +2.1%, 1M −2.9%, 3M −10.9%, YTD +0.7%, 1Y −1.3%, 5Y +51.1%. Market Cap: $25.4B, P/E: 23.7, Net Income: $1.07B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="CNP · CenterPoint Energy — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CNP · CenterPoint Energy — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="CenterPoint Energy (CNP): $38.60 (−1.3% 1Y). Performance: 1W +2.1%, 1M −2.9%, 3M −10.9%, YTD +0.7%, 1Y −1.3%, 5Y +51.1%. Market Cap: $25.4B, P/E: 23.7, Net Income: $1.07B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">CNP</span>
+    <h1>CenterPoint Energy</h1>
+    <div class="quote-row">
+      <span class="price">$38.60</span>
+      <span class="change down">−1.3% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−1.3%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for CNP">
+    <defs>
+      <linearGradient id="chart-fill-CNP" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="117.4" x2="416" y2="117.4" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,117.4 L13.6,115.2 L15.2,116.0 L16.8,110.9 L18.4,104.6 L20.0,107.8 L21.7,108.4 L23.3,98.4 L24.9,101.7 L26.5,101.3 L28.1,109.0 L29.7,110.2 L31.3,106.6 L32.9,110.4 L34.5,120.2 L36.1,120.8 L37.8,132.3 L39.4,129.2 L41.0,123.7 L42.6,121.7 L44.2,119.5 L45.8,112.3 L47.4,111.1 L49.0,107.5 L50.6,109.4 L52.2,109.4 L53.8,106.6 L55.5,99.1 L57.1,102.4 L58.7,108.9 L60.3,109.2 L61.9,109.7 L63.5,107.0 L65.1,112.3 L66.7,103.0 L68.3,102.5 L69.9,117.1 L71.6,130.4 L73.2,129.9 L74.8,127.2 L76.4,129.0 L78.0,134.5 L79.6,137.6 L81.2,145.3 L82.8,147.9 L84.4,139.1 L86.0,133.0 L87.6,135.5 L89.3,131.1 L90.9,132.3 L92.5,143.2 L94.1,139.8 L95.7,136.9 L97.3,133.0 L98.9,131.4 L100.5,129.2 L102.1,126.0 L103.7,130.6 L105.4,123.9 L107.0,134.7 L108.6,132.3 L110.2,140.7 L111.8,136.4 L113.4,138.3 L115.0,138.5 L116.6,126.1 L118.2,118.3 L119.8,114.0 L121.5,107.2 L123.1,114.2 L124.7,110.2 L126.3,121.5 L127.9,123.1 L129.5,112.1 L131.1,105.1 L132.7,105.8 L134.3,109.2 L135.9,107.5 L137.5,112.8 L139.2,98.9 L140.8,96.2 L142.4,98.4 L144.0,101.3 L145.6,97.9 L147.2,85.6 L148.8,84.2 L150.4,73.8 L152.0,59.1 L153.6,56.9 L155.3,69.2 L156.9,57.0 L158.5,50.9 L160.1,52.8 L161.7,54.3 L163.3,47.6 L164.9,50.7 L166.5,42.3 L168.1,45.1 L169.7,44.2 L171.3,33.4 L173.0,44.0 L174.6,40.5 L176.2,42.7 L177.8,48.2 L179.4,51.7 L181.0,44.0 L182.6,33.6 L184.2,31.4 L185.8,39.6 L187.4,47.0 L189.1,46.6 L190.7,67.6 L192.3,72.1 L193.9,70.0 L195.5,66.8 L197.1,62.3 L198.7,61.5 L200.3,51.1 L201.9,48.2 L203.5,46.6 L205.1,38.7 L206.8,40.8 L208.4,40.6 L210.0,39.3 L211.6,31.6 L213.2,44.2 L214.8,55.5 L216.4,52.6 L218.0,59.8 L219.6,47.3 L221.2,50.9 L222.9,56.0 L224.5,63.7 L226.1,65.9 L227.7,47.8 L229.3,60.0 L230.9,52.8 L232.5,48.7 L234.1,54.0 L235.7,39.8 L237.3,44.9 L238.9,45.4 L240.6,41.8 L242.2,62.3 L243.8,63.9 L245.4,72.8 L247.0,63.4 L248.6,65.8 L250.2,65.3 L251.8,58.8 L253.4,76.0 L255.0,72.8 L256.7,59.4 L258.3,63.9 L259.9,60.0 L261.5,53.8 L263.1,52.1 L264.7,49.7 L266.3,64.2 L267.9,63.5 L269.5,80.1 L271.1,72.6 L272.7,75.9 L274.4,70.6 L276.0,56.2 L277.6,70.6 L279.2,61.3 L280.8,55.3 L282.4,58.6 L284.0,52.6 L285.6,49.7 L287.2,44.9 L288.8,57.2 L290.5,54.0 L292.1,48.8 L293.7,42.3 L295.3,36.2 L296.9,30.0 L298.5,16.0 L300.1,20.3 L301.7,33.1 L303.3,38.4 L304.9,23.4 L306.5,33.8 L308.2,25.6 L309.8,32.9 L311.4,45.4 L313.0,41.7 L314.6,31.6 L316.2,37.9 L317.8,55.7 L319.4,45.1 L321.0,48.7 L322.6,51.1 L324.3,55.7 L325.9,39.3 L327.5,29.9 L329.1,24.2 L330.7,33.6 L332.3,32.1 L333.9,52.1 L335.5,65.4 L337.1,67.3 L338.7,69.4 L340.4,75.2 L342.0,91.1 L343.6,90.7 L345.2,90.6 L346.8,101.7 L348.4,99.1 L350.0,93.1 L351.6,94.0 L353.2,88.0 L354.8,91.4 L356.4,93.0 L358.1,95.4 L359.7,98.8 L361.3,123.2 L362.9,117.6 L364.5,120.5 L366.1,109.2 L367.7,114.3 L369.3,115.2 L370.9,109.0 L372.5,111.3 L374.2,110.6 L375.8,102.5 L377.4,107.8 L379.0,100.1 L380.6,106.1 L382.2,117.2 L383.8,117.4 L385.4,125.3 L387.0,136.7 L388.6,130.8 L390.2,126.8 L391.9,132.6 L393.5,136.6 L395.1,139.0 L396.7,150.8 L398.3,156.6 L399.9,156.2 L401.5,160.0 L403.1,154.5 L404.7,156.9 L406.3,149.9 L408.0,140.0 L409.6,140.7 L411.2,126.8 L412.8,127.3 L414.4,129.2 L416.0,126.1 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-CNP)"/>
+    <path d="M12.0,117.4 L13.6,115.2 L15.2,116.0 L16.8,110.9 L18.4,104.6 L20.0,107.8 L21.7,108.4 L23.3,98.4 L24.9,101.7 L26.5,101.3 L28.1,109.0 L29.7,110.2 L31.3,106.6 L32.9,110.4 L34.5,120.2 L36.1,120.8 L37.8,132.3 L39.4,129.2 L41.0,123.7 L42.6,121.7 L44.2,119.5 L45.8,112.3 L47.4,111.1 L49.0,107.5 L50.6,109.4 L52.2,109.4 L53.8,106.6 L55.5,99.1 L57.1,102.4 L58.7,108.9 L60.3,109.2 L61.9,109.7 L63.5,107.0 L65.1,112.3 L66.7,103.0 L68.3,102.5 L69.9,117.1 L71.6,130.4 L73.2,129.9 L74.8,127.2 L76.4,129.0 L78.0,134.5 L79.6,137.6 L81.2,145.3 L82.8,147.9 L84.4,139.1 L86.0,133.0 L87.6,135.5 L89.3,131.1 L90.9,132.3 L92.5,143.2 L94.1,139.8 L95.7,136.9 L97.3,133.0 L98.9,131.4 L100.5,129.2 L102.1,126.0 L103.7,130.6 L105.4,123.9 L107.0,134.7 L108.6,132.3 L110.2,140.7 L111.8,136.4 L113.4,138.3 L115.0,138.5 L116.6,126.1 L118.2,118.3 L119.8,114.0 L121.5,107.2 L123.1,114.2 L124.7,110.2 L126.3,121.5 L127.9,123.1 L129.5,112.1 L131.1,105.1 L132.7,105.8 L134.3,109.2 L135.9,107.5 L137.5,112.8 L139.2,98.9 L140.8,96.2 L142.4,98.4 L144.0,101.3 L145.6,97.9 L147.2,85.6 L148.8,84.2 L150.4,73.8 L152.0,59.1 L153.6,56.9 L155.3,69.2 L156.9,57.0 L158.5,50.9 L160.1,52.8 L161.7,54.3 L163.3,47.6 L164.9,50.7 L166.5,42.3 L168.1,45.1 L169.7,44.2 L171.3,33.4 L173.0,44.0 L174.6,40.5 L176.2,42.7 L177.8,48.2 L179.4,51.7 L181.0,44.0 L182.6,33.6 L184.2,31.4 L185.8,39.6 L187.4,47.0 L189.1,46.6 L190.7,67.6 L192.3,72.1 L193.9,70.0 L195.5,66.8 L197.1,62.3 L198.7,61.5 L200.3,51.1 L201.9,48.2 L203.5,46.6 L205.1,38.7 L206.8,40.8 L208.4,40.6 L210.0,39.3 L211.6,31.6 L213.2,44.2 L214.8,55.5 L216.4,52.6 L218.0,59.8 L219.6,47.3 L221.2,50.9 L222.9,56.0 L224.5,63.7 L226.1,65.9 L227.7,47.8 L229.3,60.0 L230.9,52.8 L232.5,48.7 L234.1,54.0 L235.7,39.8 L237.3,44.9 L238.9,45.4 L240.6,41.8 L242.2,62.3 L243.8,63.9 L245.4,72.8 L247.0,63.4 L248.6,65.8 L250.2,65.3 L251.8,58.8 L253.4,76.0 L255.0,72.8 L256.7,59.4 L258.3,63.9 L259.9,60.0 L261.5,53.8 L263.1,52.1 L264.7,49.7 L266.3,64.2 L267.9,63.5 L269.5,80.1 L271.1,72.6 L272.7,75.9 L274.4,70.6 L276.0,56.2 L277.6,70.6 L279.2,61.3 L280.8,55.3 L282.4,58.6 L284.0,52.6 L285.6,49.7 L287.2,44.9 L288.8,57.2 L290.5,54.0 L292.1,48.8 L293.7,42.3 L295.3,36.2 L296.9,30.0 L298.5,16.0 L300.1,20.3 L301.7,33.1 L303.3,38.4 L304.9,23.4 L306.5,33.8 L308.2,25.6 L309.8,32.9 L311.4,45.4 L313.0,41.7 L314.6,31.6 L316.2,37.9 L317.8,55.7 L319.4,45.1 L321.0,48.7 L322.6,51.1 L324.3,55.7 L325.9,39.3 L327.5,29.9 L329.1,24.2 L330.7,33.6 L332.3,32.1 L333.9,52.1 L335.5,65.4 L337.1,67.3 L338.7,69.4 L340.4,75.2 L342.0,91.1 L343.6,90.7 L345.2,90.6 L346.8,101.7 L348.4,99.1 L350.0,93.1 L351.6,94.0 L353.2,88.0 L354.8,91.4 L356.4,93.0 L358.1,95.4 L359.7,98.8 L361.3,123.2 L362.9,117.6 L364.5,120.5 L366.1,109.2 L367.7,114.3 L369.3,115.2 L370.9,109.0 L372.5,111.3 L374.2,110.6 L375.8,102.5 L377.4,107.8 L379.0,100.1 L380.6,106.1 L382.2,117.2 L383.8,117.4 L385.4,125.3 L387.0,136.7 L388.6,130.8 L390.2,126.8 L391.9,132.6 L393.5,136.6 L395.1,139.0 L396.7,150.8 L398.3,156.6 L399.9,156.2 L401.5,160.0 L403.1,154.5 L404.7,156.9 L406.3,149.9 L408.0,140.0 L409.6,140.7 L411.2,126.8 L412.8,127.3 L414.4,129.2 L416.0,126.1" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="126.1" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$38.60</text>
+    <text x="474" y="117.4" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$39.11</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+2.1%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−2.9%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−10.9%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+0.7%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−1.3%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+30.9%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+51.1%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+76.3%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+270.4%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$25.4B</strong></span>
+      <span>P/E: <strong>23.7</strong></span>
+      <span>Net Income: <strong>$1.07B</strong></span>
+    </div>
+
+    <p class="summary">CenterPoint Energy (CNP): $38.60 (−1.3% 1Y). Performance: 1W +2.1%, 1M −2.9%, 3M −10.9%, YTD +0.7%, 1Y −1.3%, 5Y +51.1%. Market Cap: $25.4B, P/E: 23.7, Net Income: $1.07B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=CNP">Open CNP in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=CNP");</script>
+</body>
+</html>

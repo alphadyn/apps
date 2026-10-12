@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>TXN · Texas Instruments — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Texas Instruments (TXN): $283.74 (+58.5% 1Y). Performance: 1W −3.4%, 1M +8.5%, 3M −8.0%, YTD +63.5%, 1Y +58.5%, 5Y +45.3%. Market Cap: $259B, P/E: 42.8, Net Income: $6.05B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/TXN/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/TXN/">
+  <meta property="og:title" content="TXN · Texas Instruments — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Texas Instruments (TXN): $283.74 (+58.5% 1Y). Performance: 1W −3.4%, 1M +8.5%, 3M −8.0%, YTD +63.5%, 1Y +58.5%, 5Y +45.3%. Market Cap: $259B, P/E: 42.8, Net Income: $6.05B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="TXN · Texas Instruments — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="TXN · Texas Instruments — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Texas Instruments (TXN): $283.74 (+58.5% 1Y). Performance: 1W −3.4%, 1M +8.5%, 3M −8.0%, YTD +63.5%, 1Y +58.5%, 5Y +45.3%. Market Cap: $259B, P/E: 42.8, Net Income: $6.05B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">TXN</span>
+    <h1>Texas Instruments</h1>
+    <div class="quote-row">
+      <span class="price">$283.74</span>
+      <span class="change up">+58.5% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+58.5%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for TXN">
+    <defs>
+      <linearGradient id="chart-fill-TXN" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="139.4" x2="416" y2="139.4" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,139.4 L13.6,145.2 L15.2,142.5 L16.8,143.4 L18.4,142.3 L20.0,142.2 L21.7,141.3 L23.3,138.9 L24.9,137.9 L26.5,146.0 L28.1,144.8 L29.7,147.3 L31.3,147.1 L32.9,149.1 L34.5,154.4 L36.1,154.2 L37.8,153.5 L39.4,153.5 L41.0,155.1 L42.6,151.8 L44.2,153.5 L45.8,154.2 L47.4,154.2 L49.0,154.8 L50.6,152.1 L52.2,152.8 L53.8,155.2 L55.5,158.7 L57.1,156.8 L58.7,157.0 L60.3,160.0 L61.9,155.1 L63.5,153.6 L65.1,153.2 L66.7,150.3 L68.3,148.0 L69.9,148.1 L71.6,142.4 L73.2,136.4 L74.8,138.4 L76.4,136.5 L78.0,137.8 L79.6,138.9 L81.2,137.2 L82.8,137.2 L84.4,139.0 L86.0,140.2 L87.6,140.5 L89.3,143.0 L90.9,141.6 L92.5,141.5 L94.1,139.5 L95.7,140.9 L97.3,140.8 L98.9,141.0 L100.5,142.0 L102.1,142.2 L103.7,143.8 L105.4,140.5 L107.0,140.8 L108.6,128.8 L110.2,133.9 L111.8,131.7 L113.4,130.2 L115.0,131.2 L116.6,131.7 L118.2,127.7 L119.8,131.2 L121.5,129.2 L123.1,130.8 L124.7,126.9 L126.3,126.5 L127.9,127.8 L129.5,125.2 L131.1,125.2 L132.7,109.4 L134.3,107.2 L135.9,109.9 L137.5,102.3 L139.2,102.2 L140.8,104.0 L142.4,103.1 L144.0,105.2 L145.6,107.3 L147.2,105.6 L148.8,101.1 L150.4,103.9 L152.0,101.4 L153.6,101.8 L155.3,103.7 L156.9,107.9 L158.5,106.6 L160.1,106.5 L161.7,111.7 L163.3,111.3 L164.9,112.3 L166.5,112.7 L168.1,114.5 L169.7,120.3 L171.3,120.5 L173.0,124.1 L174.6,127.9 L176.2,125.5 L177.8,124.5 L179.4,123.5 L181.0,130.5 L182.6,129.9 L184.2,127.2 L185.8,126.9 L187.4,129.9 L189.1,131.9 L190.7,132.8 L192.3,131.6 L193.9,126.8 L195.5,125.0 L197.1,127.7 L198.7,130.2 L200.3,133.4 L201.9,127.2 L203.5,125.4 L205.1,126.6 L206.8,122.9 L208.4,122.7 L210.0,115.3 L211.6,110.4 L213.2,110.6 L214.8,109.0 L216.4,107.3 L218.0,109.3 L219.6,103.9 L221.2,98.4 L222.9,95.3 L224.5,95.8 L226.1,93.2 L227.7,56.3 L229.3,60.4 L230.9,66.5 L232.5,70.1 L234.1,66.7 L235.7,57.2 L237.3,57.2 L238.9,57.4 L240.6,57.3 L242.2,50.5 L243.8,53.9 L245.4,51.8 L247.0,43.8 L248.6,45.9 L250.2,36.9 L251.8,35.4 L253.4,39.8 L255.0,41.5 L256.7,40.1 L258.3,38.0 L259.9,43.3 L261.5,34.6 L263.1,21.9 L264.7,27.9 L266.3,29.1 L267.9,37.4 L269.5,47.4 L271.1,35.4 L272.7,35.1 L274.4,37.7 L276.0,54.0 L277.6,49.3 L279.2,51.1 L280.8,56.5 L282.4,44.3 L284.0,41.1 L285.6,31.2 L287.2,37.4 L288.8,40.5 L290.5,23.6 L292.1,16.0 L293.7,38.5 L295.3,39.5 L296.9,32.5 L298.5,53.7 L300.1,53.7 L301.7,43.5 L303.3,43.3 L304.9,47.5 L306.5,39.2 L308.2,47.4 L309.8,40.9 L311.4,35.1 L313.0,32.8 L314.6,43.1 L316.2,37.5 L317.8,41.0 L319.4,49.0 L321.0,54.8 L322.6,54.8 L324.3,49.0 L325.9,46.7 L327.5,54.1 L329.1,58.4 L330.7,58.5 L332.3,60.4 L333.9,65.1 L335.5,59.1 L337.1,61.5 L338.7,66.9 L340.4,55.1 L342.0,59.9 L343.6,59.4 L345.2,53.2 L346.8,57.7 L348.4,57.1 L350.0,60.8 L351.6,63.4 L353.2,58.4 L354.8,55.7 L356.4,64.3 L358.1,68.2 L359.7,69.7 L361.3,70.7 L362.9,75.0 L364.5,74.1 L366.1,72.7 L367.7,68.9 L369.3,75.3 L370.9,73.4 L372.5,79.5 L374.2,78.3 L375.8,79.1 L377.4,75.4 L379.0,75.0 L380.6,72.9 L382.2,75.1 L383.8,67.2 L385.4,71.4 L387.0,71.4 L388.6,73.6 L390.2,75.7 L391.9,68.8 L393.5,65.4 L395.1,65.0 L396.7,64.0 L398.3,65.6 L399.9,59.6 L401.5,59.4 L403.1,56.7 L404.7,58.0 L406.3,57.0 L408.0,47.0 L409.6,46.1 L411.2,44.2 L412.8,50.8 L414.4,51.5 L416.0,55.1 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-TXN)"/>
+    <path d="M12.0,139.4 L13.6,145.2 L15.2,142.5 L16.8,143.4 L18.4,142.3 L20.0,142.2 L21.7,141.3 L23.3,138.9 L24.9,137.9 L26.5,146.0 L28.1,144.8 L29.7,147.3 L31.3,147.1 L32.9,149.1 L34.5,154.4 L36.1,154.2 L37.8,153.5 L39.4,153.5 L41.0,155.1 L42.6,151.8 L44.2,153.5 L45.8,154.2 L47.4,154.2 L49.0,154.8 L50.6,152.1 L52.2,152.8 L53.8,155.2 L55.5,158.7 L57.1,156.8 L58.7,157.0 L60.3,160.0 L61.9,155.1 L63.5,153.6 L65.1,153.2 L66.7,150.3 L68.3,148.0 L69.9,148.1 L71.6,142.4 L73.2,136.4 L74.8,138.4 L76.4,136.5 L78.0,137.8 L79.6,138.9 L81.2,137.2 L82.8,137.2 L84.4,139.0 L86.0,140.2 L87.6,140.5 L89.3,143.0 L90.9,141.6 L92.5,141.5 L94.1,139.5 L95.7,140.9 L97.3,140.8 L98.9,141.0 L100.5,142.0 L102.1,142.2 L103.7,143.8 L105.4,140.5 L107.0,140.8 L108.6,128.8 L110.2,133.9 L111.8,131.7 L113.4,130.2 L115.0,131.2 L116.6,131.7 L118.2,127.7 L119.8,131.2 L121.5,129.2 L123.1,130.8 L124.7,126.9 L126.3,126.5 L127.9,127.8 L129.5,125.2 L131.1,125.2 L132.7,109.4 L134.3,107.2 L135.9,109.9 L137.5,102.3 L139.2,102.2 L140.8,104.0 L142.4,103.1 L144.0,105.2 L145.6,107.3 L147.2,105.6 L148.8,101.1 L150.4,103.9 L152.0,101.4 L153.6,101.8 L155.3,103.7 L156.9,107.9 L158.5,106.6 L160.1,106.5 L161.7,111.7 L163.3,111.3 L164.9,112.3 L166.5,112.7 L168.1,114.5 L169.7,120.3 L171.3,120.5 L173.0,124.1 L174.6,127.9 L176.2,125.5 L177.8,124.5 L179.4,123.5 L181.0,130.5 L182.6,129.9 L184.2,127.2 L185.8,126.9 L187.4,129.9 L189.1,131.9 L190.7,132.8 L192.3,131.6 L193.9,126.8 L195.5,125.0 L197.1,127.7 L198.7,130.2 L200.3,133.4 L201.9,127.2 L203.5,125.4 L205.1,126.6 L206.8,122.9 L208.4,122.7 L210.0,115.3 L211.6,110.4 L213.2,110.6 L214.8,109.0 L216.4,107.3 L218.0,109.3 L219.6,103.9 L221.2,98.4 L222.9,95.3 L224.5,95.8 L226.1,93.2 L227.7,56.3 L229.3,60.4 L230.9,66.5 L232.5,70.1 L234.1,66.7 L235.7,57.2 L237.3,57.2 L238.9,57.4 L240.6,57.3 L242.2,50.5 L243.8,53.9 L245.4,51.8 L247.0,43.8 L248.6,45.9 L250.2,36.9 L251.8,35.4 L253.4,39.8 L255.0,41.5 L256.7,40.1 L258.3,38.0 L259.9,43.3 L261.5,34.6 L263.1,21.9 L264.7,27.9 L266.3,29.1 L267.9,37.4 L269.5,47.4 L271.1,35.4 L272.7,35.1 L274.4,37.7 L276.0,54.0 L277.6,49.3 L279.2,51.1 L280.8,56.5 L282.4,44.3 L284.0,41.1 L285.6,31.2 L287.2,37.4 L288.8,40.5 L290.5,23.6 L292.1,16.0 L293.7,38.5 L295.3,39.5 L296.9,32.5 L298.5,53.7 L300.1,53.7 L301.7,43.5 L303.3,43.3 L304.9,47.5 L306.5,39.2 L308.2,47.4 L309.8,40.9 L311.4,35.1 L313.0,32.8 L314.6,43.1 L316.2,37.5 L317.8,41.0 L319.4,49.0 L321.0,54.8 L322.6,54.8 L324.3,49.0 L325.9,46.7 L327.5,54.1 L329.1,58.4 L330.7,58.5 L332.3,60.4 L333.9,65.1 L335.5,59.1 L337.1,61.5 L338.7,66.9 L340.4,55.1 L342.0,59.9 L343.6,59.4 L345.2,53.2 L346.8,57.7 L348.4,57.1 L350.0,60.8 L351.6,63.4 L353.2,58.4 L354.8,55.7 L356.4,64.3 L358.1,68.2 L359.7,69.7 L361.3,70.7 L362.9,75.0 L364.5,74.1 L366.1,72.7 L367.7,68.9 L369.3,75.3 L370.9,73.4 L372.5,79.5 L374.2,78.3 L375.8,79.1 L377.4,75.4 L379.0,75.0 L380.6,72.9 L382.2,75.1 L383.8,67.2 L385.4,71.4 L387.0,71.4 L388.6,73.6 L390.2,75.7 L391.9,68.8 L393.5,65.4 L395.1,65.0 L396.7,64.0 L398.3,65.6 L399.9,59.6 L401.5,59.4 L403.1,56.7 L404.7,58.0 L406.3,57.0 L408.0,47.0 L409.6,46.1 L411.2,44.2 L412.8,50.8 L414.4,51.5 L416.0,55.1" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="55.1" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$283.74</text>
+    <text x="474" y="139.4" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$178.96</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip down"><span class="perf-label">1W</span><strong class="perf-value">−3.4%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+8.5%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−8.0%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+63.5%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+58.5%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+38.4%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+45.3%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+300.4%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+16272%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$259B</strong></span>
+      <span>P/E: <strong>42.8</strong></span>
+      <span>Net Income: <strong>$6.05B</strong></span>
+    </div>
+
+    <p class="summary">Texas Instruments (TXN): $283.74 (+58.5% 1Y). Performance: 1W −3.4%, 1M +8.5%, 3M −8.0%, YTD +63.5%, 1Y +58.5%, 5Y +45.3%. Market Cap: $259B, P/E: 42.8, Net Income: $6.05B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=TXN">Open TXN in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=TXN");</script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>CHD · Church &amp; Dwight — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Church &amp; Dwight (CHD): $98.11 (+12.0% 1Y). Performance: 1W +4.0%, 1M +3.1%, 3M +2.6%, YTD +17.0%, 1Y +12.0%, 5Y +18.0%. Market Cap: $23.3B, P/E: 31.2, Net Income: $745M. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/CHD/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/CHD/">
+  <meta property="og:title" content="CHD · Church &amp; Dwight — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Church &amp; Dwight (CHD): $98.11 (+12.0% 1Y). Performance: 1W +4.0%, 1M +3.1%, 3M +2.6%, YTD +17.0%, 1Y +12.0%, 5Y +18.0%. Market Cap: $23.3B, P/E: 31.2, Net Income: $745M. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="CHD · Church &amp; Dwight — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CHD · Church &amp; Dwight — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Church &amp; Dwight (CHD): $98.11 (+12.0% 1Y). Performance: 1W +4.0%, 1M +3.1%, 3M +2.6%, YTD +17.0%, 1Y +12.0%, 5Y +18.0%. Market Cap: $23.3B, P/E: 31.2, Net Income: $745M. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">CHD</span>
+    <h1>Church &amp; Dwight</h1>
+    <div class="quote-row">
+      <span class="price">$98.11</span>
+      <span class="change up">+12.0% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+12.0%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for CHD">
+    <defs>
+      <linearGradient id="chart-fill-CHD" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="123.4" x2="416" y2="123.4" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,123.4 L13.6,122.9 L15.2,130.1 L16.8,127.6 L18.4,130.9 L20.0,125.6 L21.7,118.1 L23.3,120.6 L24.9,121.1 L26.5,120.3 L28.1,128.9 L29.7,133.9 L31.3,135.4 L32.9,143.8 L34.5,158.5 L36.1,158.8 L37.8,122.9 L39.4,131.5 L41.0,129.6 L42.6,129.1 L44.2,131.9 L45.8,128.0 L47.4,141.5 L49.0,136.2 L50.6,137.0 L52.2,139.7 L53.8,144.8 L55.5,151.4 L57.1,152.1 L58.7,154.4 L60.3,149.4 L61.9,145.3 L63.5,153.1 L65.1,144.4 L66.7,142.0 L68.3,138.3 L69.9,141.9 L71.6,148.2 L73.2,145.9 L74.8,145.7 L76.4,142.2 L78.0,160.0 L79.6,153.7 L81.2,149.6 L82.8,148.0 L84.4,141.7 L86.0,139.2 L87.6,142.0 L89.3,130.1 L90.9,138.9 L92.5,138.8 L94.1,143.9 L95.7,137.8 L97.3,136.5 L98.9,136.9 L100.5,137.2 L102.1,142.7 L103.7,146.3 L105.4,153.7 L107.0,144.7 L108.6,136.1 L110.2,146.1 L111.8,134.1 L113.4,134.6 L115.0,129.2 L116.6,121.2 L118.2,107.9 L119.8,106.3 L121.5,105.2 L123.1,95.8 L124.7,98.2 L126.3,90.9 L127.9,94.1 L129.5,97.1 L131.1,94.7 L132.7,99.9 L134.3,96.9 L135.9,70.8 L137.5,64.2 L139.2,55.5 L140.8,44.4 L142.4,44.4 L144.0,44.8 L145.6,57.6 L147.2,54.3 L148.8,45.2 L150.4,48.0 L152.0,39.2 L153.6,48.7 L155.3,31.8 L156.9,28.2 L158.5,29.3 L160.1,16.0 L161.7,17.1 L163.3,25.9 L164.9,25.7 L166.5,18.4 L168.1,24.0 L169.7,29.6 L171.3,33.0 L173.0,48.9 L174.6,43.8 L176.2,34.3 L177.8,41.1 L179.4,50.0 L181.0,53.1 L182.6,61.7 L184.2,58.8 L185.8,64.4 L187.4,73.9 L189.1,81.0 L190.7,80.3 L192.3,80.6 L193.9,85.3 L195.5,82.2 L197.1,89.3 L198.7,80.3 L200.3,85.1 L201.9,88.7 L203.5,91.5 L205.1,91.5 L206.8,89.8 L208.4,93.4 L210.0,83.3 L211.6,71.4 L213.2,75.9 L214.8,78.3 L216.4,75.2 L218.0,80.7 L219.6,81.2 L221.2,67.0 L222.9,69.0 L224.5,89.3 L226.1,91.2 L227.7,81.0 L229.3,78.3 L230.9,76.0 L232.5,65.8 L234.1,71.1 L235.7,65.9 L237.3,72.2 L238.9,91.3 L240.6,87.4 L242.2,78.7 L243.8,85.3 L245.4,87.9 L247.0,104.5 L248.6,87.5 L250.2,77.9 L251.8,80.6 L253.4,84.2 L255.0,67.6 L256.7,73.9 L258.3,71.6 L259.9,74.5 L261.5,70.8 L263.1,68.3 L264.7,60.1 L266.3,62.4 L267.9,74.6 L269.5,76.6 L271.1,71.5 L272.7,91.3 L274.4,83.8 L276.0,67.9 L277.6,76.3 L279.2,66.1 L280.8,59.0 L282.4,65.8 L284.0,62.9 L285.6,58.2 L287.2,57.6 L288.8,63.8 L290.5,74.6 L292.1,86.1 L293.7,69.4 L295.3,56.1 L296.9,59.3 L298.5,50.6 L300.1,60.8 L301.7,67.0 L303.3,65.0 L304.9,56.5 L306.5,63.5 L308.2,54.4 L309.8,71.3 L311.4,74.4 L313.0,70.2 L314.6,65.3 L316.2,75.9 L317.8,65.4 L319.4,53.4 L321.0,59.8 L322.6,61.5 L324.3,73.9 L325.9,65.5 L327.5,71.2 L329.1,62.4 L330.7,55.9 L332.3,48.4 L333.9,48.9 L335.5,62.1 L337.1,55.3 L338.7,48.0 L340.4,29.8 L342.0,25.9 L343.6,27.6 L345.2,28.3 L346.8,27.9 L348.4,31.1 L350.0,40.5 L351.6,40.0 L353.2,40.1 L354.8,60.3 L356.4,53.3 L358.1,54.0 L359.7,63.8 L361.3,55.3 L362.9,32.6 L364.5,32.4 L366.1,30.6 L367.7,33.6 L369.3,40.3 L370.9,49.4 L372.5,51.5 L374.2,52.2 L375.8,56.6 L377.4,56.8 L379.0,69.1 L380.6,77.3 L382.2,84.9 L383.8,83.6 L385.4,81.0 L387.0,81.4 L388.6,75.3 L390.2,78.1 L391.9,80.0 L393.5,75.5 L395.1,71.6 L396.7,72.2 L398.3,76.4 L399.9,70.0 L401.5,74.7 L403.1,78.7 L404.7,83.2 L406.3,83.9 L408.0,82.6 L409.6,74.4 L411.2,69.1 L412.8,67.8 L414.4,61.8 L416.0,59.5 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-CHD)"/>
+    <path d="M12.0,123.4 L13.6,122.9 L15.2,130.1 L16.8,127.6 L18.4,130.9 L20.0,125.6 L21.7,118.1 L23.3,120.6 L24.9,121.1 L26.5,120.3 L28.1,128.9 L29.7,133.9 L31.3,135.4 L32.9,143.8 L34.5,158.5 L36.1,158.8 L37.8,122.9 L39.4,131.5 L41.0,129.6 L42.6,129.1 L44.2,131.9 L45.8,128.0 L47.4,141.5 L49.0,136.2 L50.6,137.0 L52.2,139.7 L53.8,144.8 L55.5,151.4 L57.1,152.1 L58.7,154.4 L60.3,149.4 L61.9,145.3 L63.5,153.1 L65.1,144.4 L66.7,142.0 L68.3,138.3 L69.9,141.9 L71.6,148.2 L73.2,145.9 L74.8,145.7 L76.4,142.2 L78.0,160.0 L79.6,153.7 L81.2,149.6 L82.8,148.0 L84.4,141.7 L86.0,139.2 L87.6,142.0 L89.3,130.1 L90.9,138.9 L92.5,138.8 L94.1,143.9 L95.7,137.8 L97.3,136.5 L98.9,136.9 L100.5,137.2 L102.1,142.7 L103.7,146.3 L105.4,153.7 L107.0,144.7 L108.6,136.1 L110.2,146.1 L111.8,134.1 L113.4,134.6 L115.0,129.2 L116.6,121.2 L118.2,107.9 L119.8,106.3 L121.5,105.2 L123.1,95.8 L124.7,98.2 L126.3,90.9 L127.9,94.1 L129.5,97.1 L131.1,94.7 L132.7,99.9 L134.3,96.9 L135.9,70.8 L137.5,64.2 L139.2,55.5 L140.8,44.4 L142.4,44.4 L144.0,44.8 L145.6,57.6 L147.2,54.3 L148.8,45.2 L150.4,48.0 L152.0,39.2 L153.6,48.7 L155.3,31.8 L156.9,28.2 L158.5,29.3 L160.1,16.0 L161.7,17.1 L163.3,25.9 L164.9,25.7 L166.5,18.4 L168.1,24.0 L169.7,29.6 L171.3,33.0 L173.0,48.9 L174.6,43.8 L176.2,34.3 L177.8,41.1 L179.4,50.0 L181.0,53.1 L182.6,61.7 L184.2,58.8 L185.8,64.4 L187.4,73.9 L189.1,81.0 L190.7,80.3 L192.3,80.6 L193.9,85.3 L195.5,82.2 L197.1,89.3 L198.7,80.3 L200.3,85.1 L201.9,88.7 L203.5,91.5 L205.1,91.5 L206.8,89.8 L208.4,93.4 L210.0,83.3 L211.6,71.4 L213.2,75.9 L214.8,78.3 L216.4,75.2 L218.0,80.7 L219.6,81.2 L221.2,67.0 L222.9,69.0 L224.5,89.3 L226.1,91.2 L227.7,81.0 L229.3,78.3 L230.9,76.0 L232.5,65.8 L234.1,71.1 L235.7,65.9 L237.3,72.2 L238.9,91.3 L240.6,87.4 L242.2,78.7 L243.8,85.3 L245.4,87.9 L247.0,104.5 L248.6,87.5 L250.2,77.9 L251.8,80.6 L253.4,84.2 L255.0,67.6 L256.7,73.9 L258.3,71.6 L259.9,74.5 L261.5,70.8 L263.1,68.3 L264.7,60.1 L266.3,62.4 L267.9,74.6 L269.5,76.6 L271.1,71.5 L272.7,91.3 L274.4,83.8 L276.0,67.9 L277.6,76.3 L279.2,66.1 L280.8,59.0 L282.4,65.8 L284.0,62.9 L285.6,58.2 L287.2,57.6 L288.8,63.8 L290.5,74.6 L292.1,86.1 L293.7,69.4 L295.3,56.1 L296.9,59.3 L298.5,50.6 L300.1,60.8 L301.7,67.0 L303.3,65.0 L304.9,56.5 L306.5,63.5 L308.2,54.4 L309.8,71.3 L311.4,74.4 L313.0,70.2 L314.6,65.3 L316.2,75.9 L317.8,65.4 L319.4,53.4 L321.0,59.8 L322.6,61.5 L324.3,73.9 L325.9,65.5 L327.5,71.2 L329.1,62.4 L330.7,55.9 L332.3,48.4 L333.9,48.9 L335.5,62.1 L337.1,55.3 L338.7,48.0 L340.4,29.8 L342.0,25.9 L343.6,27.6 L345.2,28.3 L346.8,27.9 L348.4,31.1 L350.0,40.5 L351.6,40.0 L353.2,40.1 L354.8,60.3 L356.4,53.3 L358.1,54.0 L359.7,63.8 L361.3,55.3 L362.9,32.6 L364.5,32.4 L366.1,30.6 L367.7,33.6 L369.3,40.3 L370.9,49.4 L372.5,51.5 L374.2,52.2 L375.8,56.6 L377.4,56.8 L379.0,69.1 L380.6,77.3 L382.2,84.9 L383.8,83.6 L385.4,81.0 L387.0,81.4 L388.6,75.3 L390.2,78.1 L391.9,80.0 L393.5,75.5 L395.1,71.6 L396.7,72.2 L398.3,76.4 L399.9,70.0 L401.5,74.7 L403.1,78.7 L404.7,83.2 L406.3,83.9 L408.0,82.6 L409.6,74.4 L411.2,69.1 L412.8,67.8 L414.4,61.8 L416.0,59.5" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="59.5" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$98.11</text>
+    <text x="474" y="123.4" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$87.62</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+4.0%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+3.1%</strong></div><div class="perf-chip up"><span class="perf-label">3M</span><strong class="perf-value">+2.6%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+17.0%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+12.0%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−2.5%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+18.0%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+109.1%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+57696%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$23.3B</strong></span>
+      <span>P/E: <strong>31.2</strong></span>
+      <span>Net Income: <strong>$745M</strong></span>
+    </div>
+
+    <p class="summary">Church &amp; Dwight (CHD): $98.11 (+12.0% 1Y). Performance: 1W +4.0%, 1M +3.1%, 3M +2.6%, YTD +17.0%, 1Y +12.0%, 5Y +18.0%. Market Cap: $23.3B, P/E: 31.2, Net Income: $745M. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=CHD">Open CHD in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=CHD");</script>
+</body>
+</html>

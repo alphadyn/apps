@@ -1,6 +1,6 @@
 import {
   FILTER_RANGES,
-  filterSecurities, formatMoney, formatPE, formatPercent, formatValue, getSecurityPE,
+  filterSecurities, formatMoney, formatPE, formatPercent, formatSecuritySummary, formatValue, getSecurityPE,
   getSecurityPerformance, marketSummary, parseMoneyInput, parsePercentInput,
   parseState, rankFilteredSecurities, serializeState,
 } from './ranking.js';
@@ -141,8 +141,52 @@ const state = {
 };
 
 let openedViaPush = false;
-const defaultTitle = document.title;
 let lastFocusedSymbol = null;
+
+const defaultMetadata = {
+  title: document.title,
+  description: document.querySelector('meta[name="description"]')?.content,
+  canonical: document.querySelector('link[rel="canonical"]')?.href,
+  ogTitle: document.querySelector('meta[property="og:title"]')?.content,
+  ogDescription: document.querySelector('meta[property="og:description"]')?.content,
+  ogUrl: document.querySelector('meta[property="og:url"]')?.content,
+  twitterTitle: document.querySelector('meta[name="twitter:title"]')?.content,
+  twitterDescription: document.querySelector('meta[name="twitter:description"]')?.content,
+};
+
+function setMetaContent(selector, attr, value) {
+  const el = document.querySelector(selector);
+  if (el && value != null) {
+    el.setAttribute(attr, value);
+  }
+}
+
+function updateLinkPreview(security) {
+  if (!security) {
+    document.title = defaultMetadata.title;
+    setMetaContent('meta[name="description"]', 'content', defaultMetadata.description);
+    setMetaContent('link[rel="canonical"]', 'href', defaultMetadata.canonical);
+    setMetaContent('meta[property="og:title"]', 'content', defaultMetadata.ogTitle);
+    setMetaContent('meta[property="og:description"]', 'content', defaultMetadata.ogDescription);
+    setMetaContent('meta[property="og:url"]', 'content', defaultMetadata.ogUrl);
+    setMetaContent('meta[name="twitter:title"]', 'content', defaultMetadata.twitterTitle);
+    setMetaContent('meta[name="twitter:description"]', 'content', defaultMetadata.twitterDescription);
+    return;
+  }
+
+  const summary = formatSecuritySummary(security);
+  if (!summary) return;
+
+  const permalink = new URL(`s/${encodeURIComponent(security.symbol)}/`, location.href).href;
+  document.title = summary.title;
+  setMetaContent('meta[name="description"]', 'content', summary.description);
+  setMetaContent('link[rel="canonical"]', 'href', permalink);
+  setMetaContent('meta[property="og:title"]', 'content', summary.title);
+  setMetaContent('meta[property="og:description"]', 'content', summary.description);
+  setMetaContent('meta[property="og:url"]', 'content', permalink);
+  setMetaContent('meta[name="twitter:title"]', 'content', summary.title);
+  setMetaContent('meta[name="twitter:description"]', 'content', summary.description);
+}
 
 const escapeHtml = (text) => String(text ?? '').replace(/[&<>"']/g, (char) => (
   { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]
@@ -518,9 +562,64 @@ function render({ updateHash = true } = {}) {
   if (updateHash) history.replaceState(history.state, '', hashUrl());
 }
 
+async function shareSecurity() {
+  const security = state.symbol && state.securities.find((item) => item.symbol === state.symbol);
+  if (!security) return;
+  const summary = formatSecuritySummary(security);
+  if (!summary) return;
+  const shareBtnText = document.getElementById('detail-share-text');
+  const permalink = new URL(`s/${encodeURIComponent(security.symbol)}/`, location.href).href;
+
+  try {
+    if (navigator.share) {
+      await navigator.share({
+        title: summary.title,
+        text: summary.description,
+        url: permalink,
+      });
+      return;
+    }
+  } catch (err) {
+    if (err.name === 'AbortError') return;
+  }
+
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(permalink);
+      if (shareBtnText) {
+        const orig = shareBtnText.textContent;
+        shareBtnText.textContent = 'Copied!';
+        setTimeout(() => { shareBtnText.textContent = orig; }, 1800);
+      }
+      return;
+    }
+  } catch {
+    // fall through to temporary textarea copy
+  }
+
+  try {
+    const input = document.createElement('textarea');
+    input.value = permalink;
+    input.style.position = 'fixed';
+    input.style.opacity = '0';
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand('copy');
+    document.body.removeChild(input);
+    if (shareBtnText) {
+      const orig = shareBtnText.textContent;
+      shareBtnText.textContent = 'Copied!';
+      setTimeout(() => { shareBtnText.textContent = orig; }, 1800);
+    }
+  } catch {
+    // graceful no-op
+  }
+}
+
 const detail = createDetailView({
   onRequestClose: closeDetail,
   onNavigate: navigateDetail,
+  onShare: shareSecurity,
   onRangeChange(range) {
     state.range = range;
     history.replaceState(history.state, '', hashUrl());
@@ -554,14 +653,14 @@ function syncDetail() {
     const ranked = rankedVisibleSecurities();
     const index = ranked.findIndex((item) => item.symbol === security.symbol);
     detail.setNavigation(index > 0, index >= 0 && index < ranked.length - 1);
-    document.title = `${security.symbol} · S&P 500 Ranker`;
+    updateLinkPreview(security);
     return;
   }
   if (detail.isOpen) {
     detail.close();
     elements.filterBody.querySelector(`tr[data-symbol="${CSS.escape(lastFocusedSymbol || '')}"] button.symbol`)?.focus();
   }
-  document.title = defaultTitle;
+  updateLinkPreview(null);
 }
 
 function openDetail(symbol) {

@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>CSCO · Cisco — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Cisco (CSCO): $118.39 (+69.2% 1Y). Performance: 1W +5.5%, 1M +8.2%, 3M +0.1%, YTD +53.7%, 1Y +69.2%, 5Y +114.9%. Market Cap: $467B, P/E: 35.2, Net Income: $13.3B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/CSCO/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/CSCO/">
+  <meta property="og:title" content="CSCO · Cisco — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Cisco (CSCO): $118.39 (+69.2% 1Y). Performance: 1W +5.5%, 1M +8.2%, 3M +0.1%, YTD +53.7%, 1Y +69.2%, 5Y +114.9%. Market Cap: $467B, P/E: 35.2, Net Income: $13.3B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="CSCO · Cisco — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CSCO · Cisco — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Cisco (CSCO): $118.39 (+69.2% 1Y). Performance: 1W +5.5%, 1M +8.2%, 3M +0.1%, YTD +53.7%, 1Y +69.2%, 5Y +114.9%. Market Cap: $467B, P/E: 35.2, Net Income: $13.3B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">CSCO</span>
+    <h1>Cisco</h1>
+    <div class="quote-row">
+      <span class="price">$118.39</span>
+      <span class="change up">+69.2% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+69.2%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for CSCO">
+    <defs>
+      <linearGradient id="chart-fill-CSCO" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="154.2" x2="416" y2="154.2" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,154.2 L13.6,158.9 L15.2,160.0 L16.8,157.2 L18.4,155.3 L20.0,156.2 L21.7,153.9 L23.3,152.7 L24.9,152.5 L26.5,152.6 L28.1,153.5 L29.7,152.7 L31.3,151.0 L32.9,148.1 L34.5,151.1 L36.1,147.5 L37.8,147.0 L39.4,143.9 L41.0,148.8 L42.6,149.3 L44.2,151.8 L45.8,151.7 L47.4,149.3 L49.0,150.2 L50.6,145.0 L52.2,137.2 L53.8,135.7 L55.5,136.2 L57.1,137.2 L58.7,134.8 L60.3,141.6 L61.9,140.1 L63.5,139.8 L65.1,139.6 L66.7,140.2 L68.3,138.2 L69.9,140.2 L71.6,138.3 L73.2,136.3 L74.8,136.3 L76.4,135.8 L78.0,133.8 L79.6,132.3 L81.2,130.6 L82.8,132.8 L84.4,136.2 L86.0,135.2 L87.6,136.8 L89.3,140.3 L90.9,138.1 L92.5,134.8 L94.1,135.5 L95.7,135.7 L97.3,135.7 L98.9,135.4 L100.5,136.2 L102.1,137.1 L103.7,138.0 L105.4,140.2 L107.0,141.3 L108.6,142.1 L110.2,143.3 L111.8,145.0 L113.4,145.2 L115.0,144.9 L116.6,141.6 L118.2,144.0 L119.8,142.1 L121.5,142.2 L123.1,146.4 L124.7,145.7 L126.3,144.2 L127.9,143.6 L129.5,138.0 L131.1,134.2 L132.7,133.5 L134.3,134.7 L135.9,135.0 L137.5,129.7 L139.2,124.0 L140.8,128.5 L142.4,125.7 L144.0,120.0 L145.6,115.5 L147.2,116.6 L148.8,118.4 L150.4,142.6 L152.0,138.4 L153.6,138.4 L155.3,135.3 L156.9,134.4 L158.5,133.0 L160.1,136.3 L161.7,135.4 L163.3,133.2 L164.9,135.5 L166.5,132.4 L168.1,132.5 L169.7,133.5 L171.3,129.1 L173.0,131.1 L174.6,134.3 L176.2,139.9 L177.8,136.4 L179.4,135.5 L181.0,136.3 L182.6,135.0 L184.2,133.7 L185.8,132.8 L187.4,136.7 L189.1,134.6 L190.7,136.5 L192.3,133.8 L193.9,129.1 L195.5,126.9 L197.1,126.2 L198.7,131.3 L200.3,137.9 L201.9,136.7 L203.5,135.9 L205.1,133.4 L206.8,130.1 L208.4,129.6 L210.0,122.6 L211.6,123.8 L213.2,126.0 L214.8,125.7 L216.4,125.1 L218.0,125.7 L219.6,120.8 L221.2,116.7 L222.9,113.4 L224.5,108.8 L226.1,108.6 L227.7,111.3 L229.3,110.4 L230.9,112.1 L232.5,115.3 L234.1,109.1 L235.7,104.6 L237.3,103.8 L238.9,102.0 L240.6,98.2 L242.2,104.3 L243.8,103.1 L245.4,93.0 L247.0,88.0 L248.6,86.7 L250.2,80.8 L251.8,49.3 L253.4,43.1 L255.0,41.6 L256.7,49.7 L258.3,52.0 L259.9,43.2 L261.5,38.1 L263.1,42.9 L264.7,39.8 L266.3,42.2 L267.9,38.1 L269.5,36.0 L271.1,20.6 L272.7,24.1 L274.4,16.0 L276.0,35.2 L277.6,29.5 L279.2,38.2 L280.8,41.8 L282.4,34.8 L284.0,36.5 L285.6,38.6 L287.2,40.0 L288.8,45.2 L290.5,40.1 L292.1,35.5 L293.7,36.4 L295.3,39.6 L296.9,41.4 L298.5,53.4 L300.1,44.3 L301.7,44.9 L303.3,45.9 L304.9,55.9 L306.5,52.9 L308.2,57.9 L309.8,53.3 L311.4,42.9 L313.0,36.0 L314.6,40.8 L316.2,45.7 L317.8,58.0 L319.4,62.8 L321.0,57.6 L322.6,60.4 L324.3,57.0 L325.9,57.0 L327.5,55.7 L329.1,52.4 L330.7,51.5 L332.3,49.2 L333.9,56.3 L335.5,53.9 L337.1,48.3 L338.7,48.6 L340.4,35.0 L342.0,35.6 L343.6,37.0 L345.2,35.7 L346.8,33.1 L348.4,38.0 L350.0,30.1 L351.6,54.1 L353.2,58.2 L354.8,55.4 L356.4,58.3 L358.1,60.8 L359.7,63.0 L361.3,59.7 L362.9,61.5 L364.5,59.5 L366.1,56.6 L367.7,57.1 L369.3,62.2 L370.9,60.9 L372.5,62.6 L374.2,63.3 L375.8,65.3 L377.4,63.9 L379.0,64.0 L380.6,63.4 L382.2,67.9 L383.8,57.1 L385.4,61.9 L387.0,61.9 L388.6,67.3 L390.2,61.5 L391.9,63.2 L393.5,58.7 L395.1,70.2 L396.7,70.3 L398.3,69.0 L399.9,69.6 L401.5,69.6 L403.1,69.1 L404.7,67.5 L406.3,64.9 L408.0,57.0 L409.6,55.6 L411.2,43.8 L412.8,45.0 L414.4,50.8 L416.0,42.7 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-CSCO)"/>
+    <path d="M12.0,154.2 L13.6,158.9 L15.2,160.0 L16.8,157.2 L18.4,155.3 L20.0,156.2 L21.7,153.9 L23.3,152.7 L24.9,152.5 L26.5,152.6 L28.1,153.5 L29.7,152.7 L31.3,151.0 L32.9,148.1 L34.5,151.1 L36.1,147.5 L37.8,147.0 L39.4,143.9 L41.0,148.8 L42.6,149.3 L44.2,151.8 L45.8,151.7 L47.4,149.3 L49.0,150.2 L50.6,145.0 L52.2,137.2 L53.8,135.7 L55.5,136.2 L57.1,137.2 L58.7,134.8 L60.3,141.6 L61.9,140.1 L63.5,139.8 L65.1,139.6 L66.7,140.2 L68.3,138.2 L69.9,140.2 L71.6,138.3 L73.2,136.3 L74.8,136.3 L76.4,135.8 L78.0,133.8 L79.6,132.3 L81.2,130.6 L82.8,132.8 L84.4,136.2 L86.0,135.2 L87.6,136.8 L89.3,140.3 L90.9,138.1 L92.5,134.8 L94.1,135.5 L95.7,135.7 L97.3,135.7 L98.9,135.4 L100.5,136.2 L102.1,137.1 L103.7,138.0 L105.4,140.2 L107.0,141.3 L108.6,142.1 L110.2,143.3 L111.8,145.0 L113.4,145.2 L115.0,144.9 L116.6,141.6 L118.2,144.0 L119.8,142.1 L121.5,142.2 L123.1,146.4 L124.7,145.7 L126.3,144.2 L127.9,143.6 L129.5,138.0 L131.1,134.2 L132.7,133.5 L134.3,134.7 L135.9,135.0 L137.5,129.7 L139.2,124.0 L140.8,128.5 L142.4,125.7 L144.0,120.0 L145.6,115.5 L147.2,116.6 L148.8,118.4 L150.4,142.6 L152.0,138.4 L153.6,138.4 L155.3,135.3 L156.9,134.4 L158.5,133.0 L160.1,136.3 L161.7,135.4 L163.3,133.2 L164.9,135.5 L166.5,132.4 L168.1,132.5 L169.7,133.5 L171.3,129.1 L173.0,131.1 L174.6,134.3 L176.2,139.9 L177.8,136.4 L179.4,135.5 L181.0,136.3 L182.6,135.0 L184.2,133.7 L185.8,132.8 L187.4,136.7 L189.1,134.6 L190.7,136.5 L192.3,133.8 L193.9,129.1 L195.5,126.9 L197.1,126.2 L198.7,131.3 L200.3,137.9 L201.9,136.7 L203.5,135.9 L205.1,133.4 L206.8,130.1 L208.4,129.6 L210.0,122.6 L211.6,123.8 L213.2,126.0 L214.8,125.7 L216.4,125.1 L218.0,125.7 L219.6,120.8 L221.2,116.7 L222.9,113.4 L224.5,108.8 L226.1,108.6 L227.7,111.3 L229.3,110.4 L230.9,112.1 L232.5,115.3 L234.1,109.1 L235.7,104.6 L237.3,103.8 L238.9,102.0 L240.6,98.2 L242.2,104.3 L243.8,103.1 L245.4,93.0 L247.0,88.0 L248.6,86.7 L250.2,80.8 L251.8,49.3 L253.4,43.1 L255.0,41.6 L256.7,49.7 L258.3,52.0 L259.9,43.2 L261.5,38.1 L263.1,42.9 L264.7,39.8 L266.3,42.2 L267.9,38.1 L269.5,36.0 L271.1,20.6 L272.7,24.1 L274.4,16.0 L276.0,35.2 L277.6,29.5 L279.2,38.2 L280.8,41.8 L282.4,34.8 L284.0,36.5 L285.6,38.6 L287.2,40.0 L288.8,45.2 L290.5,40.1 L292.1,35.5 L293.7,36.4 L295.3,39.6 L296.9,41.4 L298.5,53.4 L300.1,44.3 L301.7,44.9 L303.3,45.9 L304.9,55.9 L306.5,52.9 L308.2,57.9 L309.8,53.3 L311.4,42.9 L313.0,36.0 L314.6,40.8 L316.2,45.7 L317.8,58.0 L319.4,62.8 L321.0,57.6 L322.6,60.4 L324.3,57.0 L325.9,57.0 L327.5,55.7 L329.1,52.4 L330.7,51.5 L332.3,49.2 L333.9,56.3 L335.5,53.9 L337.1,48.3 L338.7,48.6 L340.4,35.0 L342.0,35.6 L343.6,37.0 L345.2,35.7 L346.8,33.1 L348.4,38.0 L350.0,30.1 L351.6,54.1 L353.2,58.2 L354.8,55.4 L356.4,58.3 L358.1,60.8 L359.7,63.0 L361.3,59.7 L362.9,61.5 L364.5,59.5 L366.1,56.6 L367.7,57.1 L369.3,62.2 L370.9,60.9 L372.5,62.6 L374.2,63.3 L375.8,65.3 L377.4,63.9 L379.0,64.0 L380.6,63.4 L382.2,67.9 L383.8,57.1 L385.4,61.9 L387.0,61.9 L388.6,67.3 L390.2,61.5 L391.9,63.2 L393.5,58.7 L395.1,70.2 L396.7,70.3 L398.3,69.0 L399.9,69.6 L401.5,69.6 L403.1,69.1 L404.7,67.5 L406.3,64.9 L408.0,57.0 L409.6,55.6 L411.2,43.8 L412.8,45.0 L414.4,50.8 L416.0,42.7" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="42.7" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$118.39</text>
+    <text x="474" y="154.2" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$69.96</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+5.5%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+8.2%</strong></div><div class="perf-chip up"><span class="perf-label">3M</span><strong class="perf-value">+0.1%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+53.7%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+69.2%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+121.0%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+114.9%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+276.2%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+153142%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$467B</strong></span>
+      <span>P/E: <strong>35.2</strong></span>
+      <span>Net Income: <strong>$13.3B</strong></span>
+    </div>
+
+    <p class="summary">Cisco (CSCO): $118.39 (+69.2% 1Y). Performance: 1W +5.5%, 1M +8.2%, 3M +0.1%, YTD +53.7%, 1Y +69.2%, 5Y +114.9%. Market Cap: $467B, P/E: 35.2, Net Income: $13.3B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=CSCO">Open CSCO in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=CSCO");</script>
+</body>
+</html>

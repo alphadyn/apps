@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>MRK · Merck &amp; Co. — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Merck &amp; Co. (MRK): $145.60 (+66.4% 1Y). Performance: 1W +0.9%, 1M −1.3%, 3M +16.4%, YTD +38.3%, 1Y +66.4%, 5Y +80.6%. Market Cap: $359B, P/E: 113.2, Net Income: $3.17B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/MRK/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/MRK/">
+  <meta property="og:title" content="MRK · Merck &amp; Co. — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Merck &amp; Co. (MRK): $145.60 (+66.4% 1Y). Performance: 1W +0.9%, 1M −1.3%, 3M +16.4%, YTD +38.3%, 1Y +66.4%, 5Y +80.6%. Market Cap: $359B, P/E: 113.2, Net Income: $3.17B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="MRK · Merck &amp; Co. — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MRK · Merck &amp; Co. — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Merck &amp; Co. (MRK): $145.60 (+66.4% 1Y). Performance: 1W +0.9%, 1M −1.3%, 3M +16.4%, YTD +38.3%, 1Y +66.4%, 5Y +80.6%. Market Cap: $359B, P/E: 113.2, Net Income: $3.17B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">MRK</span>
+    <h1>Merck &amp; Co.</h1>
+    <div class="quote-row">
+      <span class="price">$145.60</span>
+      <span class="change up">+66.4% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+66.4%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for MRK">
+    <defs>
+      <linearGradient id="chart-fill-MRK" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="150.2" x2="416" y2="150.2" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,150.2 L13.6,153.2 L15.2,153.8 L16.8,155.7 L18.4,156.8 L20.0,157.2 L21.7,155.5 L23.3,152.5 L24.9,150.0 L26.5,150.0 L28.1,150.9 L29.7,150.3 L31.3,149.3 L32.9,151.2 L34.5,152.0 L36.1,152.6 L37.8,153.2 L39.4,160.0 L41.0,157.3 L42.6,156.3 L44.2,153.6 L45.8,152.6 L47.4,151.7 L49.0,143.5 L50.6,142.6 L52.2,139.7 L53.8,139.7 L55.5,139.8 L57.1,132.9 L58.7,135.5 L60.3,135.7 L61.9,130.3 L63.5,125.1 L65.1,114.9 L66.7,116.9 L68.3,116.5 L69.9,122.3 L71.6,123.9 L73.2,121.5 L74.8,124.2 L76.4,126.5 L78.0,128.0 L79.6,132.0 L81.2,130.5 L82.8,127.8 L84.4,125.3 L86.0,125.4 L87.6,129.3 L89.3,127.5 L90.9,124.6 L92.5,123.8 L94.1,116.7 L95.7,116.1 L97.3,113.3 L98.9,112.7 L100.5,113.0 L102.1,114.1 L103.7,115.7 L105.4,113.3 L107.0,111.4 L108.6,108.6 L110.2,109.2 L111.8,104.5 L113.4,105.4 L115.0,108.0 L116.6,109.8 L118.2,104.5 L119.8,104.5 L121.5,108.7 L123.1,107.5 L124.7,104.3 L126.3,108.0 L127.9,110.0 L129.5,111.5 L131.1,110.5 L132.7,112.5 L134.3,109.7 L135.9,105.9 L137.5,99.9 L139.2,95.1 L140.8,90.2 L142.4,87.5 L144.0,83.2 L145.6,91.5 L147.2,92.5 L148.8,88.3 L150.4,88.4 L152.0,84.2 L153.6,83.9 L155.3,83.7 L156.9,83.3 L158.5,82.6 L160.1,79.5 L161.7,79.3 L163.3,82.2 L164.9,88.3 L166.5,79.5 L168.1,84.2 L169.7,87.3 L171.3,86.4 L173.0,94.6 L174.6,95.2 L176.2,92.6 L177.8,92.6 L179.4,94.3 L181.0,94.9 L182.6,95.5 L184.2,95.9 L185.8,95.0 L187.4,97.7 L189.1,98.3 L190.7,98.3 L192.3,95.4 L193.9,94.0 L195.5,88.2 L197.1,89.1 L198.7,87.7 L200.3,90.7 L201.9,86.4 L203.5,85.3 L205.1,85.3 L206.8,85.3 L208.4,88.4 L210.0,80.8 L211.6,81.8 L213.2,84.2 L214.8,86.7 L216.4,87.0 L218.0,91.1 L219.6,95.8 L221.2,88.8 L222.9,92.6 L224.5,101.5 L226.1,100.8 L227.7,97.4 L229.3,102.7 L230.9,106.0 L232.5,106.4 L234.1,104.6 L235.7,108.0 L237.3,102.2 L238.9,100.4 L240.6,100.3 L242.2,99.5 L243.8,102.0 L245.4,103.8 L247.0,103.9 L248.6,101.8 L250.2,99.7 L251.8,99.8 L253.4,103.8 L255.0,101.5 L256.7,98.2 L258.3,100.6 L259.9,95.0 L261.5,82.3 L263.1,87.5 L264.7,86.5 L266.3,87.2 L267.9,89.5 L269.5,96.4 L271.1,95.4 L272.7,97.3 L274.4,86.5 L276.0,85.4 L277.6,87.9 L279.2,87.7 L280.8,88.7 L282.4,85.5 L284.0,88.8 L285.6,96.9 L287.2,96.4 L288.8,95.8 L290.5,98.9 L292.1,95.8 L293.7,87.7 L295.3,85.8 L296.9,76.4 L298.5,70.1 L300.1,68.7 L301.7,70.4 L303.3,76.5 L304.9,68.4 L306.5,73.8 L308.2,69.7 L309.8,75.3 L311.4,77.1 L313.0,80.1 L314.6,79.1 L316.2,85.4 L317.8,79.9 L319.4,72.1 L321.0,72.4 L322.6,78.4 L324.3,74.8 L325.9,72.4 L327.5,66.6 L329.1,65.4 L330.7,66.0 L332.3,64.0 L333.9,66.8 L335.5,67.9 L337.1,67.1 L338.7,71.8 L340.4,71.4 L342.0,70.7 L343.6,70.7 L345.2,70.3 L346.8,65.7 L348.4,66.7 L350.0,61.8 L351.6,56.7 L353.2,56.1 L354.8,55.9 L356.4,57.4 L358.1,24.3 L359.7,30.5 L361.3,23.6 L362.9,27.3 L364.5,16.0 L366.1,22.5 L367.7,29.5 L369.3,31.8 L370.9,32.9 L372.5,28.8 L374.2,25.4 L375.8,24.0 L377.4,27.9 L379.0,31.6 L380.6,33.4 L382.2,38.9 L383.8,40.4 L385.4,38.6 L387.0,40.6 L388.6,38.5 L390.2,34.1 L391.9,34.7 L393.5,29.5 L395.1,26.8 L396.7,32.3 L398.3,32.5 L399.9,30.9 L401.5,31.1 L403.1,30.0 L404.7,37.7 L406.3,40.6 L408.0,39.7 L409.6,48.9 L411.2,44.3 L412.8,42.6 L414.4,43.4 L416.0,37.1 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-MRK)"/>
+    <path d="M12.0,150.2 L13.6,153.2 L15.2,153.8 L16.8,155.7 L18.4,156.8 L20.0,157.2 L21.7,155.5 L23.3,152.5 L24.9,150.0 L26.5,150.0 L28.1,150.9 L29.7,150.3 L31.3,149.3 L32.9,151.2 L34.5,152.0 L36.1,152.6 L37.8,153.2 L39.4,160.0 L41.0,157.3 L42.6,156.3 L44.2,153.6 L45.8,152.6 L47.4,151.7 L49.0,143.5 L50.6,142.6 L52.2,139.7 L53.8,139.7 L55.5,139.8 L57.1,132.9 L58.7,135.5 L60.3,135.7 L61.9,130.3 L63.5,125.1 L65.1,114.9 L66.7,116.9 L68.3,116.5 L69.9,122.3 L71.6,123.9 L73.2,121.5 L74.8,124.2 L76.4,126.5 L78.0,128.0 L79.6,132.0 L81.2,130.5 L82.8,127.8 L84.4,125.3 L86.0,125.4 L87.6,129.3 L89.3,127.5 L90.9,124.6 L92.5,123.8 L94.1,116.7 L95.7,116.1 L97.3,113.3 L98.9,112.7 L100.5,113.0 L102.1,114.1 L103.7,115.7 L105.4,113.3 L107.0,111.4 L108.6,108.6 L110.2,109.2 L111.8,104.5 L113.4,105.4 L115.0,108.0 L116.6,109.8 L118.2,104.5 L119.8,104.5 L121.5,108.7 L123.1,107.5 L124.7,104.3 L126.3,108.0 L127.9,110.0 L129.5,111.5 L131.1,110.5 L132.7,112.5 L134.3,109.7 L135.9,105.9 L137.5,99.9 L139.2,95.1 L140.8,90.2 L142.4,87.5 L144.0,83.2 L145.6,91.5 L147.2,92.5 L148.8,88.3 L150.4,88.4 L152.0,84.2 L153.6,83.9 L155.3,83.7 L156.9,83.3 L158.5,82.6 L160.1,79.5 L161.7,79.3 L163.3,82.2 L164.9,88.3 L166.5,79.5 L168.1,84.2 L169.7,87.3 L171.3,86.4 L173.0,94.6 L174.6,95.2 L176.2,92.6 L177.8,92.6 L179.4,94.3 L181.0,94.9 L182.6,95.5 L184.2,95.9 L185.8,95.0 L187.4,97.7 L189.1,98.3 L190.7,98.3 L192.3,95.4 L193.9,94.0 L195.5,88.2 L197.1,89.1 L198.7,87.7 L200.3,90.7 L201.9,86.4 L203.5,85.3 L205.1,85.3 L206.8,85.3 L208.4,88.4 L210.0,80.8 L211.6,81.8 L213.2,84.2 L214.8,86.7 L216.4,87.0 L218.0,91.1 L219.6,95.8 L221.2,88.8 L222.9,92.6 L224.5,101.5 L226.1,100.8 L227.7,97.4 L229.3,102.7 L230.9,106.0 L232.5,106.4 L234.1,104.6 L235.7,108.0 L237.3,102.2 L238.9,100.4 L240.6,100.3 L242.2,99.5 L243.8,102.0 L245.4,103.8 L247.0,103.9 L248.6,101.8 L250.2,99.7 L251.8,99.8 L253.4,103.8 L255.0,101.5 L256.7,98.2 L258.3,100.6 L259.9,95.0 L261.5,82.3 L263.1,87.5 L264.7,86.5 L266.3,87.2 L267.9,89.5 L269.5,96.4 L271.1,95.4 L272.7,97.3 L274.4,86.5 L276.0,85.4 L277.6,87.9 L279.2,87.7 L280.8,88.7 L282.4,85.5 L284.0,88.8 L285.6,96.9 L287.2,96.4 L288.8,95.8 L290.5,98.9 L292.1,95.8 L293.7,87.7 L295.3,85.8 L296.9,76.4 L298.5,70.1 L300.1,68.7 L301.7,70.4 L303.3,76.5 L304.9,68.4 L306.5,73.8 L308.2,69.7 L309.8,75.3 L311.4,77.1 L313.0,80.1 L314.6,79.1 L316.2,85.4 L317.8,79.9 L319.4,72.1 L321.0,72.4 L322.6,78.4 L324.3,74.8 L325.9,72.4 L327.5,66.6 L329.1,65.4 L330.7,66.0 L332.3,64.0 L333.9,66.8 L335.5,67.9 L337.1,67.1 L338.7,71.8 L340.4,71.4 L342.0,70.7 L343.6,70.7 L345.2,70.3 L346.8,65.7 L348.4,66.7 L350.0,61.8 L351.6,56.7 L353.2,56.1 L354.8,55.9 L356.4,57.4 L358.1,24.3 L359.7,30.5 L361.3,23.6 L362.9,27.3 L364.5,16.0 L366.1,22.5 L367.7,29.5 L369.3,31.8 L370.9,32.9 L372.5,28.8 L374.2,25.4 L375.8,24.0 L377.4,27.9 L379.0,31.6 L380.6,33.4 L382.2,38.9 L383.8,40.4 L385.4,38.6 L387.0,40.6 L388.6,38.5 L390.2,34.1 L391.9,34.7 L393.5,29.5 L395.1,26.8 L396.7,32.3 L398.3,32.5 L399.9,30.9 L401.5,31.1 L403.1,30.0 L404.7,37.7 L406.3,40.6 L408.0,39.7 L409.6,48.9 L411.2,44.3 L412.8,42.6 L414.4,43.4 L416.0,37.1" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="37.1" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$145.60</text>
+    <text x="474" y="150.2" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$87.50</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+0.9%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−1.3%</strong></div><div class="perf-chip up"><span class="perf-label">3M</span><strong class="perf-value">+16.4%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+38.3%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+66.4%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+32.0%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+80.6%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+143.1%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+40094%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$359B</strong></span>
+      <span>P/E: <strong>113.2</strong></span>
+      <span>Net Income: <strong>$3.17B</strong></span>
+    </div>
+
+    <p class="summary">Merck &amp; Co. (MRK): $145.60 (+66.4% 1Y). Performance: 1W +0.9%, 1M −1.3%, 3M +16.4%, YTD +38.3%, 1Y +66.4%, 5Y +80.6%. Market Cap: $359B, P/E: 113.2, Net Income: $3.17B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=MRK">Open MRK in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=MRK");</script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>NI · NiSource — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="NiSource (NI): $40.76 (−5.1% 1Y). Performance: 1W +3.4%, 1M −2.2%, 3M −12.6%, YTD −2.4%, 1Y −5.1%, 5Y +66.8%. Market Cap: $19.5B, P/E: 21.6, Net Income: $905M. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/NI/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/NI/">
+  <meta property="og:title" content="NI · NiSource — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="NiSource (NI): $40.76 (−5.1% 1Y). Performance: 1W +3.4%, 1M −2.2%, 3M −12.6%, YTD −2.4%, 1Y −5.1%, 5Y +66.8%. Market Cap: $19.5B, P/E: 21.6, Net Income: $905M. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="NI · NiSource — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="NI · NiSource — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="NiSource (NI): $40.76 (−5.1% 1Y). Performance: 1W +3.4%, 1M −2.2%, 3M −12.6%, YTD −2.4%, 1Y −5.1%, 5Y +66.8%. Market Cap: $19.5B, P/E: 21.6, Net Income: $905M. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">NI</span>
+    <h1>NiSource</h1>
+    <div class="quote-row">
+      <span class="price">$40.76</span>
+      <span class="change down">−5.1% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−5.1%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for NI">
+    <defs>
+      <linearGradient id="chart-fill-NI" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="103.7" x2="416" y2="103.7" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,103.7 L13.6,104.9 L15.2,106.7 L16.8,103.9 L18.4,95.0 L20.0,99.7 L21.7,99.3 L23.3,90.7 L24.9,92.7 L26.5,86.7 L28.1,90.4 L29.7,93.9 L31.3,92.4 L32.9,97.3 L34.5,110.6 L36.1,115.3 L37.8,115.6 L39.4,108.9 L41.0,104.7 L42.6,104.7 L44.2,106.0 L45.8,95.0 L47.4,92.6 L49.0,89.4 L50.6,93.7 L52.2,103.4 L53.8,104.6 L55.5,100.3 L57.1,102.0 L58.7,107.1 L60.3,111.4 L61.9,106.0 L63.5,97.0 L65.1,100.9 L66.7,92.0 L68.3,86.7 L69.9,102.9 L71.6,113.4 L73.2,118.9 L74.8,118.7 L76.4,117.1 L78.0,126.9 L79.6,125.1 L81.2,126.7 L82.8,121.6 L84.4,125.6 L86.0,119.6 L87.6,125.3 L89.3,127.9 L90.9,124.1 L92.5,131.9 L94.1,125.0 L95.7,122.9 L97.3,118.9 L98.9,121.1 L100.5,118.1 L102.1,116.4 L103.7,120.6 L105.4,114.9 L107.0,123.3 L108.6,118.9 L110.2,123.7 L111.8,123.6 L113.4,116.7 L115.0,111.6 L116.6,110.7 L118.2,98.4 L119.8,95.3 L121.5,89.6 L123.1,97.1 L124.7,91.6 L126.3,95.4 L127.9,97.0 L129.5,89.9 L131.1,83.0 L132.7,83.9 L134.3,79.3 L135.9,84.4 L137.5,88.1 L139.2,89.1 L140.8,88.1 L142.4,89.6 L144.0,87.1 L145.6,82.1 L147.2,78.1 L148.8,79.1 L150.4,71.7 L152.0,54.9 L153.6,49.9 L155.3,70.0 L156.9,62.6 L158.5,54.7 L160.1,57.1 L161.7,54.0 L163.3,52.4 L164.9,50.0 L166.5,41.4 L168.1,45.0 L169.7,49.4 L171.3,37.7 L173.0,45.1 L174.6,53.4 L176.2,45.3 L177.8,51.9 L179.4,56.3 L181.0,50.1 L182.6,40.1 L184.2,39.0 L185.8,42.0 L187.4,51.1 L189.1,50.1 L190.7,74.0 L192.3,67.6 L193.9,64.6 L195.5,64.6 L197.1,68.0 L198.7,60.4 L200.3,52.9 L201.9,50.6 L203.5,47.1 L205.1,38.7 L206.8,43.7 L208.4,36.4 L210.0,30.0 L211.6,24.7 L213.2,30.7 L214.8,43.0 L216.4,42.6 L218.0,40.4 L219.6,35.4 L221.2,27.0 L222.9,34.6 L224.5,46.7 L226.1,47.9 L227.7,27.3 L229.3,31.6 L230.9,28.3 L232.5,24.3 L234.1,28.9 L235.7,27.4 L237.3,30.3 L238.9,30.3 L240.6,28.7 L242.2,38.4 L243.8,45.4 L245.4,49.7 L247.0,45.3 L248.6,43.0 L250.2,45.0 L251.8,39.7 L253.4,55.7 L255.0,52.1 L256.7,39.7 L258.3,45.4 L259.9,35.6 L261.5,33.6 L263.1,34.3 L264.7,39.0 L266.3,49.0 L267.9,56.9 L269.5,72.9 L271.1,62.0 L272.7,66.7 L274.4,62.1 L276.0,51.3 L277.6,62.1 L279.2,55.3 L280.8,51.0 L282.4,51.1 L284.0,42.7 L285.6,39.0 L287.2,35.4 L288.8,49.0 L290.5,42.0 L292.1,36.7 L293.7,42.0 L295.3,36.7 L296.9,34.1 L298.5,16.0 L300.1,29.3 L301.7,37.9 L303.3,47.6 L304.9,34.0 L306.5,45.0 L308.2,38.7 L309.8,47.9 L311.4,50.6 L313.0,47.1 L314.6,44.7 L316.2,51.1 L317.8,64.1 L319.4,56.1 L321.0,60.3 L322.6,69.0 L324.3,69.0 L325.9,51.9 L327.5,49.3 L329.1,50.3 L330.7,62.7 L332.3,63.9 L333.9,77.0 L335.5,73.3 L337.1,82.4 L338.7,81.0 L340.4,81.0 L342.0,104.1 L343.6,97.4 L345.2,108.4 L346.8,120.3 L348.4,117.0 L350.0,117.3 L351.6,116.0 L353.2,110.0 L354.8,111.9 L356.4,115.4 L358.1,122.4 L359.7,122.3 L361.3,136.9 L362.9,133.9 L364.5,136.4 L366.1,129.6 L367.7,132.0 L369.3,137.6 L370.9,132.6 L372.5,132.0 L374.2,129.3 L375.8,122.0 L377.4,125.9 L379.0,118.6 L380.6,121.9 L382.2,125.4 L383.8,125.6 L385.4,130.4 L387.0,137.3 L388.6,136.3 L390.2,132.7 L391.9,137.4 L393.5,138.3 L395.1,147.4 L396.7,156.4 L398.3,158.3 L399.9,154.0 L401.5,158.6 L403.1,155.4 L404.7,160.0 L406.3,152.9 L408.0,153.9 L409.6,152.1 L411.2,136.1 L412.8,138.0 L414.4,138.1 L416.0,134.9 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-NI)"/>
+    <path d="M12.0,103.7 L13.6,104.9 L15.2,106.7 L16.8,103.9 L18.4,95.0 L20.0,99.7 L21.7,99.3 L23.3,90.7 L24.9,92.7 L26.5,86.7 L28.1,90.4 L29.7,93.9 L31.3,92.4 L32.9,97.3 L34.5,110.6 L36.1,115.3 L37.8,115.6 L39.4,108.9 L41.0,104.7 L42.6,104.7 L44.2,106.0 L45.8,95.0 L47.4,92.6 L49.0,89.4 L50.6,93.7 L52.2,103.4 L53.8,104.6 L55.5,100.3 L57.1,102.0 L58.7,107.1 L60.3,111.4 L61.9,106.0 L63.5,97.0 L65.1,100.9 L66.7,92.0 L68.3,86.7 L69.9,102.9 L71.6,113.4 L73.2,118.9 L74.8,118.7 L76.4,117.1 L78.0,126.9 L79.6,125.1 L81.2,126.7 L82.8,121.6 L84.4,125.6 L86.0,119.6 L87.6,125.3 L89.3,127.9 L90.9,124.1 L92.5,131.9 L94.1,125.0 L95.7,122.9 L97.3,118.9 L98.9,121.1 L100.5,118.1 L102.1,116.4 L103.7,120.6 L105.4,114.9 L107.0,123.3 L108.6,118.9 L110.2,123.7 L111.8,123.6 L113.4,116.7 L115.0,111.6 L116.6,110.7 L118.2,98.4 L119.8,95.3 L121.5,89.6 L123.1,97.1 L124.7,91.6 L126.3,95.4 L127.9,97.0 L129.5,89.9 L131.1,83.0 L132.7,83.9 L134.3,79.3 L135.9,84.4 L137.5,88.1 L139.2,89.1 L140.8,88.1 L142.4,89.6 L144.0,87.1 L145.6,82.1 L147.2,78.1 L148.8,79.1 L150.4,71.7 L152.0,54.9 L153.6,49.9 L155.3,70.0 L156.9,62.6 L158.5,54.7 L160.1,57.1 L161.7,54.0 L163.3,52.4 L164.9,50.0 L166.5,41.4 L168.1,45.0 L169.7,49.4 L171.3,37.7 L173.0,45.1 L174.6,53.4 L176.2,45.3 L177.8,51.9 L179.4,56.3 L181.0,50.1 L182.6,40.1 L184.2,39.0 L185.8,42.0 L187.4,51.1 L189.1,50.1 L190.7,74.0 L192.3,67.6 L193.9,64.6 L195.5,64.6 L197.1,68.0 L198.7,60.4 L200.3,52.9 L201.9,50.6 L203.5,47.1 L205.1,38.7 L206.8,43.7 L208.4,36.4 L210.0,30.0 L211.6,24.7 L213.2,30.7 L214.8,43.0 L216.4,42.6 L218.0,40.4 L219.6,35.4 L221.2,27.0 L222.9,34.6 L224.5,46.7 L226.1,47.9 L227.7,27.3 L229.3,31.6 L230.9,28.3 L232.5,24.3 L234.1,28.9 L235.7,27.4 L237.3,30.3 L238.9,30.3 L240.6,28.7 L242.2,38.4 L243.8,45.4 L245.4,49.7 L247.0,45.3 L248.6,43.0 L250.2,45.0 L251.8,39.7 L253.4,55.7 L255.0,52.1 L256.7,39.7 L258.3,45.4 L259.9,35.6 L261.5,33.6 L263.1,34.3 L264.7,39.0 L266.3,49.0 L267.9,56.9 L269.5,72.9 L271.1,62.0 L272.7,66.7 L274.4,62.1 L276.0,51.3 L277.6,62.1 L279.2,55.3 L280.8,51.0 L282.4,51.1 L284.0,42.7 L285.6,39.0 L287.2,35.4 L288.8,49.0 L290.5,42.0 L292.1,36.7 L293.7,42.0 L295.3,36.7 L296.9,34.1 L298.5,16.0 L300.1,29.3 L301.7,37.9 L303.3,47.6 L304.9,34.0 L306.5,45.0 L308.2,38.7 L309.8,47.9 L311.4,50.6 L313.0,47.1 L314.6,44.7 L316.2,51.1 L317.8,64.1 L319.4,56.1 L321.0,60.3 L322.6,69.0 L324.3,69.0 L325.9,51.9 L327.5,49.3 L329.1,50.3 L330.7,62.7 L332.3,63.9 L333.9,77.0 L335.5,73.3 L337.1,82.4 L338.7,81.0 L340.4,81.0 L342.0,104.1 L343.6,97.4 L345.2,108.4 L346.8,120.3 L348.4,117.0 L350.0,117.3 L351.6,116.0 L353.2,110.0 L354.8,111.9 L356.4,115.4 L358.1,122.4 L359.7,122.3 L361.3,136.9 L362.9,133.9 L364.5,136.4 L366.1,129.6 L367.7,132.0 L369.3,137.6 L370.9,132.6 L372.5,132.0 L374.2,129.3 L375.8,122.0 L377.4,125.9 L379.0,118.6 L380.6,121.9 L382.2,125.4 L383.8,125.6 L385.4,130.4 L387.0,137.3 L388.6,136.3 L390.2,132.7 L391.9,137.4 L393.5,138.3 L395.1,147.4 L396.7,156.4 L398.3,158.3 L399.9,154.0 L401.5,158.6 L403.1,155.4 L404.7,160.0 L406.3,152.9 L408.0,153.9 L409.6,152.1 L411.2,136.1 L412.8,138.0 L414.4,138.1 L416.0,134.9" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="134.9" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$40.76</text>
+    <text x="474" y="103.7" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$42.94</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+3.4%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−2.2%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−12.6%</strong></div><div class="perf-chip down"><span class="perf-label">YTD</span><strong class="perf-value">−2.4%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−5.1%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+19.9%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+66.8%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+80.3%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+760.0%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$19.5B</strong></span>
+      <span>P/E: <strong>21.6</strong></span>
+      <span>Net Income: <strong>$905M</strong></span>
+    </div>
+
+    <p class="summary">NiSource (NI): $40.76 (−5.1% 1Y). Performance: 1W +3.4%, 1M −2.2%, 3M −12.6%, YTD −2.4%, 1Y −5.1%, 5Y +66.8%. Market Cap: $19.5B, P/E: 21.6, Net Income: $905M. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=NI">Open NI in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=NI");</script>
+</body>
+</html>

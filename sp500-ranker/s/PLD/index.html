@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>PLD · Prologis — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Prologis (PLD): $129.49 (+13.1% 1Y). Performance: 1W +0.4%, 1M −4.5%, 3M −8.4%, YTD +1.4%, 1Y +13.1%, 5Y +0.7%. Market Cap: $123B, P/E: 33.0, Net Income: $3.72B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/PLD/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/PLD/">
+  <meta property="og:title" content="PLD · Prologis — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Prologis (PLD): $129.49 (+13.1% 1Y). Performance: 1W +0.4%, 1M −4.5%, 3M −8.4%, YTD +1.4%, 1Y +13.1%, 5Y +0.7%. Market Cap: $123B, P/E: 33.0, Net Income: $3.72B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="PLD · Prologis — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="PLD · Prologis — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Prologis (PLD): $129.49 (+13.1% 1Y). Performance: 1W +0.4%, 1M −4.5%, 3M −8.4%, YTD +1.4%, 1Y +13.1%, 5Y +0.7%. Market Cap: $123B, P/E: 33.0, Net Income: $3.72B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">PLD</span>
+    <h1>Prologis</h1>
+    <div class="quote-row">
+      <span class="price">$129.49</span>
+      <span class="change up">+13.1% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+13.1%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for PLD">
+    <defs>
+      <linearGradient id="chart-fill-PLD" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="148.1" x2="416" y2="148.1" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,148.1 L13.6,160.0 L15.2,154.5 L16.8,144.4 L18.4,117.2 L20.0,123.1 L21.7,112.3 L23.3,100.8 L24.9,105.3 L26.5,105.4 L28.1,106.1 L29.7,103.6 L31.3,101.2 L32.9,106.3 L34.5,114.6 L36.1,111.8 L37.8,112.3 L39.4,111.8 L41.0,112.6 L42.6,113.3 L44.2,112.6 L45.8,106.7 L47.4,109.3 L49.0,104.3 L50.6,109.5 L52.2,112.6 L53.8,117.0 L55.5,114.4 L57.1,113.4 L58.7,118.6 L60.3,115.9 L61.9,106.0 L63.5,103.6 L65.1,100.1 L66.7,97.2 L68.3,95.8 L69.9,94.4 L71.6,94.4 L73.2,93.4 L74.8,97.1 L76.4,97.9 L78.0,102.7 L79.6,99.8 L81.2,91.5 L82.8,88.3 L84.4,89.7 L86.0,87.9 L87.6,99.3 L89.3,97.5 L90.9,99.1 L92.5,100.7 L94.1,99.3 L95.7,98.7 L97.3,93.5 L98.9,95.2 L100.5,96.0 L102.1,94.1 L103.7,99.1 L105.4,93.9 L107.0,91.5 L108.6,99.8 L110.2,101.9 L111.8,96.4 L113.4,92.6 L115.0,93.9 L116.6,89.6 L118.2,82.2 L119.8,80.2 L121.5,78.5 L123.1,87.4 L124.7,86.2 L126.3,102.7 L127.9,101.0 L129.5,103.6 L131.1,95.2 L132.7,101.0 L134.3,88.9 L135.9,88.3 L137.5,91.6 L139.2,83.4 L140.8,72.4 L142.4,67.6 L144.0,64.6 L145.6,63.4 L147.2,51.5 L148.8,53.8 L150.4,66.7 L152.0,57.1 L153.6,46.7 L155.3,54.7 L156.9,56.9 L158.5,47.7 L160.1,50.6 L161.7,52.2 L163.3,53.2 L164.9,43.4 L166.5,43.8 L168.1,43.2 L169.7,49.6 L171.3,55.5 L173.0,61.3 L174.6,73.6 L176.2,71.3 L177.8,67.5 L179.4,74.1 L181.0,83.3 L182.6,83.9 L184.2,75.3 L185.8,78.5 L187.4,85.9 L189.1,86.3 L190.7,97.8 L192.3,89.2 L193.9,89.1 L195.5,89.1 L197.1,91.4 L198.7,94.5 L200.3,94.9 L201.9,82.3 L203.5,78.0 L205.1,76.4 L206.8,81.7 L208.4,78.5 L210.0,62.9 L211.6,60.7 L213.2,63.7 L214.8,63.9 L216.4,59.4 L218.0,54.2 L219.6,45.3 L221.2,34.4 L222.9,34.7 L224.5,46.2 L226.1,48.0 L227.7,44.6 L229.3,45.5 L230.9,53.2 L232.5,47.6 L234.1,57.7 L235.7,45.8 L237.3,48.1 L238.9,57.9 L240.6,52.3 L242.2,42.6 L243.8,44.8 L245.4,38.1 L247.0,38.2 L248.6,39.4 L250.2,45.9 L251.8,43.4 L253.4,51.3 L255.0,44.7 L256.7,44.3 L258.3,36.0 L259.9,36.1 L261.5,31.4 L263.1,27.6 L264.7,29.1 L266.3,32.4 L267.9,40.4 L269.5,56.9 L271.1,51.8 L272.7,46.6 L274.4,39.3 L276.0,36.5 L277.6,43.0 L279.2,25.4 L280.8,31.9 L282.4,26.6 L284.0,20.9 L285.6,21.8 L287.2,30.6 L288.8,49.8 L290.5,51.3 L292.1,39.1 L293.7,33.8 L295.3,50.1 L296.9,51.3 L298.5,53.4 L300.1,57.4 L301.7,70.1 L303.3,65.2 L304.9,55.4 L306.5,52.6 L308.2,39.9 L309.8,49.6 L311.4,48.3 L313.0,50.1 L314.6,45.3 L316.2,44.1 L317.8,40.6 L319.4,16.0 L321.0,17.0 L322.6,25.6 L324.3,16.4 L325.9,35.9 L327.5,34.3 L329.1,25.0 L330.7,26.4 L332.3,26.9 L333.9,33.0 L335.5,30.4 L337.1,36.2 L338.7,37.9 L340.4,56.8 L342.0,50.5 L343.6,56.5 L345.2,52.7 L346.8,57.9 L348.4,55.2 L350.0,50.6 L351.6,48.8 L353.2,49.5 L354.8,51.0 L356.4,53.2 L358.1,48.5 L359.7,50.8 L361.3,46.6 L362.9,40.8 L364.5,41.0 L366.1,43.7 L367.7,46.4 L369.3,50.7 L370.9,53.6 L372.5,54.5 L374.2,66.0 L375.8,59.4 L377.4,63.2 L379.0,58.9 L380.6,69.4 L382.2,74.0 L383.8,69.1 L385.4,71.1 L387.0,68.7 L388.6,76.5 L390.2,71.2 L391.9,72.4 L393.5,68.8 L395.1,68.6 L396.7,75.7 L398.3,76.2 L399.9,79.1 L401.5,81.3 L403.1,80.7 L404.7,91.0 L406.3,97.1 L408.0,94.4 L409.6,97.5 L411.2,95.3 L412.8,100.4 L414.4,93.0 L416.0,92.3 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-PLD)"/>
+    <path d="M12.0,148.1 L13.6,160.0 L15.2,154.5 L16.8,144.4 L18.4,117.2 L20.0,123.1 L21.7,112.3 L23.3,100.8 L24.9,105.3 L26.5,105.4 L28.1,106.1 L29.7,103.6 L31.3,101.2 L32.9,106.3 L34.5,114.6 L36.1,111.8 L37.8,112.3 L39.4,111.8 L41.0,112.6 L42.6,113.3 L44.2,112.6 L45.8,106.7 L47.4,109.3 L49.0,104.3 L50.6,109.5 L52.2,112.6 L53.8,117.0 L55.5,114.4 L57.1,113.4 L58.7,118.6 L60.3,115.9 L61.9,106.0 L63.5,103.6 L65.1,100.1 L66.7,97.2 L68.3,95.8 L69.9,94.4 L71.6,94.4 L73.2,93.4 L74.8,97.1 L76.4,97.9 L78.0,102.7 L79.6,99.8 L81.2,91.5 L82.8,88.3 L84.4,89.7 L86.0,87.9 L87.6,99.3 L89.3,97.5 L90.9,99.1 L92.5,100.7 L94.1,99.3 L95.7,98.7 L97.3,93.5 L98.9,95.2 L100.5,96.0 L102.1,94.1 L103.7,99.1 L105.4,93.9 L107.0,91.5 L108.6,99.8 L110.2,101.9 L111.8,96.4 L113.4,92.6 L115.0,93.9 L116.6,89.6 L118.2,82.2 L119.8,80.2 L121.5,78.5 L123.1,87.4 L124.7,86.2 L126.3,102.7 L127.9,101.0 L129.5,103.6 L131.1,95.2 L132.7,101.0 L134.3,88.9 L135.9,88.3 L137.5,91.6 L139.2,83.4 L140.8,72.4 L142.4,67.6 L144.0,64.6 L145.6,63.4 L147.2,51.5 L148.8,53.8 L150.4,66.7 L152.0,57.1 L153.6,46.7 L155.3,54.7 L156.9,56.9 L158.5,47.7 L160.1,50.6 L161.7,52.2 L163.3,53.2 L164.9,43.4 L166.5,43.8 L168.1,43.2 L169.7,49.6 L171.3,55.5 L173.0,61.3 L174.6,73.6 L176.2,71.3 L177.8,67.5 L179.4,74.1 L181.0,83.3 L182.6,83.9 L184.2,75.3 L185.8,78.5 L187.4,85.9 L189.1,86.3 L190.7,97.8 L192.3,89.2 L193.9,89.1 L195.5,89.1 L197.1,91.4 L198.7,94.5 L200.3,94.9 L201.9,82.3 L203.5,78.0 L205.1,76.4 L206.8,81.7 L208.4,78.5 L210.0,62.9 L211.6,60.7 L213.2,63.7 L214.8,63.9 L216.4,59.4 L218.0,54.2 L219.6,45.3 L221.2,34.4 L222.9,34.7 L224.5,46.2 L226.1,48.0 L227.7,44.6 L229.3,45.5 L230.9,53.2 L232.5,47.6 L234.1,57.7 L235.7,45.8 L237.3,48.1 L238.9,57.9 L240.6,52.3 L242.2,42.6 L243.8,44.8 L245.4,38.1 L247.0,38.2 L248.6,39.4 L250.2,45.9 L251.8,43.4 L253.4,51.3 L255.0,44.7 L256.7,44.3 L258.3,36.0 L259.9,36.1 L261.5,31.4 L263.1,27.6 L264.7,29.1 L266.3,32.4 L267.9,40.4 L269.5,56.9 L271.1,51.8 L272.7,46.6 L274.4,39.3 L276.0,36.5 L277.6,43.0 L279.2,25.4 L280.8,31.9 L282.4,26.6 L284.0,20.9 L285.6,21.8 L287.2,30.6 L288.8,49.8 L290.5,51.3 L292.1,39.1 L293.7,33.8 L295.3,50.1 L296.9,51.3 L298.5,53.4 L300.1,57.4 L301.7,70.1 L303.3,65.2 L304.9,55.4 L306.5,52.6 L308.2,39.9 L309.8,49.6 L311.4,48.3 L313.0,50.1 L314.6,45.3 L316.2,44.1 L317.8,40.6 L319.4,16.0 L321.0,17.0 L322.6,25.6 L324.3,16.4 L325.9,35.9 L327.5,34.3 L329.1,25.0 L330.7,26.4 L332.3,26.9 L333.9,33.0 L335.5,30.4 L337.1,36.2 L338.7,37.9 L340.4,56.8 L342.0,50.5 L343.6,56.5 L345.2,52.7 L346.8,57.9 L348.4,55.2 L350.0,50.6 L351.6,48.8 L353.2,49.5 L354.8,51.0 L356.4,53.2 L358.1,48.5 L359.7,50.8 L361.3,46.6 L362.9,40.8 L364.5,41.0 L366.1,43.7 L367.7,46.4 L369.3,50.7 L370.9,53.6 L372.5,54.5 L374.2,66.0 L375.8,59.4 L377.4,63.2 L379.0,58.9 L380.6,69.4 L382.2,74.0 L383.8,69.1 L385.4,71.1 L387.0,68.7 L388.6,76.5 L390.2,71.2 L391.9,72.4 L393.5,68.8 L395.1,68.6 L396.7,75.7 L398.3,76.2 L399.9,79.1 L401.5,81.3 L403.1,80.7 L404.7,91.0 L406.3,97.1 L408.0,94.4 L409.6,97.5 L411.2,95.3 L412.8,100.4 L414.4,93.0 L416.0,92.3" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="92.3" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$129.49</text>
+    <text x="474" y="148.1" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$114.45</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+0.4%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−4.5%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−8.4%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+1.4%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+13.1%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+9.0%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+0.7%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+160.0%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+463.0%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$123B</strong></span>
+      <span>P/E: <strong>33.0</strong></span>
+      <span>Net Income: <strong>$3.72B</strong></span>
+    </div>
+
+    <p class="summary">Prologis (PLD): $129.49 (+13.1% 1Y). Performance: 1W +0.4%, 1M −4.5%, 3M −8.4%, YTD +1.4%, 1Y +13.1%, 5Y +0.7%. Market Cap: $123B, P/E: 33.0, Net Income: $3.72B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=PLD">Open PLD in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=PLD");</script>
+</body>
+</html>

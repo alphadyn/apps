@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>INTC · Intel — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Intel (INTC): $104.70 (+177.0% 1Y). Performance: 1W −12.3%, 1M −1.4%, 3M −7.0%, YTD +183.7%, 1Y +177.0%, 5Y +94.6%. Market Cap: $553B, Net Income: −$11.3B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/INTC/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/INTC/">
+  <meta property="og:title" content="INTC · Intel — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Intel (INTC): $104.70 (+177.0% 1Y). Performance: 1W −12.3%, 1M −1.4%, 3M −7.0%, YTD +183.7%, 1Y +177.0%, 5Y +94.6%. Market Cap: $553B, Net Income: −$11.3B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="INTC · Intel — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="INTC · Intel — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Intel (INTC): $104.70 (+177.0% 1Y). Performance: 1W −12.3%, 1M −1.4%, 3M −7.0%, YTD +183.7%, 1Y +177.0%, 5Y +94.6%. Market Cap: $553B, Net Income: −$11.3B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">INTC</span>
+    <h1>Intel</h1>
+    <div class="quote-row">
+      <span class="price">$104.70</span>
+      <span class="change up">+177.0% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+177.0%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for INTC">
+    <defs>
+      <linearGradient id="chart-fill-INTC" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="154.4" x2="416" y2="154.4" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,154.4 L13.6,156.3 L15.2,155.2 L16.8,157.3 L18.4,155.3 L20.0,155.7 L21.7,155.5 L23.3,154.0 L24.9,154.0 L26.5,155.6 L28.1,153.9 L29.7,153.7 L31.3,152.1 L32.9,149.4 L34.5,149.6 L36.1,151.2 L37.8,151.5 L39.4,152.1 L41.0,155.4 L42.6,153.6 L44.2,155.1 L45.8,153.9 L47.4,153.5 L49.0,154.3 L50.6,154.3 L52.2,156.9 L53.8,157.5 L55.5,158.5 L57.1,159.0 L58.7,158.0 L60.3,160.0 L61.9,158.8 L63.5,157.1 L65.1,157.0 L66.7,155.7 L68.3,150.7 L69.9,151.4 L71.6,146.8 L73.2,146.4 L74.8,150.8 L76.4,149.5 L78.0,151.0 L79.6,150.8 L81.2,150.4 L82.8,152.1 L84.4,154.4 L86.0,154.8 L87.6,155.0 L89.3,156.7 L90.9,156.4 L92.5,155.7 L94.1,156.3 L95.7,156.3 L97.3,156.6 L98.9,156.5 L100.5,155.9 L102.1,155.1 L103.7,155.6 L105.4,152.3 L107.0,152.3 L108.6,151.4 L110.2,147.9 L111.8,150.0 L113.4,144.0 L115.0,146.0 L116.6,141.7 L118.2,139.7 L119.8,140.3 L121.5,142.1 L123.1,140.0 L124.7,132.3 L126.3,132.2 L127.9,144.6 L129.5,148.1 L131.1,146.2 L132.7,139.7 L134.3,139.8 L135.9,142.8 L137.5,139.6 L139.2,139.0 L140.8,139.9 L142.4,140.4 L144.0,137.2 L145.6,137.7 L147.2,141.9 L148.8,140.3 L150.4,142.7 L152.0,142.3 L153.6,143.1 L155.3,144.1 L156.9,145.2 L158.5,145.9 L160.1,146.6 L161.7,143.2 L163.3,142.2 L164.9,144.1 L166.5,143.9 L168.1,144.1 L169.7,147.3 L171.3,144.0 L173.0,143.5 L174.6,146.9 L176.2,144.0 L177.8,142.3 L179.4,140.7 L181.0,144.4 L182.6,143.7 L184.2,143.7 L185.8,146.0 L187.4,144.7 L189.1,143.1 L190.7,146.2 L192.3,146.1 L193.9,146.0 L195.5,141.8 L197.1,145.9 L198.7,147.2 L200.3,149.8 L201.9,145.9 L203.5,140.7 L205.1,137.5 L206.8,137.0 L208.4,134.1 L210.0,126.0 L211.6,122.3 L213.2,121.4 L214.8,117.7 L216.4,119.5 L218.0,118.0 L219.6,113.2 L221.2,113.2 L222.9,117.0 L224.5,116.2 L226.1,117.5 L227.7,115.5 L229.3,94.4 L230.9,91.1 L232.5,91.7 L234.1,78.0 L235.7,78.3 L237.3,71.4 L238.9,76.6 L240.6,60.0 L242.2,53.5 L243.8,58.0 L245.4,37.5 L247.0,31.4 L248.6,43.3 L250.2,43.7 L251.8,49.6 L253.4,59.2 L255.0,60.0 L256.7,56.4 L258.3,45.5 L259.9,46.1 L261.5,44.3 L263.1,39.4 L264.7,41.7 L266.3,42.9 L267.9,51.2 L269.5,58.4 L271.1,60.3 L272.7,53.9 L274.4,55.1 L276.0,72.0 L277.6,57.2 L279.2,60.3 L280.8,61.5 L282.4,48.2 L284.0,38.0 L285.6,33.6 L287.2,48.1 L288.8,42.6 L290.5,25.3 L292.1,16.0 L293.7,27.6 L295.3,28.5 L296.9,26.8 L298.5,32.9 L300.1,28.4 L301.7,17.8 L303.3,34.7 L304.9,43.6 L306.5,41.1 L308.2,57.0 L309.8,57.2 L311.4,54.1 L313.0,57.7 L314.6,66.7 L316.2,60.5 L317.8,66.9 L319.4,75.0 L321.0,77.6 L322.6,74.9 L324.3,63.6 L325.9,67.4 L327.5,70.6 L329.1,81.2 L330.7,82.1 L332.3,89.3 L333.9,95.2 L335.5,82.8 L337.1,84.1 L338.7,83.0 L340.4,69.8 L342.0,69.5 L343.6,71.2 L345.2,68.7 L346.8,74.3 L348.4,74.0 L350.0,69.7 L351.6,64.8 L353.2,67.6 L354.8,66.2 L356.4,75.4 L358.1,80.6 L359.7,81.5 L361.3,84.3 L362.9,88.0 L364.5,87.7 L366.1,86.7 L367.7,81.5 L369.3,85.1 L370.9,85.0 L372.5,85.7 L374.2,84.3 L375.8,82.1 L377.4,76.6 L379.0,64.9 L380.6,62.6 L382.2,70.5 L383.8,67.0 L385.4,74.7 L387.0,74.8 L388.6,69.5 L390.2,59.1 L391.9,59.4 L393.5,41.7 L395.1,38.9 L396.7,40.6 L398.3,34.2 L399.9,40.1 L401.5,49.4 L403.1,49.6 L404.7,43.8 L406.3,44.1 L408.0,45.0 L409.6,49.2 L411.2,54.2 L412.8,53.3 L414.4,61.4 L416.0,64.6 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-INTC)"/>
+    <path d="M12.0,154.4 L13.6,156.3 L15.2,155.2 L16.8,157.3 L18.4,155.3 L20.0,155.7 L21.7,155.5 L23.3,154.0 L24.9,154.0 L26.5,155.6 L28.1,153.9 L29.7,153.7 L31.3,152.1 L32.9,149.4 L34.5,149.6 L36.1,151.2 L37.8,151.5 L39.4,152.1 L41.0,155.4 L42.6,153.6 L44.2,155.1 L45.8,153.9 L47.4,153.5 L49.0,154.3 L50.6,154.3 L52.2,156.9 L53.8,157.5 L55.5,158.5 L57.1,159.0 L58.7,158.0 L60.3,160.0 L61.9,158.8 L63.5,157.1 L65.1,157.0 L66.7,155.7 L68.3,150.7 L69.9,151.4 L71.6,146.8 L73.2,146.4 L74.8,150.8 L76.4,149.5 L78.0,151.0 L79.6,150.8 L81.2,150.4 L82.8,152.1 L84.4,154.4 L86.0,154.8 L87.6,155.0 L89.3,156.7 L90.9,156.4 L92.5,155.7 L94.1,156.3 L95.7,156.3 L97.3,156.6 L98.9,156.5 L100.5,155.9 L102.1,155.1 L103.7,155.6 L105.4,152.3 L107.0,152.3 L108.6,151.4 L110.2,147.9 L111.8,150.0 L113.4,144.0 L115.0,146.0 L116.6,141.7 L118.2,139.7 L119.8,140.3 L121.5,142.1 L123.1,140.0 L124.7,132.3 L126.3,132.2 L127.9,144.6 L129.5,148.1 L131.1,146.2 L132.7,139.7 L134.3,139.8 L135.9,142.8 L137.5,139.6 L139.2,139.0 L140.8,139.9 L142.4,140.4 L144.0,137.2 L145.6,137.7 L147.2,141.9 L148.8,140.3 L150.4,142.7 L152.0,142.3 L153.6,143.1 L155.3,144.1 L156.9,145.2 L158.5,145.9 L160.1,146.6 L161.7,143.2 L163.3,142.2 L164.9,144.1 L166.5,143.9 L168.1,144.1 L169.7,147.3 L171.3,144.0 L173.0,143.5 L174.6,146.9 L176.2,144.0 L177.8,142.3 L179.4,140.7 L181.0,144.4 L182.6,143.7 L184.2,143.7 L185.8,146.0 L187.4,144.7 L189.1,143.1 L190.7,146.2 L192.3,146.1 L193.9,146.0 L195.5,141.8 L197.1,145.9 L198.7,147.2 L200.3,149.8 L201.9,145.9 L203.5,140.7 L205.1,137.5 L206.8,137.0 L208.4,134.1 L210.0,126.0 L211.6,122.3 L213.2,121.4 L214.8,117.7 L216.4,119.5 L218.0,118.0 L219.6,113.2 L221.2,113.2 L222.9,117.0 L224.5,116.2 L226.1,117.5 L227.7,115.5 L229.3,94.4 L230.9,91.1 L232.5,91.7 L234.1,78.0 L235.7,78.3 L237.3,71.4 L238.9,76.6 L240.6,60.0 L242.2,53.5 L243.8,58.0 L245.4,37.5 L247.0,31.4 L248.6,43.3 L250.2,43.7 L251.8,49.6 L253.4,59.2 L255.0,60.0 L256.7,56.4 L258.3,45.5 L259.9,46.1 L261.5,44.3 L263.1,39.4 L264.7,41.7 L266.3,42.9 L267.9,51.2 L269.5,58.4 L271.1,60.3 L272.7,53.9 L274.4,55.1 L276.0,72.0 L277.6,57.2 L279.2,60.3 L280.8,61.5 L282.4,48.2 L284.0,38.0 L285.6,33.6 L287.2,48.1 L288.8,42.6 L290.5,25.3 L292.1,16.0 L293.7,27.6 L295.3,28.5 L296.9,26.8 L298.5,32.9 L300.1,28.4 L301.7,17.8 L303.3,34.7 L304.9,43.6 L306.5,41.1 L308.2,57.0 L309.8,57.2 L311.4,54.1 L313.0,57.7 L314.6,66.7 L316.2,60.5 L317.8,66.9 L319.4,75.0 L321.0,77.6 L322.6,74.9 L324.3,63.6 L325.9,67.4 L327.5,70.6 L329.1,81.2 L330.7,82.1 L332.3,89.3 L333.9,95.2 L335.5,82.8 L337.1,84.1 L338.7,83.0 L340.4,69.8 L342.0,69.5 L343.6,71.2 L345.2,68.7 L346.8,74.3 L348.4,74.0 L350.0,69.7 L351.6,64.8 L353.2,67.6 L354.8,66.2 L356.4,75.4 L358.1,80.6 L359.7,81.5 L361.3,84.3 L362.9,88.0 L364.5,87.7 L366.1,86.7 L367.7,81.5 L369.3,85.1 L370.9,85.0 L372.5,85.7 L374.2,84.3 L375.8,82.1 L377.4,76.6 L379.0,64.9 L380.6,62.6 L382.2,70.5 L383.8,67.0 L385.4,74.7 L387.0,74.8 L388.6,69.5 L390.2,59.1 L391.9,59.4 L393.5,41.7 L395.1,38.9 L396.7,40.6 L398.3,34.2 L399.9,40.1 L401.5,49.4 L403.1,49.6 L404.7,43.8 L406.3,44.1 L408.0,45.0 L409.6,49.2 L411.2,54.2 L412.8,53.3 L414.4,61.4 L416.0,64.6" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="64.6" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$104.70</text>
+    <text x="474" y="154.4" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$37.80</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip down"><span class="perf-label">1W</span><strong class="perf-value">−12.3%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−1.4%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−7.0%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+183.7%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+177.0%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+346.3%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+94.6%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+174.8%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+32855%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$553B</strong></span>
+      <span>P/E: <strong>—</strong></span>
+      <span>Net Income: <strong>−$11.3B</strong></span>
+    </div>
+
+    <p class="summary">Intel (INTC): $104.70 (+177.0% 1Y). Performance: 1W −12.3%, 1M −1.4%, 3M −7.0%, YTD +183.7%, 1Y +177.0%, 5Y +94.6%. Market Cap: $553B, Net Income: −$11.3B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=INTC">Open INTC in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=INTC");</script>
+</body>
+</html>

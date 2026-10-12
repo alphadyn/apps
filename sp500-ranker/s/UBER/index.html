@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>UBER · Uber — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Uber (UBER): $71.51 (−25.5% 1Y). Performance: 1W +5.0%, 1M +0.6%, 3M −3.8%, YTD −12.5%, 1Y −25.5%, 5Y +49.7%. Market Cap: $146B, P/E: 15.2, Net Income: $9.58B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/UBER/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/UBER/">
+  <meta property="og:title" content="UBER · Uber — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Uber (UBER): $71.51 (−25.5% 1Y). Performance: 1W +5.0%, 1M +0.6%, 3M −3.8%, YTD −12.5%, 1Y −25.5%, 5Y +49.7%. Market Cap: $146B, P/E: 15.2, Net Income: $9.58B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="UBER · Uber — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="UBER · Uber — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Uber (UBER): $71.51 (−25.5% 1Y). Performance: 1W +5.0%, 1M +0.6%, 3M −3.8%, YTD −12.5%, 1Y −25.5%, 5Y +49.7%. Market Cap: $146B, P/E: 15.2, Net Income: $9.58B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">UBER</span>
+    <h1>Uber</h1>
+    <div class="quote-row">
+      <span class="price">$71.51</span>
+      <span class="change down">−25.5% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−25.5%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for UBER">
+    <defs>
+      <linearGradient id="chart-fill-UBER" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="31.9" x2="416" y2="31.9" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,31.9 L13.6,42.9 L15.2,40.0 L16.8,39.3 L18.4,38.2 L20.0,46.7 L21.7,47.6 L23.3,41.7 L24.9,44.5 L26.5,48.0 L28.1,37.8 L29.7,40.1 L31.3,30.1 L32.9,34.3 L34.5,32.9 L36.1,29.8 L37.8,29.7 L39.4,16.0 L41.0,37.5 L42.6,45.7 L44.2,48.4 L45.8,49.0 L47.4,40.0 L49.0,42.1 L50.6,42.2 L52.2,49.8 L53.8,50.5 L55.5,48.4 L57.1,53.8 L58.7,59.4 L60.3,85.7 L61.9,83.6 L63.5,84.3 L65.1,84.3 L66.7,75.9 L68.3,67.9 L69.9,72.1 L71.6,67.8 L73.2,54.5 L74.8,53.2 L76.4,51.8 L78.0,46.5 L79.6,61.4 L81.2,82.3 L82.8,76.9 L84.4,78.3 L86.0,92.1 L87.6,96.1 L89.3,103.7 L90.9,101.4 L92.5,103.0 L94.1,94.7 L95.7,95.9 L97.3,95.2 L98.9,94.7 L100.5,93.7 L102.1,91.0 L103.7,92.8 L105.4,87.9 L107.0,96.9 L108.6,76.4 L110.2,73.7 L111.8,67.7 L113.4,76.9 L115.0,80.2 L116.6,77.0 L118.2,80.2 L119.8,81.4 L121.5,79.4 L123.1,84.2 L124.7,81.9 L126.3,89.2 L127.9,90.2 L129.5,91.6 L131.1,94.8 L132.7,101.0 L134.3,92.8 L135.9,99.9 L137.5,96.5 L139.2,108.9 L140.8,126.0 L142.4,120.5 L144.0,122.4 L145.6,126.0 L147.2,127.8 L148.8,138.4 L150.4,137.5 L152.0,142.7 L153.6,140.4 L155.3,130.9 L156.9,130.2 L158.5,126.2 L160.1,139.6 L161.7,136.8 L163.3,130.6 L164.9,122.2 L166.5,119.6 L168.1,117.3 L169.7,115.6 L171.3,114.3 L173.0,119.5 L174.6,120.8 L176.2,126.3 L177.8,132.6 L179.4,121.5 L181.0,130.0 L182.6,128.5 L184.2,122.8 L185.8,109.5 L187.4,114.3 L189.1,119.9 L190.7,126.1 L192.3,120.9 L193.9,132.7 L195.5,129.6 L197.1,140.3 L198.7,146.2 L200.3,143.1 L201.9,134.5 L203.5,135.4 L205.1,134.8 L206.8,133.4 L208.4,135.3 L210.0,132.5 L211.6,135.0 L213.2,140.6 L214.8,132.7 L216.4,130.3 L218.0,111.7 L219.6,115.1 L221.2,112.3 L222.9,110.8 L224.5,111.7 L226.1,118.9 L227.7,122.7 L229.3,122.9 L230.9,116.0 L232.5,125.2 L234.1,123.6 L235.7,123.0 L237.3,120.9 L238.9,125.9 L240.6,130.1 L242.2,103.6 L243.8,114.0 L245.4,119.5 L247.0,116.5 L248.6,115.6 L250.2,122.7 L251.8,122.7 L253.4,121.0 L255.0,121.0 L256.7,125.3 L258.3,123.1 L259.9,127.3 L261.5,134.9 L263.1,142.2 L264.7,139.6 L266.3,138.8 L267.9,141.0 L269.5,126.6 L271.1,135.8 L272.7,135.5 L274.4,133.3 L276.0,139.7 L277.6,142.4 L279.2,141.1 L280.8,148.6 L282.4,144.6 L284.0,147.6 L285.6,130.5 L287.2,128.8 L288.8,138.8 L290.5,135.7 L292.1,136.6 L293.7,144.1 L295.3,126.3 L296.9,133.1 L298.5,116.3 L300.1,119.2 L301.7,133.5 L303.3,131.4 L304.9,123.8 L306.5,132.4 L308.2,124.2 L309.8,127.3 L311.4,124.1 L313.0,123.3 L314.6,124.5 L316.2,133.8 L317.8,131.3 L319.4,125.5 L321.0,132.2 L322.6,133.4 L324.3,136.1 L325.9,141.3 L327.5,147.3 L329.1,160.0 L330.7,150.5 L332.3,139.5 L333.9,137.6 L335.5,141.1 L337.1,141.2 L338.7,135.8 L340.4,134.2 L342.0,150.5 L343.6,140.7 L345.2,121.3 L346.8,108.5 L348.4,106.3 L350.0,119.8 L351.6,117.6 L353.2,117.3 L354.8,121.4 L356.4,122.8 L358.1,108.4 L359.7,106.2 L361.3,105.2 L362.9,103.1 L364.5,98.6 L366.1,106.5 L367.7,113.1 L369.3,105.1 L370.9,118.6 L372.5,120.4 L374.2,115.2 L375.8,117.3 L377.4,118.1 L379.0,129.3 L380.6,138.1 L382.2,131.8 L383.8,135.6 L385.4,131.5 L387.0,136.6 L388.6,138.6 L390.2,139.0 L391.9,140.6 L393.5,139.1 L395.1,143.2 L396.7,145.2 L398.3,146.0 L399.9,144.3 L401.5,150.5 L403.1,145.4 L404.7,149.0 L406.3,151.7 L408.0,150.7 L409.6,144.9 L411.2,146.6 L412.8,149.3 L414.4,141.7 L416.0,136.3 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-UBER)"/>
+    <path d="M12.0,31.9 L13.6,42.9 L15.2,40.0 L16.8,39.3 L18.4,38.2 L20.0,46.7 L21.7,47.6 L23.3,41.7 L24.9,44.5 L26.5,48.0 L28.1,37.8 L29.7,40.1 L31.3,30.1 L32.9,34.3 L34.5,32.9 L36.1,29.8 L37.8,29.7 L39.4,16.0 L41.0,37.5 L42.6,45.7 L44.2,48.4 L45.8,49.0 L47.4,40.0 L49.0,42.1 L50.6,42.2 L52.2,49.8 L53.8,50.5 L55.5,48.4 L57.1,53.8 L58.7,59.4 L60.3,85.7 L61.9,83.6 L63.5,84.3 L65.1,84.3 L66.7,75.9 L68.3,67.9 L69.9,72.1 L71.6,67.8 L73.2,54.5 L74.8,53.2 L76.4,51.8 L78.0,46.5 L79.6,61.4 L81.2,82.3 L82.8,76.9 L84.4,78.3 L86.0,92.1 L87.6,96.1 L89.3,103.7 L90.9,101.4 L92.5,103.0 L94.1,94.7 L95.7,95.9 L97.3,95.2 L98.9,94.7 L100.5,93.7 L102.1,91.0 L103.7,92.8 L105.4,87.9 L107.0,96.9 L108.6,76.4 L110.2,73.7 L111.8,67.7 L113.4,76.9 L115.0,80.2 L116.6,77.0 L118.2,80.2 L119.8,81.4 L121.5,79.4 L123.1,84.2 L124.7,81.9 L126.3,89.2 L127.9,90.2 L129.5,91.6 L131.1,94.8 L132.7,101.0 L134.3,92.8 L135.9,99.9 L137.5,96.5 L139.2,108.9 L140.8,126.0 L142.4,120.5 L144.0,122.4 L145.6,126.0 L147.2,127.8 L148.8,138.4 L150.4,137.5 L152.0,142.7 L153.6,140.4 L155.3,130.9 L156.9,130.2 L158.5,126.2 L160.1,139.6 L161.7,136.8 L163.3,130.6 L164.9,122.2 L166.5,119.6 L168.1,117.3 L169.7,115.6 L171.3,114.3 L173.0,119.5 L174.6,120.8 L176.2,126.3 L177.8,132.6 L179.4,121.5 L181.0,130.0 L182.6,128.5 L184.2,122.8 L185.8,109.5 L187.4,114.3 L189.1,119.9 L190.7,126.1 L192.3,120.9 L193.9,132.7 L195.5,129.6 L197.1,140.3 L198.7,146.2 L200.3,143.1 L201.9,134.5 L203.5,135.4 L205.1,134.8 L206.8,133.4 L208.4,135.3 L210.0,132.5 L211.6,135.0 L213.2,140.6 L214.8,132.7 L216.4,130.3 L218.0,111.7 L219.6,115.1 L221.2,112.3 L222.9,110.8 L224.5,111.7 L226.1,118.9 L227.7,122.7 L229.3,122.9 L230.9,116.0 L232.5,125.2 L234.1,123.6 L235.7,123.0 L237.3,120.9 L238.9,125.9 L240.6,130.1 L242.2,103.6 L243.8,114.0 L245.4,119.5 L247.0,116.5 L248.6,115.6 L250.2,122.7 L251.8,122.7 L253.4,121.0 L255.0,121.0 L256.7,125.3 L258.3,123.1 L259.9,127.3 L261.5,134.9 L263.1,142.2 L264.7,139.6 L266.3,138.8 L267.9,141.0 L269.5,126.6 L271.1,135.8 L272.7,135.5 L274.4,133.3 L276.0,139.7 L277.6,142.4 L279.2,141.1 L280.8,148.6 L282.4,144.6 L284.0,147.6 L285.6,130.5 L287.2,128.8 L288.8,138.8 L290.5,135.7 L292.1,136.6 L293.7,144.1 L295.3,126.3 L296.9,133.1 L298.5,116.3 L300.1,119.2 L301.7,133.5 L303.3,131.4 L304.9,123.8 L306.5,132.4 L308.2,124.2 L309.8,127.3 L311.4,124.1 L313.0,123.3 L314.6,124.5 L316.2,133.8 L317.8,131.3 L319.4,125.5 L321.0,132.2 L322.6,133.4 L324.3,136.1 L325.9,141.3 L327.5,147.3 L329.1,160.0 L330.7,150.5 L332.3,139.5 L333.9,137.6 L335.5,141.1 L337.1,141.2 L338.7,135.8 L340.4,134.2 L342.0,150.5 L343.6,140.7 L345.2,121.3 L346.8,108.5 L348.4,106.3 L350.0,119.8 L351.6,117.6 L353.2,117.3 L354.8,121.4 L356.4,122.8 L358.1,108.4 L359.7,106.2 L361.3,105.2 L362.9,103.1 L364.5,98.6 L366.1,106.5 L367.7,113.1 L369.3,105.1 L370.9,118.6 L372.5,120.4 L374.2,115.2 L375.8,117.3 L377.4,118.1 L379.0,129.3 L380.6,138.1 L382.2,131.8 L383.8,135.6 L385.4,131.5 L387.0,136.6 L388.6,138.6 L390.2,139.0 L391.9,140.6 L393.5,139.1 L395.1,143.2 L396.7,145.2 L398.3,146.0 L399.9,144.3 L401.5,150.5 L403.1,145.4 L404.7,149.0 L406.3,151.7 L408.0,150.7 L409.6,144.9 L411.2,146.6 L412.8,149.3 L414.4,141.7 L416.0,136.3" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="136.3" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$71.51</text>
+    <text x="474" y="31.9" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$96.00</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+5.0%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+0.6%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−3.8%</strong></div><div class="perf-chip down"><span class="perf-label">YTD</span><strong class="perf-value">−12.5%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−25.5%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−8.2%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+49.7%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+72.0%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+72.0%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$146B</strong></span>
+      <span>P/E: <strong>15.2</strong></span>
+      <span>Net Income: <strong>$9.58B</strong></span>
+    </div>
+
+    <p class="summary">Uber (UBER): $71.51 (−25.5% 1Y). Performance: 1W +5.0%, 1M +0.6%, 3M −3.8%, YTD −12.5%, 1Y −25.5%, 5Y +49.7%. Market Cap: $146B, P/E: 15.2, Net Income: $9.58B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=UBER">Open UBER in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=UBER");</script>
+</body>
+</html>

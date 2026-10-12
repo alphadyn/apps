@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>KVUE · Kenvue — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Kenvue (KVUE): $17.70 (+5.1% 1Y). Performance: 1W +2.9%, 1M −0.3%, 3M −7.7%, YTD +2.6%, 1Y +5.1%, 5Y −33.2%. Market Cap: $34.0B, P/E: 20.5, Net Income: $1.66B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/KVUE/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/KVUE/">
+  <meta property="og:title" content="KVUE · Kenvue — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Kenvue (KVUE): $17.70 (+5.1% 1Y). Performance: 1W +2.9%, 1M −0.3%, 3M −7.7%, YTD +2.6%, 1Y +5.1%, 5Y −33.2%. Market Cap: $34.0B, P/E: 20.5, Net Income: $1.66B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="KVUE · Kenvue — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="KVUE · Kenvue — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Kenvue (KVUE): $17.70 (+5.1% 1Y). Performance: 1W +2.9%, 1M −0.3%, 3M −7.7%, YTD +2.6%, 1Y +5.1%, 5Y −33.2%. Market Cap: $34.0B, P/E: 20.5, Net Income: $1.66B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">KVUE</span>
+    <h1>Kenvue</h1>
+    <div class="quote-row">
+      <span class="price">$17.70</span>
+      <span class="change up">+5.1% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+5.1%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for KVUE">
+    <defs>
+      <linearGradient id="chart-fill-KVUE" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="91.3" x2="416" y2="91.3" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,91.3 L13.6,96.1 L15.2,106.9 L16.8,108.6 L18.4,105.9 L20.0,160.0 L21.7,130.3 L23.3,138.6 L24.9,139.4 L26.5,132.8 L28.1,135.3 L29.7,137.6 L31.3,135.6 L32.9,149.9 L34.5,155.0 L36.1,156.7 L37.8,153.5 L39.4,108.9 L41.0,113.2 L42.6,106.6 L44.2,100.8 L45.8,90.3 L47.4,93.0 L49.0,94.3 L50.6,95.6 L52.2,93.0 L53.8,95.8 L55.5,106.4 L57.1,106.6 L58.7,110.9 L60.3,108.6 L61.9,96.3 L63.5,93.3 L65.1,86.5 L66.7,81.7 L68.3,78.4 L69.9,81.7 L71.6,90.8 L73.2,88.0 L74.8,87.5 L76.4,89.0 L78.0,93.3 L79.6,86.7 L81.2,79.2 L82.8,79.2 L84.4,78.9 L86.0,82.0 L87.6,81.0 L89.3,80.2 L90.9,84.7 L92.5,86.7 L94.1,87.0 L95.7,86.7 L97.3,82.0 L98.9,82.5 L100.5,82.5 L102.1,78.9 L103.7,81.0 L105.4,79.2 L107.0,91.8 L108.6,93.5 L110.2,93.8 L111.8,87.5 L113.4,91.5 L115.0,87.2 L116.6,87.0 L118.2,84.2 L119.8,80.7 L121.5,82.2 L123.1,72.4 L124.7,77.7 L126.3,68.4 L127.9,67.1 L129.5,71.1 L131.1,74.7 L132.7,78.7 L134.3,82.2 L135.9,77.2 L137.5,77.7 L139.2,72.4 L140.8,61.8 L142.4,60.3 L144.0,58.8 L145.6,57.5 L147.2,54.0 L148.8,48.5 L150.4,48.2 L152.0,44.4 L153.6,51.7 L155.3,39.9 L156.9,45.5 L158.5,43.9 L160.1,38.2 L161.7,36.6 L163.3,42.7 L164.9,36.9 L166.5,33.9 L168.1,39.7 L169.7,58.3 L171.3,57.3 L173.0,55.8 L174.6,52.3 L176.2,58.0 L177.8,63.1 L179.4,70.9 L181.0,77.4 L182.6,74.9 L184.2,69.4 L185.8,67.9 L187.4,74.4 L189.1,76.4 L190.7,77.2 L192.3,72.1 L193.9,73.4 L195.5,70.6 L197.1,72.9 L198.7,74.2 L200.3,81.2 L201.9,81.2 L203.5,77.7 L205.1,83.7 L206.8,79.7 L208.4,94.0 L210.0,78.7 L211.6,76.4 L213.2,78.4 L214.8,80.7 L216.4,77.7 L218.0,79.7 L219.6,75.7 L221.2,71.9 L222.9,72.6 L224.5,79.7 L226.1,79.4 L227.7,74.9 L229.3,74.9 L230.9,73.9 L232.5,73.7 L234.1,81.5 L235.7,73.9 L237.3,76.4 L238.9,83.5 L240.6,77.9 L242.2,70.1 L243.8,69.1 L245.4,72.4 L247.0,83.0 L248.6,75.4 L250.2,82.5 L251.8,82.5 L253.4,84.5 L255.0,82.7 L256.7,83.5 L258.3,79.2 L259.9,75.7 L261.5,73.9 L263.1,74.9 L264.7,69.9 L266.3,71.1 L267.9,80.2 L269.5,78.4 L271.1,79.2 L272.7,91.5 L274.4,90.3 L276.0,69.4 L277.6,73.4 L279.2,64.1 L280.8,60.8 L282.4,60.3 L284.0,58.5 L285.6,55.8 L287.2,51.2 L288.8,61.8 L290.5,59.0 L292.1,65.6 L293.7,51.7 L295.3,41.9 L296.9,37.9 L298.5,33.6 L300.1,35.1 L301.7,34.1 L303.3,28.6 L304.9,16.0 L306.5,22.8 L308.2,17.3 L309.8,29.6 L311.4,32.4 L313.0,24.8 L314.6,31.1 L316.2,42.9 L317.8,44.4 L319.4,36.4 L321.0,37.4 L322.6,36.4 L324.3,36.6 L325.9,33.6 L327.5,39.4 L329.1,29.8 L330.7,24.8 L332.3,18.0 L333.9,17.0 L335.5,29.1 L337.1,30.9 L338.7,36.6 L340.4,23.0 L342.0,20.0 L343.6,32.4 L345.2,31.1 L346.8,36.1 L348.4,35.6 L350.0,37.4 L351.6,31.9 L353.2,31.9 L354.8,42.2 L356.4,41.9 L358.1,33.6 L359.7,38.7 L361.3,35.4 L362.9,26.1 L364.5,28.6 L366.1,31.4 L367.7,31.9 L369.3,32.6 L370.9,39.9 L372.5,43.2 L374.2,33.6 L375.8,38.2 L377.4,43.4 L379.0,52.3 L380.6,68.4 L382.2,67.4 L383.8,67.6 L385.4,64.3 L387.0,64.1 L388.6,66.3 L390.2,65.3 L391.9,66.9 L393.5,70.4 L395.1,65.6 L396.7,70.4 L398.3,71.9 L399.9,67.1 L401.5,65.1 L403.1,64.3 L404.7,70.6 L406.3,81.7 L408.0,82.2 L409.6,77.4 L411.2,72.4 L412.8,73.9 L414.4,68.9 L416.0,69.6 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-KVUE)"/>
+    <path d="M12.0,91.3 L13.6,96.1 L15.2,106.9 L16.8,108.6 L18.4,105.9 L20.0,160.0 L21.7,130.3 L23.3,138.6 L24.9,139.4 L26.5,132.8 L28.1,135.3 L29.7,137.6 L31.3,135.6 L32.9,149.9 L34.5,155.0 L36.1,156.7 L37.8,153.5 L39.4,108.9 L41.0,113.2 L42.6,106.6 L44.2,100.8 L45.8,90.3 L47.4,93.0 L49.0,94.3 L50.6,95.6 L52.2,93.0 L53.8,95.8 L55.5,106.4 L57.1,106.6 L58.7,110.9 L60.3,108.6 L61.9,96.3 L63.5,93.3 L65.1,86.5 L66.7,81.7 L68.3,78.4 L69.9,81.7 L71.6,90.8 L73.2,88.0 L74.8,87.5 L76.4,89.0 L78.0,93.3 L79.6,86.7 L81.2,79.2 L82.8,79.2 L84.4,78.9 L86.0,82.0 L87.6,81.0 L89.3,80.2 L90.9,84.7 L92.5,86.7 L94.1,87.0 L95.7,86.7 L97.3,82.0 L98.9,82.5 L100.5,82.5 L102.1,78.9 L103.7,81.0 L105.4,79.2 L107.0,91.8 L108.6,93.5 L110.2,93.8 L111.8,87.5 L113.4,91.5 L115.0,87.2 L116.6,87.0 L118.2,84.2 L119.8,80.7 L121.5,82.2 L123.1,72.4 L124.7,77.7 L126.3,68.4 L127.9,67.1 L129.5,71.1 L131.1,74.7 L132.7,78.7 L134.3,82.2 L135.9,77.2 L137.5,77.7 L139.2,72.4 L140.8,61.8 L142.4,60.3 L144.0,58.8 L145.6,57.5 L147.2,54.0 L148.8,48.5 L150.4,48.2 L152.0,44.4 L153.6,51.7 L155.3,39.9 L156.9,45.5 L158.5,43.9 L160.1,38.2 L161.7,36.6 L163.3,42.7 L164.9,36.9 L166.5,33.9 L168.1,39.7 L169.7,58.3 L171.3,57.3 L173.0,55.8 L174.6,52.3 L176.2,58.0 L177.8,63.1 L179.4,70.9 L181.0,77.4 L182.6,74.9 L184.2,69.4 L185.8,67.9 L187.4,74.4 L189.1,76.4 L190.7,77.2 L192.3,72.1 L193.9,73.4 L195.5,70.6 L197.1,72.9 L198.7,74.2 L200.3,81.2 L201.9,81.2 L203.5,77.7 L205.1,83.7 L206.8,79.7 L208.4,94.0 L210.0,78.7 L211.6,76.4 L213.2,78.4 L214.8,80.7 L216.4,77.7 L218.0,79.7 L219.6,75.7 L221.2,71.9 L222.9,72.6 L224.5,79.7 L226.1,79.4 L227.7,74.9 L229.3,74.9 L230.9,73.9 L232.5,73.7 L234.1,81.5 L235.7,73.9 L237.3,76.4 L238.9,83.5 L240.6,77.9 L242.2,70.1 L243.8,69.1 L245.4,72.4 L247.0,83.0 L248.6,75.4 L250.2,82.5 L251.8,82.5 L253.4,84.5 L255.0,82.7 L256.7,83.5 L258.3,79.2 L259.9,75.7 L261.5,73.9 L263.1,74.9 L264.7,69.9 L266.3,71.1 L267.9,80.2 L269.5,78.4 L271.1,79.2 L272.7,91.5 L274.4,90.3 L276.0,69.4 L277.6,73.4 L279.2,64.1 L280.8,60.8 L282.4,60.3 L284.0,58.5 L285.6,55.8 L287.2,51.2 L288.8,61.8 L290.5,59.0 L292.1,65.6 L293.7,51.7 L295.3,41.9 L296.9,37.9 L298.5,33.6 L300.1,35.1 L301.7,34.1 L303.3,28.6 L304.9,16.0 L306.5,22.8 L308.2,17.3 L309.8,29.6 L311.4,32.4 L313.0,24.8 L314.6,31.1 L316.2,42.9 L317.8,44.4 L319.4,36.4 L321.0,37.4 L322.6,36.4 L324.3,36.6 L325.9,33.6 L327.5,39.4 L329.1,29.8 L330.7,24.8 L332.3,18.0 L333.9,17.0 L335.5,29.1 L337.1,30.9 L338.7,36.6 L340.4,23.0 L342.0,20.0 L343.6,32.4 L345.2,31.1 L346.8,36.1 L348.4,35.6 L350.0,37.4 L351.6,31.9 L353.2,31.9 L354.8,42.2 L356.4,41.9 L358.1,33.6 L359.7,38.7 L361.3,35.4 L362.9,26.1 L364.5,28.6 L366.1,31.4 L367.7,31.9 L369.3,32.6 L370.9,39.9 L372.5,43.2 L374.2,33.6 L375.8,38.2 L377.4,43.4 L379.0,52.3 L380.6,68.4 L382.2,67.4 L383.8,67.6 L385.4,64.3 L387.0,64.1 L388.6,66.3 L390.2,65.3 L391.9,66.9 L393.5,70.4 L395.1,65.6 L396.7,70.4 L398.3,71.9 L399.9,67.1 L401.5,65.1 L403.1,64.3 L404.7,70.6 L406.3,81.7 L408.0,82.2 L409.6,77.4 L411.2,72.4 L412.8,73.9 L414.4,68.9 L416.0,69.6" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="69.6" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$17.70</text>
+    <text x="474" y="91.3" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$16.84</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+2.9%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−0.3%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−7.7%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+2.6%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+5.1%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−17.8%</strong></div><div class="perf-chip down"><span class="perf-label">5Y</span><strong class="perf-value">−33.2%</strong></div><div class="perf-chip down"><span class="perf-label">10Y</span><strong class="perf-value">−33.2%</strong></div><div class="perf-chip down"><span class="perf-label">All</span><strong class="perf-value">−33.2%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$34.0B</strong></span>
+      <span>P/E: <strong>20.5</strong></span>
+      <span>Net Income: <strong>$1.66B</strong></span>
+    </div>
+
+    <p class="summary">Kenvue (KVUE): $17.70 (+5.1% 1Y). Performance: 1W +2.9%, 1M −0.3%, 3M −7.7%, YTD +2.6%, 1Y +5.1%, 5Y −33.2%. Market Cap: $34.0B, P/E: 20.5, Net Income: $1.66B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=KVUE">Open KVUE in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=KVUE");</script>
+</body>
+</html>

@@ -49,10 +49,10 @@ function annualized(slice) {
   return years >= 0.99 ? (1 + slice.change) ** (1 / years) - 1 : null;
 }
 
-export function createDetailView({ onRequestClose, onNavigate, onRangeChange }) {
+export function createDetailView({ onRequestClose, onNavigate, onRangeChange, onShare }) {
   const $ = (id) => document.getElementById(id);
   const el = {
-    dialog: $('detail'), back: $('detail-back'), previous: $('detail-previous'), next: $('detail-next'),
+    dialog: $('detail'), back: $('detail-back'), share: $('detail-share'), previous: $('detail-previous'), next: $('detail-next'),
     symbol: $('detail-symbol'), name: $('detail-name'),
     sector: $('detail-sector'), price: $('detail-price'), change: $('detail-change'), period: $('detail-period'),
     tabs: $('range-tabs'), caption: $('chart-caption'), log: $('log-scale'), chart: $('chart'),
@@ -337,6 +337,7 @@ export function createDetailView({ onRequestClose, onNavigate, onRangeChange }) 
   });
   el.log.addEventListener('change', renderChart);
   el.back.addEventListener('click', onRequestClose);
+  if (onShare) el.share?.addEventListener('click', onShare);
   el.dialog.addEventListener('keydown', (event) => {
     if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
       event.preventDefault();

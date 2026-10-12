@@ -590,6 +590,12 @@ def main():
         raise
     OUTPUT.write_text(json.dumps(snapshot, separators=(",", ":")), encoding="utf-8")
     write_histories(histories)
+    try:
+        from build_share_pages import OUTPUT_DIR as SHARE_DIR, build_pages
+        share_count = build_pages(SHARE_DIR, snapshot.get("securities", []))
+        print(f"Wrote {share_count} security link preview pages to {SHARE_DIR}")
+    except Exception as share_error:
+        print(f"Warning: failed to build share pages ({share_error})", file=sys.stderr)
     print(f"Wrote {len(snapshot['securities'])} securities to {OUTPUT} and {len(histories)} histories to {HISTORY_DIR}")
     return 0
 

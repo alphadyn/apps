@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>ZBH · Zimmer Biomet — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Zimmer Biomet (ZBH): $89.14 (−8.5% 1Y). Performance: 1W +1.0%, 1M −5.8%, 3M −0.1%, YTD −0.9%, 1Y −8.5%, 5Y −37.4%. Market Cap: $17.0B, P/E: 21.1, Net Income: $807M. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/ZBH/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/ZBH/">
+  <meta property="og:title" content="ZBH · Zimmer Biomet — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Zimmer Biomet (ZBH): $89.14 (−8.5% 1Y). Performance: 1W +1.0%, 1M −5.8%, 3M −0.1%, YTD −0.9%, 1Y −8.5%, 5Y −37.4%. Market Cap: $17.0B, P/E: 21.1, Net Income: $807M. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="ZBH · Zimmer Biomet — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ZBH · Zimmer Biomet — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Zimmer Biomet (ZBH): $89.14 (−8.5% 1Y). Performance: 1W +1.0%, 1M −5.8%, 3M −0.1%, YTD −0.9%, 1Y −8.5%, 5Y −37.4%. Market Cap: $17.0B, P/E: 21.1, Net Income: $807M. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">ZBH</span>
+    <h1>Zimmer Biomet</h1>
+    <div class="quote-row">
+      <span class="price">$89.14</span>
+      <span class="change down">−8.5% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−8.5%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for ZBH">
+    <defs>
+      <linearGradient id="chart-fill-ZBH" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="55.0" x2="416" y2="55.0" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,55.0 L13.6,70.7 L15.2,68.5 L16.8,49.1 L18.4,43.1 L20.0,40.0 L21.7,28.2 L23.3,23.3 L24.9,23.6 L26.5,16.0 L28.1,20.8 L29.7,21.6 L31.3,21.1 L32.9,32.8 L34.5,41.2 L36.1,42.1 L37.8,36.2 L39.4,40.2 L41.0,20.7 L42.6,113.0 L44.2,107.3 L45.8,107.4 L47.4,106.0 L49.0,107.4 L50.6,98.3 L52.2,95.1 L53.8,99.0 L55.5,106.5 L57.1,103.9 L58.7,101.8 L60.3,104.0 L61.9,85.6 L63.5,77.7 L65.1,56.8 L66.7,53.9 L68.3,54.1 L69.9,70.4 L71.6,74.1 L73.2,80.2 L74.8,79.9 L76.4,73.2 L78.0,82.3 L79.6,85.1 L81.2,80.3 L82.8,84.0 L84.4,89.1 L86.0,84.2 L87.6,93.1 L89.3,89.3 L90.9,96.1 L92.5,103.6 L94.1,99.7 L95.7,101.9 L97.3,97.1 L98.9,94.0 L100.5,95.4 L102.1,93.8 L103.7,99.0 L105.4,98.4 L107.0,82.9 L108.6,70.5 L110.2,82.7 L111.8,74.4 L113.4,81.7 L115.0,89.9 L116.6,108.3 L118.2,103.0 L119.8,105.9 L121.5,114.4 L123.1,117.4 L124.7,118.9 L126.3,113.0 L127.9,118.6 L129.5,114.3 L131.1,122.2 L132.7,123.8 L134.3,122.0 L135.9,115.8 L137.5,120.8 L139.2,121.0 L140.8,109.8 L142.4,106.0 L144.0,99.0 L145.6,100.1 L147.2,90.2 L148.8,65.4 L150.4,67.9 L152.0,60.4 L153.6,56.3 L155.3,49.8 L156.9,43.9 L158.5,46.9 L160.1,42.7 L161.7,40.3 L163.3,40.4 L164.9,33.6 L166.5,48.7 L168.1,42.5 L169.7,51.5 L171.3,64.6 L173.0,78.1 L174.6,74.2 L176.2,79.1 L177.8,88.5 L179.4,76.5 L181.0,83.2 L182.6,79.6 L184.2,79.0 L185.8,83.6 L187.4,103.9 L189.1,99.4 L190.7,111.1 L192.3,111.5 L193.9,120.2 L195.5,112.4 L197.1,103.5 L198.7,106.9 L200.3,106.6 L201.9,96.0 L203.5,92.4 L205.1,93.3 L206.8,92.6 L208.4,90.2 L210.0,80.7 L211.6,80.6 L213.2,80.1 L214.8,67.0 L216.4,60.0 L218.0,73.7 L219.6,70.3 L221.2,70.3 L222.9,66.2 L224.5,82.6 L226.1,80.6 L227.7,84.1 L229.3,91.1 L230.9,83.2 L232.5,141.0 L234.1,157.1 L235.7,143.2 L237.3,140.4 L238.9,141.8 L240.6,139.8 L242.2,140.8 L243.8,137.6 L245.4,143.8 L247.0,160.0 L248.6,137.6 L250.2,141.5 L251.8,141.9 L253.4,135.7 L255.0,127.2 L256.7,121.6 L258.3,125.8 L259.9,126.2 L261.5,125.1 L263.1,131.5 L264.7,142.4 L266.3,140.9 L267.9,143.8 L269.5,140.2 L271.1,135.4 L272.7,128.1 L274.4,118.0 L276.0,114.3 L277.6,114.6 L279.2,100.7 L280.8,109.3 L282.4,115.4 L284.0,106.9 L285.6,108.8 L287.2,102.5 L288.8,115.3 L290.5,110.5 L292.1,115.7 L293.7,112.8 L295.3,95.2 L296.9,92.8 L298.5,80.2 L300.1,91.2 L301.7,121.6 L303.3,132.9 L304.9,113.4 L306.5,99.9 L308.2,102.0 L309.8,112.9 L311.4,103.0 L313.0,90.6 L314.6,74.4 L316.2,92.4 L317.8,97.7 L319.4,76.4 L321.0,91.9 L322.6,100.2 L324.3,104.9 L325.9,106.3 L327.5,100.6 L329.1,90.5 L330.7,86.3 L332.3,64.6 L333.9,56.3 L335.5,69.2 L337.1,75.3 L338.7,57.3 L340.4,64.2 L342.0,50.3 L343.6,56.1 L345.2,59.8 L346.8,52.6 L348.4,55.8 L350.0,51.9 L351.6,42.0 L353.2,35.7 L354.8,50.1 L356.4,44.5 L358.1,35.1 L359.7,45.6 L361.3,33.7 L362.9,33.7 L364.5,38.1 L366.1,31.3 L367.7,42.6 L369.3,34.1 L370.9,39.3 L372.5,43.0 L374.2,42.4 L375.8,45.9 L377.4,50.9 L379.0,73.6 L380.6,71.3 L382.2,84.1 L383.8,77.9 L385.4,59.9 L387.0,48.9 L388.6,58.5 L390.2,73.4 L391.9,66.9 L393.5,73.0 L395.1,75.0 L396.7,93.3 L398.3,100.3 L399.9,92.4 L401.5,88.9 L403.1,90.6 L404.7,105.4 L406.3,110.0 L408.0,108.6 L409.6,89.2 L411.2,100.4 L412.8,107.4 L414.4,105.1 L416.0,103.6 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-ZBH)"/>
+    <path d="M12.0,55.0 L13.6,70.7 L15.2,68.5 L16.8,49.1 L18.4,43.1 L20.0,40.0 L21.7,28.2 L23.3,23.3 L24.9,23.6 L26.5,16.0 L28.1,20.8 L29.7,21.6 L31.3,21.1 L32.9,32.8 L34.5,41.2 L36.1,42.1 L37.8,36.2 L39.4,40.2 L41.0,20.7 L42.6,113.0 L44.2,107.3 L45.8,107.4 L47.4,106.0 L49.0,107.4 L50.6,98.3 L52.2,95.1 L53.8,99.0 L55.5,106.5 L57.1,103.9 L58.7,101.8 L60.3,104.0 L61.9,85.6 L63.5,77.7 L65.1,56.8 L66.7,53.9 L68.3,54.1 L69.9,70.4 L71.6,74.1 L73.2,80.2 L74.8,79.9 L76.4,73.2 L78.0,82.3 L79.6,85.1 L81.2,80.3 L82.8,84.0 L84.4,89.1 L86.0,84.2 L87.6,93.1 L89.3,89.3 L90.9,96.1 L92.5,103.6 L94.1,99.7 L95.7,101.9 L97.3,97.1 L98.9,94.0 L100.5,95.4 L102.1,93.8 L103.7,99.0 L105.4,98.4 L107.0,82.9 L108.6,70.5 L110.2,82.7 L111.8,74.4 L113.4,81.7 L115.0,89.9 L116.6,108.3 L118.2,103.0 L119.8,105.9 L121.5,114.4 L123.1,117.4 L124.7,118.9 L126.3,113.0 L127.9,118.6 L129.5,114.3 L131.1,122.2 L132.7,123.8 L134.3,122.0 L135.9,115.8 L137.5,120.8 L139.2,121.0 L140.8,109.8 L142.4,106.0 L144.0,99.0 L145.6,100.1 L147.2,90.2 L148.8,65.4 L150.4,67.9 L152.0,60.4 L153.6,56.3 L155.3,49.8 L156.9,43.9 L158.5,46.9 L160.1,42.7 L161.7,40.3 L163.3,40.4 L164.9,33.6 L166.5,48.7 L168.1,42.5 L169.7,51.5 L171.3,64.6 L173.0,78.1 L174.6,74.2 L176.2,79.1 L177.8,88.5 L179.4,76.5 L181.0,83.2 L182.6,79.6 L184.2,79.0 L185.8,83.6 L187.4,103.9 L189.1,99.4 L190.7,111.1 L192.3,111.5 L193.9,120.2 L195.5,112.4 L197.1,103.5 L198.7,106.9 L200.3,106.6 L201.9,96.0 L203.5,92.4 L205.1,93.3 L206.8,92.6 L208.4,90.2 L210.0,80.7 L211.6,80.6 L213.2,80.1 L214.8,67.0 L216.4,60.0 L218.0,73.7 L219.6,70.3 L221.2,70.3 L222.9,66.2 L224.5,82.6 L226.1,80.6 L227.7,84.1 L229.3,91.1 L230.9,83.2 L232.5,141.0 L234.1,157.1 L235.7,143.2 L237.3,140.4 L238.9,141.8 L240.6,139.8 L242.2,140.8 L243.8,137.6 L245.4,143.8 L247.0,160.0 L248.6,137.6 L250.2,141.5 L251.8,141.9 L253.4,135.7 L255.0,127.2 L256.7,121.6 L258.3,125.8 L259.9,126.2 L261.5,125.1 L263.1,131.5 L264.7,142.4 L266.3,140.9 L267.9,143.8 L269.5,140.2 L271.1,135.4 L272.7,128.1 L274.4,118.0 L276.0,114.3 L277.6,114.6 L279.2,100.7 L280.8,109.3 L282.4,115.4 L284.0,106.9 L285.6,108.8 L287.2,102.5 L288.8,115.3 L290.5,110.5 L292.1,115.7 L293.7,112.8 L295.3,95.2 L296.9,92.8 L298.5,80.2 L300.1,91.2 L301.7,121.6 L303.3,132.9 L304.9,113.4 L306.5,99.9 L308.2,102.0 L309.8,112.9 L311.4,103.0 L313.0,90.6 L314.6,74.4 L316.2,92.4 L317.8,97.7 L319.4,76.4 L321.0,91.9 L322.6,100.2 L324.3,104.9 L325.9,106.3 L327.5,100.6 L329.1,90.5 L330.7,86.3 L332.3,64.6 L333.9,56.3 L335.5,69.2 L337.1,75.3 L338.7,57.3 L340.4,64.2 L342.0,50.3 L343.6,56.1 L345.2,59.8 L346.8,52.6 L348.4,55.8 L350.0,51.9 L351.6,42.0 L353.2,35.7 L354.8,50.1 L356.4,44.5 L358.1,35.1 L359.7,45.6 L361.3,33.7 L362.9,33.7 L364.5,38.1 L366.1,31.3 L367.7,42.6 L369.3,34.1 L370.9,39.3 L372.5,43.0 L374.2,42.4 L375.8,45.9 L377.4,50.9 L379.0,73.6 L380.6,71.3 L382.2,84.1 L383.8,77.9 L385.4,59.9 L387.0,48.9 L388.6,58.5 L390.2,73.4 L391.9,66.9 L393.5,73.0 L395.1,75.0 L396.7,93.3 L398.3,100.3 L399.9,92.4 L401.5,88.9 L403.1,90.6 L404.7,105.4 L406.3,110.0 L408.0,108.6 L409.6,89.2 L411.2,100.4 L412.8,107.4 L414.4,105.1 L416.0,103.6" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="103.6" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$89.14</text>
+    <text x="474" y="55.0" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$97.37</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+1.0%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−5.8%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−0.1%</strong></div><div class="perf-chip down"><span class="perf-label">YTD</span><strong class="perf-value">−0.9%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−8.5%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−13.8%</strong></div><div class="perf-chip down"><span class="perf-label">5Y</span><strong class="perf-value">−37.4%</strong></div><div class="perf-chip down"><span class="perf-label">10Y</span><strong class="perf-value">−29.9%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+223.3%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$17.0B</strong></span>
+      <span>P/E: <strong>21.1</strong></span>
+      <span>Net Income: <strong>$807M</strong></span>
+    </div>
+
+    <p class="summary">Zimmer Biomet (ZBH): $89.14 (−8.5% 1Y). Performance: 1W +1.0%, 1M −5.8%, 3M −0.1%, YTD −0.9%, 1Y −8.5%, 5Y −37.4%. Market Cap: $17.0B, P/E: 21.1, Net Income: $807M. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=ZBH">Open ZBH in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=ZBH");</script>
+</body>
+</html>

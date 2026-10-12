@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>SHW · Sherwin-Williams — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Sherwin-Williams (SHW): $319.36 (−4.2% 1Y). Performance: 1W 0.0%, 1M −0.4%, 3M −3.8%, YTD −1.4%, 1Y −4.2%, 5Y +10.1%. Market Cap: $77.5B, P/E: 28.8, Net Income: $2.69B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/SHW/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/SHW/">
+  <meta property="og:title" content="SHW · Sherwin-Williams — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Sherwin-Williams (SHW): $319.36 (−4.2% 1Y). Performance: 1W 0.0%, 1M −0.4%, 3M −3.8%, YTD −1.4%, 1Y −4.2%, 5Y +10.1%. Market Cap: $77.5B, P/E: 28.8, Net Income: $2.69B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="SHW · Sherwin-Williams — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SHW · Sherwin-Williams — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Sherwin-Williams (SHW): $319.36 (−4.2% 1Y). Performance: 1W 0.0%, 1M −0.4%, 3M −3.8%, YTD −1.4%, 1Y −4.2%, 5Y +10.1%. Market Cap: $77.5B, P/E: 28.8, Net Income: $2.69B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">SHW</span>
+    <h1>Sherwin-Williams</h1>
+    <div class="quote-row">
+      <span class="price">$319.36</span>
+      <span class="change down">−4.2% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−4.2%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for SHW">
+    <defs>
+      <linearGradient id="chart-fill-SHW" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="87.2" x2="416" y2="87.2" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,87.2 L13.6,88.0 L15.2,89.2 L16.8,83.5 L18.4,88.1 L20.0,90.4 L21.7,91.7 L23.3,90.8 L24.9,77.8 L26.5,86.2 L28.1,89.9 L29.7,85.8 L31.3,82.1 L32.9,48.8 L34.5,64.6 L36.1,60.7 L37.8,66.0 L39.4,64.8 L41.0,69.6 L42.6,82.6 L44.2,86.4 L45.8,74.7 L47.4,70.4 L49.0,65.8 L50.6,66.4 L52.2,77.1 L53.8,89.1 L55.5,98.8 L57.1,104.2 L58.7,93.5 L60.3,96.7 L61.9,80.3 L63.5,78.6 L65.1,70.2 L66.7,68.8 L68.3,68.3 L69.9,72.3 L71.6,79.5 L73.2,76.3 L74.8,83.4 L76.4,87.4 L78.0,98.3 L79.6,109.1 L81.2,99.8 L82.8,94.3 L84.4,95.4 L86.0,95.9 L87.6,96.9 L89.3,96.8 L90.9,101.5 L92.5,109.6 L94.1,104.2 L95.7,103.8 L97.3,101.5 L98.9,101.3 L100.5,101.7 L102.1,100.0 L103.7,103.9 L105.4,97.0 L107.0,89.1 L108.6,74.8 L110.2,90.5 L111.8,73.1 L113.4,51.0 L115.0,43.1 L116.6,46.0 L118.2,49.0 L119.8,45.8 L121.5,42.7 L123.1,62.4 L124.7,45.5 L126.3,55.7 L127.9,59.6 L129.5,59.9 L131.1,64.0 L132.7,57.6 L134.3,48.6 L135.9,48.5 L137.5,45.4 L139.2,39.4 L140.8,22.7 L142.4,36.9 L144.0,35.2 L145.6,37.7 L147.2,30.4 L148.8,26.2 L150.4,16.0 L152.0,22.7 L153.6,24.4 L155.3,28.4 L156.9,43.1 L158.5,37.7 L160.1,31.1 L161.7,30.2 L163.3,43.8 L164.9,37.9 L166.5,34.1 L168.1,45.8 L169.7,59.0 L171.3,61.1 L173.0,83.2 L174.6,93.3 L176.2,86.9 L177.8,92.5 L179.4,106.2 L181.0,115.3 L182.6,111.6 L184.2,106.3 L185.8,109.9 L187.4,125.4 L189.1,128.6 L190.7,141.0 L192.3,122.1 L193.9,122.6 L195.5,107.6 L197.1,112.0 L198.7,119.5 L200.3,118.6 L201.9,110.2 L203.5,100.8 L205.1,114.8 L206.8,117.7 L208.4,122.1 L210.0,82.8 L211.6,82.7 L213.2,82.0 L214.8,85.1 L216.4,86.6 L218.0,95.2 L219.6,87.0 L221.2,64.9 L222.9,67.9 L224.5,84.7 L226.1,83.7 L227.7,79.2 L229.3,79.1 L230.9,82.0 L232.5,103.4 L234.1,115.0 L235.7,108.2 L237.3,114.8 L238.9,128.4 L240.6,124.8 L242.2,104.6 L243.8,110.8 L245.4,116.9 L247.0,124.4 L248.6,126.4 L250.2,135.9 L251.8,130.7 L253.4,147.2 L255.0,142.3 L256.7,149.1 L258.3,133.4 L259.9,130.4 L261.5,130.9 L263.1,127.0 L264.7,129.3 L266.3,138.0 L267.9,140.4 L269.5,156.6 L271.1,160.0 L272.7,153.7 L274.4,147.2 L276.0,137.7 L277.6,148.2 L279.2,128.3 L280.8,140.3 L282.4,116.8 L284.0,116.0 L285.6,110.7 L287.2,106.7 L288.8,122.4 L290.5,109.7 L292.1,116.8 L293.7,105.9 L295.3,87.4 L296.9,76.6 L298.5,67.6 L300.1,67.2 L301.7,67.2 L303.3,64.0 L304.9,52.4 L306.5,58.5 L308.2,70.9 L309.8,92.0 L311.4,89.4 L313.0,85.8 L314.6,94.9 L316.2,95.8 L317.8,88.9 L319.4,78.3 L321.0,90.7 L322.6,104.6 L324.3,113.9 L325.9,111.3 L327.5,128.3 L329.1,115.7 L330.7,98.0 L332.3,49.2 L333.9,68.0 L335.5,66.2 L337.1,73.4 L338.7,49.3 L340.4,36.0 L342.0,21.3 L343.6,32.6 L345.2,21.2 L346.8,33.9 L348.4,30.8 L350.0,38.4 L351.6,36.0 L353.2,40.4 L354.8,56.9 L356.4,65.4 L358.1,50.4 L359.7,62.5 L361.3,63.1 L362.9,62.8 L364.5,56.1 L366.1,59.3 L367.7,65.5 L369.3,66.2 L370.9,77.1 L372.5,93.2 L374.2,90.8 L375.8,89.0 L377.4,86.4 L379.0,100.1 L380.6,110.0 L382.2,115.8 L383.8,105.2 L385.4,103.0 L387.0,105.3 L388.6,108.5 L390.2,109.5 L391.9,109.8 L393.5,108.8 L395.1,96.1 L396.7,99.5 L398.3,110.4 L399.9,94.7 L401.5,88.0 L403.1,92.3 L404.7,105.2 L406.3,109.7 L408.0,112.0 L409.6,113.9 L411.2,109.1 L412.8,120.2 L414.4,109.3 L416.0,112.3 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-SHW)"/>
+    <path d="M12.0,87.2 L13.6,88.0 L15.2,89.2 L16.8,83.5 L18.4,88.1 L20.0,90.4 L21.7,91.7 L23.3,90.8 L24.9,77.8 L26.5,86.2 L28.1,89.9 L29.7,85.8 L31.3,82.1 L32.9,48.8 L34.5,64.6 L36.1,60.7 L37.8,66.0 L39.4,64.8 L41.0,69.6 L42.6,82.6 L44.2,86.4 L45.8,74.7 L47.4,70.4 L49.0,65.8 L50.6,66.4 L52.2,77.1 L53.8,89.1 L55.5,98.8 L57.1,104.2 L58.7,93.5 L60.3,96.7 L61.9,80.3 L63.5,78.6 L65.1,70.2 L66.7,68.8 L68.3,68.3 L69.9,72.3 L71.6,79.5 L73.2,76.3 L74.8,83.4 L76.4,87.4 L78.0,98.3 L79.6,109.1 L81.2,99.8 L82.8,94.3 L84.4,95.4 L86.0,95.9 L87.6,96.9 L89.3,96.8 L90.9,101.5 L92.5,109.6 L94.1,104.2 L95.7,103.8 L97.3,101.5 L98.9,101.3 L100.5,101.7 L102.1,100.0 L103.7,103.9 L105.4,97.0 L107.0,89.1 L108.6,74.8 L110.2,90.5 L111.8,73.1 L113.4,51.0 L115.0,43.1 L116.6,46.0 L118.2,49.0 L119.8,45.8 L121.5,42.7 L123.1,62.4 L124.7,45.5 L126.3,55.7 L127.9,59.6 L129.5,59.9 L131.1,64.0 L132.7,57.6 L134.3,48.6 L135.9,48.5 L137.5,45.4 L139.2,39.4 L140.8,22.7 L142.4,36.9 L144.0,35.2 L145.6,37.7 L147.2,30.4 L148.8,26.2 L150.4,16.0 L152.0,22.7 L153.6,24.4 L155.3,28.4 L156.9,43.1 L158.5,37.7 L160.1,31.1 L161.7,30.2 L163.3,43.8 L164.9,37.9 L166.5,34.1 L168.1,45.8 L169.7,59.0 L171.3,61.1 L173.0,83.2 L174.6,93.3 L176.2,86.9 L177.8,92.5 L179.4,106.2 L181.0,115.3 L182.6,111.6 L184.2,106.3 L185.8,109.9 L187.4,125.4 L189.1,128.6 L190.7,141.0 L192.3,122.1 L193.9,122.6 L195.5,107.6 L197.1,112.0 L198.7,119.5 L200.3,118.6 L201.9,110.2 L203.5,100.8 L205.1,114.8 L206.8,117.7 L208.4,122.1 L210.0,82.8 L211.6,82.7 L213.2,82.0 L214.8,85.1 L216.4,86.6 L218.0,95.2 L219.6,87.0 L221.2,64.9 L222.9,67.9 L224.5,84.7 L226.1,83.7 L227.7,79.2 L229.3,79.1 L230.9,82.0 L232.5,103.4 L234.1,115.0 L235.7,108.2 L237.3,114.8 L238.9,128.4 L240.6,124.8 L242.2,104.6 L243.8,110.8 L245.4,116.9 L247.0,124.4 L248.6,126.4 L250.2,135.9 L251.8,130.7 L253.4,147.2 L255.0,142.3 L256.7,149.1 L258.3,133.4 L259.9,130.4 L261.5,130.9 L263.1,127.0 L264.7,129.3 L266.3,138.0 L267.9,140.4 L269.5,156.6 L271.1,160.0 L272.7,153.7 L274.4,147.2 L276.0,137.7 L277.6,148.2 L279.2,128.3 L280.8,140.3 L282.4,116.8 L284.0,116.0 L285.6,110.7 L287.2,106.7 L288.8,122.4 L290.5,109.7 L292.1,116.8 L293.7,105.9 L295.3,87.4 L296.9,76.6 L298.5,67.6 L300.1,67.2 L301.7,67.2 L303.3,64.0 L304.9,52.4 L306.5,58.5 L308.2,70.9 L309.8,92.0 L311.4,89.4 L313.0,85.8 L314.6,94.9 L316.2,95.8 L317.8,88.9 L319.4,78.3 L321.0,90.7 L322.6,104.6 L324.3,113.9 L325.9,111.3 L327.5,128.3 L329.1,115.7 L330.7,98.0 L332.3,49.2 L333.9,68.0 L335.5,66.2 L337.1,73.4 L338.7,49.3 L340.4,36.0 L342.0,21.3 L343.6,32.6 L345.2,21.2 L346.8,33.9 L348.4,30.8 L350.0,38.4 L351.6,36.0 L353.2,40.4 L354.8,56.9 L356.4,65.4 L358.1,50.4 L359.7,62.5 L361.3,63.1 L362.9,62.8 L364.5,56.1 L366.1,59.3 L367.7,65.5 L369.3,66.2 L370.9,77.1 L372.5,93.2 L374.2,90.8 L375.8,89.0 L377.4,86.4 L379.0,100.1 L380.6,110.0 L382.2,115.8 L383.8,105.2 L385.4,103.0 L387.0,105.3 L388.6,108.5 L390.2,109.5 L391.9,109.8 L393.5,108.8 L395.1,96.1 L396.7,99.5 L398.3,110.4 L399.9,94.7 L401.5,88.0 L403.1,92.3 L404.7,105.2 L406.3,109.7 L408.0,112.0 L409.6,113.9 L411.2,109.1 L412.8,120.2 L414.4,109.3 L416.0,112.3" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="112.3" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$319.36</text>
+    <text x="474" y="87.2" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$333.22</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip down"><span class="perf-label">1W</span><strong class="perf-value">0.0%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−0.4%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−3.8%</strong></div><div class="perf-chip down"><span class="perf-label">YTD</span><strong class="perf-value">−1.4%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−4.2%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−15.7%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+10.1%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+256.5%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+115593%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$77.5B</strong></span>
+      <span>P/E: <strong>28.8</strong></span>
+      <span>Net Income: <strong>$2.69B</strong></span>
+    </div>
+
+    <p class="summary">Sherwin-Williams (SHW): $319.36 (−4.2% 1Y). Performance: 1W 0.0%, 1M −0.4%, 3M −3.8%, YTD −1.4%, 1Y −4.2%, 5Y +10.1%. Market Cap: $77.5B, P/E: 28.8, Net Income: $2.69B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=SHW">Open SHW in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=SHW");</script>
+</body>
+</html>

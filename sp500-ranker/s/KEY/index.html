@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>KEY · KeyCorp — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="KeyCorp (KEY): $19.97 (+9.8% 1Y). Performance: 1W −0.5%, 1M −8.1%, 3M −13.5%, YTD −3.2%, 1Y +9.8%, 5Y −13.1%. Market Cap: $21.3B, P/E: 10.5, Net Income: $2.03B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/KEY/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/KEY/">
+  <meta property="og:title" content="KEY · KeyCorp — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="KeyCorp (KEY): $19.97 (+9.8% 1Y). Performance: 1W −0.5%, 1M −8.1%, 3M −13.5%, YTD −3.2%, 1Y +9.8%, 5Y −13.1%. Market Cap: $21.3B, P/E: 10.5, Net Income: $2.03B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="KEY · KeyCorp — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="KEY · KeyCorp — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="KeyCorp (KEY): $19.97 (+9.8% 1Y). Performance: 1W −0.5%, 1M −8.1%, 3M −13.5%, YTD −3.2%, 1Y +9.8%, 5Y −13.1%. Market Cap: $21.3B, P/E: 10.5, Net Income: $2.03B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">KEY</span>
+    <h1>KeyCorp</h1>
+    <div class="quote-row">
+      <span class="price">$19.97</span>
+      <span class="change up">+9.8% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+9.8%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for KEY">
+    <defs>
+      <linearGradient id="chart-fill-KEY" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="132.0" x2="416" y2="132.0" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,132.0 L13.6,151.6 L15.2,144.4 L16.8,135.4 L18.4,141.0 L20.0,160.0 L21.7,156.4 L23.3,148.0 L24.9,144.8 L26.5,146.2 L28.1,145.2 L29.7,139.2 L31.3,143.4 L32.9,143.8 L34.5,147.6 L36.1,145.4 L37.8,143.8 L39.4,144.8 L41.0,149.4 L42.6,145.2 L44.2,143.8 L45.8,134.0 L47.4,133.2 L49.0,134.0 L50.6,139.6 L52.2,143.2 L53.8,143.2 L55.5,153.2 L57.1,151.8 L58.7,148.6 L60.3,150.0 L61.9,139.2 L63.5,137.8 L65.1,128.2 L66.7,127.6 L68.3,128.0 L69.9,123.3 L71.6,130.0 L73.2,120.7 L74.8,113.5 L76.4,110.5 L78.0,107.9 L79.6,96.1 L81.2,85.3 L82.8,81.9 L84.4,82.5 L86.0,86.5 L87.6,84.1 L89.3,79.7 L90.9,76.9 L92.5,76.1 L94.1,71.5 L95.7,74.7 L97.3,72.9 L98.9,71.9 L100.5,76.3 L102.1,81.1 L103.7,82.9 L105.4,76.1 L107.0,68.3 L108.6,64.3 L110.2,69.7 L111.8,65.7 L113.4,71.9 L115.0,74.3 L116.6,78.7 L118.2,76.7 L119.8,71.1 L121.5,72.3 L123.1,73.9 L124.7,61.9 L126.3,64.3 L127.9,73.7 L129.5,69.9 L131.1,66.5 L132.7,69.5 L134.3,63.1 L135.9,65.3 L137.5,55.7 L139.2,49.0 L140.8,42.8 L142.4,41.8 L144.0,31.6 L145.6,35.6 L147.2,37.0 L148.8,45.0 L150.4,60.5 L152.0,61.7 L153.6,61.9 L155.3,56.9 L156.9,59.9 L158.5,51.8 L160.1,75.5 L161.7,75.7 L163.3,66.3 L164.9,58.5 L166.5,80.9 L168.1,77.5 L169.7,86.3 L171.3,81.5 L173.0,88.3 L174.6,98.5 L176.2,101.9 L177.8,100.5 L179.4,102.7 L181.0,111.3 L182.6,117.7 L184.2,116.5 L185.8,113.7 L187.4,114.3 L189.1,110.1 L190.7,107.5 L192.3,102.7 L193.9,99.3 L195.5,95.7 L197.1,98.1 L198.7,106.7 L200.3,107.7 L201.9,94.7 L203.5,88.9 L205.1,86.3 L206.8,82.5 L208.4,83.3 L210.0,69.9 L211.6,62.7 L213.2,66.5 L214.8,61.3 L216.4,63.1 L218.0,64.3 L219.6,62.3 L221.2,59.7 L222.9,52.0 L224.5,53.7 L226.1,54.9 L227.7,55.5 L229.3,63.1 L230.9,57.5 L232.5,56.5 L234.1,62.3 L235.7,53.5 L237.3,58.3 L238.9,62.5 L240.6,58.3 L242.2,51.2 L243.8,61.9 L245.4,63.7 L247.0,69.5 L248.6,70.1 L250.2,80.7 L251.8,74.1 L253.4,74.9 L255.0,74.3 L256.7,77.3 L258.3,67.5 L259.9,65.9 L261.5,64.5 L263.1,60.3 L264.7,65.7 L266.3,68.9 L267.9,69.1 L269.5,77.7 L271.1,72.1 L272.7,78.1 L274.4,62.3 L276.0,60.5 L277.6,59.9 L279.2,53.7 L280.8,56.1 L282.4,49.2 L284.0,41.8 L285.6,47.4 L287.2,40.8 L288.8,43.8 L290.5,44.0 L292.1,39.2 L293.7,35.4 L295.3,33.4 L296.9,27.6 L298.5,30.6 L300.1,32.8 L301.7,34.8 L303.3,30.8 L304.9,35.4 L306.5,27.2 L308.2,28.4 L309.8,43.0 L311.4,33.8 L313.0,29.8 L314.6,31.4 L316.2,29.8 L317.8,25.2 L319.4,16.0 L321.0,24.8 L322.6,29.4 L324.3,36.8 L325.9,33.6 L327.5,41.4 L329.1,42.8 L330.7,45.6 L332.3,43.2 L333.9,52.1 L335.5,43.6 L337.1,44.0 L338.7,39.6 L340.4,33.8 L342.0,34.0 L343.6,42.6 L345.2,41.2 L346.8,42.2 L348.4,42.0 L350.0,38.0 L351.6,36.0 L353.2,29.6 L354.8,35.0 L356.4,40.0 L358.1,53.7 L359.7,58.7 L361.3,58.3 L362.9,58.3 L364.5,57.9 L366.1,53.9 L367.7,55.3 L369.3,57.5 L370.9,63.5 L372.5,71.5 L374.2,59.7 L375.8,53.3 L377.4,52.1 L379.0,59.9 L380.6,61.1 L382.2,61.1 L383.8,58.9 L385.4,57.1 L387.0,61.7 L388.6,81.3 L390.2,76.7 L391.9,79.5 L393.5,78.3 L395.1,86.1 L396.7,90.9 L398.3,90.7 L399.9,83.5 L401.5,87.7 L403.1,93.3 L404.7,94.3 L406.3,94.7 L408.0,94.1 L409.6,92.1 L411.2,92.9 L412.8,99.1 L414.4,93.7 L416.0,96.3 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-KEY)"/>
+    <path d="M12.0,132.0 L13.6,151.6 L15.2,144.4 L16.8,135.4 L18.4,141.0 L20.0,160.0 L21.7,156.4 L23.3,148.0 L24.9,144.8 L26.5,146.2 L28.1,145.2 L29.7,139.2 L31.3,143.4 L32.9,143.8 L34.5,147.6 L36.1,145.4 L37.8,143.8 L39.4,144.8 L41.0,149.4 L42.6,145.2 L44.2,143.8 L45.8,134.0 L47.4,133.2 L49.0,134.0 L50.6,139.6 L52.2,143.2 L53.8,143.2 L55.5,153.2 L57.1,151.8 L58.7,148.6 L60.3,150.0 L61.9,139.2 L63.5,137.8 L65.1,128.2 L66.7,127.6 L68.3,128.0 L69.9,123.3 L71.6,130.0 L73.2,120.7 L74.8,113.5 L76.4,110.5 L78.0,107.9 L79.6,96.1 L81.2,85.3 L82.8,81.9 L84.4,82.5 L86.0,86.5 L87.6,84.1 L89.3,79.7 L90.9,76.9 L92.5,76.1 L94.1,71.5 L95.7,74.7 L97.3,72.9 L98.9,71.9 L100.5,76.3 L102.1,81.1 L103.7,82.9 L105.4,76.1 L107.0,68.3 L108.6,64.3 L110.2,69.7 L111.8,65.7 L113.4,71.9 L115.0,74.3 L116.6,78.7 L118.2,76.7 L119.8,71.1 L121.5,72.3 L123.1,73.9 L124.7,61.9 L126.3,64.3 L127.9,73.7 L129.5,69.9 L131.1,66.5 L132.7,69.5 L134.3,63.1 L135.9,65.3 L137.5,55.7 L139.2,49.0 L140.8,42.8 L142.4,41.8 L144.0,31.6 L145.6,35.6 L147.2,37.0 L148.8,45.0 L150.4,60.5 L152.0,61.7 L153.6,61.9 L155.3,56.9 L156.9,59.9 L158.5,51.8 L160.1,75.5 L161.7,75.7 L163.3,66.3 L164.9,58.5 L166.5,80.9 L168.1,77.5 L169.7,86.3 L171.3,81.5 L173.0,88.3 L174.6,98.5 L176.2,101.9 L177.8,100.5 L179.4,102.7 L181.0,111.3 L182.6,117.7 L184.2,116.5 L185.8,113.7 L187.4,114.3 L189.1,110.1 L190.7,107.5 L192.3,102.7 L193.9,99.3 L195.5,95.7 L197.1,98.1 L198.7,106.7 L200.3,107.7 L201.9,94.7 L203.5,88.9 L205.1,86.3 L206.8,82.5 L208.4,83.3 L210.0,69.9 L211.6,62.7 L213.2,66.5 L214.8,61.3 L216.4,63.1 L218.0,64.3 L219.6,62.3 L221.2,59.7 L222.9,52.0 L224.5,53.7 L226.1,54.9 L227.7,55.5 L229.3,63.1 L230.9,57.5 L232.5,56.5 L234.1,62.3 L235.7,53.5 L237.3,58.3 L238.9,62.5 L240.6,58.3 L242.2,51.2 L243.8,61.9 L245.4,63.7 L247.0,69.5 L248.6,70.1 L250.2,80.7 L251.8,74.1 L253.4,74.9 L255.0,74.3 L256.7,77.3 L258.3,67.5 L259.9,65.9 L261.5,64.5 L263.1,60.3 L264.7,65.7 L266.3,68.9 L267.9,69.1 L269.5,77.7 L271.1,72.1 L272.7,78.1 L274.4,62.3 L276.0,60.5 L277.6,59.9 L279.2,53.7 L280.8,56.1 L282.4,49.2 L284.0,41.8 L285.6,47.4 L287.2,40.8 L288.8,43.8 L290.5,44.0 L292.1,39.2 L293.7,35.4 L295.3,33.4 L296.9,27.6 L298.5,30.6 L300.1,32.8 L301.7,34.8 L303.3,30.8 L304.9,35.4 L306.5,27.2 L308.2,28.4 L309.8,43.0 L311.4,33.8 L313.0,29.8 L314.6,31.4 L316.2,29.8 L317.8,25.2 L319.4,16.0 L321.0,24.8 L322.6,29.4 L324.3,36.8 L325.9,33.6 L327.5,41.4 L329.1,42.8 L330.7,45.6 L332.3,43.2 L333.9,52.1 L335.5,43.6 L337.1,44.0 L338.7,39.6 L340.4,33.8 L342.0,34.0 L343.6,42.6 L345.2,41.2 L346.8,42.2 L348.4,42.0 L350.0,38.0 L351.6,36.0 L353.2,29.6 L354.8,35.0 L356.4,40.0 L358.1,53.7 L359.7,58.7 L361.3,58.3 L362.9,58.3 L364.5,57.9 L366.1,53.9 L367.7,55.3 L369.3,57.5 L370.9,63.5 L372.5,71.5 L374.2,59.7 L375.8,53.3 L377.4,52.1 L379.0,59.9 L380.6,61.1 L382.2,61.1 L383.8,58.9 L385.4,57.1 L387.0,61.7 L388.6,81.3 L390.2,76.7 L391.9,79.5 L393.5,78.3 L395.1,86.1 L396.7,90.9 L398.3,90.7 L399.9,83.5 L401.5,87.7 L403.1,93.3 L404.7,94.3 L406.3,94.7 L408.0,94.1 L409.6,92.1 L411.2,92.9 L412.8,99.1 L414.4,93.7 L416.0,96.3" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="96.3" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$19.97</text>
+    <text x="474" y="132.0" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$18.18</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip down"><span class="perf-label">1W</span><strong class="perf-value">−0.5%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−8.1%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−13.5%</strong></div><div class="perf-chip down"><span class="perf-label">YTD</span><strong class="perf-value">−3.2%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+9.8%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+18.4%</strong></div><div class="perf-chip down"><span class="perf-label">5Y</span><strong class="perf-value">−13.1%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+57.5%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+226.3%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$21.3B</strong></span>
+      <span>P/E: <strong>10.5</strong></span>
+      <span>Net Income: <strong>$2.03B</strong></span>
+    </div>
+
+    <p class="summary">KeyCorp (KEY): $19.97 (+9.8% 1Y). Performance: 1W −0.5%, 1M −8.1%, 3M −13.5%, YTD −3.2%, 1Y +9.8%, 5Y −13.1%. Market Cap: $21.3B, P/E: 10.5, Net Income: $2.03B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=KEY">Open KEY in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=KEY");</script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>COHR · Coherent Corp. — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Coherent Corp. (COHR): $312.62 (+155.5% 1Y). Performance: 1W −7.2%, 1M +3.0%, 3M −4.5%, YTD +69.4%, 1Y +155.5%, 5Y +446.4%. Market Cap: $61.2B, P/E: 76.0, Net Income: $805M. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/COHR/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/COHR/">
+  <meta property="og:title" content="COHR · Coherent Corp. — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Coherent Corp. (COHR): $312.62 (+155.5% 1Y). Performance: 1W −7.2%, 1M +3.0%, 3M −4.5%, YTD +69.4%, 1Y +155.5%, 5Y +446.4%. Market Cap: $61.2B, P/E: 76.0, Net Income: $805M. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="COHR · Coherent Corp. — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="COHR · Coherent Corp. — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Coherent Corp. (COHR): $312.62 (+155.5% 1Y). Performance: 1W −7.2%, 1M +3.0%, 3M −4.5%, YTD +69.4%, 1Y +155.5%, 5Y +446.4%. Market Cap: $61.2B, P/E: 76.0, Net Income: $805M. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">COHR</span>
+    <h1>Coherent Corp.</h1>
+    <div class="quote-row">
+      <span class="price">$312.62</span>
+      <span class="change up">+155.5% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+155.5%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for COHR">
+    <defs>
+      <linearGradient id="chart-fill-COHR" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="154.1" x2="416" y2="154.1" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,154.1 L13.6,159.2 L15.2,157.4 L16.8,160.0 L18.4,159.5 L20.0,157.0 L21.7,156.8 L23.3,155.1 L24.9,154.8 L26.5,157.3 L28.1,154.5 L29.7,150.9 L31.3,148.4 L32.9,148.7 L34.5,147.0 L36.1,149.4 L37.8,149.8 L39.4,149.7 L41.0,151.2 L42.6,148.5 L44.2,137.4 L45.8,139.5 L47.4,134.0 L49.0,137.9 L50.6,138.5 L52.2,146.1 L53.8,146.4 L55.5,146.5 L57.1,146.9 L58.7,144.8 L60.3,148.1 L61.9,146.3 L63.5,140.8 L65.1,142.1 L66.7,139.8 L68.3,135.1 L69.9,135.5 L71.6,134.8 L73.2,132.1 L74.8,129.2 L76.4,127.2 L78.0,125.3 L79.6,122.2 L81.2,120.1 L82.8,119.6 L84.4,128.7 L86.0,128.7 L87.6,130.1 L89.3,132.3 L90.9,129.9 L92.5,125.3 L94.1,123.0 L95.7,122.6 L97.3,122.8 L98.9,122.7 L100.5,123.9 L102.1,124.9 L103.7,125.9 L105.4,121.5 L107.0,125.1 L108.6,121.6 L110.2,122.7 L111.8,131.1 L113.4,128.8 L115.0,125.6 L116.6,123.4 L118.2,126.1 L119.8,120.7 L121.5,123.0 L123.1,121.9 L124.7,118.2 L126.3,117.7 L127.9,120.3 L129.5,119.9 L131.1,112.5 L132.7,109.3 L134.3,111.7 L135.9,113.4 L137.5,108.7 L139.2,105.7 L140.8,113.9 L142.4,114.7 L144.0,106.3 L145.6,99.6 L147.2,106.0 L148.8,108.2 L150.4,111.6 L152.0,111.1 L153.6,109.8 L155.3,108.1 L156.9,104.2 L158.5,97.0 L160.1,96.7 L161.7,94.0 L163.3,88.1 L164.9,96.2 L166.5,92.2 L168.1,74.0 L169.7,82.2 L171.3,84.9 L173.0,94.5 L174.6,102.7 L176.2,95.2 L177.8,91.4 L179.4,95.6 L181.0,100.2 L182.6,99.5 L184.2,97.4 L185.8,98.1 L187.4,93.0 L189.1,84.6 L190.7,94.6 L192.3,93.9 L193.9,86.1 L195.5,86.2 L197.1,99.3 L198.7,99.2 L200.3,110.0 L201.9,101.6 L203.5,97.2 L205.1,92.5 L206.8,94.8 L208.4,93.9 L210.0,81.8 L211.6,80.7 L213.2,70.1 L214.8,70.0 L216.4,67.5 L218.0,69.8 L219.6,60.8 L221.2,53.1 L222.9,52.0 L224.5,53.7 L226.1,50.7 L227.7,56.5 L229.3,57.2 L230.9,63.8 L232.5,71.7 L234.1,71.3 L235.7,64.6 L237.3,60.2 L238.9,60.0 L240.6,57.3 L242.2,53.3 L243.8,64.8 L245.4,57.6 L247.0,37.4 L248.6,40.0 L250.2,26.5 L251.8,26.0 L253.4,36.2 L255.0,45.1 L256.7,49.2 L258.3,47.0 L259.9,38.2 L261.5,38.4 L263.1,36.7 L264.7,37.2 L266.3,38.6 L267.9,45.7 L269.5,45.0 L271.1,16.0 L272.7,20.3 L274.4,18.3 L276.0,38.6 L277.6,27.3 L279.2,48.2 L280.8,48.7 L282.4,44.7 L284.0,35.0 L285.6,21.9 L287.2,36.0 L288.8,37.8 L290.5,32.9 L292.1,16.6 L293.7,36.7 L295.3,31.6 L296.9,24.9 L298.5,37.0 L300.1,32.2 L301.7,30.7 L303.3,42.4 L304.9,58.4 L306.5,57.4 L308.2,67.1 L309.8,65.8 L311.4,61.2 L313.0,62.4 L314.6,70.2 L316.2,68.7 L317.8,73.8 L319.4,84.0 L321.0,83.7 L322.6,80.2 L324.3,65.7 L325.9,68.0 L327.5,67.6 L329.1,81.5 L330.7,86.6 L332.3,99.2 L333.9,108.9 L335.5,96.6 L337.1,90.4 L338.7,78.9 L340.4,62.8 L342.0,60.7 L343.6,58.0 L345.2,37.7 L346.8,62.1 L348.4,60.6 L350.0,48.3 L351.6,61.2 L353.2,61.8 L354.8,50.3 L356.4,70.6 L358.1,79.2 L359.7,78.1 L361.3,78.3 L362.9,84.7 L364.5,78.9 L366.1,76.1 L367.7,75.6 L369.3,83.0 L370.9,83.6 L372.5,86.2 L374.2,87.8 L375.8,89.7 L377.4,81.8 L379.0,72.7 L380.6,72.0 L382.2,76.6 L383.8,71.1 L385.4,88.7 L387.0,86.6 L388.6,78.1 L390.2,75.4 L391.9,65.7 L393.5,63.8 L395.1,68.8 L396.7,73.3 L398.3,77.8 L399.9,75.4 L401.5,81.5 L403.1,77.1 L404.7,79.1 L406.3,64.8 L408.0,56.7 L409.6,58.3 L411.2,56.1 L412.8,57.9 L414.4,72.5 L416.0,67.8 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-COHR)"/>
+    <path d="M12.0,154.1 L13.6,159.2 L15.2,157.4 L16.8,160.0 L18.4,159.5 L20.0,157.0 L21.7,156.8 L23.3,155.1 L24.9,154.8 L26.5,157.3 L28.1,154.5 L29.7,150.9 L31.3,148.4 L32.9,148.7 L34.5,147.0 L36.1,149.4 L37.8,149.8 L39.4,149.7 L41.0,151.2 L42.6,148.5 L44.2,137.4 L45.8,139.5 L47.4,134.0 L49.0,137.9 L50.6,138.5 L52.2,146.1 L53.8,146.4 L55.5,146.5 L57.1,146.9 L58.7,144.8 L60.3,148.1 L61.9,146.3 L63.5,140.8 L65.1,142.1 L66.7,139.8 L68.3,135.1 L69.9,135.5 L71.6,134.8 L73.2,132.1 L74.8,129.2 L76.4,127.2 L78.0,125.3 L79.6,122.2 L81.2,120.1 L82.8,119.6 L84.4,128.7 L86.0,128.7 L87.6,130.1 L89.3,132.3 L90.9,129.9 L92.5,125.3 L94.1,123.0 L95.7,122.6 L97.3,122.8 L98.9,122.7 L100.5,123.9 L102.1,124.9 L103.7,125.9 L105.4,121.5 L107.0,125.1 L108.6,121.6 L110.2,122.7 L111.8,131.1 L113.4,128.8 L115.0,125.6 L116.6,123.4 L118.2,126.1 L119.8,120.7 L121.5,123.0 L123.1,121.9 L124.7,118.2 L126.3,117.7 L127.9,120.3 L129.5,119.9 L131.1,112.5 L132.7,109.3 L134.3,111.7 L135.9,113.4 L137.5,108.7 L139.2,105.7 L140.8,113.9 L142.4,114.7 L144.0,106.3 L145.6,99.6 L147.2,106.0 L148.8,108.2 L150.4,111.6 L152.0,111.1 L153.6,109.8 L155.3,108.1 L156.9,104.2 L158.5,97.0 L160.1,96.7 L161.7,94.0 L163.3,88.1 L164.9,96.2 L166.5,92.2 L168.1,74.0 L169.7,82.2 L171.3,84.9 L173.0,94.5 L174.6,102.7 L176.2,95.2 L177.8,91.4 L179.4,95.6 L181.0,100.2 L182.6,99.5 L184.2,97.4 L185.8,98.1 L187.4,93.0 L189.1,84.6 L190.7,94.6 L192.3,93.9 L193.9,86.1 L195.5,86.2 L197.1,99.3 L198.7,99.2 L200.3,110.0 L201.9,101.6 L203.5,97.2 L205.1,92.5 L206.8,94.8 L208.4,93.9 L210.0,81.8 L211.6,80.7 L213.2,70.1 L214.8,70.0 L216.4,67.5 L218.0,69.8 L219.6,60.8 L221.2,53.1 L222.9,52.0 L224.5,53.7 L226.1,50.7 L227.7,56.5 L229.3,57.2 L230.9,63.8 L232.5,71.7 L234.1,71.3 L235.7,64.6 L237.3,60.2 L238.9,60.0 L240.6,57.3 L242.2,53.3 L243.8,64.8 L245.4,57.6 L247.0,37.4 L248.6,40.0 L250.2,26.5 L251.8,26.0 L253.4,36.2 L255.0,45.1 L256.7,49.2 L258.3,47.0 L259.9,38.2 L261.5,38.4 L263.1,36.7 L264.7,37.2 L266.3,38.6 L267.9,45.7 L269.5,45.0 L271.1,16.0 L272.7,20.3 L274.4,18.3 L276.0,38.6 L277.6,27.3 L279.2,48.2 L280.8,48.7 L282.4,44.7 L284.0,35.0 L285.6,21.9 L287.2,36.0 L288.8,37.8 L290.5,32.9 L292.1,16.6 L293.7,36.7 L295.3,31.6 L296.9,24.9 L298.5,37.0 L300.1,32.2 L301.7,30.7 L303.3,42.4 L304.9,58.4 L306.5,57.4 L308.2,67.1 L309.8,65.8 L311.4,61.2 L313.0,62.4 L314.6,70.2 L316.2,68.7 L317.8,73.8 L319.4,84.0 L321.0,83.7 L322.6,80.2 L324.3,65.7 L325.9,68.0 L327.5,67.6 L329.1,81.5 L330.7,86.6 L332.3,99.2 L333.9,108.9 L335.5,96.6 L337.1,90.4 L338.7,78.9 L340.4,62.8 L342.0,60.7 L343.6,58.0 L345.2,37.7 L346.8,62.1 L348.4,60.6 L350.0,48.3 L351.6,61.2 L353.2,61.8 L354.8,50.3 L356.4,70.6 L358.1,79.2 L359.7,78.1 L361.3,78.3 L362.9,84.7 L364.5,78.9 L366.1,76.1 L367.7,75.6 L369.3,83.0 L370.9,83.6 L372.5,86.2 L374.2,87.8 L375.8,89.7 L377.4,81.8 L379.0,72.7 L380.6,72.0 L382.2,76.6 L383.8,71.1 L385.4,88.7 L387.0,86.6 L388.6,78.1 L390.2,75.4 L391.9,65.7 L393.5,63.8 L395.1,68.8 L396.7,73.3 L398.3,77.8 L399.9,75.4 L401.5,81.5 L403.1,77.1 L404.7,79.1 L406.3,64.8 L408.0,56.7 L409.6,58.3 L411.2,56.1 L412.8,57.9 L414.4,72.5 L416.0,67.8" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="67.8" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$312.62</text>
+    <text x="474" y="154.1" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$122.35</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip down"><span class="perf-label">1W</span><strong class="perf-value">−7.2%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+3.0%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−4.5%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+69.4%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+155.5%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+216.8%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+446.4%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+1116%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+76853%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$61.2B</strong></span>
+      <span>P/E: <strong>76.0</strong></span>
+      <span>Net Income: <strong>$805M</strong></span>
+    </div>
+
+    <p class="summary">Coherent Corp. (COHR): $312.62 (+155.5% 1Y). Performance: 1W −7.2%, 1M +3.0%, 3M −4.5%, YTD +69.4%, 1Y +155.5%, 5Y +446.4%. Market Cap: $61.2B, P/E: 76.0, Net Income: $805M. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=COHR">Open COHR in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=COHR");</script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>GOOG · Alphabet Inc. (Class C) — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Alphabet Inc. (Class C) (GOOG): $347.86 (+43.6% 1Y). Performance: 1W +2.2%, 1M +5.9%, 3M −2.4%, YTD +10.9%, 1Y +43.6%, 5Y +148.4%. Market Cap: $4.25T, P/E: 17.4, Net Income: $244B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/GOOG/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/GOOG/">
+  <meta property="og:title" content="GOOG · Alphabet Inc. (Class C) — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Alphabet Inc. (Class C) (GOOG): $347.86 (+43.6% 1Y). Performance: 1W +2.2%, 1M +5.9%, 3M −2.4%, YTD +10.9%, 1Y +43.6%, 5Y +148.4%. Market Cap: $4.25T, P/E: 17.4, Net Income: $244B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="GOOG · Alphabet Inc. (Class C) — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="GOOG · Alphabet Inc. (Class C) — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Alphabet Inc. (Class C) (GOOG): $347.86 (+43.6% 1Y). Performance: 1W +2.2%, 1M +5.9%, 3M −2.4%, YTD +10.9%, 1Y +43.6%, 5Y +148.4%. Market Cap: $4.25T, P/E: 17.4, Net Income: $244B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">GOOG</span>
+    <h1>Alphabet Inc. (Class C)</h1>
+    <div class="quote-row">
+      <span class="price">$347.86</span>
+      <span class="change up">+43.6% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+43.6%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for GOOG">
+    <defs>
+      <linearGradient id="chart-fill-GOOG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="155.8" x2="416" y2="155.8" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,155.8 L13.6,160.0 L15.2,153.6 L16.8,152.2 L18.4,147.3 L20.0,147.2 L21.7,145.5 L23.3,142.6 L24.9,147.7 L26.5,146.6 L28.1,145.5 L29.7,139.5 L31.3,131.1 L32.9,132.4 L34.5,126.4 L36.1,120.4 L37.8,120.5 L39.4,118.4 L41.0,123.8 L42.6,117.9 L44.2,117.3 L45.8,122.4 L47.4,112.7 L49.0,111.6 L50.6,115.5 L52.2,122.9 L53.8,124.8 L55.5,117.1 L57.1,117.7 L58.7,110.5 L60.3,113.2 L61.9,104.6 L63.5,87.8 L65.1,83.2 L66.7,86.2 L68.3,86.3 L69.9,90.8 L71.6,90.0 L73.2,85.9 L74.8,87.9 L76.4,84.6 L78.0,91.4 L79.6,88.5 L81.2,85.6 L82.8,92.1 L84.4,94.9 L86.0,96.0 L87.6,97.4 L89.3,106.0 L90.9,100.9 L92.5,96.6 L94.1,94.2 L95.7,90.3 L97.3,90.3 L98.9,90.9 L100.5,91.5 L102.1,91.3 L103.7,92.0 L105.4,90.6 L107.0,88.8 L108.6,91.3 L110.2,84.3 L111.8,81.1 L113.4,78.3 L115.0,75.1 L116.6,71.8 L118.2,71.9 L119.8,74.7 L121.5,77.2 L123.1,84.5 L124.7,79.0 L126.3,76.8 L127.9,78.9 L129.5,74.3 L131.1,73.1 L132.7,71.9 L134.3,69.8 L135.9,69.9 L137.5,64.3 L139.2,68.0 L140.8,74.6 L142.4,76.4 L144.0,83.7 L145.6,82.5 L147.2,87.7 L148.8,94.2 L150.4,95.9 L152.0,98.9 L153.6,101.8 L155.3,100.8 L156.9,101.1 L158.5,91.0 L160.1,93.9 L161.7,94.5 L163.3,92.7 L164.9,97.9 L166.5,94.1 L168.1,98.6 L169.7,101.1 L171.3,101.2 L173.0,103.5 L174.6,105.8 L176.2,98.9 L177.8,98.1 L179.4,96.8 L181.0,101.4 L182.6,103.0 L184.2,100.3 L185.8,95.9 L187.4,98.7 L189.1,99.2 L190.7,105.4 L192.3,105.2 L193.9,113.9 L195.5,113.6 L197.1,121.4 L198.7,127.7 L200.3,128.2 L201.9,116.0 L203.5,108.8 L205.1,109.2 L206.8,106.4 L208.4,100.8 L210.0,91.1 L211.6,89.7 L213.2,90.3 L214.8,87.2 L216.4,77.0 L218.0,73.6 L219.6,75.1 L221.2,69.2 L222.9,72.7 L224.5,77.1 L226.1,70.6 L227.7,70.6 L229.3,66.6 L230.9,61.0 L232.5,61.9 L234.1,62.1 L235.7,31.2 L237.3,30.1 L238.9,33.3 L240.6,29.2 L242.2,19.5 L243.8,19.3 L245.4,17.8 L247.0,26.9 L248.6,29.6 L250.2,16.0 L251.8,17.7 L253.4,21.1 L255.0,21.3 L256.7,28.6 L258.3,28.6 L259.9,29.9 L261.5,33.5 L263.1,28.7 L264.7,28.7 L266.3,27.5 L267.9,36.2 L269.5,39.6 L271.1,52.2 L272.7,54.6 L274.4,42.5 L276.0,45.7 L277.6,49.8 L279.2,48.8 L280.8,56.8 L282.4,53.9 L284.0,52.4 L285.6,44.5 L287.2,40.9 L288.8,48.9 L290.5,44.1 L292.1,60.8 L293.7,63.2 L295.3,64.1 L296.9,66.7 L298.5,73.4 L300.1,58.6 L301.7,56.7 L303.3,52.7 L304.9,54.2 L306.5,46.4 L308.2,47.6 L309.8,51.9 L311.4,54.2 L313.0,55.2 L314.6,59.1 L316.2,53.2 L317.8,41.7 L319.4,56.3 L321.0,63.2 L322.6,58.5 L324.3,63.1 L325.9,66.9 L327.5,87.9 L329.1,87.3 L330.7,80.6 L332.3,75.2 L333.9,72.4 L335.5,74.3 L337.1,53.8 L338.7,39.7 L340.4,37.1 L342.0,50.7 L343.6,53.8 L345.2,56.6 L346.8,54.5 L348.4,66.0 L350.0,66.5 L351.6,65.1 L353.2,65.5 L354.8,67.3 L356.4,67.5 L358.1,67.1 L359.7,70.2 L361.3,67.1 L362.9,64.5 L364.5,65.6 L366.1,69.4 L367.7,70.7 L369.3,66.1 L370.9,72.7 L372.5,75.7 L374.2,74.2 L375.8,69.4 L377.4,72.8 L379.0,72.7 L380.6,79.0 L382.2,77.2 L383.8,72.7 L385.4,63.5 L387.0,67.4 L388.6,69.2 L390.2,65.3 L391.9,64.7 L393.5,58.9 L395.1,62.0 L396.7,73.1 L398.3,69.5 L399.9,67.7 L401.5,69.4 L403.1,71.0 L404.7,68.0 L406.3,73.1 L408.0,68.3 L409.6,65.2 L411.2,64.5 L412.8,62.1 L414.4,64.3 L416.0,61.6 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-GOOG)"/>
+    <path d="M12.0,155.8 L13.6,160.0 L15.2,153.6 L16.8,152.2 L18.4,147.3 L20.0,147.2 L21.7,145.5 L23.3,142.6 L24.9,147.7 L26.5,146.6 L28.1,145.5 L29.7,139.5 L31.3,131.1 L32.9,132.4 L34.5,126.4 L36.1,120.4 L37.8,120.5 L39.4,118.4 L41.0,123.8 L42.6,117.9 L44.2,117.3 L45.8,122.4 L47.4,112.7 L49.0,111.6 L50.6,115.5 L52.2,122.9 L53.8,124.8 L55.5,117.1 L57.1,117.7 L58.7,110.5 L60.3,113.2 L61.9,104.6 L63.5,87.8 L65.1,83.2 L66.7,86.2 L68.3,86.3 L69.9,90.8 L71.6,90.0 L73.2,85.9 L74.8,87.9 L76.4,84.6 L78.0,91.4 L79.6,88.5 L81.2,85.6 L82.8,92.1 L84.4,94.9 L86.0,96.0 L87.6,97.4 L89.3,106.0 L90.9,100.9 L92.5,96.6 L94.1,94.2 L95.7,90.3 L97.3,90.3 L98.9,90.9 L100.5,91.5 L102.1,91.3 L103.7,92.0 L105.4,90.6 L107.0,88.8 L108.6,91.3 L110.2,84.3 L111.8,81.1 L113.4,78.3 L115.0,75.1 L116.6,71.8 L118.2,71.9 L119.8,74.7 L121.5,77.2 L123.1,84.5 L124.7,79.0 L126.3,76.8 L127.9,78.9 L129.5,74.3 L131.1,73.1 L132.7,71.9 L134.3,69.8 L135.9,69.9 L137.5,64.3 L139.2,68.0 L140.8,74.6 L142.4,76.4 L144.0,83.7 L145.6,82.5 L147.2,87.7 L148.8,94.2 L150.4,95.9 L152.0,98.9 L153.6,101.8 L155.3,100.8 L156.9,101.1 L158.5,91.0 L160.1,93.9 L161.7,94.5 L163.3,92.7 L164.9,97.9 L166.5,94.1 L168.1,98.6 L169.7,101.1 L171.3,101.2 L173.0,103.5 L174.6,105.8 L176.2,98.9 L177.8,98.1 L179.4,96.8 L181.0,101.4 L182.6,103.0 L184.2,100.3 L185.8,95.9 L187.4,98.7 L189.1,99.2 L190.7,105.4 L192.3,105.2 L193.9,113.9 L195.5,113.6 L197.1,121.4 L198.7,127.7 L200.3,128.2 L201.9,116.0 L203.5,108.8 L205.1,109.2 L206.8,106.4 L208.4,100.8 L210.0,91.1 L211.6,89.7 L213.2,90.3 L214.8,87.2 L216.4,77.0 L218.0,73.6 L219.6,75.1 L221.2,69.2 L222.9,72.7 L224.5,77.1 L226.1,70.6 L227.7,70.6 L229.3,66.6 L230.9,61.0 L232.5,61.9 L234.1,62.1 L235.7,31.2 L237.3,30.1 L238.9,33.3 L240.6,29.2 L242.2,19.5 L243.8,19.3 L245.4,17.8 L247.0,26.9 L248.6,29.6 L250.2,16.0 L251.8,17.7 L253.4,21.1 L255.0,21.3 L256.7,28.6 L258.3,28.6 L259.9,29.9 L261.5,33.5 L263.1,28.7 L264.7,28.7 L266.3,27.5 L267.9,36.2 L269.5,39.6 L271.1,52.2 L272.7,54.6 L274.4,42.5 L276.0,45.7 L277.6,49.8 L279.2,48.8 L280.8,56.8 L282.4,53.9 L284.0,52.4 L285.6,44.5 L287.2,40.9 L288.8,48.9 L290.5,44.1 L292.1,60.8 L293.7,63.2 L295.3,64.1 L296.9,66.7 L298.5,73.4 L300.1,58.6 L301.7,56.7 L303.3,52.7 L304.9,54.2 L306.5,46.4 L308.2,47.6 L309.8,51.9 L311.4,54.2 L313.0,55.2 L314.6,59.1 L316.2,53.2 L317.8,41.7 L319.4,56.3 L321.0,63.2 L322.6,58.5 L324.3,63.1 L325.9,66.9 L327.5,87.9 L329.1,87.3 L330.7,80.6 L332.3,75.2 L333.9,72.4 L335.5,74.3 L337.1,53.8 L338.7,39.7 L340.4,37.1 L342.0,50.7 L343.6,53.8 L345.2,56.6 L346.8,54.5 L348.4,66.0 L350.0,66.5 L351.6,65.1 L353.2,65.5 L354.8,67.3 L356.4,67.5 L358.1,67.1 L359.7,70.2 L361.3,67.1 L362.9,64.5 L364.5,65.6 L366.1,69.4 L367.7,70.7 L369.3,66.1 L370.9,72.7 L372.5,75.7 L374.2,74.2 L375.8,69.4 L377.4,72.8 L379.0,72.7 L380.6,79.0 L382.2,77.2 L383.8,72.7 L385.4,63.5 L387.0,67.4 L388.6,69.2 L390.2,65.3 L391.9,64.7 L393.5,58.9 L395.1,62.0 L396.7,73.1 L398.3,69.5 L399.9,67.7 L401.5,69.4 L403.1,71.0 L404.7,68.0 L406.3,73.1 L408.0,68.3 L409.6,65.2 L411.2,64.5 L412.8,62.1 L414.4,64.3 L416.0,61.6" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="61.6" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$347.86</text>
+    <text x="474" y="155.8" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$242.21</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+2.2%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+5.9%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−2.4%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+10.9%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+43.6%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+113.3%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+148.4%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+797.6%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+12795%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$4.25T</strong></span>
+      <span>P/E: <strong>17.4</strong></span>
+      <span>Net Income: <strong>$244B</strong></span>
+    </div>
+
+    <p class="summary">Alphabet Inc. (Class C) (GOOG): $347.86 (+43.6% 1Y). Performance: 1W +2.2%, 1M +5.9%, 3M −2.4%, YTD +10.9%, 1Y +43.6%, 5Y +148.4%. Market Cap: $4.25T, P/E: 17.4, Net Income: $244B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=GOOG">Open GOOG in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=GOOG");</script>
+</body>
+</html>

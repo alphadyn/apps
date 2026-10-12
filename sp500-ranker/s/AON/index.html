@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>AON · Aon plc — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Aon plc (AON): $273.47 (−24.1% 1Y). Performance: 1W +1.5%, 1M −10.2%, 3M −23.1%, YTD −22.5%, 1Y −24.1%, 5Y −7.1%. Market Cap: $58.0B, P/E: 14.8, Net Income: $3.91B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/AON/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/AON/">
+  <meta property="og:title" content="AON · Aon plc — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Aon plc (AON): $273.47 (−24.1% 1Y). Performance: 1W +1.5%, 1M −10.2%, 3M −23.1%, YTD −22.5%, 1Y −24.1%, 5Y −7.1%. Market Cap: $58.0B, P/E: 14.8, Net Income: $3.91B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="AON · Aon plc — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AON · Aon plc — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Aon plc (AON): $273.47 (−24.1% 1Y). Performance: 1W +1.5%, 1M −10.2%, 3M −23.1%, YTD −22.5%, 1Y −24.1%, 5Y −7.1%. Market Cap: $58.0B, P/E: 14.8, Net Income: $3.91B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">AON</span>
+    <h1>Aon plc</h1>
+    <div class="quote-row">
+      <span class="price">$273.47</span>
+      <span class="change down">−24.1% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−24.1%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for AON">
+    <defs>
+      <linearGradient id="chart-fill-AON" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="42.8" x2="416" y2="42.8" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,42.8 L13.6,43.2 L15.2,51.9 L16.8,42.7 L18.4,48.8 L20.0,65.1 L21.7,60.6 L23.3,63.8 L24.9,64.7 L26.5,65.1 L28.1,67.4 L29.7,72.1 L31.3,73.2 L32.9,82.1 L34.5,87.1 L36.1,84.3 L37.8,68.3 L39.4,69.3 L41.0,63.7 L42.6,66.9 L44.2,69.1 L45.8,61.0 L47.4,62.9 L49.0,56.3 L50.6,56.1 L52.2,55.0 L53.8,56.1 L55.5,56.2 L57.1,58.1 L58.7,63.8 L60.3,61.6 L61.9,60.8 L63.5,63.1 L65.1,55.0 L66.7,52.9 L68.3,51.2 L69.9,54.8 L71.6,61.8 L73.2,63.4 L74.8,59.2 L76.4,62.4 L78.0,64.8 L79.6,61.2 L81.2,69.1 L82.8,59.6 L84.4,51.4 L86.0,51.0 L87.6,53.9 L89.3,53.6 L90.9,52.4 L92.5,56.2 L94.1,49.2 L95.7,48.7 L97.3,47.7 L98.9,47.7 L100.5,47.6 L102.1,47.9 L103.7,52.6 L105.4,63.6 L107.0,54.6 L108.6,56.7 L110.2,56.4 L111.8,53.7 L113.4,55.2 L115.0,55.6 L116.6,63.2 L118.2,61.4 L119.8,62.9 L121.5,64.2 L123.1,69.8 L124.7,78.5 L126.3,74.3 L127.9,70.8 L129.5,70.6 L131.1,81.1 L132.7,78.2 L134.3,65.3 L135.9,56.7 L137.5,56.8 L139.2,60.3 L140.8,56.0 L142.4,64.8 L144.0,66.5 L145.6,107.3 L147.2,97.6 L148.8,107.8 L150.4,102.0 L152.0,92.7 L153.6,87.2 L155.3,91.1 L156.9,89.4 L158.5,88.4 L160.1,100.9 L161.7,95.8 L163.3,88.9 L164.9,81.7 L166.5,75.0 L168.1,72.0 L169.7,70.3 L171.3,67.6 L173.0,70.7 L174.6,68.4 L176.2,78.4 L177.8,93.7 L179.4,98.9 L181.0,100.2 L182.6,93.1 L184.2,86.2 L185.8,93.4 L187.4,97.6 L189.1,98.8 L190.7,87.6 L192.3,87.2 L193.9,85.8 L195.5,93.0 L197.1,90.0 L198.7,103.1 L200.3,89.7 L201.9,91.3 L203.5,93.2 L205.1,90.9 L206.8,87.0 L208.4,91.7 L210.0,82.3 L211.6,87.9 L213.2,104.5 L214.8,87.9 L216.4,91.0 L218.0,84.5 L219.6,75.1 L221.2,79.7 L222.9,79.5 L224.5,75.2 L226.1,86.1 L227.7,90.3 L229.3,93.4 L230.9,90.0 L232.5,92.7 L234.1,91.7 L235.7,105.7 L237.3,105.8 L238.9,101.4 L240.6,101.9 L242.2,110.0 L243.8,103.2 L245.4,104.2 L247.0,105.1 L248.6,99.6 L250.2,106.6 L251.8,100.8 L253.4,98.5 L255.0,86.4 L256.7,90.2 L258.3,93.4 L259.9,89.5 L261.5,88.7 L263.1,95.8 L264.7,96.8 L266.3,97.1 L267.9,100.0 L269.5,94.4 L271.1,97.7 L272.7,100.6 L274.4,92.0 L276.0,83.9 L277.6,87.4 L279.2,80.0 L280.8,73.9 L282.4,75.4 L284.0,75.2 L285.6,82.6 L287.2,80.2 L288.8,86.3 L290.5,97.8 L292.1,103.1 L293.7,93.9 L295.3,87.8 L296.9,100.1 L298.5,83.7 L300.1,85.1 L301.7,79.8 L303.3,64.6 L304.9,46.7 L306.5,47.4 L308.2,43.6 L309.8,46.6 L311.4,49.1 L313.0,47.3 L314.6,33.9 L316.2,44.8 L317.8,49.6 L319.4,32.3 L321.0,34.1 L322.6,39.8 L324.3,44.2 L325.9,53.3 L327.5,48.8 L329.1,41.2 L330.7,34.1 L332.3,16.0 L333.9,21.3 L335.5,34.9 L337.1,42.7 L338.7,46.4 L340.4,47.7 L342.0,43.4 L343.6,42.4 L345.2,45.6 L346.8,47.3 L348.4,47.9 L350.0,53.2 L351.6,47.1 L353.2,48.8 L354.8,59.8 L356.4,65.0 L358.1,58.3 L359.7,53.8 L361.3,49.7 L362.9,44.5 L364.5,50.0 L366.1,51.1 L367.7,56.8 L369.3,49.3 L370.9,92.9 L372.5,86.8 L374.2,80.9 L375.8,85.9 L377.4,90.9 L379.0,100.3 L380.6,114.6 L382.2,110.6 L383.8,117.2 L385.4,105.8 L387.0,114.6 L388.6,119.9 L390.2,125.7 L391.9,126.3 L393.5,132.5 L395.1,138.6 L396.7,144.4 L398.3,151.4 L399.9,149.0 L401.5,156.6 L403.1,151.7 L404.7,150.6 L406.3,151.6 L408.0,160.0 L409.6,156.7 L411.2,154.2 L412.8,158.7 L414.4,150.1 L416.0,154.8 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-AON)"/>
+    <path d="M12.0,42.8 L13.6,43.2 L15.2,51.9 L16.8,42.7 L18.4,48.8 L20.0,65.1 L21.7,60.6 L23.3,63.8 L24.9,64.7 L26.5,65.1 L28.1,67.4 L29.7,72.1 L31.3,73.2 L32.9,82.1 L34.5,87.1 L36.1,84.3 L37.8,68.3 L39.4,69.3 L41.0,63.7 L42.6,66.9 L44.2,69.1 L45.8,61.0 L47.4,62.9 L49.0,56.3 L50.6,56.1 L52.2,55.0 L53.8,56.1 L55.5,56.2 L57.1,58.1 L58.7,63.8 L60.3,61.6 L61.9,60.8 L63.5,63.1 L65.1,55.0 L66.7,52.9 L68.3,51.2 L69.9,54.8 L71.6,61.8 L73.2,63.4 L74.8,59.2 L76.4,62.4 L78.0,64.8 L79.6,61.2 L81.2,69.1 L82.8,59.6 L84.4,51.4 L86.0,51.0 L87.6,53.9 L89.3,53.6 L90.9,52.4 L92.5,56.2 L94.1,49.2 L95.7,48.7 L97.3,47.7 L98.9,47.7 L100.5,47.6 L102.1,47.9 L103.7,52.6 L105.4,63.6 L107.0,54.6 L108.6,56.7 L110.2,56.4 L111.8,53.7 L113.4,55.2 L115.0,55.6 L116.6,63.2 L118.2,61.4 L119.8,62.9 L121.5,64.2 L123.1,69.8 L124.7,78.5 L126.3,74.3 L127.9,70.8 L129.5,70.6 L131.1,81.1 L132.7,78.2 L134.3,65.3 L135.9,56.7 L137.5,56.8 L139.2,60.3 L140.8,56.0 L142.4,64.8 L144.0,66.5 L145.6,107.3 L147.2,97.6 L148.8,107.8 L150.4,102.0 L152.0,92.7 L153.6,87.2 L155.3,91.1 L156.9,89.4 L158.5,88.4 L160.1,100.9 L161.7,95.8 L163.3,88.9 L164.9,81.7 L166.5,75.0 L168.1,72.0 L169.7,70.3 L171.3,67.6 L173.0,70.7 L174.6,68.4 L176.2,78.4 L177.8,93.7 L179.4,98.9 L181.0,100.2 L182.6,93.1 L184.2,86.2 L185.8,93.4 L187.4,97.6 L189.1,98.8 L190.7,87.6 L192.3,87.2 L193.9,85.8 L195.5,93.0 L197.1,90.0 L198.7,103.1 L200.3,89.7 L201.9,91.3 L203.5,93.2 L205.1,90.9 L206.8,87.0 L208.4,91.7 L210.0,82.3 L211.6,87.9 L213.2,104.5 L214.8,87.9 L216.4,91.0 L218.0,84.5 L219.6,75.1 L221.2,79.7 L222.9,79.5 L224.5,75.2 L226.1,86.1 L227.7,90.3 L229.3,93.4 L230.9,90.0 L232.5,92.7 L234.1,91.7 L235.7,105.7 L237.3,105.8 L238.9,101.4 L240.6,101.9 L242.2,110.0 L243.8,103.2 L245.4,104.2 L247.0,105.1 L248.6,99.6 L250.2,106.6 L251.8,100.8 L253.4,98.5 L255.0,86.4 L256.7,90.2 L258.3,93.4 L259.9,89.5 L261.5,88.7 L263.1,95.8 L264.7,96.8 L266.3,97.1 L267.9,100.0 L269.5,94.4 L271.1,97.7 L272.7,100.6 L274.4,92.0 L276.0,83.9 L277.6,87.4 L279.2,80.0 L280.8,73.9 L282.4,75.4 L284.0,75.2 L285.6,82.6 L287.2,80.2 L288.8,86.3 L290.5,97.8 L292.1,103.1 L293.7,93.9 L295.3,87.8 L296.9,100.1 L298.5,83.7 L300.1,85.1 L301.7,79.8 L303.3,64.6 L304.9,46.7 L306.5,47.4 L308.2,43.6 L309.8,46.6 L311.4,49.1 L313.0,47.3 L314.6,33.9 L316.2,44.8 L317.8,49.6 L319.4,32.3 L321.0,34.1 L322.6,39.8 L324.3,44.2 L325.9,53.3 L327.5,48.8 L329.1,41.2 L330.7,34.1 L332.3,16.0 L333.9,21.3 L335.5,34.9 L337.1,42.7 L338.7,46.4 L340.4,47.7 L342.0,43.4 L343.6,42.4 L345.2,45.6 L346.8,47.3 L348.4,47.9 L350.0,53.2 L351.6,47.1 L353.2,48.8 L354.8,59.8 L356.4,65.0 L358.1,58.3 L359.7,53.8 L361.3,49.7 L362.9,44.5 L364.5,50.0 L366.1,51.1 L367.7,56.8 L369.3,49.3 L370.9,92.9 L372.5,86.8 L374.2,80.9 L375.8,85.9 L377.4,90.9 L379.0,100.3 L380.6,114.6 L382.2,110.6 L383.8,117.2 L385.4,105.8 L387.0,114.6 L388.6,119.9 L390.2,125.7 L391.9,126.3 L393.5,132.5 L395.1,138.6 L396.7,144.4 L398.3,151.4 L399.9,149.0 L401.5,156.6 L403.1,151.7 L404.7,150.6 L406.3,151.6 L408.0,160.0 L409.6,156.7 L411.2,154.2 L412.8,158.7 L414.4,150.1 L416.0,154.8" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="154.8" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$273.47</text>
+    <text x="474" y="42.8" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$360.42</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+1.5%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−10.2%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−23.1%</strong></div><div class="perf-chip down"><span class="perf-label">YTD</span><strong class="perf-value">−22.5%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−24.1%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−23.8%</strong></div><div class="perf-chip down"><span class="perf-label">5Y</span><strong class="perf-value">−7.1%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+143.1%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+10015%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$58.0B</strong></span>
+      <span>P/E: <strong>14.8</strong></span>
+      <span>Net Income: <strong>$3.91B</strong></span>
+    </div>
+
+    <p class="summary">Aon plc (AON): $273.47 (−24.1% 1Y). Performance: 1W +1.5%, 1M −10.2%, 3M −23.1%, YTD −22.5%, 1Y −24.1%, 5Y −7.1%. Market Cap: $58.0B, P/E: 14.8, Net Income: $3.91B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=AON">Open AON in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=AON");</script>
+</body>
+</html>

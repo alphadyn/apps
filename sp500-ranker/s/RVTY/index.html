@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>RVTY · Revvity — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Revvity (RVTY): $154.18 (+68.2% 1Y). Performance: 1W +1.7%, 1M +24.5%, 3M +36.5%, YTD +59.4%, 1Y +68.2%, 5Y −9.3%. Market Cap: $17.2B, P/E: 72.4, Net Income: $238M. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/RVTY/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/RVTY/">
+  <meta property="og:title" content="RVTY · Revvity — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Revvity (RVTY): $154.18 (+68.2% 1Y). Performance: 1W +1.7%, 1M +24.5%, 3M +36.5%, YTD +59.4%, 1Y +68.2%, 5Y −9.3%. Market Cap: $17.2B, P/E: 72.4, Net Income: $238M. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="RVTY · Revvity — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="RVTY · Revvity — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Revvity (RVTY): $154.18 (+68.2% 1Y). Performance: 1W +1.7%, 1M +24.5%, 3M +36.5%, YTD +59.4%, 1Y +68.2%, 5Y −9.3%. Market Cap: $17.2B, P/E: 72.4, Net Income: $238M. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">RVTY</span>
+    <h1>Revvity</h1>
+    <div class="quote-row">
+      <span class="price">$154.18</span>
+      <span class="change up">+68.2% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+68.2%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for RVTY">
+    <defs>
+      <linearGradient id="chart-fill-RVTY" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="142.0" x2="416" y2="142.0" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,142.0 L13.6,148.4 L15.2,143.3 L16.8,143.0 L18.4,141.1 L20.0,137.5 L21.7,138.6 L23.3,135.0 L24.9,131.9 L26.5,134.3 L28.1,130.6 L29.7,128.1 L31.3,131.4 L32.9,132.8 L34.5,135.0 L36.1,143.2 L37.8,138.3 L39.4,139.5 L41.0,141.9 L42.6,140.2 L44.2,146.1 L45.8,143.7 L47.4,140.8 L49.0,136.9 L50.6,137.2 L52.2,138.6 L53.8,139.9 L55.5,143.1 L57.1,139.3 L58.7,140.8 L60.3,137.5 L61.9,129.3 L63.5,124.9 L65.1,115.3 L66.7,117.0 L68.3,117.5 L69.9,121.3 L71.6,120.7 L73.2,119.7 L74.8,121.1 L76.4,124.5 L78.0,126.4 L79.6,128.3 L81.2,119.3 L82.8,118.5 L84.4,125.0 L86.0,127.7 L87.6,133.1 L89.3,132.2 L90.9,133.2 L92.5,133.2 L94.1,130.3 L95.7,130.6 L97.3,132.2 L98.9,132.2 L100.5,131.5 L102.1,130.9 L103.7,132.2 L105.4,129.5 L107.0,122.0 L108.6,116.3 L110.2,120.3 L111.8,122.7 L113.4,117.5 L115.0,118.5 L116.6,106.5 L118.2,103.9 L119.8,96.6 L121.5,102.0 L123.1,103.2 L124.7,94.3 L126.3,91.9 L127.9,93.9 L129.5,97.8 L131.1,98.0 L132.7,104.6 L134.3,109.7 L135.9,109.1 L137.5,112.4 L139.2,123.8 L140.8,118.6 L142.4,126.9 L144.0,122.9 L145.6,120.6 L147.2,116.9 L148.8,123.9 L150.4,134.5 L152.0,133.6 L153.6,135.5 L155.3,130.3 L156.9,126.2 L158.5,125.4 L160.1,131.5 L161.7,130.5 L163.3,130.6 L164.9,127.9 L166.5,129.2 L168.1,134.4 L169.7,133.8 L171.3,128.9 L173.0,132.6 L174.6,142.6 L176.2,141.1 L177.8,144.6 L179.4,145.9 L181.0,155.2 L182.6,153.7 L184.2,151.9 L185.8,150.2 L187.4,154.9 L189.1,153.3 L190.7,152.9 L192.3,150.6 L193.9,150.0 L195.5,149.3 L197.1,150.7 L198.7,156.9 L200.3,155.2 L201.9,149.7 L203.5,149.1 L205.1,147.2 L206.8,148.4 L208.4,149.4 L210.0,144.4 L211.6,144.3 L213.2,145.6 L214.8,140.1 L216.4,138.4 L218.0,139.6 L219.6,146.1 L221.2,137.6 L222.9,139.3 L224.5,137.0 L226.1,137.0 L227.7,150.6 L229.3,151.4 L230.9,151.3 L232.5,154.4 L234.1,160.0 L235.7,151.6 L237.3,151.5 L238.9,151.9 L240.6,140.7 L242.2,127.7 L243.8,128.2 L245.4,124.1 L247.0,128.0 L248.6,127.3 L250.2,135.6 L251.8,132.9 L253.4,137.5 L255.0,134.7 L256.7,133.9 L258.3,136.0 L259.9,134.8 L261.5,131.8 L263.1,132.1 L264.7,132.1 L266.3,123.6 L267.9,117.3 L269.5,125.0 L271.1,125.2 L272.7,123.9 L274.4,121.4 L276.0,129.1 L277.6,125.4 L279.2,118.1 L280.8,123.5 L282.4,123.1 L284.0,126.6 L285.6,124.9 L287.2,123.6 L288.8,130.2 L290.5,126.0 L292.1,127.8 L293.7,126.2 L295.3,115.2 L296.9,100.0 L298.5,101.0 L300.1,104.5 L301.7,104.4 L303.3,101.4 L304.9,99.6 L306.5,101.2 L308.2,102.9 L309.8,108.1 L311.4,101.2 L313.0,102.4 L314.6,104.7 L316.2,104.5 L317.8,104.2 L319.4,103.6 L321.0,106.5 L322.6,113.6 L324.3,105.8 L325.9,105.8 L327.5,100.7 L329.1,105.9 L330.7,110.5 L332.3,103.9 L333.9,100.3 L335.5,100.0 L337.1,102.0 L338.7,96.8 L340.4,104.1 L342.0,97.2 L343.6,98.7 L345.2,97.9 L346.8,95.3 L348.4,95.8 L350.0,91.7 L351.6,92.4 L353.2,93.7 L354.8,95.0 L356.4,99.6 L358.1,88.7 L359.7,79.7 L361.3,78.5 L362.9,81.9 L364.5,78.4 L366.1,75.5 L367.7,69.0 L369.3,70.8 L370.9,71.0 L372.5,75.0 L374.2,66.7 L375.8,67.3 L377.4,68.0 L379.0,74.1 L380.6,80.3 L382.2,85.8 L383.8,79.4 L385.4,71.4 L387.0,48.9 L388.6,38.3 L390.2,36.4 L391.9,42.7 L393.5,42.4 L395.1,42.9 L396.7,45.2 L398.3,28.8 L399.9,28.0 L401.5,28.2 L403.1,24.8 L404.7,24.6 L406.3,31.9 L408.0,27.2 L409.6,16.0 L411.2,23.8 L412.8,23.2 L414.4,26.0 L416.0,22.1 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-RVTY)"/>
+    <path d="M12.0,142.0 L13.6,148.4 L15.2,143.3 L16.8,143.0 L18.4,141.1 L20.0,137.5 L21.7,138.6 L23.3,135.0 L24.9,131.9 L26.5,134.3 L28.1,130.6 L29.7,128.1 L31.3,131.4 L32.9,132.8 L34.5,135.0 L36.1,143.2 L37.8,138.3 L39.4,139.5 L41.0,141.9 L42.6,140.2 L44.2,146.1 L45.8,143.7 L47.4,140.8 L49.0,136.9 L50.6,137.2 L52.2,138.6 L53.8,139.9 L55.5,143.1 L57.1,139.3 L58.7,140.8 L60.3,137.5 L61.9,129.3 L63.5,124.9 L65.1,115.3 L66.7,117.0 L68.3,117.5 L69.9,121.3 L71.6,120.7 L73.2,119.7 L74.8,121.1 L76.4,124.5 L78.0,126.4 L79.6,128.3 L81.2,119.3 L82.8,118.5 L84.4,125.0 L86.0,127.7 L87.6,133.1 L89.3,132.2 L90.9,133.2 L92.5,133.2 L94.1,130.3 L95.7,130.6 L97.3,132.2 L98.9,132.2 L100.5,131.5 L102.1,130.9 L103.7,132.2 L105.4,129.5 L107.0,122.0 L108.6,116.3 L110.2,120.3 L111.8,122.7 L113.4,117.5 L115.0,118.5 L116.6,106.5 L118.2,103.9 L119.8,96.6 L121.5,102.0 L123.1,103.2 L124.7,94.3 L126.3,91.9 L127.9,93.9 L129.5,97.8 L131.1,98.0 L132.7,104.6 L134.3,109.7 L135.9,109.1 L137.5,112.4 L139.2,123.8 L140.8,118.6 L142.4,126.9 L144.0,122.9 L145.6,120.6 L147.2,116.9 L148.8,123.9 L150.4,134.5 L152.0,133.6 L153.6,135.5 L155.3,130.3 L156.9,126.2 L158.5,125.4 L160.1,131.5 L161.7,130.5 L163.3,130.6 L164.9,127.9 L166.5,129.2 L168.1,134.4 L169.7,133.8 L171.3,128.9 L173.0,132.6 L174.6,142.6 L176.2,141.1 L177.8,144.6 L179.4,145.9 L181.0,155.2 L182.6,153.7 L184.2,151.9 L185.8,150.2 L187.4,154.9 L189.1,153.3 L190.7,152.9 L192.3,150.6 L193.9,150.0 L195.5,149.3 L197.1,150.7 L198.7,156.9 L200.3,155.2 L201.9,149.7 L203.5,149.1 L205.1,147.2 L206.8,148.4 L208.4,149.4 L210.0,144.4 L211.6,144.3 L213.2,145.6 L214.8,140.1 L216.4,138.4 L218.0,139.6 L219.6,146.1 L221.2,137.6 L222.9,139.3 L224.5,137.0 L226.1,137.0 L227.7,150.6 L229.3,151.4 L230.9,151.3 L232.5,154.4 L234.1,160.0 L235.7,151.6 L237.3,151.5 L238.9,151.9 L240.6,140.7 L242.2,127.7 L243.8,128.2 L245.4,124.1 L247.0,128.0 L248.6,127.3 L250.2,135.6 L251.8,132.9 L253.4,137.5 L255.0,134.7 L256.7,133.9 L258.3,136.0 L259.9,134.8 L261.5,131.8 L263.1,132.1 L264.7,132.1 L266.3,123.6 L267.9,117.3 L269.5,125.0 L271.1,125.2 L272.7,123.9 L274.4,121.4 L276.0,129.1 L277.6,125.4 L279.2,118.1 L280.8,123.5 L282.4,123.1 L284.0,126.6 L285.6,124.9 L287.2,123.6 L288.8,130.2 L290.5,126.0 L292.1,127.8 L293.7,126.2 L295.3,115.2 L296.9,100.0 L298.5,101.0 L300.1,104.5 L301.7,104.4 L303.3,101.4 L304.9,99.6 L306.5,101.2 L308.2,102.9 L309.8,108.1 L311.4,101.2 L313.0,102.4 L314.6,104.7 L316.2,104.5 L317.8,104.2 L319.4,103.6 L321.0,106.5 L322.6,113.6 L324.3,105.8 L325.9,105.8 L327.5,100.7 L329.1,105.9 L330.7,110.5 L332.3,103.9 L333.9,100.3 L335.5,100.0 L337.1,102.0 L338.7,96.8 L340.4,104.1 L342.0,97.2 L343.6,98.7 L345.2,97.9 L346.8,95.3 L348.4,95.8 L350.0,91.7 L351.6,92.4 L353.2,93.7 L354.8,95.0 L356.4,99.6 L358.1,88.7 L359.7,79.7 L361.3,78.5 L362.9,81.9 L364.5,78.4 L366.1,75.5 L367.7,69.0 L369.3,70.8 L370.9,71.0 L372.5,75.0 L374.2,66.7 L375.8,67.3 L377.4,68.0 L379.0,74.1 L380.6,80.3 L382.2,85.8 L383.8,79.4 L385.4,71.4 L387.0,48.9 L388.6,38.3 L390.2,36.4 L391.9,42.7 L393.5,42.4 L395.1,42.9 L396.7,45.2 L398.3,28.8 L399.9,28.0 L401.5,28.2 L403.1,24.8 L404.7,24.6 L406.3,31.9 L408.0,27.2 L409.6,16.0 L411.2,23.8 L412.8,23.2 L414.4,26.0 L416.0,22.1" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="22.1" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$154.18</text>
+    <text x="474" y="142.0" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$91.66</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+1.7%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+24.5%</strong></div><div class="perf-chip up"><span class="perf-label">3M</span><strong class="perf-value">+36.5%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+59.4%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+68.2%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+26.9%</strong></div><div class="perf-chip down"><span class="perf-label">5Y</span><strong class="perf-value">−9.3%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+176.8%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+17211%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$17.2B</strong></span>
+      <span>P/E: <strong>72.4</strong></span>
+      <span>Net Income: <strong>$238M</strong></span>
+    </div>
+
+    <p class="summary">Revvity (RVTY): $154.18 (+68.2% 1Y). Performance: 1W +1.7%, 1M +24.5%, 3M +36.5%, YTD +59.4%, 1Y +68.2%, 5Y −9.3%. Market Cap: $17.2B, P/E: 72.4, Net Income: $238M. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=RVTY">Open RVTY in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=RVTY");</script>
+</body>
+</html>

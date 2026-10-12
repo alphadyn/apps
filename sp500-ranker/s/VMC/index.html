@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>VMC · Vulcan Materials Company — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Vulcan Materials Company (VMC): $244.58 (−19.3% 1Y). Performance: 1W +0.6%, 1M −2.1%, 3M −15.3%, YTD −14.2%, 1Y −19.3%, 5Y +39.4%. Market Cap: $31.7B, P/E: 28.5, Net Income: $1.11B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/VMC/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/VMC/">
+  <meta property="og:title" content="VMC · Vulcan Materials Company — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Vulcan Materials Company (VMC): $244.58 (−19.3% 1Y). Performance: 1W +0.6%, 1M −2.1%, 3M −15.3%, YTD −14.2%, 1Y −19.3%, 5Y +39.4%. Market Cap: $31.7B, P/E: 28.5, Net Income: $1.11B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="VMC · Vulcan Materials Company — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="VMC · Vulcan Materials Company — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Vulcan Materials Company (VMC): $244.58 (−19.3% 1Y). Performance: 1W +0.6%, 1M −2.1%, 3M −15.3%, YTD −14.2%, 1Y −19.3%, 5Y +39.4%. Market Cap: $31.7B, P/E: 28.5, Net Income: $1.11B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">VMC</span>
+    <h1>Vulcan Materials Company</h1>
+    <div class="quote-row">
+      <span class="price">$244.58</span>
+      <span class="change down">−19.3% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−19.3%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for VMC">
+    <defs>
+      <linearGradient id="chart-fill-VMC" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="60.2" x2="416" y2="60.2" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,60.2 L13.6,62.5 L15.2,60.4 L16.8,50.3 L18.4,59.9 L20.0,70.9 L21.7,72.3 L23.3,72.1 L24.9,68.7 L26.5,75.0 L28.1,77.6 L29.7,76.5 L31.3,77.7 L32.9,76.8 L34.5,72.9 L36.1,80.9 L37.8,81.7 L39.4,83.3 L41.0,77.3 L42.6,88.8 L44.2,86.9 L45.8,85.3 L47.4,76.4 L49.0,72.7 L50.6,72.7 L52.2,90.4 L53.8,96.1 L55.5,96.9 L57.1,94.0 L58.7,90.2 L60.3,87.4 L61.9,84.4 L63.5,85.4 L65.1,76.5 L66.7,72.8 L68.3,69.3 L69.9,77.9 L71.6,81.2 L73.2,76.8 L74.8,75.1 L76.4,73.1 L78.0,71.6 L79.6,79.3 L81.2,70.0 L82.8,66.0 L84.4,71.4 L86.0,70.2 L87.6,77.7 L89.3,88.3 L90.9,83.6 L92.5,77.9 L94.1,77.9 L95.7,76.4 L97.3,75.1 L98.9,74.2 L100.5,77.7 L102.1,82.7 L103.7,88.6 L105.4,76.7 L107.0,70.2 L108.6,65.1 L110.2,77.5 L111.8,66.2 L113.4,46.2 L115.0,49.4 L116.6,47.1 L118.2,67.3 L119.8,62.1 L121.5,55.2 L123.1,71.0 L124.7,66.4 L126.3,59.6 L127.9,64.7 L129.5,64.2 L131.1,67.0 L132.7,65.3 L134.3,65.7 L135.9,64.0 L137.5,55.3 L139.2,47.1 L140.8,46.4 L142.4,47.5 L144.0,26.7 L145.6,20.9 L147.2,16.0 L148.8,33.0 L150.4,29.6 L152.0,20.4 L153.6,61.3 L155.3,65.9 L156.9,60.3 L158.5,56.3 L160.1,47.5 L161.7,36.1 L163.3,55.9 L164.9,50.4 L166.5,48.8 L168.1,54.9 L169.7,64.8 L171.3,71.3 L173.0,85.4 L174.6,105.1 L176.2,106.1 L177.8,109.9 L179.4,118.6 L181.0,123.0 L182.6,120.5 L184.2,119.6 L185.8,120.4 L187.4,132.6 L189.1,134.0 L190.7,131.7 L192.3,123.1 L193.9,118.4 L195.5,113.8 L197.1,118.7 L198.7,126.8 L200.3,118.0 L201.9,109.4 L203.5,96.8 L205.1,97.2 L206.8,94.4 L208.4,100.5 L210.0,76.8 L211.6,76.1 L213.2,72.1 L214.8,69.4 L216.4,69.9 L218.0,78.9 L219.6,87.7 L221.2,78.2 L222.9,73.3 L224.5,79.8 L226.1,80.7 L227.7,76.6 L229.3,77.6 L230.9,78.8 L232.5,78.6 L234.1,71.1 L235.7,62.0 L237.3,69.2 L238.9,84.6 L240.6,78.5 L242.2,71.7 L243.8,82.6 L245.4,91.0 L247.0,92.7 L248.6,98.1 L250.2,105.8 L251.8,104.9 L253.4,116.6 L255.0,119.0 L256.7,130.0 L258.3,123.9 L259.9,125.8 L261.5,128.1 L263.1,114.8 L264.7,104.0 L266.3,102.2 L267.9,92.3 L269.5,94.5 L271.1,94.0 L272.7,88.5 L274.4,92.1 L276.0,94.8 L277.6,113.1 L279.2,98.6 L280.8,108.8 L282.4,96.7 L284.0,86.6 L285.6,76.1 L287.2,63.5 L288.8,73.2 L290.5,60.3 L292.1,57.8 L293.7,66.3 L295.3,53.1 L296.9,44.0 L298.5,46.6 L300.1,58.7 L301.7,72.9 L303.3,72.8 L304.9,59.7 L306.5,57.1 L308.2,65.0 L309.8,86.4 L311.4,83.0 L313.0,72.5 L314.6,76.5 L316.2,77.9 L317.8,82.4 L319.4,75.3 L321.0,83.6 L322.6,96.0 L324.3,102.2 L325.9,100.5 L327.5,105.2 L329.1,97.5 L330.7,89.8 L332.3,83.5 L333.9,90.7 L335.5,111.1 L337.1,115.4 L338.7,91.2 L340.4,88.8 L342.0,86.1 L343.6,94.4 L345.2,89.5 L346.8,88.4 L348.4,84.5 L350.0,96.4 L351.6,101.0 L353.2,93.8 L354.8,100.0 L356.4,110.4 L358.1,103.0 L359.7,112.0 L361.3,103.4 L362.9,103.5 L364.5,106.5 L366.1,107.1 L367.7,106.9 L369.3,105.8 L370.9,113.8 L372.5,129.7 L374.2,122.9 L375.8,128.8 L377.4,124.9 L379.0,131.9 L380.6,145.4 L382.2,144.3 L383.8,140.8 L385.4,144.4 L387.0,146.5 L388.6,154.4 L390.2,154.1 L391.9,160.0 L393.5,151.4 L395.1,148.7 L396.7,154.3 L398.3,158.6 L399.9,153.3 L401.5,151.4 L403.1,156.9 L404.7,153.9 L406.3,154.9 L408.0,156.4 L409.6,152.4 L411.2,147.1 L412.8,154.7 L414.4,151.3 L416.0,154.0 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-VMC)"/>
+    <path d="M12.0,60.2 L13.6,62.5 L15.2,60.4 L16.8,50.3 L18.4,59.9 L20.0,70.9 L21.7,72.3 L23.3,72.1 L24.9,68.7 L26.5,75.0 L28.1,77.6 L29.7,76.5 L31.3,77.7 L32.9,76.8 L34.5,72.9 L36.1,80.9 L37.8,81.7 L39.4,83.3 L41.0,77.3 L42.6,88.8 L44.2,86.9 L45.8,85.3 L47.4,76.4 L49.0,72.7 L50.6,72.7 L52.2,90.4 L53.8,96.1 L55.5,96.9 L57.1,94.0 L58.7,90.2 L60.3,87.4 L61.9,84.4 L63.5,85.4 L65.1,76.5 L66.7,72.8 L68.3,69.3 L69.9,77.9 L71.6,81.2 L73.2,76.8 L74.8,75.1 L76.4,73.1 L78.0,71.6 L79.6,79.3 L81.2,70.0 L82.8,66.0 L84.4,71.4 L86.0,70.2 L87.6,77.7 L89.3,88.3 L90.9,83.6 L92.5,77.9 L94.1,77.9 L95.7,76.4 L97.3,75.1 L98.9,74.2 L100.5,77.7 L102.1,82.7 L103.7,88.6 L105.4,76.7 L107.0,70.2 L108.6,65.1 L110.2,77.5 L111.8,66.2 L113.4,46.2 L115.0,49.4 L116.6,47.1 L118.2,67.3 L119.8,62.1 L121.5,55.2 L123.1,71.0 L124.7,66.4 L126.3,59.6 L127.9,64.7 L129.5,64.2 L131.1,67.0 L132.7,65.3 L134.3,65.7 L135.9,64.0 L137.5,55.3 L139.2,47.1 L140.8,46.4 L142.4,47.5 L144.0,26.7 L145.6,20.9 L147.2,16.0 L148.8,33.0 L150.4,29.6 L152.0,20.4 L153.6,61.3 L155.3,65.9 L156.9,60.3 L158.5,56.3 L160.1,47.5 L161.7,36.1 L163.3,55.9 L164.9,50.4 L166.5,48.8 L168.1,54.9 L169.7,64.8 L171.3,71.3 L173.0,85.4 L174.6,105.1 L176.2,106.1 L177.8,109.9 L179.4,118.6 L181.0,123.0 L182.6,120.5 L184.2,119.6 L185.8,120.4 L187.4,132.6 L189.1,134.0 L190.7,131.7 L192.3,123.1 L193.9,118.4 L195.5,113.8 L197.1,118.7 L198.7,126.8 L200.3,118.0 L201.9,109.4 L203.5,96.8 L205.1,97.2 L206.8,94.4 L208.4,100.5 L210.0,76.8 L211.6,76.1 L213.2,72.1 L214.8,69.4 L216.4,69.9 L218.0,78.9 L219.6,87.7 L221.2,78.2 L222.9,73.3 L224.5,79.8 L226.1,80.7 L227.7,76.6 L229.3,77.6 L230.9,78.8 L232.5,78.6 L234.1,71.1 L235.7,62.0 L237.3,69.2 L238.9,84.6 L240.6,78.5 L242.2,71.7 L243.8,82.6 L245.4,91.0 L247.0,92.7 L248.6,98.1 L250.2,105.8 L251.8,104.9 L253.4,116.6 L255.0,119.0 L256.7,130.0 L258.3,123.9 L259.9,125.8 L261.5,128.1 L263.1,114.8 L264.7,104.0 L266.3,102.2 L267.9,92.3 L269.5,94.5 L271.1,94.0 L272.7,88.5 L274.4,92.1 L276.0,94.8 L277.6,113.1 L279.2,98.6 L280.8,108.8 L282.4,96.7 L284.0,86.6 L285.6,76.1 L287.2,63.5 L288.8,73.2 L290.5,60.3 L292.1,57.8 L293.7,66.3 L295.3,53.1 L296.9,44.0 L298.5,46.6 L300.1,58.7 L301.7,72.9 L303.3,72.8 L304.9,59.7 L306.5,57.1 L308.2,65.0 L309.8,86.4 L311.4,83.0 L313.0,72.5 L314.6,76.5 L316.2,77.9 L317.8,82.4 L319.4,75.3 L321.0,83.6 L322.6,96.0 L324.3,102.2 L325.9,100.5 L327.5,105.2 L329.1,97.5 L330.7,89.8 L332.3,83.5 L333.9,90.7 L335.5,111.1 L337.1,115.4 L338.7,91.2 L340.4,88.8 L342.0,86.1 L343.6,94.4 L345.2,89.5 L346.8,88.4 L348.4,84.5 L350.0,96.4 L351.6,101.0 L353.2,93.8 L354.8,100.0 L356.4,110.4 L358.1,103.0 L359.7,112.0 L361.3,103.4 L362.9,103.5 L364.5,106.5 L366.1,107.1 L367.7,106.9 L369.3,105.8 L370.9,113.8 L372.5,129.7 L374.2,122.9 L375.8,128.8 L377.4,124.9 L379.0,131.9 L380.6,145.4 L382.2,144.3 L383.8,140.8 L385.4,144.4 L387.0,146.5 L388.6,154.4 L390.2,154.1 L391.9,160.0 L393.5,151.4 L395.1,148.7 L396.7,154.3 L398.3,158.6 L399.9,153.3 L401.5,151.4 L403.1,156.9 L404.7,153.9 L406.3,154.9 L408.0,156.4 L409.6,152.4 L411.2,147.1 L412.8,154.7 L414.4,151.3 L416.0,154.0" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="154.0" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$244.58</text>
+    <text x="474" y="60.2" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$302.90</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+0.6%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−2.1%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−15.3%</strong></div><div class="perf-chip down"><span class="perf-label">YTD</span><strong class="perf-value">−14.2%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−19.3%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+1.2%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+39.4%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+129.7%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+22262%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$31.7B</strong></span>
+      <span>P/E: <strong>28.5</strong></span>
+      <span>Net Income: <strong>$1.11B</strong></span>
+    </div>
+
+    <p class="summary">Vulcan Materials Company (VMC): $244.58 (−19.3% 1Y). Performance: 1W +0.6%, 1M −2.1%, 3M −15.3%, YTD −14.2%, 1Y −19.3%, 5Y +39.4%. Market Cap: $31.7B, P/E: 28.5, Net Income: $1.11B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=VMC">Open VMC in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=VMC");</script>
+</body>
+</html>

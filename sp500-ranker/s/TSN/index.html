@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>TSN · Tyson Foods — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Tyson Foods (TSN): $53.43 (+3.6% 1Y). Performance: 1W +3.0%, 1M +3.3%, 3M −7.4%, YTD −8.9%, 1Y +3.6%, 5Y −32.0%. Market Cap: $18.8B, P/E: 32.8, Net Income: $574M. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/TSN/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/TSN/">
+  <meta property="og:title" content="TSN · Tyson Foods — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Tyson Foods (TSN): $53.43 (+3.6% 1Y). Performance: 1W +3.0%, 1M +3.3%, 3M −7.4%, YTD −8.9%, 1Y +3.6%, 5Y −32.0%. Market Cap: $18.8B, P/E: 32.8, Net Income: $574M. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="TSN · Tyson Foods — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="TSN · Tyson Foods — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Tyson Foods (TSN): $53.43 (+3.6% 1Y). Performance: 1W +3.0%, 1M +3.3%, 3M −7.4%, YTD −8.9%, 1Y +3.6%, 5Y −32.0%. Market Cap: $18.8B, P/E: 32.8, Net Income: $574M. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">TSN</span>
+    <h1>Tyson Foods</h1>
+    <div class="quote-row">
+      <span class="price">$53.43</span>
+      <span class="change up">+3.6% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+3.6%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for TSN">
+    <defs>
+      <linearGradient id="chart-fill-TSN" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="151.3" x2="416" y2="151.3" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,151.3 L13.6,147.2 L15.2,147.2 L16.8,141.3 L18.4,141.6 L20.0,146.7 L21.7,144.2 L23.3,144.2 L24.9,145.2 L26.5,142.3 L28.1,149.4 L29.7,152.8 L31.3,147.2 L32.9,146.8 L34.5,158.0 L36.1,152.6 L37.8,152.6 L39.4,150.9 L41.0,147.6 L42.6,144.6 L44.2,150.4 L45.8,142.6 L47.4,133.0 L49.0,120.3 L50.6,131.7 L52.2,129.8 L53.8,132.4 L55.5,139.2 L57.1,134.9 L58.7,139.7 L60.3,142.4 L61.9,134.8 L63.5,107.2 L65.1,107.5 L66.7,101.4 L68.3,100.3 L69.9,98.3 L71.6,105.9 L73.2,110.3 L74.8,115.3 L76.4,109.2 L78.0,114.7 L79.6,117.1 L81.2,103.3 L82.8,88.4 L84.4,85.6 L86.0,88.6 L87.6,99.2 L89.3,96.7 L90.9,98.7 L92.5,97.0 L94.1,95.6 L95.7,102.3 L97.3,98.6 L98.9,96.3 L100.5,96.1 L102.1,91.4 L103.7,95.8 L105.4,100.4 L107.0,107.5 L108.6,116.7 L110.2,114.9 L111.8,105.6 L113.4,100.4 L115.0,89.5 L116.6,84.3 L118.2,81.5 L119.8,81.5 L121.5,84.4 L123.1,77.8 L124.7,85.0 L126.3,76.1 L127.9,71.9 L129.5,55.5 L131.1,39.6 L132.7,48.7 L134.3,43.8 L135.9,42.9 L137.5,39.7 L139.2,47.4 L140.8,45.5 L142.4,44.0 L144.0,43.5 L145.6,42.4 L147.2,45.9 L148.8,50.7 L150.4,58.9 L152.0,53.9 L153.6,62.1 L155.3,53.7 L156.9,50.8 L158.5,54.5 L160.1,61.6 L161.7,58.0 L163.3,64.4 L164.9,56.5 L166.5,45.6 L168.1,50.3 L169.7,61.3 L171.3,61.9 L173.0,68.7 L174.6,73.7 L176.2,74.5 L177.8,83.0 L179.4,86.4 L181.0,76.8 L182.6,82.4 L184.2,70.5 L185.8,68.6 L187.4,75.3 L189.1,91.9 L190.7,99.3 L192.3,87.3 L193.9,77.9 L195.5,73.5 L197.1,61.6 L198.7,54.0 L200.3,55.3 L201.9,52.9 L203.5,51.1 L205.1,48.5 L206.8,49.5 L208.4,51.9 L210.0,48.3 L211.6,42.2 L213.2,40.5 L214.8,49.9 L216.4,45.9 L218.0,58.3 L219.6,53.5 L221.2,47.0 L222.9,56.0 L224.5,48.9 L226.1,49.1 L227.7,43.7 L229.3,53.2 L230.9,56.5 L232.5,52.6 L234.1,56.7 L235.7,52.9 L237.3,55.9 L238.9,16.0 L240.6,18.4 L242.2,21.2 L243.8,22.4 L245.4,18.9 L247.0,29.2 L248.6,26.2 L250.2,30.7 L251.8,32.5 L253.4,39.3 L255.0,32.3 L256.7,36.4 L258.3,33.6 L259.9,34.0 L261.5,45.1 L263.1,44.5 L264.7,37.5 L266.3,69.2 L267.9,76.9 L269.5,85.5 L271.1,88.2 L272.7,107.9 L274.4,109.5 L276.0,94.9 L277.6,108.6 L279.2,112.7 L280.8,115.4 L282.4,119.3 L284.0,105.2 L285.6,106.2 L287.2,106.7 L288.8,114.9 L290.5,120.7 L292.1,120.3 L293.7,105.3 L295.3,102.2 L296.9,102.3 L298.5,96.4 L300.1,95.6 L301.7,106.6 L303.3,97.3 L304.9,93.7 L306.5,94.8 L308.2,94.2 L309.8,98.3 L311.4,103.0 L313.0,102.0 L314.6,101.3 L316.2,104.8 L317.8,104.9 L319.4,102.0 L321.0,102.5 L322.6,100.7 L324.3,108.2 L325.9,108.1 L327.5,110.5 L329.1,105.0 L330.7,79.3 L332.3,75.6 L333.9,76.7 L335.5,79.8 L337.1,101.0 L338.7,88.0 L340.4,94.9 L342.0,99.2 L343.6,96.4 L345.2,100.4 L346.8,107.3 L348.4,113.1 L350.0,117.9 L351.6,113.4 L353.2,99.3 L354.8,95.9 L356.4,100.8 L358.1,96.4 L359.7,97.5 L361.3,96.9 L362.9,101.7 L364.5,107.2 L366.1,112.1 L367.7,121.6 L369.3,121.2 L370.9,123.2 L372.5,123.8 L374.2,117.9 L375.8,149.8 L377.4,152.5 L379.0,145.7 L380.6,150.0 L382.2,144.3 L383.8,140.2 L385.4,138.8 L387.0,143.6 L388.6,147.0 L390.2,145.9 L391.9,141.9 L393.5,147.8 L395.1,149.4 L396.7,153.0 L398.3,154.7 L399.9,156.5 L401.5,156.2 L403.1,156.0 L404.7,159.5 L406.3,160.0 L408.0,148.8 L409.6,150.2 L411.2,148.2 L412.8,150.3 L414.4,145.3 L416.0,136.7 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-TSN)"/>
+    <path d="M12.0,151.3 L13.6,147.2 L15.2,147.2 L16.8,141.3 L18.4,141.6 L20.0,146.7 L21.7,144.2 L23.3,144.2 L24.9,145.2 L26.5,142.3 L28.1,149.4 L29.7,152.8 L31.3,147.2 L32.9,146.8 L34.5,158.0 L36.1,152.6 L37.8,152.6 L39.4,150.9 L41.0,147.6 L42.6,144.6 L44.2,150.4 L45.8,142.6 L47.4,133.0 L49.0,120.3 L50.6,131.7 L52.2,129.8 L53.8,132.4 L55.5,139.2 L57.1,134.9 L58.7,139.7 L60.3,142.4 L61.9,134.8 L63.5,107.2 L65.1,107.5 L66.7,101.4 L68.3,100.3 L69.9,98.3 L71.6,105.9 L73.2,110.3 L74.8,115.3 L76.4,109.2 L78.0,114.7 L79.6,117.1 L81.2,103.3 L82.8,88.4 L84.4,85.6 L86.0,88.6 L87.6,99.2 L89.3,96.7 L90.9,98.7 L92.5,97.0 L94.1,95.6 L95.7,102.3 L97.3,98.6 L98.9,96.3 L100.5,96.1 L102.1,91.4 L103.7,95.8 L105.4,100.4 L107.0,107.5 L108.6,116.7 L110.2,114.9 L111.8,105.6 L113.4,100.4 L115.0,89.5 L116.6,84.3 L118.2,81.5 L119.8,81.5 L121.5,84.4 L123.1,77.8 L124.7,85.0 L126.3,76.1 L127.9,71.9 L129.5,55.5 L131.1,39.6 L132.7,48.7 L134.3,43.8 L135.9,42.9 L137.5,39.7 L139.2,47.4 L140.8,45.5 L142.4,44.0 L144.0,43.5 L145.6,42.4 L147.2,45.9 L148.8,50.7 L150.4,58.9 L152.0,53.9 L153.6,62.1 L155.3,53.7 L156.9,50.8 L158.5,54.5 L160.1,61.6 L161.7,58.0 L163.3,64.4 L164.9,56.5 L166.5,45.6 L168.1,50.3 L169.7,61.3 L171.3,61.9 L173.0,68.7 L174.6,73.7 L176.2,74.5 L177.8,83.0 L179.4,86.4 L181.0,76.8 L182.6,82.4 L184.2,70.5 L185.8,68.6 L187.4,75.3 L189.1,91.9 L190.7,99.3 L192.3,87.3 L193.9,77.9 L195.5,73.5 L197.1,61.6 L198.7,54.0 L200.3,55.3 L201.9,52.9 L203.5,51.1 L205.1,48.5 L206.8,49.5 L208.4,51.9 L210.0,48.3 L211.6,42.2 L213.2,40.5 L214.8,49.9 L216.4,45.9 L218.0,58.3 L219.6,53.5 L221.2,47.0 L222.9,56.0 L224.5,48.9 L226.1,49.1 L227.7,43.7 L229.3,53.2 L230.9,56.5 L232.5,52.6 L234.1,56.7 L235.7,52.9 L237.3,55.9 L238.9,16.0 L240.6,18.4 L242.2,21.2 L243.8,22.4 L245.4,18.9 L247.0,29.2 L248.6,26.2 L250.2,30.7 L251.8,32.5 L253.4,39.3 L255.0,32.3 L256.7,36.4 L258.3,33.6 L259.9,34.0 L261.5,45.1 L263.1,44.5 L264.7,37.5 L266.3,69.2 L267.9,76.9 L269.5,85.5 L271.1,88.2 L272.7,107.9 L274.4,109.5 L276.0,94.9 L277.6,108.6 L279.2,112.7 L280.8,115.4 L282.4,119.3 L284.0,105.2 L285.6,106.2 L287.2,106.7 L288.8,114.9 L290.5,120.7 L292.1,120.3 L293.7,105.3 L295.3,102.2 L296.9,102.3 L298.5,96.4 L300.1,95.6 L301.7,106.6 L303.3,97.3 L304.9,93.7 L306.5,94.8 L308.2,94.2 L309.8,98.3 L311.4,103.0 L313.0,102.0 L314.6,101.3 L316.2,104.8 L317.8,104.9 L319.4,102.0 L321.0,102.5 L322.6,100.7 L324.3,108.2 L325.9,108.1 L327.5,110.5 L329.1,105.0 L330.7,79.3 L332.3,75.6 L333.9,76.7 L335.5,79.8 L337.1,101.0 L338.7,88.0 L340.4,94.9 L342.0,99.2 L343.6,96.4 L345.2,100.4 L346.8,107.3 L348.4,113.1 L350.0,117.9 L351.6,113.4 L353.2,99.3 L354.8,95.9 L356.4,100.8 L358.1,96.4 L359.7,97.5 L361.3,96.9 L362.9,101.7 L364.5,107.2 L366.1,112.1 L367.7,121.6 L369.3,121.2 L370.9,123.2 L372.5,123.8 L374.2,117.9 L375.8,149.8 L377.4,152.5 L379.0,145.7 L380.6,150.0 L382.2,144.3 L383.8,140.2 L385.4,138.8 L387.0,143.6 L388.6,147.0 L390.2,145.9 L391.9,141.9 L393.5,147.8 L395.1,149.4 L396.7,153.0 L398.3,154.7 L399.9,156.5 L401.5,156.2 L403.1,156.0 L404.7,159.5 L406.3,160.0 L408.0,148.8 L409.6,150.2 L411.2,148.2 L412.8,150.3 L414.4,145.3 L416.0,136.7" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="136.7" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$53.43</text>
+    <text x="474" y="151.3" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$51.58</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+3.0%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+3.3%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−7.4%</strong></div><div class="perf-chip down"><span class="perf-label">YTD</span><strong class="perf-value">−8.9%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+3.6%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−8.3%</strong></div><div class="perf-chip down"><span class="perf-label">5Y</span><strong class="perf-value">−32.0%</strong></div><div class="perf-chip down"><span class="perf-label">10Y</span><strong class="perf-value">−21.1%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+2729%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$18.8B</strong></span>
+      <span>P/E: <strong>32.8</strong></span>
+      <span>Net Income: <strong>$574M</strong></span>
+    </div>
+
+    <p class="summary">Tyson Foods (TSN): $53.43 (+3.6% 1Y). Performance: 1W +3.0%, 1M +3.3%, 3M −7.4%, YTD −8.9%, 1Y +3.6%, 5Y −32.0%. Market Cap: $18.8B, P/E: 32.8, Net Income: $574M. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=TSN">Open TSN in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=TSN");</script>
+</body>
+</html>

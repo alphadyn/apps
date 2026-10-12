@@ -376,15 +376,19 @@ export function serializeState({ tab = 'sort', sorts = [], method = 'priority', 
   return parts.join('&');
 }
 
-export function parseState(hash) {
-  const params = new URLSearchParams(String(hash || '').replace(/^#/, ''));
+export function parseState(hashOrQuery) {
+  const clean = String(hashOrQuery || '').replace(/^[#?]/, '');
+  const params = new URLSearchParams(clean);
   let sorts = [];
   for (const part of (params.get('sort') || '').split(',')) {
     const [key, direction] = part.split(':');
     sorts = addCriterion(sorts, key, direction === 'asc' ? 'asc' : 'desc');
   }
   const method = METHODS.includes(params.get('method')) ? params.get('method') : 'priority';
-  const symbol = (params.get('symbol') || '').toUpperCase();
+  let symbol = (params.get('symbol') || '').toUpperCase();
+  if (!symbol && !clean.includes('=') && SYMBOL_PATTERN.test(clean.toUpperCase())) {
+    symbol = clean.toUpperCase();
+  }
   const range = RANGE_KEYS.includes(params.get('range')) ? params.get('range') : DEFAULT_RANGE;
   const state = { sorts, method, symbol: SYMBOL_PATTERN.test(symbol) ? symbol : null, range };
   if (params.get('tab') === 'filter') state.tab = 'filter';
@@ -459,4 +463,58 @@ export function formatValue(format, value) {
   if (format === 'money') return formatMoney(value);
   if (format === 'percent') return formatPercent(value);
   return formatPrice(value);
+}
+
+export function formatSecuritySummary(security) {
+  if (!security) return null;
+  const price = formatPrice(security.price);
+  const ret1y = formatPercent(security['1y'] ?? security.price_change_1y);
+  const peVal = getSecurityPE(security);
+  const pe = formatPE(peVal);
+  const mcap = formatMoney(security.market_cap);
+  const netIncome = formatMoney(security.net_income);
+
+  const peClause = pe !== '—' ? `, P/E: ${pe}` : '';
+  const niClause = security.net_income != null ? `, Net Income: ${netIncome}` : '';
+
+  const performanceList = FILTER_RANGES.map((r) => {
+    const val = getSecurityPerformance(security, r.key);
+    return {
+      key: r.key,
+      label: r.label,
+      name: r.name,
+      value: val,
+      text: formatPercent(val),
+      isUp: typeof val === 'number' && val > 0,
+      isDown: typeof val === 'number' && val < 0,
+    };
+  });
+
+  const featuredKeys = ['1w', '1m', '3m', 'ytd', '1y', '5y'];
+  const performanceText = performanceList
+    .filter((item) => featuredKeys.includes(item.key) && item.text !== '—')
+    .map((item) => `${item.label} ${item.text}`)
+    .join(', ');
+
+  const perfClause = performanceText ? `. Performance: ${performanceText}` : '';
+  const title = `${security.symbol} · ${security.name} — S&P 500 Screener & Ranker`;
+  const description = `${security.name} (${security.symbol}): ${price} (${ret1y} 1Y)${perfClause}. Market Cap: ${mcap}${peClause}${niClause}. Explore performance graph across 9 periods and 10 years of price history.`;
+  const ytdItem = performanceList.find((item) => item.key === 'ytd');
+  const ytdText = ytdItem && ytdItem.text !== '—' ? `, YTD: ${ytdItem.text}` : '';
+  const message = `Take a look at ${security.symbol} on S&P 500 Screener & Ranker (1Y: ${ret1y}${ytdText}).`;
+
+  return {
+    symbol: security.symbol,
+    name: security.name,
+    price,
+    ret1y,
+    pe,
+    mcap,
+    netIncome,
+    performanceList,
+    performanceText,
+    title,
+    description,
+    message,
+  };
 }

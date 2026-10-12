@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>MSI · Motorola Solutions — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Motorola Solutions (MSI): $444.18 (−2.9% 1Y). Performance: 1W −0.7%, 1M −3.4%, 3M +6.5%, YTD +15.9%, 1Y −2.9%, 5Y +87.6%. Market Cap: $73.5B, P/E: 34.5, Net Income: $2.13B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/MSI/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/MSI/">
+  <meta property="og:title" content="MSI · Motorola Solutions — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Motorola Solutions (MSI): $444.18 (−2.9% 1Y). Performance: 1W −0.7%, 1M −3.4%, 3M +6.5%, YTD +15.9%, 1Y −2.9%, 5Y +87.6%. Market Cap: $73.5B, P/E: 34.5, Net Income: $2.13B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="MSI · Motorola Solutions — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MSI · Motorola Solutions — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Motorola Solutions (MSI): $444.18 (−2.9% 1Y). Performance: 1W −0.7%, 1M −3.4%, 3M +6.5%, YTD +15.9%, 1Y −2.9%, 5Y +87.6%. Market Cap: $73.5B, P/E: 34.5, Net Income: $2.13B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">MSI</span>
+    <h1>Motorola Solutions</h1>
+    <div class="quote-row">
+      <span class="price">$444.18</span>
+      <span class="change down">−2.9% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−2.9%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for MSI">
+    <defs>
+      <linearGradient id="chart-fill-MSI" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="54.0" x2="416" y2="54.0" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,54.0 L13.6,55.5 L15.2,55.5 L16.8,50.6 L18.4,75.1 L20.0,77.1 L21.7,68.3 L23.3,64.4 L24.9,64.8 L26.5,66.2 L28.1,68.5 L29.7,75.1 L31.3,69.4 L32.9,73.7 L34.5,82.8 L36.1,83.0 L37.8,111.5 L39.4,128.7 L41.0,125.6 L42.6,125.3 L44.2,131.4 L45.8,129.6 L47.4,125.9 L49.0,128.2 L50.6,128.2 L52.2,137.9 L53.8,141.7 L55.5,144.3 L57.1,150.4 L58.7,151.3 L60.3,156.4 L61.9,154.2 L63.5,154.9 L65.1,153.6 L66.7,153.6 L68.3,153.4 L69.9,149.2 L71.6,144.5 L73.2,146.6 L74.8,151.3 L76.4,148.1 L78.0,151.4 L79.6,151.5 L81.2,152.2 L82.8,155.2 L84.4,159.0 L86.0,158.9 L87.6,160.0 L89.3,148.0 L90.9,148.8 L92.5,153.1 L94.1,150.0 L95.7,143.6 L97.3,145.7 L98.9,145.1 L100.5,144.8 L102.1,137.3 L103.7,138.0 L105.4,140.6 L107.0,138.7 L108.6,140.5 L110.2,144.6 L111.8,139.6 L113.4,138.2 L115.0,135.4 L116.6,129.3 L118.2,131.3 L119.8,125.4 L121.5,118.4 L123.1,129.2 L124.7,124.8 L126.3,122.0 L127.9,117.2 L129.5,117.9 L131.1,112.2 L132.7,113.4 L134.3,115.6 L135.9,116.2 L137.5,115.0 L139.2,108.4 L140.8,100.7 L142.4,99.7 L144.0,94.1 L145.6,93.6 L147.2,96.9 L148.8,95.2 L150.4,58.7 L152.0,49.3 L153.6,53.8 L155.3,60.8 L156.9,58.5 L158.5,48.2 L160.1,45.6 L161.7,39.0 L163.3,38.5 L164.9,37.8 L166.5,26.1 L168.1,21.8 L169.7,28.5 L171.3,30.7 L173.0,43.2 L174.6,50.4 L176.2,53.5 L177.8,46.7 L179.4,48.4 L181.0,48.3 L182.6,36.5 L184.2,39.1 L185.8,41.0 L187.4,43.1 L189.1,52.3 L190.7,60.0 L192.3,55.1 L193.9,57.2 L195.5,61.5 L197.1,62.6 L198.7,75.8 L200.3,88.9 L201.9,80.7 L203.5,80.5 L205.1,75.1 L206.8,72.3 L208.4,71.1 L210.0,65.2 L211.6,71.1 L213.2,81.0 L214.8,74.0 L216.4,73.8 L218.0,73.7 L219.6,68.9 L221.2,71.7 L222.9,66.1 L224.5,67.7 L226.1,72.0 L227.7,70.3 L229.3,75.9 L230.9,83.4 L232.5,79.9 L234.1,86.1 L235.7,75.0 L237.3,78.5 L238.9,76.6 L240.6,76.2 L242.2,81.1 L243.8,81.6 L245.4,137.2 L247.0,128.0 L248.6,128.9 L250.2,121.5 L251.8,119.9 L253.4,126.7 L255.0,107.5 L256.7,120.6 L258.3,123.7 L259.9,118.8 L261.5,114.5 L263.1,107.3 L264.7,109.3 L266.3,106.1 L267.9,115.4 L269.5,106.0 L271.1,101.7 L272.7,109.6 L274.4,107.0 L276.0,107.4 L277.6,111.4 L279.2,103.2 L280.8,106.0 L282.4,107.4 L284.0,105.3 L285.6,105.9 L287.2,113.5 L288.8,118.3 L290.5,124.6 L292.1,127.9 L293.7,131.1 L295.3,118.4 L296.9,122.5 L298.5,115.9 L300.1,104.9 L301.7,101.8 L303.3,97.7 L304.9,93.5 L306.5,93.3 L308.2,91.8 L309.8,95.9 L311.4,99.7 L313.0,93.3 L314.6,98.7 L316.2,103.6 L317.8,111.0 L319.4,103.1 L321.0,104.1 L322.6,107.3 L324.3,112.0 L325.9,114.2 L327.5,111.2 L329.1,99.0 L330.7,92.2 L332.3,73.6 L333.9,80.5 L335.5,84.3 L337.1,78.7 L338.7,77.1 L340.4,70.7 L342.0,76.0 L343.6,35.4 L345.2,42.8 L346.8,49.1 L348.4,43.6 L350.0,40.3 L351.6,45.6 L353.2,44.0 L354.8,54.6 L356.4,40.6 L358.1,27.8 L359.7,35.9 L361.3,28.2 L362.9,27.0 L364.5,22.6 L366.1,20.5 L367.7,21.3 L369.3,21.9 L370.9,22.7 L372.5,16.0 L374.2,29.9 L375.8,37.5 L377.4,42.2 L379.0,47.9 L380.6,51.4 L382.2,46.9 L383.8,44.3 L385.4,35.3 L387.0,41.0 L388.6,50.7 L390.2,51.7 L391.9,52.8 L393.5,49.8 L395.1,55.0 L396.7,50.8 L398.3,57.1 L399.9,54.8 L401.5,60.3 L403.1,67.0 L404.7,67.2 L406.3,64.8 L408.0,65.5 L409.6,56.5 L411.2,55.5 L412.8,64.5 L414.4,65.9 L416.0,69.2 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-MSI)"/>
+    <path d="M12.0,54.0 L13.6,55.5 L15.2,55.5 L16.8,50.6 L18.4,75.1 L20.0,77.1 L21.7,68.3 L23.3,64.4 L24.9,64.8 L26.5,66.2 L28.1,68.5 L29.7,75.1 L31.3,69.4 L32.9,73.7 L34.5,82.8 L36.1,83.0 L37.8,111.5 L39.4,128.7 L41.0,125.6 L42.6,125.3 L44.2,131.4 L45.8,129.6 L47.4,125.9 L49.0,128.2 L50.6,128.2 L52.2,137.9 L53.8,141.7 L55.5,144.3 L57.1,150.4 L58.7,151.3 L60.3,156.4 L61.9,154.2 L63.5,154.9 L65.1,153.6 L66.7,153.6 L68.3,153.4 L69.9,149.2 L71.6,144.5 L73.2,146.6 L74.8,151.3 L76.4,148.1 L78.0,151.4 L79.6,151.5 L81.2,152.2 L82.8,155.2 L84.4,159.0 L86.0,158.9 L87.6,160.0 L89.3,148.0 L90.9,148.8 L92.5,153.1 L94.1,150.0 L95.7,143.6 L97.3,145.7 L98.9,145.1 L100.5,144.8 L102.1,137.3 L103.7,138.0 L105.4,140.6 L107.0,138.7 L108.6,140.5 L110.2,144.6 L111.8,139.6 L113.4,138.2 L115.0,135.4 L116.6,129.3 L118.2,131.3 L119.8,125.4 L121.5,118.4 L123.1,129.2 L124.7,124.8 L126.3,122.0 L127.9,117.2 L129.5,117.9 L131.1,112.2 L132.7,113.4 L134.3,115.6 L135.9,116.2 L137.5,115.0 L139.2,108.4 L140.8,100.7 L142.4,99.7 L144.0,94.1 L145.6,93.6 L147.2,96.9 L148.8,95.2 L150.4,58.7 L152.0,49.3 L153.6,53.8 L155.3,60.8 L156.9,58.5 L158.5,48.2 L160.1,45.6 L161.7,39.0 L163.3,38.5 L164.9,37.8 L166.5,26.1 L168.1,21.8 L169.7,28.5 L171.3,30.7 L173.0,43.2 L174.6,50.4 L176.2,53.5 L177.8,46.7 L179.4,48.4 L181.0,48.3 L182.6,36.5 L184.2,39.1 L185.8,41.0 L187.4,43.1 L189.1,52.3 L190.7,60.0 L192.3,55.1 L193.9,57.2 L195.5,61.5 L197.1,62.6 L198.7,75.8 L200.3,88.9 L201.9,80.7 L203.5,80.5 L205.1,75.1 L206.8,72.3 L208.4,71.1 L210.0,65.2 L211.6,71.1 L213.2,81.0 L214.8,74.0 L216.4,73.8 L218.0,73.7 L219.6,68.9 L221.2,71.7 L222.9,66.1 L224.5,67.7 L226.1,72.0 L227.7,70.3 L229.3,75.9 L230.9,83.4 L232.5,79.9 L234.1,86.1 L235.7,75.0 L237.3,78.5 L238.9,76.6 L240.6,76.2 L242.2,81.1 L243.8,81.6 L245.4,137.2 L247.0,128.0 L248.6,128.9 L250.2,121.5 L251.8,119.9 L253.4,126.7 L255.0,107.5 L256.7,120.6 L258.3,123.7 L259.9,118.8 L261.5,114.5 L263.1,107.3 L264.7,109.3 L266.3,106.1 L267.9,115.4 L269.5,106.0 L271.1,101.7 L272.7,109.6 L274.4,107.0 L276.0,107.4 L277.6,111.4 L279.2,103.2 L280.8,106.0 L282.4,107.4 L284.0,105.3 L285.6,105.9 L287.2,113.5 L288.8,118.3 L290.5,124.6 L292.1,127.9 L293.7,131.1 L295.3,118.4 L296.9,122.5 L298.5,115.9 L300.1,104.9 L301.7,101.8 L303.3,97.7 L304.9,93.5 L306.5,93.3 L308.2,91.8 L309.8,95.9 L311.4,99.7 L313.0,93.3 L314.6,98.7 L316.2,103.6 L317.8,111.0 L319.4,103.1 L321.0,104.1 L322.6,107.3 L324.3,112.0 L325.9,114.2 L327.5,111.2 L329.1,99.0 L330.7,92.2 L332.3,73.6 L333.9,80.5 L335.5,84.3 L337.1,78.7 L338.7,77.1 L340.4,70.7 L342.0,76.0 L343.6,35.4 L345.2,42.8 L346.8,49.1 L348.4,43.6 L350.0,40.3 L351.6,45.6 L353.2,44.0 L354.8,54.6 L356.4,40.6 L358.1,27.8 L359.7,35.9 L361.3,28.2 L362.9,27.0 L364.5,22.6 L366.1,20.5 L367.7,21.3 L369.3,21.9 L370.9,22.7 L372.5,16.0 L374.2,29.9 L375.8,37.5 L377.4,42.2 L379.0,47.9 L380.6,51.4 L382.2,46.9 L383.8,44.3 L385.4,35.3 L387.0,41.0 L388.6,50.7 L390.2,51.7 L391.9,52.8 L393.5,49.8 L395.1,55.0 L396.7,50.8 L398.3,57.1 L399.9,54.8 L401.5,60.3 L403.1,67.0 L404.7,67.2 L406.3,64.8 L408.0,65.5 L409.6,56.5 L411.2,55.5 L412.8,64.5 L414.4,65.9 L416.0,69.2" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="69.2" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$444.18</text>
+    <text x="474" y="54.0" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$457.63</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip down"><span class="perf-label">1W</span><strong class="perf-value">−0.7%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−3.4%</strong></div><div class="perf-chip up"><span class="perf-label">3M</span><strong class="perf-value">+6.5%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+15.9%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−2.9%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−4.8%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+87.6%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+496.4%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+31282%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$73.5B</strong></span>
+      <span>P/E: <strong>34.5</strong></span>
+      <span>Net Income: <strong>$2.13B</strong></span>
+    </div>
+
+    <p class="summary">Motorola Solutions (MSI): $444.18 (−2.9% 1Y). Performance: 1W −0.7%, 1M −3.4%, 3M +6.5%, YTD +15.9%, 1Y −2.9%, 5Y +87.6%. Market Cap: $73.5B, P/E: 34.5, Net Income: $2.13B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=MSI">Open MSI in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=MSI");</script>
+</body>
+</html>

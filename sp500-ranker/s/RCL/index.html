@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>RCL · Royal Caribbean Group — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Royal Caribbean Group (RCL): $282.26 (−8.1% 1Y). Performance: 1W +1.6%, 1M +8.7%, 3M −2.0%, YTD +1.2%, 1Y −8.1%, 5Y +221.7%. Market Cap: $75.5B, P/E: 17.2, Net Income: $4.40B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/RCL/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/RCL/">
+  <meta property="og:title" content="RCL · Royal Caribbean Group — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Royal Caribbean Group (RCL): $282.26 (−8.1% 1Y). Performance: 1W +1.6%, 1M +8.7%, 3M −2.0%, YTD +1.2%, 1Y −8.1%, 5Y +221.7%. Market Cap: $75.5B, P/E: 17.2, Net Income: $4.40B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="RCL · Royal Caribbean Group — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="RCL · Royal Caribbean Group — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Royal Caribbean Group (RCL): $282.26 (−8.1% 1Y). Performance: 1W +1.6%, 1M +8.7%, 3M −2.0%, YTD +1.2%, 1Y −8.1%, 5Y +221.7%. Market Cap: $75.5B, P/E: 17.2, Net Income: $4.40B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">RCL</span>
+    <h1>Royal Caribbean Group</h1>
+    <div class="quote-row">
+      <span class="price">$282.26</span>
+      <span class="change down">−8.1% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−8.1%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for RCL">
+    <defs>
+      <linearGradient id="chart-fill-RCL" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="66.2" x2="416" y2="66.2" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,66.2 L13.6,69.1 L15.2,67.1 L16.8,57.8 L18.4,61.1 L20.0,76.6 L21.7,74.4 L23.3,71.3 L24.9,54.2 L26.5,52.8 L28.1,54.1 L29.7,54.6 L31.3,50.0 L32.9,83.4 L34.5,99.1 L36.1,93.7 L37.8,90.9 L39.4,101.9 L41.0,126.9 L42.6,127.8 L44.2,131.5 L45.8,128.6 L47.4,117.6 L49.0,119.3 L50.6,119.5 L52.2,128.9 L53.8,132.4 L55.5,139.9 L57.1,134.2 L58.7,128.6 L60.3,132.6 L61.9,118.7 L63.5,129.1 L65.1,115.8 L66.7,116.7 L68.3,116.0 L69.9,115.6 L71.6,117.5 L73.2,116.6 L74.8,124.6 L76.4,126.5 L78.0,133.0 L79.6,138.0 L81.2,123.2 L82.8,99.6 L84.4,100.6 L86.0,90.4 L87.6,97.4 L89.3,93.2 L90.9,91.0 L92.5,82.6 L94.1,73.9 L95.7,84.2 L97.3,81.9 L98.9,92.3 L100.5,95.9 L102.1,97.1 L103.7,100.5 L105.4,95.2 L107.0,99.0 L108.6,77.5 L110.2,71.8 L111.8,69.5 L113.4,60.7 L115.0,73.4 L116.6,84.9 L118.2,100.0 L119.8,101.5 L121.5,104.1 L123.1,111.4 L124.7,101.9 L126.3,92.4 L127.9,91.7 L129.5,83.1 L131.1,86.3 L132.7,85.0 L134.3,18.5 L135.9,44.6 L137.5,33.1 L139.2,42.6 L140.8,39.7 L142.4,42.8 L144.0,16.0 L145.6,16.0 L147.2,16.9 L148.8,33.5 L150.4,34.6 L152.0,50.8 L153.6,45.7 L155.3,51.7 L156.9,62.1 L158.5,56.3 L160.1,71.5 L161.7,54.6 L163.3,58.8 L164.9,51.6 L166.5,61.3 L168.1,73.7 L169.7,73.1 L171.3,90.4 L173.0,95.5 L174.6,101.6 L176.2,86.3 L177.8,93.1 L179.4,91.2 L181.0,115.7 L182.6,108.3 L184.2,98.2 L185.8,101.8 L187.4,112.0 L189.1,109.0 L190.7,119.2 L192.3,100.5 L193.9,107.3 L195.5,100.4 L197.1,106.5 L198.7,121.5 L200.3,122.0 L201.9,105.1 L203.5,96.7 L205.1,107.1 L206.8,104.5 L208.4,114.2 L210.0,100.1 L211.6,104.2 L213.2,103.0 L214.8,96.3 L216.4,97.3 L218.0,96.4 L219.6,116.4 L221.2,92.5 L222.9,96.4 L224.5,109.6 L226.1,116.8 L227.7,123.1 L229.3,116.5 L230.9,125.1 L232.5,128.7 L234.1,131.0 L235.7,119.1 L237.3,116.9 L238.9,124.3 L240.6,118.8 L242.2,90.6 L243.8,98.1 L245.4,105.0 L247.0,119.4 L248.6,126.0 L250.2,118.5 L251.8,117.1 L253.4,123.3 L255.0,132.7 L256.7,139.3 L258.3,131.1 L259.9,123.3 L261.5,128.4 L263.1,114.2 L264.7,105.1 L266.3,97.6 L267.9,93.5 L269.5,88.1 L271.1,86.0 L272.7,91.4 L274.4,83.0 L276.0,99.2 L277.6,109.0 L279.2,96.4 L280.8,113.0 L282.4,89.5 L284.0,81.6 L285.6,58.0 L287.2,59.0 L288.8,72.9 L290.5,59.4 L292.1,63.3 L293.7,63.1 L295.3,49.1 L296.9,47.0 L298.5,52.6 L300.1,48.5 L301.7,53.3 L303.3,67.0 L304.9,79.3 L306.5,89.7 L308.2,96.4 L309.8,98.0 L311.4,89.3 L313.0,92.6 L314.6,88.7 L316.2,95.4 L317.8,84.3 L319.4,82.1 L321.0,90.7 L322.6,91.7 L324.3,89.5 L325.9,92.1 L327.5,95.0 L329.1,82.6 L330.7,68.6 L332.3,47.2 L333.9,45.9 L335.5,47.9 L337.1,52.4 L338.7,45.4 L340.4,43.3 L342.0,41.2 L343.6,49.6 L345.2,50.3 L346.8,65.0 L348.4,66.0 L350.0,65.0 L351.6,62.7 L353.2,68.6 L354.8,72.6 L356.4,74.7 L358.1,74.1 L359.7,89.9 L361.3,84.5 L362.9,83.3 L364.5,84.2 L366.1,87.0 L367.7,93.3 L369.3,99.9 L370.9,113.0 L372.5,116.7 L374.2,116.8 L375.8,116.9 L377.4,117.3 L379.0,118.2 L380.6,124.0 L382.2,124.9 L383.8,123.5 L385.4,129.4 L387.0,136.8 L388.6,131.1 L390.2,136.2 L391.9,141.0 L393.5,135.6 L395.1,154.4 L396.7,160.0 L398.3,149.4 L399.9,144.8 L401.5,145.0 L403.1,122.9 L404.7,116.5 L406.3,111.5 L408.0,102.0 L409.6,105.3 L411.2,88.5 L412.8,96.4 L414.4,97.5 L416.0,96.4 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-RCL)"/>
+    <path d="M12.0,66.2 L13.6,69.1 L15.2,67.1 L16.8,57.8 L18.4,61.1 L20.0,76.6 L21.7,74.4 L23.3,71.3 L24.9,54.2 L26.5,52.8 L28.1,54.1 L29.7,54.6 L31.3,50.0 L32.9,83.4 L34.5,99.1 L36.1,93.7 L37.8,90.9 L39.4,101.9 L41.0,126.9 L42.6,127.8 L44.2,131.5 L45.8,128.6 L47.4,117.6 L49.0,119.3 L50.6,119.5 L52.2,128.9 L53.8,132.4 L55.5,139.9 L57.1,134.2 L58.7,128.6 L60.3,132.6 L61.9,118.7 L63.5,129.1 L65.1,115.8 L66.7,116.7 L68.3,116.0 L69.9,115.6 L71.6,117.5 L73.2,116.6 L74.8,124.6 L76.4,126.5 L78.0,133.0 L79.6,138.0 L81.2,123.2 L82.8,99.6 L84.4,100.6 L86.0,90.4 L87.6,97.4 L89.3,93.2 L90.9,91.0 L92.5,82.6 L94.1,73.9 L95.7,84.2 L97.3,81.9 L98.9,92.3 L100.5,95.9 L102.1,97.1 L103.7,100.5 L105.4,95.2 L107.0,99.0 L108.6,77.5 L110.2,71.8 L111.8,69.5 L113.4,60.7 L115.0,73.4 L116.6,84.9 L118.2,100.0 L119.8,101.5 L121.5,104.1 L123.1,111.4 L124.7,101.9 L126.3,92.4 L127.9,91.7 L129.5,83.1 L131.1,86.3 L132.7,85.0 L134.3,18.5 L135.9,44.6 L137.5,33.1 L139.2,42.6 L140.8,39.7 L142.4,42.8 L144.0,16.0 L145.6,16.0 L147.2,16.9 L148.8,33.5 L150.4,34.6 L152.0,50.8 L153.6,45.7 L155.3,51.7 L156.9,62.1 L158.5,56.3 L160.1,71.5 L161.7,54.6 L163.3,58.8 L164.9,51.6 L166.5,61.3 L168.1,73.7 L169.7,73.1 L171.3,90.4 L173.0,95.5 L174.6,101.6 L176.2,86.3 L177.8,93.1 L179.4,91.2 L181.0,115.7 L182.6,108.3 L184.2,98.2 L185.8,101.8 L187.4,112.0 L189.1,109.0 L190.7,119.2 L192.3,100.5 L193.9,107.3 L195.5,100.4 L197.1,106.5 L198.7,121.5 L200.3,122.0 L201.9,105.1 L203.5,96.7 L205.1,107.1 L206.8,104.5 L208.4,114.2 L210.0,100.1 L211.6,104.2 L213.2,103.0 L214.8,96.3 L216.4,97.3 L218.0,96.4 L219.6,116.4 L221.2,92.5 L222.9,96.4 L224.5,109.6 L226.1,116.8 L227.7,123.1 L229.3,116.5 L230.9,125.1 L232.5,128.7 L234.1,131.0 L235.7,119.1 L237.3,116.9 L238.9,124.3 L240.6,118.8 L242.2,90.6 L243.8,98.1 L245.4,105.0 L247.0,119.4 L248.6,126.0 L250.2,118.5 L251.8,117.1 L253.4,123.3 L255.0,132.7 L256.7,139.3 L258.3,131.1 L259.9,123.3 L261.5,128.4 L263.1,114.2 L264.7,105.1 L266.3,97.6 L267.9,93.5 L269.5,88.1 L271.1,86.0 L272.7,91.4 L274.4,83.0 L276.0,99.2 L277.6,109.0 L279.2,96.4 L280.8,113.0 L282.4,89.5 L284.0,81.6 L285.6,58.0 L287.2,59.0 L288.8,72.9 L290.5,59.4 L292.1,63.3 L293.7,63.1 L295.3,49.1 L296.9,47.0 L298.5,52.6 L300.1,48.5 L301.7,53.3 L303.3,67.0 L304.9,79.3 L306.5,89.7 L308.2,96.4 L309.8,98.0 L311.4,89.3 L313.0,92.6 L314.6,88.7 L316.2,95.4 L317.8,84.3 L319.4,82.1 L321.0,90.7 L322.6,91.7 L324.3,89.5 L325.9,92.1 L327.5,95.0 L329.1,82.6 L330.7,68.6 L332.3,47.2 L333.9,45.9 L335.5,47.9 L337.1,52.4 L338.7,45.4 L340.4,43.3 L342.0,41.2 L343.6,49.6 L345.2,50.3 L346.8,65.0 L348.4,66.0 L350.0,65.0 L351.6,62.7 L353.2,68.6 L354.8,72.6 L356.4,74.7 L358.1,74.1 L359.7,89.9 L361.3,84.5 L362.9,83.3 L364.5,84.2 L366.1,87.0 L367.7,93.3 L369.3,99.9 L370.9,113.0 L372.5,116.7 L374.2,116.8 L375.8,116.9 L377.4,117.3 L379.0,118.2 L380.6,124.0 L382.2,124.9 L383.8,123.5 L385.4,129.4 L387.0,136.8 L388.6,131.1 L390.2,136.2 L391.9,141.0 L393.5,135.6 L395.1,154.4 L396.7,160.0 L398.3,149.4 L399.9,144.8 L401.5,145.0 L403.1,122.9 L404.7,116.5 L406.3,111.5 L408.0,102.0 L409.6,105.3 L411.2,88.5 L412.8,96.4 L414.4,97.5 L416.0,96.4" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="96.4" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$282.26</text>
+    <text x="474" y="66.2" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$306.99</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+1.6%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+8.7%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−2.0%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+1.2%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−8.1%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+46.2%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+221.7%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+283.0%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+2972%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$75.5B</strong></span>
+      <span>P/E: <strong>17.2</strong></span>
+      <span>Net Income: <strong>$4.40B</strong></span>
+    </div>
+
+    <p class="summary">Royal Caribbean Group (RCL): $282.26 (−8.1% 1Y). Performance: 1W +1.6%, 1M +8.7%, 3M −2.0%, YTD +1.2%, 1Y −8.1%, 5Y +221.7%. Market Cap: $75.5B, P/E: 17.2, Net Income: $4.40B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=RCL">Open RCL in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=RCL");</script>
+</body>
+</html>

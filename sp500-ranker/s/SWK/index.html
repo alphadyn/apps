@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>SWK · Stanley Black &amp; Decker — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Stanley Black &amp; Decker (SWK): $88.57 (+27.0% 1Y). Performance: 1W −3.0%, 1M −3.4%, 3M +2.0%, YTD +19.2%, 1Y +27.0%, 5Y −50.0%. Market Cap: $13.4B, P/E: 21.6, Net Income: $620M. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/SWK/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/SWK/">
+  <meta property="og:title" content="SWK · Stanley Black &amp; Decker — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Stanley Black &amp; Decker (SWK): $88.57 (+27.0% 1Y). Performance: 1W −3.0%, 1M −3.4%, 3M +2.0%, YTD +19.2%, 1Y +27.0%, 5Y −50.0%. Market Cap: $13.4B, P/E: 21.6, Net Income: $620M. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="SWK · Stanley Black &amp; Decker — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SWK · Stanley Black &amp; Decker — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Stanley Black &amp; Decker (SWK): $88.57 (+27.0% 1Y). Performance: 1W −3.0%, 1M −3.4%, 3M +2.0%, YTD +19.2%, 1Y +27.0%, 5Y −50.0%. Market Cap: $13.4B, P/E: 21.6, Net Income: $620M. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">SWK</span>
+    <h1>Stanley Black &amp; Decker</h1>
+    <div class="quote-row">
+      <span class="price">$88.57</span>
+      <span class="change up">+27.0% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+27.0%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for SWK">
+    <defs>
+      <linearGradient id="chart-fill-SWK" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="133.9" x2="416" y2="133.9" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,133.9 L13.6,152.1 L15.2,151.9 L16.8,143.2 L18.4,140.7 L20.0,140.1 L21.7,140.3 L23.3,136.0 L24.9,129.9 L26.5,135.6 L28.1,131.5 L29.7,132.2 L31.3,125.8 L32.9,126.4 L34.5,133.0 L36.1,137.8 L37.8,140.7 L39.4,145.4 L41.0,144.5 L42.6,134.2 L44.2,141.6 L45.8,138.9 L47.4,140.0 L49.0,141.1 L50.6,139.0 L52.2,141.8 L53.8,147.9 L55.5,154.7 L57.1,157.6 L58.7,160.0 L60.3,158.9 L61.9,146.1 L63.5,142.6 L65.1,130.4 L66.7,126.6 L68.3,127.7 L69.9,131.0 L71.6,128.6 L73.2,124.2 L74.8,125.3 L76.4,124.4 L78.0,124.8 L79.6,126.4 L81.2,112.8 L82.8,110.4 L84.4,113.4 L86.0,118.6 L87.6,123.3 L89.3,126.3 L90.9,122.8 L92.5,123.4 L94.1,114.9 L95.7,116.9 L97.3,116.2 L98.9,114.4 L100.5,115.2 L102.1,115.1 L103.7,118.2 L105.4,110.7 L107.0,108.1 L108.6,95.9 L110.2,103.0 L111.8,93.4 L113.4,90.4 L115.0,90.2 L116.6,88.6 L118.2,85.5 L119.8,83.4 L121.5,82.7 L123.1,96.0 L124.7,86.3 L126.3,85.7 L127.9,90.0 L129.5,92.3 L131.1,94.9 L132.7,100.9 L134.3,101.6 L135.9,103.1 L137.5,101.4 L139.2,95.2 L140.8,82.6 L142.4,79.4 L144.0,66.2 L145.6,64.7 L147.2,58.1 L148.8,62.3 L150.4,65.3 L152.0,60.5 L153.6,61.0 L155.3,64.7 L156.9,65.5 L158.5,57.4 L160.1,73.5 L161.7,66.7 L163.3,80.4 L164.9,72.2 L166.5,76.2 L168.1,84.6 L169.7,92.9 L171.3,99.3 L173.0,105.6 L174.6,112.0 L176.2,113.6 L177.8,118.7 L179.4,120.0 L181.0,129.2 L182.6,132.4 L184.2,129.2 L185.8,129.4 L187.4,134.2 L189.1,136.2 L190.7,142.3 L192.3,133.2 L193.9,127.5 L195.5,126.5 L197.1,130.1 L198.7,137.0 L200.3,141.8 L201.9,129.3 L203.5,128.9 L205.1,137.6 L206.8,139.9 L208.4,141.1 L210.0,127.8 L211.6,121.1 L213.2,125.4 L214.8,124.8 L216.4,125.4 L218.0,142.6 L219.6,138.2 L221.2,128.3 L222.9,115.3 L224.5,111.4 L226.1,113.3 L227.7,112.2 L229.3,110.1 L230.9,99.0 L232.5,104.3 L234.1,112.7 L235.7,104.8 L237.3,103.6 L238.9,116.2 L240.6,107.3 L242.2,95.0 L243.8,97.8 L245.4,94.8 L247.0,101.7 L248.6,102.4 L250.2,106.6 L251.8,107.5 L253.4,115.2 L255.0,114.2 L256.7,119.6 L258.3,115.8 L259.9,113.9 L261.5,110.7 L263.1,102.2 L264.7,100.4 L266.3,101.0 L267.9,100.5 L269.5,104.8 L271.1,101.5 L272.7,103.4 L274.4,100.9 L276.0,103.7 L277.6,103.6 L279.2,98.1 L280.8,107.2 L282.4,87.8 L284.0,86.1 L285.6,82.0 L287.2,82.6 L288.8,90.0 L290.5,75.3 L292.1,76.8 L293.7,85.4 L295.3,65.3 L296.9,56.2 L298.5,57.3 L300.1,51.6 L301.7,50.0 L303.3,59.5 L304.9,57.6 L306.5,55.3 L308.2,66.3 L309.8,77.4 L311.4,75.1 L313.0,70.3 L314.6,76.1 L316.2,73.2 L317.8,71.2 L319.4,59.6 L321.0,63.6 L322.6,72.7 L324.3,70.4 L325.9,66.7 L327.5,73.0 L329.1,59.8 L330.7,49.8 L332.3,49.7 L333.9,53.7 L335.5,45.1 L337.1,48.4 L338.7,36.3 L340.4,21.5 L342.0,18.5 L343.6,26.2 L345.2,16.4 L346.8,20.7 L348.4,16.0 L350.0,19.8 L351.6,22.2 L353.2,22.6 L354.8,31.2 L356.4,35.3 L358.1,30.4 L359.7,33.7 L361.3,29.7 L362.9,34.9 L364.5,35.0 L366.1,30.6 L367.7,32.4 L369.3,37.3 L370.9,42.2 L372.5,48.6 L374.2,40.4 L375.8,41.8 L377.4,38.8 L379.0,51.0 L380.6,58.4 L382.2,66.8 L383.8,66.8 L385.4,68.0 L387.0,69.0 L388.6,67.4 L390.2,67.2 L391.9,65.6 L393.5,68.7 L395.1,56.8 L396.7,58.1 L398.3,63.6 L399.9,59.3 L401.5,68.5 L403.1,68.3 L404.7,69.0 L406.3,65.5 L408.0,59.5 L409.6,65.2 L411.2,64.2 L412.8,69.9 L414.4,67.0 L416.0,69.1 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-SWK)"/>
+    <path d="M12.0,133.9 L13.6,152.1 L15.2,151.9 L16.8,143.2 L18.4,140.7 L20.0,140.1 L21.7,140.3 L23.3,136.0 L24.9,129.9 L26.5,135.6 L28.1,131.5 L29.7,132.2 L31.3,125.8 L32.9,126.4 L34.5,133.0 L36.1,137.8 L37.8,140.7 L39.4,145.4 L41.0,144.5 L42.6,134.2 L44.2,141.6 L45.8,138.9 L47.4,140.0 L49.0,141.1 L50.6,139.0 L52.2,141.8 L53.8,147.9 L55.5,154.7 L57.1,157.6 L58.7,160.0 L60.3,158.9 L61.9,146.1 L63.5,142.6 L65.1,130.4 L66.7,126.6 L68.3,127.7 L69.9,131.0 L71.6,128.6 L73.2,124.2 L74.8,125.3 L76.4,124.4 L78.0,124.8 L79.6,126.4 L81.2,112.8 L82.8,110.4 L84.4,113.4 L86.0,118.6 L87.6,123.3 L89.3,126.3 L90.9,122.8 L92.5,123.4 L94.1,114.9 L95.7,116.9 L97.3,116.2 L98.9,114.4 L100.5,115.2 L102.1,115.1 L103.7,118.2 L105.4,110.7 L107.0,108.1 L108.6,95.9 L110.2,103.0 L111.8,93.4 L113.4,90.4 L115.0,90.2 L116.6,88.6 L118.2,85.5 L119.8,83.4 L121.5,82.7 L123.1,96.0 L124.7,86.3 L126.3,85.7 L127.9,90.0 L129.5,92.3 L131.1,94.9 L132.7,100.9 L134.3,101.6 L135.9,103.1 L137.5,101.4 L139.2,95.2 L140.8,82.6 L142.4,79.4 L144.0,66.2 L145.6,64.7 L147.2,58.1 L148.8,62.3 L150.4,65.3 L152.0,60.5 L153.6,61.0 L155.3,64.7 L156.9,65.5 L158.5,57.4 L160.1,73.5 L161.7,66.7 L163.3,80.4 L164.9,72.2 L166.5,76.2 L168.1,84.6 L169.7,92.9 L171.3,99.3 L173.0,105.6 L174.6,112.0 L176.2,113.6 L177.8,118.7 L179.4,120.0 L181.0,129.2 L182.6,132.4 L184.2,129.2 L185.8,129.4 L187.4,134.2 L189.1,136.2 L190.7,142.3 L192.3,133.2 L193.9,127.5 L195.5,126.5 L197.1,130.1 L198.7,137.0 L200.3,141.8 L201.9,129.3 L203.5,128.9 L205.1,137.6 L206.8,139.9 L208.4,141.1 L210.0,127.8 L211.6,121.1 L213.2,125.4 L214.8,124.8 L216.4,125.4 L218.0,142.6 L219.6,138.2 L221.2,128.3 L222.9,115.3 L224.5,111.4 L226.1,113.3 L227.7,112.2 L229.3,110.1 L230.9,99.0 L232.5,104.3 L234.1,112.7 L235.7,104.8 L237.3,103.6 L238.9,116.2 L240.6,107.3 L242.2,95.0 L243.8,97.8 L245.4,94.8 L247.0,101.7 L248.6,102.4 L250.2,106.6 L251.8,107.5 L253.4,115.2 L255.0,114.2 L256.7,119.6 L258.3,115.8 L259.9,113.9 L261.5,110.7 L263.1,102.2 L264.7,100.4 L266.3,101.0 L267.9,100.5 L269.5,104.8 L271.1,101.5 L272.7,103.4 L274.4,100.9 L276.0,103.7 L277.6,103.6 L279.2,98.1 L280.8,107.2 L282.4,87.8 L284.0,86.1 L285.6,82.0 L287.2,82.6 L288.8,90.0 L290.5,75.3 L292.1,76.8 L293.7,85.4 L295.3,65.3 L296.9,56.2 L298.5,57.3 L300.1,51.6 L301.7,50.0 L303.3,59.5 L304.9,57.6 L306.5,55.3 L308.2,66.3 L309.8,77.4 L311.4,75.1 L313.0,70.3 L314.6,76.1 L316.2,73.2 L317.8,71.2 L319.4,59.6 L321.0,63.6 L322.6,72.7 L324.3,70.4 L325.9,66.7 L327.5,73.0 L329.1,59.8 L330.7,49.8 L332.3,49.7 L333.9,53.7 L335.5,45.1 L337.1,48.4 L338.7,36.3 L340.4,21.5 L342.0,18.5 L343.6,26.2 L345.2,16.4 L346.8,20.7 L348.4,16.0 L350.0,19.8 L351.6,22.2 L353.2,22.6 L354.8,31.2 L356.4,35.3 L358.1,30.4 L359.7,33.7 L361.3,29.7 L362.9,34.9 L364.5,35.0 L366.1,30.6 L367.7,32.4 L369.3,37.3 L370.9,42.2 L372.5,48.6 L374.2,40.4 L375.8,41.8 L377.4,38.8 L379.0,51.0 L380.6,58.4 L382.2,66.8 L383.8,66.8 L385.4,68.0 L387.0,69.0 L388.6,67.4 L390.2,67.2 L391.9,65.6 L393.5,68.7 L395.1,56.8 L396.7,58.1 L398.3,63.6 L399.9,59.3 L401.5,68.5 L403.1,68.3 L404.7,69.0 L406.3,65.5 L408.0,59.5 L409.6,65.2 L411.2,64.2 L412.8,69.9 L414.4,67.0 L416.0,69.1" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="69.1" fill="#10b981" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$88.57</text>
+    <text x="474" y="133.9" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$69.72</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip down"><span class="perf-label">1W</span><strong class="perf-value">−3.0%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−3.4%</strong></div><div class="perf-chip up"><span class="perf-label">3M</span><strong class="perf-value">+2.0%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+19.2%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+27.0%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−16.9%</strong></div><div class="perf-chip down"><span class="perf-label">5Y</span><strong class="perf-value">−50.0%</strong></div><div class="perf-chip down"><span class="perf-label">10Y</span><strong class="perf-value">−27.6%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+1574%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$13.4B</strong></span>
+      <span>P/E: <strong>21.6</strong></span>
+      <span>Net Income: <strong>$620M</strong></span>
+    </div>
+
+    <p class="summary">Stanley Black &amp; Decker (SWK): $88.57 (+27.0% 1Y). Performance: 1W −3.0%, 1M −3.4%, 3M +2.0%, YTD +19.2%, 1Y +27.0%, 5Y −50.0%. Market Cap: $13.4B, P/E: 21.6, Net Income: $620M. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=SWK">Open SWK in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=SWK");</script>
+</body>
+</html>

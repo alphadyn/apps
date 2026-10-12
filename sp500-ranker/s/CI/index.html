@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>CI · Cigna — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Cigna (CI): $282.43 (−7.7% 1Y). Performance: 1W +4.4%, 1M +1.5%, 3M −3.2%, YTD +2.6%, 1Y −7.7%, 5Y +37.6%. Market Cap: $74.6B, P/E: 12.5, Net Income: $5.96B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/CI/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/CI/">
+  <meta property="og:title" content="CI · Cigna — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Cigna (CI): $282.43 (−7.7% 1Y). Performance: 1W +4.4%, 1M +1.5%, 3M −3.2%, YTD +2.6%, 1Y −7.7%, 5Y +37.6%. Market Cap: $74.6B, P/E: 12.5, Net Income: $5.96B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="CI · Cigna — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CI · Cigna — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Cigna (CI): $282.43 (−7.7% 1Y). Performance: 1W +4.4%, 1M +1.5%, 3M −3.2%, YTD +2.6%, 1Y −7.7%, 5Y +37.6%. Market Cap: $74.6B, P/E: 12.5, Net Income: $5.96B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">CI</span>
+    <h1>Cigna</h1>
+    <div class="quote-row">
+      <span class="price">$282.43</span>
+      <span class="change down">−7.7% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−7.7%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for CI">
+    <defs>
+      <linearGradient id="chart-fill-CI" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="22.8" x2="416" y2="22.8" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,22.8 L13.6,34.8 L15.2,46.6 L16.8,31.7 L18.4,48.5 L20.0,56.3 L21.7,38.0 L23.3,21.2 L24.9,19.7 L26.5,18.9 L28.1,25.1 L29.7,32.5 L31.3,16.0 L32.9,17.7 L34.5,38.4 L36.1,154.0 L37.8,160.0 L39.4,128.4 L41.0,115.0 L42.6,126.3 L44.2,133.4 L45.8,115.2 L47.4,129.4 L49.0,107.6 L50.6,101.8 L52.2,101.1 L53.8,103.9 L55.5,100.2 L57.1,97.3 L58.7,98.7 L60.3,104.0 L61.9,85.1 L63.5,99.8 L65.1,84.9 L66.7,84.5 L68.3,86.9 L69.9,95.2 L71.6,94.0 L73.2,102.4 L74.8,106.6 L76.4,113.2 L78.0,117.5 L79.6,119.3 L81.2,119.6 L82.8,98.1 L84.4,92.7 L86.0,87.2 L87.6,89.5 L89.3,94.6 L90.9,94.2 L92.5,98.9 L94.1,90.7 L95.7,94.8 L97.3,92.3 L98.9,88.6 L100.5,89.7 L102.1,88.7 L103.7,91.5 L105.4,82.8 L107.0,72.0 L108.6,70.3 L110.2,82.8 L111.8,72.2 L113.4,83.2 L115.0,89.7 L116.6,99.1 L118.2,100.9 L119.8,85.5 L121.5,98.2 L123.1,100.4 L124.7,92.2 L126.3,80.0 L127.9,82.7 L129.5,80.0 L131.1,102.9 L132.7,97.8 L134.3,100.3 L135.9,94.0 L137.5,99.7 L139.2,91.1 L140.8,99.3 L142.4,70.8 L144.0,54.1 L145.6,48.9 L147.2,63.5 L148.8,48.1 L150.4,64.0 L152.0,55.4 L153.6,57.1 L155.3,58.4 L156.9,67.7 L158.5,80.2 L160.1,73.8 L161.7,78.7 L163.3,71.0 L164.9,61.3 L166.5,59.0 L168.1,56.8 L169.7,72.1 L171.3,70.3 L173.0,78.1 L174.6,99.5 L176.2,103.9 L177.8,119.9 L179.4,123.4 L181.0,112.3 L182.6,109.4 L184.2,106.8 L185.8,117.6 L187.4,115.1 L189.1,115.2 L190.7,119.0 L192.3,122.0 L193.9,112.3 L195.5,102.3 L197.1,98.5 L198.7,121.0 L200.3,129.6 L201.9,110.3 L203.5,109.1 L205.1,103.1 L206.8,90.5 L208.4,93.7 L210.0,86.3 L211.6,84.3 L213.2,100.3 L214.8,91.7 L216.4,97.3 L218.0,106.2 L219.6,88.9 L221.2,83.9 L222.9,81.1 L224.5,88.2 L226.1,92.7 L227.7,81.5 L229.3,90.6 L230.9,75.1 L232.5,69.9 L234.1,53.5 L235.7,57.4 L237.3,74.4 L238.9,82.3 L240.6,90.5 L242.2,76.5 L243.8,71.9 L245.4,63.0 L247.0,60.7 L248.6,39.8 L250.2,34.8 L251.8,47.7 L253.4,69.2 L255.0,66.0 L256.7,55.8 L258.3,74.0 L259.9,76.4 L261.5,67.0 L263.1,79.0 L264.7,68.1 L266.3,71.2 L267.9,86.7 L269.5,93.8 L271.1,97.1 L272.7,101.5 L274.4,79.4 L276.0,59.8 L277.6,59.5 L279.2,47.5 L280.8,45.7 L282.4,47.9 L284.0,40.9 L285.6,50.1 L287.2,54.5 L288.8,69.6 L290.5,82.5 L292.1,76.3 L293.7,74.0 L295.3,82.1 L296.9,76.7 L298.5,74.7 L300.1,83.7 L301.7,90.5 L303.3,87.4 L304.9,63.6 L306.5,76.5 L308.2,66.2 L309.8,59.2 L311.4,54.6 L313.0,50.9 L314.6,26.4 L316.2,29.0 L317.8,41.3 L319.4,72.4 L321.0,77.7 L322.6,72.1 L324.3,57.6 L325.9,70.1 L327.5,66.9 L329.1,59.6 L330.7,56.4 L332.3,34.1 L333.9,44.3 L335.5,63.8 L337.1,83.0 L338.7,76.3 L340.4,94.1 L342.0,102.0 L343.6,91.4 L345.2,75.3 L346.8,84.4 L348.4,94.5 L350.0,86.6 L351.6,85.3 L353.2,75.2 L354.8,91.3 L356.4,84.2 L358.1,86.5 L359.7,93.3 L361.3,86.4 L362.9,79.9 L364.5,82.4 L366.1,78.9 L367.7,86.1 L369.3,83.4 L370.9,89.6 L372.5,74.1 L374.2,74.6 L375.8,67.0 L377.4,75.3 L379.0,90.1 L380.6,84.9 L382.2,78.9 L383.8,79.2 L385.4,58.5 L387.0,61.1 L388.6,79.9 L390.2,89.8 L391.9,91.4 L393.5,93.2 L395.1,94.8 L396.7,107.0 L398.3,113.1 L399.9,98.6 L401.5,99.0 L403.1,91.4 L404.7,99.0 L406.3,107.6 L408.0,101.9 L409.6,100.2 L411.2,93.4 L412.8,84.2 L414.4,78.6 L416.0,75.5 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-CI)"/>
+    <path d="M12.0,22.8 L13.6,34.8 L15.2,46.6 L16.8,31.7 L18.4,48.5 L20.0,56.3 L21.7,38.0 L23.3,21.2 L24.9,19.7 L26.5,18.9 L28.1,25.1 L29.7,32.5 L31.3,16.0 L32.9,17.7 L34.5,38.4 L36.1,154.0 L37.8,160.0 L39.4,128.4 L41.0,115.0 L42.6,126.3 L44.2,133.4 L45.8,115.2 L47.4,129.4 L49.0,107.6 L50.6,101.8 L52.2,101.1 L53.8,103.9 L55.5,100.2 L57.1,97.3 L58.7,98.7 L60.3,104.0 L61.9,85.1 L63.5,99.8 L65.1,84.9 L66.7,84.5 L68.3,86.9 L69.9,95.2 L71.6,94.0 L73.2,102.4 L74.8,106.6 L76.4,113.2 L78.0,117.5 L79.6,119.3 L81.2,119.6 L82.8,98.1 L84.4,92.7 L86.0,87.2 L87.6,89.5 L89.3,94.6 L90.9,94.2 L92.5,98.9 L94.1,90.7 L95.7,94.8 L97.3,92.3 L98.9,88.6 L100.5,89.7 L102.1,88.7 L103.7,91.5 L105.4,82.8 L107.0,72.0 L108.6,70.3 L110.2,82.8 L111.8,72.2 L113.4,83.2 L115.0,89.7 L116.6,99.1 L118.2,100.9 L119.8,85.5 L121.5,98.2 L123.1,100.4 L124.7,92.2 L126.3,80.0 L127.9,82.7 L129.5,80.0 L131.1,102.9 L132.7,97.8 L134.3,100.3 L135.9,94.0 L137.5,99.7 L139.2,91.1 L140.8,99.3 L142.4,70.8 L144.0,54.1 L145.6,48.9 L147.2,63.5 L148.8,48.1 L150.4,64.0 L152.0,55.4 L153.6,57.1 L155.3,58.4 L156.9,67.7 L158.5,80.2 L160.1,73.8 L161.7,78.7 L163.3,71.0 L164.9,61.3 L166.5,59.0 L168.1,56.8 L169.7,72.1 L171.3,70.3 L173.0,78.1 L174.6,99.5 L176.2,103.9 L177.8,119.9 L179.4,123.4 L181.0,112.3 L182.6,109.4 L184.2,106.8 L185.8,117.6 L187.4,115.1 L189.1,115.2 L190.7,119.0 L192.3,122.0 L193.9,112.3 L195.5,102.3 L197.1,98.5 L198.7,121.0 L200.3,129.6 L201.9,110.3 L203.5,109.1 L205.1,103.1 L206.8,90.5 L208.4,93.7 L210.0,86.3 L211.6,84.3 L213.2,100.3 L214.8,91.7 L216.4,97.3 L218.0,106.2 L219.6,88.9 L221.2,83.9 L222.9,81.1 L224.5,88.2 L226.1,92.7 L227.7,81.5 L229.3,90.6 L230.9,75.1 L232.5,69.9 L234.1,53.5 L235.7,57.4 L237.3,74.4 L238.9,82.3 L240.6,90.5 L242.2,76.5 L243.8,71.9 L245.4,63.0 L247.0,60.7 L248.6,39.8 L250.2,34.8 L251.8,47.7 L253.4,69.2 L255.0,66.0 L256.7,55.8 L258.3,74.0 L259.9,76.4 L261.5,67.0 L263.1,79.0 L264.7,68.1 L266.3,71.2 L267.9,86.7 L269.5,93.8 L271.1,97.1 L272.7,101.5 L274.4,79.4 L276.0,59.8 L277.6,59.5 L279.2,47.5 L280.8,45.7 L282.4,47.9 L284.0,40.9 L285.6,50.1 L287.2,54.5 L288.8,69.6 L290.5,82.5 L292.1,76.3 L293.7,74.0 L295.3,82.1 L296.9,76.7 L298.5,74.7 L300.1,83.7 L301.7,90.5 L303.3,87.4 L304.9,63.6 L306.5,76.5 L308.2,66.2 L309.8,59.2 L311.4,54.6 L313.0,50.9 L314.6,26.4 L316.2,29.0 L317.8,41.3 L319.4,72.4 L321.0,77.7 L322.6,72.1 L324.3,57.6 L325.9,70.1 L327.5,66.9 L329.1,59.6 L330.7,56.4 L332.3,34.1 L333.9,44.3 L335.5,63.8 L337.1,83.0 L338.7,76.3 L340.4,94.1 L342.0,102.0 L343.6,91.4 L345.2,75.3 L346.8,84.4 L348.4,94.5 L350.0,86.6 L351.6,85.3 L353.2,75.2 L354.8,91.3 L356.4,84.2 L358.1,86.5 L359.7,93.3 L361.3,86.4 L362.9,79.9 L364.5,82.4 L366.1,78.9 L367.7,86.1 L369.3,83.4 L370.9,89.6 L372.5,74.1 L374.2,74.6 L375.8,67.0 L377.4,75.3 L379.0,90.1 L380.6,84.9 L382.2,78.9 L383.8,79.2 L385.4,58.5 L387.0,61.1 L388.6,79.9 L390.2,89.8 L391.9,91.4 L393.5,93.2 L395.1,94.8 L396.7,107.0 L398.3,113.1 L399.9,98.6 L401.5,99.0 L403.1,91.4 L404.7,99.0 L406.3,107.6 L408.0,101.9 L409.6,100.2 L411.2,93.4 L412.8,84.2 L414.4,78.6 L416.0,75.5" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="75.5" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$282.43</text>
+    <text x="474" y="22.8" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$306.13</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+4.4%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+1.5%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−3.2%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+2.6%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−7.7%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−18.5%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+37.6%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+122.0%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+4607%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$74.6B</strong></span>
+      <span>P/E: <strong>12.5</strong></span>
+      <span>Net Income: <strong>$5.96B</strong></span>
+    </div>
+
+    <p class="summary">Cigna (CI): $282.43 (−7.7% 1Y). Performance: 1W +4.4%, 1M +1.5%, 3M −3.2%, YTD +2.6%, 1Y −7.7%, 5Y +37.6%. Market Cap: $74.6B, P/E: 12.5, Net Income: $5.96B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=CI">Open CI in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=CI");</script>
+</body>
+</html>

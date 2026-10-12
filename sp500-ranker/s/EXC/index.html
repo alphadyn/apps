@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d141e">
+  <title>EXC · Exelon — S&amp;P 500 Screener &amp; Ranker</title>
+  <meta name="description" content="Exelon (EXC): $41.76 (−10.5% 1Y). Performance: 1W +2.5%, 1M −4.4%, 3M −10.0%, YTD −4.2%, 1Y −10.5%, 5Y +21.1%. Market Cap: $43.1B, P/E: 15.5, Net Income: $2.78B. Explore interactive price graph and performance across 9 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/sp500-ranker/s/EXC/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/sp500-ranker/s/EXC/">
+  <meta property="og:title" content="EXC · Exelon — S&amp;P 500 Screener &amp; Ranker">
+  <meta property="og:description" content="Exelon (EXC): $41.76 (−10.5% 1Y). Performance: 1W +2.5%, 1M −4.4%, 3M −10.0%, YTD −4.2%, 1Y −10.5%, 5Y +21.1%. Market Cap: $43.1B, P/E: 15.5, Net Income: $2.78B. Explore interactive price graph and performance across 9 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="EXC · Exelon — S&amp;P 500 Screener &amp; Ranker">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="EXC · Exelon — S&amp;P 500 Screener &amp; Ranker">
+  <meta name="twitter:description" content="Exelon (EXC): $41.76 (−10.5% 1Y). Performance: 1W +2.5%, 1M −4.4%, 3M −10.0%, YTD −4.2%, 1Y −10.5%, 5Y +21.1%. Market Cap: $43.1B, P/E: 15.5, Net Income: $2.78B. Explore interactive price graph and performance across 9 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp500-ranker/social-preview.png?v=3">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #0d141e;
+      color: #f1f5f9;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      background: #151e2b;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #10b981; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #f43f5e; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+    .stats-row strong { color: #f1f5f9; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #38bdf8;
+      color: #0b1119;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #7dd3fc;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">EXC</span>
+    <h1>Exelon</h1>
+    <div class="quote-row">
+      <span class="price">$41.76</span>
+      <span class="change down">−10.5% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−10.5%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for EXC">
+    <defs>
+      <linearGradient id="chart-fill-EXC" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="67.8" x2="416" y2="67.8" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,67.8 L13.6,62.0 L15.2,65.1 L16.8,57.5 L18.4,51.1 L20.0,57.8 L21.7,51.8 L23.3,45.3 L24.9,48.7 L26.5,47.1 L28.1,54.4 L29.7,48.1 L31.3,47.7 L32.9,53.0 L34.5,60.1 L36.1,62.0 L37.8,75.5 L39.4,74.4 L41.0,71.8 L42.6,75.1 L44.2,81.4 L45.8,74.2 L47.4,84.9 L49.0,85.2 L50.6,78.2 L52.2,85.1 L53.8,78.1 L55.5,68.7 L57.1,71.8 L58.7,83.5 L60.3,85.6 L61.9,80.8 L63.5,73.9 L65.1,80.4 L66.7,69.1 L68.3,61.2 L69.9,81.6 L71.6,91.5 L73.2,98.1 L74.8,107.1 L76.4,108.5 L78.0,115.3 L79.6,109.2 L81.2,116.0 L82.8,118.8 L84.4,111.9 L86.0,107.6 L87.6,109.2 L89.3,102.6 L90.9,101.8 L92.5,110.6 L94.1,112.2 L95.7,113.5 L97.3,112.6 L98.9,112.0 L100.5,111.0 L102.1,106.9 L103.7,111.6 L105.4,106.9 L107.0,112.3 L108.6,108.1 L110.2,120.2 L111.8,113.6 L113.4,115.8 L115.0,121.5 L116.6,115.5 L118.2,111.5 L119.8,103.6 L121.5,95.3 L123.1,92.2 L124.7,91.5 L126.3,97.2 L127.9,104.9 L129.5,97.9 L131.1,93.9 L132.7,94.9 L134.3,99.9 L135.9,94.6 L137.5,107.1 L139.2,105.6 L140.8,113.9 L142.4,104.9 L144.0,101.1 L145.6,106.2 L147.2,96.6 L148.8,99.3 L150.4,55.1 L152.0,41.8 L153.6,48.1 L155.3,59.5 L156.9,57.8 L158.5,51.7 L160.1,45.8 L161.7,40.3 L163.3,38.7 L164.9,37.3 L166.5,27.7 L168.1,32.0 L169.7,35.0 L171.3,30.8 L173.0,37.7 L174.6,29.3 L176.2,32.4 L177.8,34.3 L179.4,36.7 L181.0,27.6 L182.6,22.7 L184.2,16.0 L185.8,19.6 L187.4,30.8 L189.1,48.5 L190.7,70.9 L192.3,60.5 L193.9,58.8 L195.5,53.4 L197.1,43.0 L198.7,44.1 L200.3,32.8 L201.9,34.1 L203.5,36.1 L205.1,29.7 L206.8,35.3 L208.4,33.7 L210.0,32.0 L211.6,28.1 L213.2,40.5 L214.8,46.5 L216.4,39.3 L218.0,50.4 L219.6,54.5 L221.2,62.7 L222.9,71.5 L224.5,73.4 L226.1,79.2 L227.7,66.5 L229.3,64.1 L230.9,68.8 L232.5,62.4 L234.1,62.7 L235.7,77.4 L237.3,70.1 L238.9,68.5 L240.6,74.7 L242.2,91.2 L243.8,99.9 L245.4,107.1 L247.0,103.1 L248.6,91.8 L250.2,101.9 L251.8,100.1 L253.4,114.6 L255.0,106.2 L256.7,96.9 L258.3,93.4 L259.9,86.5 L261.5,73.9 L263.1,76.8 L264.7,74.5 L266.3,83.2 L267.9,82.4 L269.5,95.6 L271.1,91.5 L272.7,90.4 L274.4,96.8 L276.0,80.8 L277.6,94.4 L279.2,86.8 L280.8,82.8 L282.4,84.2 L284.0,74.2 L285.6,74.7 L287.2,68.8 L288.8,83.5 L290.5,79.9 L292.1,78.1 L293.7,68.4 L295.3,64.4 L296.9,66.5 L298.5,57.2 L300.1,60.8 L301.7,68.4 L303.3,73.5 L304.9,50.4 L306.5,62.2 L308.2,54.8 L309.8,59.0 L311.4,71.8 L313.0,65.8 L314.6,61.7 L316.2,64.1 L317.8,80.9 L319.4,66.0 L321.0,73.5 L322.6,77.8 L324.3,78.8 L325.9,67.2 L327.5,59.0 L329.1,55.4 L330.7,60.8 L332.3,58.5 L333.9,62.5 L335.5,83.2 L337.1,79.8 L338.7,82.5 L340.4,79.5 L342.0,80.7 L343.6,86.9 L345.2,82.8 L346.8,98.6 L348.4,93.4 L350.0,88.4 L351.6,82.9 L353.2,79.2 L354.8,83.4 L356.4,87.1 L358.1,87.2 L359.7,90.6 L361.3,108.9 L362.9,100.9 L364.5,101.3 L366.1,99.5 L367.7,106.3 L369.3,106.8 L370.9,109.8 L372.5,108.2 L374.2,106.2 L375.8,98.2 L377.4,110.9 L379.0,106.5 L380.6,110.0 L382.2,114.5 L383.8,117.8 L385.4,124.0 L387.0,131.5 L388.6,128.0 L390.2,125.2 L391.9,133.3 L393.5,134.6 L395.1,137.2 L396.7,153.0 L398.3,160.0 L399.9,158.0 L401.5,158.3 L403.1,153.6 L404.7,157.1 L406.3,156.1 L408.0,152.4 L409.6,151.2 L411.2,138.9 L412.8,141.6 L414.4,138.2 L416.0,137.7 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-EXC)"/>
+    <path d="M12.0,67.8 L13.6,62.0 L15.2,65.1 L16.8,57.5 L18.4,51.1 L20.0,57.8 L21.7,51.8 L23.3,45.3 L24.9,48.7 L26.5,47.1 L28.1,54.4 L29.7,48.1 L31.3,47.7 L32.9,53.0 L34.5,60.1 L36.1,62.0 L37.8,75.5 L39.4,74.4 L41.0,71.8 L42.6,75.1 L44.2,81.4 L45.8,74.2 L47.4,84.9 L49.0,85.2 L50.6,78.2 L52.2,85.1 L53.8,78.1 L55.5,68.7 L57.1,71.8 L58.7,83.5 L60.3,85.6 L61.9,80.8 L63.5,73.9 L65.1,80.4 L66.7,69.1 L68.3,61.2 L69.9,81.6 L71.6,91.5 L73.2,98.1 L74.8,107.1 L76.4,108.5 L78.0,115.3 L79.6,109.2 L81.2,116.0 L82.8,118.8 L84.4,111.9 L86.0,107.6 L87.6,109.2 L89.3,102.6 L90.9,101.8 L92.5,110.6 L94.1,112.2 L95.7,113.5 L97.3,112.6 L98.9,112.0 L100.5,111.0 L102.1,106.9 L103.7,111.6 L105.4,106.9 L107.0,112.3 L108.6,108.1 L110.2,120.2 L111.8,113.6 L113.4,115.8 L115.0,121.5 L116.6,115.5 L118.2,111.5 L119.8,103.6 L121.5,95.3 L123.1,92.2 L124.7,91.5 L126.3,97.2 L127.9,104.9 L129.5,97.9 L131.1,93.9 L132.7,94.9 L134.3,99.9 L135.9,94.6 L137.5,107.1 L139.2,105.6 L140.8,113.9 L142.4,104.9 L144.0,101.1 L145.6,106.2 L147.2,96.6 L148.8,99.3 L150.4,55.1 L152.0,41.8 L153.6,48.1 L155.3,59.5 L156.9,57.8 L158.5,51.7 L160.1,45.8 L161.7,40.3 L163.3,38.7 L164.9,37.3 L166.5,27.7 L168.1,32.0 L169.7,35.0 L171.3,30.8 L173.0,37.7 L174.6,29.3 L176.2,32.4 L177.8,34.3 L179.4,36.7 L181.0,27.6 L182.6,22.7 L184.2,16.0 L185.8,19.6 L187.4,30.8 L189.1,48.5 L190.7,70.9 L192.3,60.5 L193.9,58.8 L195.5,53.4 L197.1,43.0 L198.7,44.1 L200.3,32.8 L201.9,34.1 L203.5,36.1 L205.1,29.7 L206.8,35.3 L208.4,33.7 L210.0,32.0 L211.6,28.1 L213.2,40.5 L214.8,46.5 L216.4,39.3 L218.0,50.4 L219.6,54.5 L221.2,62.7 L222.9,71.5 L224.5,73.4 L226.1,79.2 L227.7,66.5 L229.3,64.1 L230.9,68.8 L232.5,62.4 L234.1,62.7 L235.7,77.4 L237.3,70.1 L238.9,68.5 L240.6,74.7 L242.2,91.2 L243.8,99.9 L245.4,107.1 L247.0,103.1 L248.6,91.8 L250.2,101.9 L251.8,100.1 L253.4,114.6 L255.0,106.2 L256.7,96.9 L258.3,93.4 L259.9,86.5 L261.5,73.9 L263.1,76.8 L264.7,74.5 L266.3,83.2 L267.9,82.4 L269.5,95.6 L271.1,91.5 L272.7,90.4 L274.4,96.8 L276.0,80.8 L277.6,94.4 L279.2,86.8 L280.8,82.8 L282.4,84.2 L284.0,74.2 L285.6,74.7 L287.2,68.8 L288.8,83.5 L290.5,79.9 L292.1,78.1 L293.7,68.4 L295.3,64.4 L296.9,66.5 L298.5,57.2 L300.1,60.8 L301.7,68.4 L303.3,73.5 L304.9,50.4 L306.5,62.2 L308.2,54.8 L309.8,59.0 L311.4,71.8 L313.0,65.8 L314.6,61.7 L316.2,64.1 L317.8,80.9 L319.4,66.0 L321.0,73.5 L322.6,77.8 L324.3,78.8 L325.9,67.2 L327.5,59.0 L329.1,55.4 L330.7,60.8 L332.3,58.5 L333.9,62.5 L335.5,83.2 L337.1,79.8 L338.7,82.5 L340.4,79.5 L342.0,80.7 L343.6,86.9 L345.2,82.8 L346.8,98.6 L348.4,93.4 L350.0,88.4 L351.6,82.9 L353.2,79.2 L354.8,83.4 L356.4,87.1 L358.1,87.2 L359.7,90.6 L361.3,108.9 L362.9,100.9 L364.5,101.3 L366.1,99.5 L367.7,106.3 L369.3,106.8 L370.9,109.8 L372.5,108.2 L374.2,106.2 L375.8,98.2 L377.4,110.9 L379.0,106.5 L380.6,110.0 L382.2,114.5 L383.8,117.8 L385.4,124.0 L387.0,131.5 L388.6,128.0 L390.2,125.2 L391.9,133.3 L393.5,134.6 L395.1,137.2 L396.7,153.0 L398.3,160.0 L399.9,158.0 L401.5,158.3 L403.1,153.6 L404.7,157.1 L406.3,156.1 L408.0,152.4 L409.6,151.2 L411.2,138.9 L412.8,141.6 L414.4,138.2 L416.0,137.7" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="137.7" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$41.76</text>
+    <text x="474" y="67.8" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$46.66</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+2.5%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−4.4%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−10.0%</strong></div><div class="perf-chip down"><span class="perf-label">YTD</span><strong class="perf-value">−4.2%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−10.5%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+5.5%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+21.1%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+81.9%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+420.4%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$43.1B</strong></span>
+      <span>P/E: <strong>15.5</strong></span>
+      <span>Net Income: <strong>$2.78B</strong></span>
+    </div>
+
+    <p class="summary">Exelon (EXC): $41.76 (−10.5% 1Y). Performance: 1W +2.5%, 1M −4.4%, 3M −10.0%, YTD −4.2%, 1Y −10.5%, 5Y +21.1%. Market Cap: $43.1B, P/E: 15.5, Net Income: $2.78B. Explore interactive price graph and performance across 9 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/sp500-ranker/#symbol=EXC">Open EXC in S&amp;P 500 Screener &amp; Ranker</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/sp500-ranker/#symbol=EXC");</script>
+</body>
+</html>

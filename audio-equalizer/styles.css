@@ -71,3 +71,77 @@ canvas { display: block; width: 100%; height: 230px; margin-top: 17px; }.wavefor
 .transport-row { padding-top: 15px; }.transport-left { display: flex; align-items: center; gap: 8px; }.transport-button, .play-button { border: 1px solid var(--line); color: var(--ink); background: var(--panel); }.transport-button { min-width: 43px; height: 34px; padding: 0 10px; font-family: var(--mono); font-size: 0.64rem; }.transport-button:hover { color: var(--lime); border-color: var(--lime-dim); }.text-button { border-color: transparent; background: transparent; color: var(--muted); font-family: var(--sans); font-weight: 600; }.play-button { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 18px; border-color: var(--lime); color: var(--bg); background: var(--lime); font-size: 0.72rem; font-weight: 800; }.play-button:hover { background: #d9ff8c; }.play-button span:first-child { font-size: 0.65rem; }.volume-control { display: flex; align-items: center; gap: 10px; color: var(--muted); font-family: var(--mono); font-size: 0.59rem; }.volume-control input { width: 96px; accent-color: var(--lime); }.footer-note { display: flex; align-items: center; gap: 12px; justify-content: center; padding-top: 55px; color: var(--quiet); font-family: var(--mono); font-size: 0.57rem; }.footer-line { width: 28px; height: 1px; background: var(--line); }
 @media (max-width: 680px) { .app-shell { width: min(100% - 28px, 560px); padding-top: 20px; }.topbar { padding-bottom: 48px; }.topbar-meta span:not(.live-dot):not(.divider) { display: none; }.hero-row { align-items: start; flex-direction: column; gap: 20px; }.outline-button { align-self: stretch; justify-content: center; }.drop-zone { align-items: start; margin-bottom: 34px; padding: 15px; }.drop-action { display: none; }.track-heading { align-items: start; flex-direction: column; gap: 22px; }.readout-grid { width: 100%; justify-content: space-between; gap: 8px; }.readout-grid strong { font-size: 0.73rem; }.visualizer-panel { padding: 15px 14px 11px; }.transport-row { align-items: stretch; flex-direction: column; gap: 18px; }.transport-left { justify-content: space-between; }.text-button { padding: 0 3px; }.volume-control { justify-content: end; }.footer-note { padding-top: 38px; } }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+
+@media (min-width: 1440px) {
+  .app-shell { width: min(1320px, calc(100% - 96px)); }
+  canvas { height: clamp(230px, 19vw, 300px); }
+  .waveform-panel canvas { height: clamp(104px, 9vw, 140px); }
+}
+
+@media (max-width: 800px) {
+  .track-heading { align-items: start; flex-direction: column; gap: 20px; }
+  .readout-grid { width: 100%; justify-content: space-between; gap: 12px; }
+}
+
+@media (max-width: 680px) {
+  .app-shell { width: min(calc(100% - 32px), 560px); }
+  .topbar { padding-bottom: 38px; }
+  .topbar-meta .divider, .topbar-meta #file-type-label { display: none; }
+  .topbar-meta span:not(.live-dot):not(.divider) { display: inline; }
+  .hero-row { margin-bottom: 26px; }
+  h1 { font-size: clamp(2.65rem, 11vw, 4.4rem); }
+  .intro { max-width: 34ch; font-size: 0.88rem; line-height: 1.6; }
+  .outline-button { min-height: 44px; }
+  .drop-zone { cursor: pointer; }
+  .track-heading { gap: 18px; padding-top: 22px; }
+  .track-title-wrap { min-width: 0; gap: 12px; }
+  .track-title-wrap > div:last-child { min-width: 0; }
+  h2 { overflow-wrap: anywhere; font-size: 1.1rem; }
+  .muted-copy { line-height: 1.6; overflow-wrap: anywhere; }
+  .readout-grid { gap: 8px; }
+  .readout-grid div { min-width: 0; }
+  .readout-grid strong { font-size: clamp(0.64rem, 3.2vw, 0.76rem); }
+  .visualizer-panel { padding: 14px 12px 11px; }
+  canvas { height: clamp(140px, 42vw, 200px); }
+  .waveform-panel canvas { height: clamp(76px, 22vw, 104px); }
+  .frequency-labels { font-size: clamp(0.48rem, 2.3vw, 0.57rem); }
+  .transport-left { gap: 4px; }
+  .transport-button { min-width: 40px; min-height: 44px; padding-inline: 7px; }
+  .play-button { justify-content: center; min-width: 88px; min-height: 44px; }
+  .timeline-wrap { height: 30px; }
+  .buffer-bar { top: 14px; }
+  .timeline-wrap input { height: 30px; }
+  .timeline-wrap input::-webkit-slider-thumb { width: 14px; height: 14px; margin-top: -6px; }
+  .volume-control input { width: min(45vw, 180px); min-height: 36px; }
+  .footer-note { padding-top: 32px; }
+}
+
+@media (max-width: 380px) {
+  .app-shell { width: calc(100% - 24px); }
+  .topbar-meta { gap: 7px; font-size: 0.55rem; }
+  .brand { gap: 8px; font-size: 0.74rem; }
+  .hero-row { gap: 16px; }
+  .drop-zone { gap: 11px; padding: 13px 11px; }
+  .drop-zone strong { font-size: 0.75rem; }
+  .drop-zone div:nth-child(2) span { font-size: 0.55rem; }
+  .transport-button { min-width: 36px; padding-inline: 5px; font-size: 0.6rem; }
+  .text-button { padding-inline: 2px; font-size: 0.72rem; }
+  .play-button { min-width: 78px; padding-inline: 11px; }
+  .frequency-labels span { letter-spacing: -0.04em; }
+}
+
+@media (hover: none) {
+  .outline-button:hover { color: var(--ink); border-color: var(--quiet); background: transparent; }
+  .transport-button:hover { color: var(--ink); border-color: var(--line); background: var(--panel); }
+  .text-button:hover { color: var(--muted); border-color: transparent; background: transparent; }
+  .play-button:hover { color: var(--bg); border-color: var(--lime); background: var(--lime); }
+  .outline-button:active { border-color: var(--lime); background: var(--lime); color: var(--bg); }
+  .transport-button:active { border-color: var(--lime-dim); color: var(--lime); }
+  .play-button:active { background: #d9ff8c; }
+}
+
+.playback-settings { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; margin-top: 18px; }
+.playback-mode { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; color: var(--ink); font-size: 0.75rem; cursor: pointer; }
+.playback-mode input { width: 18px; height: 18px; margin: 0; accent-color: var(--lime); }
+.playback-settings .muted-copy { flex: 1 1 260px; line-height: 1.6; }
+#playback-message:not(:empty) { margin-top: 10px; color: var(--orange); line-height: 1.6; }

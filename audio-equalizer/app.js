@@ -1,4 +1,12 @@
-const media = document.querySelector('#media');
+const analysisMedia = document.querySelector('#media');
+const backgroundMedia = document.querySelector('#background-media');
+const backgroundPlayback = document.querySelector('#background-playback');
+const playbackModeNote = document.querySelector('#playback-mode-note');
+const playbackMessage = document.querySelector('#playback-message');
+// iPadOS can identify as a Mac; both iOS media paths need the native playback default.
+backgroundPlayback.checked = /iPhone|iPad|iPod/.test(navigator.userAgent)
+  || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+let media = backgroundPlayback.checked ? backgroundMedia : analysisMedia;
 const fileInput = document.querySelector('#file-input');
 const loadButton = document.querySelector('#load-button');
 const dropZone = document.querySelector('#drop-zone');
@@ -33,6 +41,7 @@ let waveformData;
 let animationFrame;
 let objectUrl;
 let hasMedia = false;
+let pendingSeek = null;
 
 const formatTime = (seconds) => {
   if (!Number.isFinite(seconds)) return '00:00';
@@ -51,7 +60,7 @@ const setCanvasSize = (canvas) => {
 
 const drawIdle = () => {
   drawSpectrum(new Uint8Array(128), 1);
-  drawWaveform(new Uint8Array(128), 1);
+  drawWaveform(new Uint8Array(128).fill(128), 1);
 };
 
 const drawSpectrum = (data, ratio = window.devicePixelRatio || 1) => {
@@ -121,10 +130,18 @@ const updateTimeline = () => {
   let buffered = 0;
   if (media.buffered.length) buffered = (media.buffered.end(media.buffered.length - 1) / media.duration) * 100;
   bufferBar.style.setProperty('--buffer', `${Math.min(100, buffered)}%`);
+  if (navigator.mediaSession?.setPositionState) {
+    navigator.mediaSession.setPositionState({
+      duration: media.duration,
+      playbackRate: media.playbackRate,
+      position: Math.min(media.duration, Math.max(0, media.currentTime)),
+    });
+  }
 };
 
 const updateReadouts = () => {
-  if (!analyser || !frequencyData || !waveformData) return;
+  if (backgroundPlayback.checked || document.hidden || media.paused || media.ended
+    || !analyser || !frequencyData || !waveformData) return;
   analyser.getByteFrequencyData(frequencyData);
   analyser.getByteTimeDomainData(waveformData);
   drawSpectrum(frequencyData);
@@ -144,7 +161,7 @@ const ensureAudioGraph = () => {
   analyser = audioContext.createAnalyser();
   analyser.fftSize = 2048;
   analyser.smoothingTimeConstant = 0.78;
-  source = audioContext.createMediaElementSource(media);
+  source = audioContext.createMediaElementSource(analysisMedia);
   source.connect(analyser);
   analyser.connect(audioContext.destination);
   frequencyData = new Uint8Array(analyser.frequencyBinCount);
@@ -152,12 +169,84 @@ const ensureAudioGraph = () => {
   rateReadout.textContent = `${(audioContext.sampleRate / 1000).toFixed(1)} kHz`;
 };
 
-const togglePlayback = async () => {
+const reportPlaybackError = (error) => {
+  console.error('Audio playback failed:', error);
+  playbackMessage.textContent = 'Playback could not start. Tap Play to retry, or choose another media file.';
+  playState.textContent = 'Playback error';
+  playState.classList.remove('is-playing');
+  if (media.paused) {
+    playIcon.textContent = '▶';
+    playLabel.textContent = 'Play';
+    playButton.setAttribute('aria-label', 'Play');
+    if (navigator.mediaSession) navigator.mediaSession.playbackState = 'paused';
+  }
+};
+
+const startPlayback = async () => {
   if (!hasMedia) return;
-  ensureAudioGraph();
-  if (audioContext.state === 'suspended') await audioContext.resume();
-  if (media.paused) await media.play();
-  else media.pause();
+  const playingMedia = media;
+  const playingSource = media.src;
+  playbackMessage.textContent = '';
+  try {
+    if (!backgroundPlayback.checked) {
+      ensureAudioGraph();
+      if (audioContext.state !== 'running') await audioContext.resume();
+    }
+    if (playingMedia !== media || playingSource !== media.src) return;
+    await playingMedia.play();
+  } catch (error) {
+    // Pausing, changing tracks, or switching modes can cancel an outstanding play request.
+    if (error.name === 'AbortError'
+      && (playingMedia.paused || playingMedia !== media || playingSource !== media.src)) return;
+    reportPlaybackError(error);
+  }
+};
+
+const togglePlayback = () => {
+  if (media.paused) return startPlayback();
+  media.pause();
+};
+
+const stopPlayback = () => {
+  media.pause();
+  pendingSeek = null;
+  if (hasMedia) media.currentTime = 0;
+  updateTimeline();
+};
+
+const seekTo = (seconds) => {
+  if (!Number.isFinite(seconds) || !Number.isFinite(media.duration)) return;
+  media.currentTime = Math.min(media.duration, Math.max(0, seconds));
+  updateTimeline();
+};
+
+const updatePlaybackMode = () => {
+  playbackModeNote.textContent = backgroundPlayback.checked
+    ? 'Native audio for lock-screen listening. Live spectrum and level analysis are off.'
+    : 'Live analysis enabled. iPhone playback may stop when the screen locks.';
+  peakReadout.textContent = '-- dB';
+  rmsReadout.textContent = '-- dB';
+  rateReadout.textContent = !backgroundPlayback.checked && audioContext
+    ? `${(audioContext.sampleRate / 1000).toFixed(1)} kHz` : '-- kHz';
+  cancelAnimationFrame(animationFrame);
+  drawIdle();
+};
+
+const switchPlaybackMode = () => {
+  const previousMedia = media;
+  const wasPlaying = !previousMedia.paused && !previousMedia.ended;
+  const position = pendingSeek ?? previousMedia.currentTime;
+  previousMedia.pause();
+  previousMedia.removeAttribute('src');
+  previousMedia.load();
+  media = backgroundPlayback.checked ? backgroundMedia : analysisMedia;
+  media.volume = Number(volume.value);
+  updatePlaybackMode();
+  if (!hasMedia) return;
+  pendingSeek = position;
+  media.src = objectUrl;
+  media.load();
+  if (wasPlaying) startPlayback();
 };
 
 const setMediaFile = (file) => {
@@ -165,6 +254,7 @@ const setMediaFile = (file) => {
     trackDetails.textContent = 'Please choose an audio or video file';
     return;
   }
+  stopPlayback();
   if (objectUrl) URL.revokeObjectURL(objectUrl);
   objectUrl = URL.createObjectURL(file);
   media.src = objectUrl;
@@ -177,6 +267,19 @@ const setMediaFile = (file) => {
   playState.textContent = 'Loaded';
   playState.classList.remove('is-playing');
   media.currentTime = 0;
+  playbackMessage.textContent = '';
+  currentTimeLabel.textContent = '00:00';
+  durationLabel.textContent = '00:00';
+  timeline.value = 0;
+  timeline.style.setProperty('--progress', '0%');
+  bufferBar.style.setProperty('--buffer', '0%');
+  if (navigator.mediaSession) {
+    navigator.mediaSession.playbackState = 'none';
+    if (navigator.mediaSession.setPositionState) navigator.mediaSession.setPositionState();
+    if ('MediaMetadata' in window) {
+      navigator.mediaSession.metadata = new MediaMetadata({ title: trackName.textContent, artist: 'Signal Room' });
+    }
+  }
 };
 
 loadButton.addEventListener('click', () => fileInput.click());
@@ -187,21 +290,86 @@ dropZone.addEventListener('keydown', (event) => { if (event.key === 'Enter' || e
 ['dragleave', 'drop'].forEach((eventName) => dropZone.addEventListener(eventName, (event) => { event.preventDefault(); dropZone.classList.remove('is-dragging'); }));
 dropZone.addEventListener('drop', (event) => setMediaFile(event.dataTransfer.files[0]));
 playButton.addEventListener('click', togglePlayback);
-stopButton.addEventListener('click', () => { media.pause(); media.currentTime = 0; });
-rewindButton.addEventListener('click', () => { media.currentTime = 0; });
-skipBackButton.addEventListener('click', () => { media.currentTime = Math.max(0, media.currentTime - 10); });
-skipForwardButton.addEventListener('click', () => { media.currentTime = Math.min(media.duration || 0, media.currentTime + 10); });
+backgroundPlayback.addEventListener('change', switchPlaybackMode);
+stopButton.addEventListener('click', stopPlayback);
+rewindButton.addEventListener('click', () => seekTo(0));
+skipBackButton.addEventListener('click', () => seekTo(media.currentTime - 10));
+skipForwardButton.addEventListener('click', () => seekTo(media.currentTime + 10));
 volume.addEventListener('input', () => { media.volume = volume.value; });
 timeline.addEventListener('input', () => { if (Number.isFinite(media.duration)) media.currentTime = (timeline.value / 100) * media.duration; });
-media.addEventListener('loadedmetadata', () => { durationLabel.textContent = formatTime(media.duration); channelLabel.textContent = media.videoWidth ? 'Video audio' : 'Stereo'; updateTimeline(); });
-media.addEventListener('timeupdate', updateTimeline);
-media.addEventListener('progress', updateTimeline);
-media.addEventListener('play', () => { playIcon.textContent = 'Ⅱ'; playLabel.textContent = 'Pause'; playButton.setAttribute('aria-label', 'Pause'); playState.textContent = 'Playing'; playState.classList.add('is-playing'); cancelAnimationFrame(animationFrame); updateReadouts(); });
-media.addEventListener('pause', () => { playIcon.textContent = '▶'; playLabel.textContent = 'Play'; playButton.setAttribute('aria-label', 'Play'); if (!media.ended) { playState.textContent = 'Paused'; playState.classList.remove('is-playing'); } });
-media.addEventListener('ended', () => { playState.textContent = 'Complete'; playState.classList.remove('is-playing'); });
+[analysisMedia, backgroundMedia].forEach((element) => {
+  const onActiveMedia = (eventName, handler) => element.addEventListener(eventName, () => {
+    if (element === media) handler();
+  });
+  onActiveMedia('loadedmetadata', () => {
+    if (pendingSeek !== null) {
+      seekTo(pendingSeek);
+      pendingSeek = null;
+    }
+    durationLabel.textContent = formatTime(media.duration);
+    channelLabel.textContent = media.videoWidth ? 'Video audio' : 'Stereo';
+    updateTimeline();
+  });
+  onActiveMedia('timeupdate', updateTimeline);
+  onActiveMedia('progress', updateTimeline);
+  onActiveMedia('ratechange', updateTimeline);
+  onActiveMedia('play', () => {
+    playIcon.textContent = 'Ⅱ';
+    playLabel.textContent = 'Pause';
+    playButton.setAttribute('aria-label', 'Pause');
+    playState.textContent = 'Playing';
+    playState.classList.add('is-playing');
+    if (navigator.mediaSession) navigator.mediaSession.playbackState = 'playing';
+    cancelAnimationFrame(animationFrame);
+    updateReadouts();
+  });
+  onActiveMedia('pause', () => {
+    playIcon.textContent = '▶';
+    playLabel.textContent = 'Play';
+    playButton.setAttribute('aria-label', 'Play');
+    cancelAnimationFrame(animationFrame);
+    if (navigator.mediaSession) navigator.mediaSession.playbackState = 'paused';
+    if (!media.ended) playState.textContent = 'Paused';
+    playState.classList.remove('is-playing');
+  });
+  onActiveMedia('ended', () => {
+    playState.textContent = 'Complete';
+    playState.classList.remove('is-playing');
+    cancelAnimationFrame(animationFrame);
+    if (navigator.mediaSession) navigator.mediaSession.playbackState = 'paused';
+  });
+  onActiveMedia('error', () => reportPlaybackError(media.error));
+});
+
+if (navigator.mediaSession) {
+  const actions = {
+    play: startPlayback,
+    pause: () => media.pause(),
+    stop: stopPlayback,
+    seekbackward: ({ seekOffset = 10 }) => seekTo(media.currentTime - seekOffset),
+    seekforward: ({ seekOffset = 10 }) => seekTo(media.currentTime + seekOffset),
+    seekto: ({ seekTime }) => seekTo(seekTime),
+  };
+  Object.entries(actions).forEach(([action, handler]) => {
+    try {
+      navigator.mediaSession.setActionHandler(action, handler);
+    } catch (error) {
+      if (error.name !== 'NotSupportedError') throw error;
+      console.warn(`Lock-screen action "${action}" is not supported by this browser.`);
+    }
+  });
+}
+
+document.addEventListener('visibilitychange', () => {
+  cancelAnimationFrame(animationFrame);
+  if (!document.hidden) {
+    updateTimeline();
+    updateReadouts();
+  }
+});
 window.addEventListener('resize', () => { setCanvasSize(spectrumCanvas); setCanvasSize(waveformCanvas); drawIdle(); });
 
 media.volume = volume.value;
 setCanvasSize(spectrumCanvas);
 setCanvasSize(waveformCanvas);
-drawIdle();
+updatePlaybackMode();

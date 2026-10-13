@@ -107,11 +107,20 @@
             <input id="volume" type="range" min="0" max="1" value="0.85" step="0.01" aria-label="Volume" />
           </div>
         </div>
+        <div class="playback-settings">
+          <label class="playback-mode">
+            <input id="background-playback" type="checkbox" aria-describedby="playback-mode-note" />
+            <span>Lock-screen playback</span>
+          </label>
+          <p id="playback-mode-note" class="muted-copy" aria-live="polite"></p>
+        </div>
+        <p id="playback-message" class="muted-copy" role="status"></p>
       </div>
     </section>
 
     <footer class="footer-note"><span class="footer-line"></span><span>Everything stays in your browser.</span><span class="footer-line"></span></footer>
-    <audio id="media" crossorigin="anonymous"></audio>
+    <audio id="media" crossorigin="anonymous" preload="metadata"></audio>
+    <audio id="background-media" crossorigin="anonymous" preload="metadata"></audio>
   </main>
   <script src="app.js"></script>
 </body>

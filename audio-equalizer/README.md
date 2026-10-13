@@ -24,6 +24,14 @@ interrupt when the screen locks. Live spectrum, waveform, peak, RMS, and sample-
 analysis are unavailable in this mode. Turn the toggle off to restore live analysis.
 Switching modes preserves the playback position, volume, and playing/paused state.
 
+MP4 and MOV files are played directly through the audio element, without showing
+video, extracting audio, or modifying tracks. Playback requires a browser-supported
+audio codec. In lock-screen mode, play/pause controls use the browser's native media
+handling rather than custom JavaScript handlers. On browsers exposing the Audio
+Session API, playback also requests the `playback` audio-session type.
+Safari may still restrict video-containing files when the device locks; this app
+cannot override that OS restriction while retaining the original tracks.
+
 On browsers supporting the Media Session API, the current track appears in system
 media controls with play, pause, stop, and seeking actions where supported. Start
 playback with a tap before locking the screen and keep the browser tab open.

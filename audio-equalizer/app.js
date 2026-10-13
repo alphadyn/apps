@@ -192,6 +192,7 @@ const startPlayback = async () => {
       ensureAudioGraph();
       if (audioContext.state !== 'running') await audioContext.resume();
     }
+    if (navigator.audioSession) navigator.audioSession.type = 'playback';
     if (playingMedia !== media || playingSource !== media.src) return;
     await playingMedia.play();
   } catch (error) {
@@ -220,6 +221,27 @@ const seekTo = (seconds) => {
   updateTimeline();
 };
 
+const updateMediaSessionActions = () => {
+  if (!navigator.mediaSession) return;
+  const actions = {
+    // Native play/pause must not depend on Safari running a background JS callback.
+    play: backgroundPlayback.checked ? null : startPlayback,
+    pause: backgroundPlayback.checked ? null : () => media.pause(),
+    stop: stopPlayback,
+    seekbackward: ({ seekOffset = 10 }) => seekTo(media.currentTime - seekOffset),
+    seekforward: ({ seekOffset = 10 }) => seekTo(media.currentTime + seekOffset),
+    seekto: ({ seekTime }) => seekTo(seekTime),
+  };
+  Object.entries(actions).forEach(([action, handler]) => {
+    try {
+      navigator.mediaSession.setActionHandler(action, handler);
+    } catch (error) {
+      if (error.name !== 'NotSupportedError') throw error;
+      console.warn(`Lock-screen action "${action}" is not supported by this browser.`);
+    }
+  });
+};
+
 const updatePlaybackMode = () => {
   playbackModeNote.textContent = backgroundPlayback.checked
     ? 'Native audio for lock-screen listening. Live spectrum and level analysis are off.'
@@ -230,6 +252,7 @@ const updatePlaybackMode = () => {
     ? `${(audioContext.sampleRate / 1000).toFixed(1)} kHz` : '-- kHz';
   cancelAnimationFrame(animationFrame);
   drawIdle();
+  updateMediaSessionActions();
 };
 
 const switchPlaybackMode = () => {
@@ -241,8 +264,13 @@ const switchPlaybackMode = () => {
   previousMedia.load();
   media = backgroundPlayback.checked ? backgroundMedia : analysisMedia;
   media.volume = Number(volume.value);
+  playIcon.textContent = '▶';
+  playLabel.textContent = 'Play';
+  playButton.setAttribute('aria-label', 'Play');
+  if (navigator.mediaSession) navigator.mediaSession.playbackState = 'paused';
   updatePlaybackMode();
   if (!hasMedia) return;
+  playbackMessage.textContent = '';
   pendingSeek = position;
   media.src = objectUrl;
   media.load();
@@ -299,7 +327,7 @@ volume.addEventListener('input', () => { media.volume = volume.value; });
 timeline.addEventListener('input', () => { if (Number.isFinite(media.duration)) media.currentTime = (timeline.value / 100) * media.duration; });
 [analysisMedia, backgroundMedia].forEach((element) => {
   const onActiveMedia = (eventName, handler) => element.addEventListener(eventName, () => {
-    if (element === media) handler();
+    if (element === media && hasMedia) handler();
   });
   onActiveMedia('loadedmetadata', () => {
     if (pendingSeek !== null) {
@@ -340,25 +368,6 @@ timeline.addEventListener('input', () => { if (Number.isFinite(media.duration)) 
   });
   onActiveMedia('error', () => reportPlaybackError(media.error));
 });
-
-if (navigator.mediaSession) {
-  const actions = {
-    play: startPlayback,
-    pause: () => media.pause(),
-    stop: stopPlayback,
-    seekbackward: ({ seekOffset = 10 }) => seekTo(media.currentTime - seekOffset),
-    seekforward: ({ seekOffset = 10 }) => seekTo(media.currentTime + seekOffset),
-    seekto: ({ seekTime }) => seekTo(seekTime),
-  };
-  Object.entries(actions).forEach(([action, handler]) => {
-    try {
-      navigator.mediaSession.setActionHandler(action, handler);
-    } catch (error) {
-      if (error.name !== 'NotSupportedError') throw error;
-      console.warn(`Lock-screen action "${action}" is not supported by this browser.`);
-    }
-  });
-}
 
 document.addEventListener('visibilitychange', () => {
   cancelAnimationFrame(animationFrame);

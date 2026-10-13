@@ -18,11 +18,11 @@ Then open http://localhost:8000. Files are processed locally in the browser and 
 
 ## iPhone and lock-screen playback
 
-**Lock-screen playback** is enabled by default on iPhone and iPad. This mode uses
-native audio playback rather than routing sound through Web Audio, which iOS may
-interrupt when the screen locks. Live spectrum, waveform, peak, RMS, and sample-rate
-analysis are unavailable in this mode. Turn the toggle off to restore live analysis.
-Switching modes preserves the playback position, volume, and playing/paused state.
+iPhone and iPad use native audio playback rather than routing sound through Web
+Audio, which iOS may interrupt when the screen locks. The spectrum and waveform
+visualizers remain displayed, but live spectrum, waveform, peak, RMS, and
+sample-rate analysis are unavailable in native playback mode. Other platforms
+use Web Audio for live analysis.
 
 MP4 and MOV files are played directly through the audio element, without showing
 video, extracting audio, or modifying tracks. Playback requires a browser-supported

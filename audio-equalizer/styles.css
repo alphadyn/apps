@@ -140,8 +140,4 @@ canvas { display: block; width: 100%; height: 230px; margin-top: 17px; }.wavefor
   .play-button:active { background: #d9ff8c; }
 }
 
-.playback-settings { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; margin-top: 18px; }
-.playback-mode { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; color: var(--ink); font-size: 0.75rem; cursor: pointer; }
-.playback-mode input { width: 18px; height: 18px; margin: 0; accent-color: var(--lime); }
-.playback-settings .muted-copy { flex: 1 1 260px; line-height: 1.6; }
 #playback-message:not(:empty) { margin-top: 10px; color: var(--orange); line-height: 1.6; }

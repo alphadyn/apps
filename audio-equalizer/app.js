@@ -1,12 +1,10 @@
 const analysisMedia = document.querySelector('#media');
 const backgroundMedia = document.querySelector('#background-media');
-const backgroundPlayback = document.querySelector('#background-playback');
-const playbackModeNote = document.querySelector('#playback-mode-note');
 const playbackMessage = document.querySelector('#playback-message');
 // iPadOS can identify as a Mac; both iOS media paths need the native playback default.
-backgroundPlayback.checked = /iPhone|iPad|iPod/.test(navigator.userAgent)
+const usesNativePlayback = /iPhone|iPad|iPod/.test(navigator.userAgent)
   || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-let media = backgroundPlayback.checked ? backgroundMedia : analysisMedia;
+let media = usesNativePlayback ? backgroundMedia : analysisMedia;
 const fileInput = document.querySelector('#file-input');
 const loadButton = document.querySelector('#load-button');
 const dropZone = document.querySelector('#drop-zone');
@@ -41,7 +39,6 @@ let waveformData;
 let animationFrame;
 let objectUrl;
 let hasMedia = false;
-let pendingSeek = null;
 
 const formatTime = (seconds) => {
   if (!Number.isFinite(seconds)) return '00:00';
@@ -140,7 +137,7 @@ const updateTimeline = () => {
 };
 
 const updateReadouts = () => {
-  if (backgroundPlayback.checked || document.hidden || media.paused || media.ended
+  if (usesNativePlayback || document.hidden || media.paused || media.ended
     || !analyser || !frequencyData || !waveformData) return;
   analyser.getByteFrequencyData(frequencyData);
   analyser.getByteTimeDomainData(waveformData);
@@ -188,7 +185,7 @@ const startPlayback = async () => {
   const playingSource = media.src;
   playbackMessage.textContent = '';
   try {
-    if (!backgroundPlayback.checked) {
+    if (!usesNativePlayback) {
       ensureAudioGraph();
       if (audioContext.state !== 'running') await audioContext.resume();
     }
@@ -196,7 +193,7 @@ const startPlayback = async () => {
     if (playingMedia !== media || playingSource !== media.src) return;
     await playingMedia.play();
   } catch (error) {
-    // Pausing, changing tracks, or switching modes can cancel an outstanding play request.
+    // Pausing or changing tracks can cancel an outstanding play request.
     if (error.name === 'AbortError'
       && (playingMedia.paused || playingMedia !== media || playingSource !== media.src)) return;
     reportPlaybackError(error);
@@ -210,7 +207,6 @@ const togglePlayback = () => {
 
 const stopPlayback = () => {
   media.pause();
-  pendingSeek = null;
   if (hasMedia) media.currentTime = 0;
   updateTimeline();
 };
@@ -225,8 +221,8 @@ const updateMediaSessionActions = () => {
   if (!navigator.mediaSession) return;
   const actions = {
     // Native play/pause must not depend on Safari running a background JS callback.
-    play: backgroundPlayback.checked ? null : startPlayback,
-    pause: backgroundPlayback.checked ? null : () => media.pause(),
+    play: usesNativePlayback ? null : startPlayback,
+    pause: usesNativePlayback ? null : () => media.pause(),
     stop: stopPlayback,
     seekbackward: ({ seekOffset = 10 }) => seekTo(media.currentTime - seekOffset),
     seekforward: ({ seekOffset = 10 }) => seekTo(media.currentTime + seekOffset),
@@ -240,41 +236,6 @@ const updateMediaSessionActions = () => {
       console.warn(`Lock-screen action "${action}" is not supported by this browser.`);
     }
   });
-};
-
-const updatePlaybackMode = () => {
-  playbackModeNote.textContent = backgroundPlayback.checked
-    ? 'Native audio for lock-screen listening. Live spectrum and level analysis are off.'
-    : 'Live analysis enabled. iPhone playback may stop when the screen locks.';
-  peakReadout.textContent = '-- dB';
-  rmsReadout.textContent = '-- dB';
-  rateReadout.textContent = !backgroundPlayback.checked && audioContext
-    ? `${(audioContext.sampleRate / 1000).toFixed(1)} kHz` : '-- kHz';
-  cancelAnimationFrame(animationFrame);
-  drawIdle();
-  updateMediaSessionActions();
-};
-
-const switchPlaybackMode = () => {
-  const previousMedia = media;
-  const wasPlaying = !previousMedia.paused && !previousMedia.ended;
-  const position = pendingSeek ?? previousMedia.currentTime;
-  previousMedia.pause();
-  previousMedia.removeAttribute('src');
-  previousMedia.load();
-  media = backgroundPlayback.checked ? backgroundMedia : analysisMedia;
-  media.volume = Number(volume.value);
-  playIcon.textContent = '▶';
-  playLabel.textContent = 'Play';
-  playButton.setAttribute('aria-label', 'Play');
-  if (navigator.mediaSession) navigator.mediaSession.playbackState = 'paused';
-  updatePlaybackMode();
-  if (!hasMedia) return;
-  playbackMessage.textContent = '';
-  pendingSeek = position;
-  media.src = objectUrl;
-  media.load();
-  if (wasPlaying) startPlayback();
 };
 
 const setMediaFile = (file) => {
@@ -318,7 +279,6 @@ dropZone.addEventListener('keydown', (event) => { if (event.key === 'Enter' || e
 ['dragleave', 'drop'].forEach((eventName) => dropZone.addEventListener(eventName, (event) => { event.preventDefault(); dropZone.classList.remove('is-dragging'); }));
 dropZone.addEventListener('drop', (event) => setMediaFile(event.dataTransfer.files[0]));
 playButton.addEventListener('click', togglePlayback);
-backgroundPlayback.addEventListener('change', switchPlaybackMode);
 stopButton.addEventListener('click', stopPlayback);
 rewindButton.addEventListener('click', () => seekTo(0));
 skipBackButton.addEventListener('click', () => seekTo(media.currentTime - 10));
@@ -330,10 +290,6 @@ timeline.addEventListener('input', () => { if (Number.isFinite(media.duration)) 
     if (element === media && hasMedia) handler();
   });
   onActiveMedia('loadedmetadata', () => {
-    if (pendingSeek !== null) {
-      seekTo(pendingSeek);
-      pendingSeek = null;
-    }
     durationLabel.textContent = formatTime(media.duration);
     channelLabel.textContent = media.videoWidth ? 'Video audio' : 'Stereo';
     updateTimeline();
@@ -381,4 +337,5 @@ window.addEventListener('resize', () => { setCanvasSize(spectrumCanvas); setCanv
 media.volume = volume.value;
 setCanvasSize(spectrumCanvas);
 setCanvasSize(waveformCanvas);
-updatePlaybackMode();
+drawIdle();
+updateMediaSessionActions();

@@ -1,4 +1,4 @@
-# Playlist
+# Player
 
 An installable, mobile-first audio and video player that runs entirely in the browser. No server or account required.
 
@@ -10,7 +10,7 @@ An installable, mobile-first audio and video player that runs entirely in the br
 - **Video playback** in an inline player above the controls, with full screen and picture-in-picture (where supported). Tap the video to play/pause. Tap the film icon to hide or show it. Videos are marked with a VIDEO badge.
 - **Add from URL**: paste a direct link to an audio or video file. The app downloads it (with progress and cancel) and saves it on the device, so it plays offline.
 - **Play in order or shuffled**, with repeat off / repeat playlist / repeat one. Shuffle plays every track once per cycle, then reshuffles.
-- **Reorder** by dragging the ≡ handle (touch or mouse), with arrow keys on the handle, or from a track's ⋯ menu (move up/down/top/bottom).
+- **Reorder the queue** by dragging and dropping a track (or the ≡ handle on touch), with arrow keys on the handle, or from a track's ⋯ menu (move up/down/top/bottom).
 - **Save/load the playlist as a JSON file** (⤓ / ⤒ buttons). The file holds every track's details, the play settings and, optionally, the media itself (base64), so a playlist can be fully restored on another device.
 - Lock-screen and headset controls through the Media Session API. The app also remembers the last track and position.
 - Installable PWA (Add to Home Screen) with an offline app shell.
@@ -62,4 +62,4 @@ python3 -m http.server 8000   # from the repository root
 node --test playlist/playlist.test.js
 ```
 
-Files: `index.html` (markup), `styles.css`, `app.js` (UI, playback, downloads, drag-reorder, import/export), `playlist.js` (pure logic, unit tested), `storage.js` (IndexedDB), `sw.js` + `manifest.webmanifest` (PWA).
+Files: `index.html` (markup), `styles.css`, `app.js` (UI, playback, downloads, drag-and-drop reorder, import/export), `playlist.js` (pure logic, unit tested), `storage.js` (IndexedDB), `sw.js` + `manifest.webmanifest` (PWA).

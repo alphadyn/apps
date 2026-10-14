@@ -9,8 +9,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Playlist" />
-  <title>Playlist | Mobile Media Player</title>
+  <meta name="apple-mobile-web-app-title" content="Player" />
+  <title>Player | Mobile Media Player</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
@@ -43,7 +43,7 @@
       <div class="brand">
         <img class="brand-icon" src="icon.svg" alt="" width="32" height="32" />
         <div>
-          <h1>Playlist</h1>
+          <h1>Player</h1>
           <p id="summary" class="summary">No tracks yet</p>
         </div>
       </div>
@@ -76,7 +76,7 @@
     <main class="playlist-panel">
       <div class="list-header">
         <h2>Queue</h2>
-        <span id="mode-hint" class="mode-hint">Drag <svg><use href="#i-grip" /></svg> to reorder</span>
+        <span id="mode-hint" class="mode-hint">Drag tracks or <svg><use href="#i-grip" /></svg> to reorder</span>
       </div>
       <ol id="track-list" class="track-list" aria-label="Playlist"></ol>
       <div id="empty-state" class="empty-state">
@@ -205,7 +205,7 @@
 
   <dialog id="menu-dialog" class="sheet">
     <div class="sheet-body">
-      <h2>Playlist</h2>
+      <h2>Player</h2>
       <p id="storage-info" class="hint"></p>
       <div class="sheet-menu">
         <button type="button" data-menu="export">Save playlist to JSON file</button>

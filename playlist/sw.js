@@ -1,5 +1,5 @@
 // Offline support for the app shell. Media files live in IndexedDB, not this cache.
-const CACHE = 'playlist-shell-v3';
+const CACHE = 'playlist-shell-v4';
 const SHELL = [
   './',
   'index.html',

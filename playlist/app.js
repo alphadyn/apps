@@ -313,6 +313,7 @@ function renderList() {
   state.tracks.forEach((track, index) => {
     const li = el('li', 'track');
     li.dataset.id = track.id;
+    li.draggable = true;
     if (!available.has(track.id)) li.classList.add('missing');
 
     const indexCell = el('span', 'track-index');
@@ -1342,6 +1343,48 @@ function bindEvents() {
   els.list.addEventListener('pointerup', endDrag);
   els.list.addEventListener('pointercancel', endDrag);
   els.list.addEventListener('lostpointercapture', endDrag);
+  let nativeDraggedId = null;
+  els.list.addEventListener('dragstart', (event) => {
+    const track = event.target.closest('.track');
+    if (!track || state.tracks.length < 2) {
+      event.preventDefault();
+      return;
+    }
+    nativeDraggedId = track.dataset.id;
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', nativeDraggedId);
+    track.classList.add('native-dragging');
+  });
+  els.list.addEventListener('dragover', (event) => {
+    const target = event.target.closest('.track');
+    if (!nativeDraggedId || !target || target.dataset.id === nativeDraggedId) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+    els.list.querySelectorAll('.drop-before, .drop-after').forEach((node) => {
+      node.classList.remove('drop-before', 'drop-after');
+    });
+    const after = event.clientY >= target.getBoundingClientRect().top + target.offsetHeight / 2;
+    target.classList.add(after ? 'drop-after' : 'drop-before');
+  });
+  els.list.addEventListener('drop', (event) => {
+    const target = event.target.closest('.track');
+    if (!nativeDraggedId || !target) return;
+    event.preventDefault();
+    if (target.dataset.id !== nativeDraggedId) {
+      const after = event.clientY >= target.getBoundingClientRect().top + target.offsetHeight / 2;
+      moveTrack(nativeDraggedId, indexOfTrack(target.dataset.id) + (after ? 1 : 0));
+    }
+    nativeDraggedId = null;
+    els.list.querySelectorAll('.native-dragging, .drop-before, .drop-after').forEach((node) => {
+      node.classList.remove('native-dragging', 'drop-before', 'drop-after');
+    });
+  });
+  els.list.addEventListener('dragend', () => {
+    nativeDraggedId = null;
+    els.list.querySelectorAll('.native-dragging, .drop-before, .drop-after').forEach((node) => {
+      node.classList.remove('native-dragging', 'drop-before', 'drop-after');
+    });
+  });
   els.list.addEventListener('keydown', (event) => {
     const grip = event.target.closest('.track-grip');
     if (!grip || !['ArrowUp', 'ArrowDown'].includes(event.key)) return;

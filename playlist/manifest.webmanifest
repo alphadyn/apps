@@ -1,6 +1,6 @@
 {
-  "name": "Playlist — Mobile Media Player",
-  "short_name": "Playlist",
+  "name": "Player — Mobile Media Player",
+  "short_name": "Player",
   "description": "Build a playlist from audio and video files or URLs, play it in order or shuffled, reorder it, and save it to a JSON file.",
   "id": "./",
   "start_url": "./",

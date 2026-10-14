@@ -168,6 +168,9 @@ h1, h2, p { margin: 0; }
   box-shadow: 0 14px 30px rgba(28, 41, 64, .16);
   transition: none;
 }
+.track.native-dragging { opacity: .55; }
+.track.drop-before { box-shadow: inset 0 2px var(--accent); }
+.track.drop-after { box-shadow: inset 0 -2px var(--accent); }
 
 .track-index {
   display: grid;

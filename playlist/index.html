@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script defer src="/apps/analytics.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f1115" />
+  <meta name="description" content="Mobile audio and video player: build a playlist from files or URLs, shuffle or reorder it, and save it to a JSON file." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Playlist" />
+  <title>Playlist | Mobile Media Player</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <svg width="0" height="0" class="sprite" aria-hidden="true" focusable="false">
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z" fill="currentColor"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor"/></symbol>
+    <symbol id="i-next" viewBox="0 0 24 24"><path d="M5 6.2v11.6a1 1 0 0 0 1.53.85L15 13.2v4.3a1 1 0 0 0 2 0v-11a1 1 0 0 0-2 0v4.3L6.53 5.35A1 1 0 0 0 5 6.2Z" fill="currentColor"/></symbol>
+    <symbol id="i-prev" viewBox="0 0 24 24"><path d="M19 6.2v11.6a1 1 0 0 1-1.53.85L9 13.2v4.3a1 1 0 0 1-2 0v-11a1 1 0 0 1 2 0v4.3l8.47-5.45A1 1 0 0 1 19 6.2Z" fill="currentColor"/></symbol>
+    <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M16 4h4v4M4 20 20 4M20 16v4h-4M15 15l5 5M4 4l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-repeat" viewBox="0 0 24 24"><path d="M17 2l4 4-4 4M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4M21 13v1a4 4 0 0 1-4 4H3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="19" cy="12" r="1.8" fill="currentColor"/></symbol>
+    <symbol id="i-grip" viewBox="0 0 24 24"><path d="M5 8h14M5 12h14M5 16h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-open" viewBox="0 0 24 24"><path d="M12 15V3M7 8l5-5 5 5M5 21h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-film" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 9.2v5.6a.6.6 0 0 0 .9.5l4.5-2.8a.6.6 0 0 0 0-1l-4.5-2.8a.6.6 0 0 0-.9.5Z" fill="currentColor"/></symbol>
+    <symbol id="i-fullscreen" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-pip" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="12" y="11" width="7" height="6" rx="1.2" fill="currentColor"/></symbol>
+    <symbol id="i-collapse" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-wave" viewBox="0 0 24 24"><path d="M4 10v4M8 6v12M12 3v18M16 7v10M20 10v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  </svg>
+
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <img class="brand-icon" src="icon.svg" alt="" width="32" height="32" />
+        <div>
+          <h1>Playlist</h1>
+          <p id="summary" class="summary">No tracks yet</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button id="export-button" class="icon-button" type="button" aria-label="Save playlist to JSON file" title="Save playlist to JSON">
+          <svg><use href="#i-save" /></svg>
+        </button>
+        <button id="import-button" class="icon-button" type="button" aria-label="Load playlist from JSON file" title="Load playlist from JSON">
+          <svg><use href="#i-open" /></svg>
+        </button>
+        <button id="menu-button" class="icon-button" type="button" aria-label="More options" title="More options">
+          <svg><use href="#i-more" /></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="add-bar">
+      <button id="add-files-button" class="pill-button primary" type="button">
+        <svg><use href="#i-plus" /></svg>Add files
+      </button>
+      <button id="add-url-button" class="pill-button" type="button">
+        <svg><use href="#i-link" /></svg>Add from URL
+      </button>
+      <input id="file-input" type="file" accept="audio/*,video/*,.mp3,.m4a,.aac,.wav,.flac,.ogg,.opus,.mp4,.m4v,.mov,.webm,.mkv" multiple hidden />
+      <input id="json-input" type="file" accept=".json,application/json" hidden />
+    </div>
+
+    <ul id="downloads" class="downloads" aria-label="Downloads in progress"></ul>
+
+    <main class="playlist-panel">
+      <div class="list-header">
+        <h2>Queue</h2>
+        <span id="mode-hint" class="mode-hint">Drag <svg><use href="#i-grip" /></svg> to reorder</span>
+      </div>
+      <ol id="track-list" class="track-list" aria-label="Playlist"></ol>
+      <div id="empty-state" class="empty-state">
+        <svg><use href="#i-wave" /></svg>
+        <h2>Your playlist is empty</h2>
+        <p>Add audio or video files from your device, paste a link to a media file, or load a saved playlist JSON.</p>
+      </div>
+    </main>
+
+    <footer class="player" aria-label="Player">
+      <div id="video-stage" class="video-stage" hidden>
+        <video id="media" class="video" preload="metadata" playsinline webkit-playsinline></video>
+        <div class="video-tools">
+          <button id="pip-button" class="video-tool" type="button" aria-label="Picture in picture" title="Picture in picture" hidden>
+            <svg><use href="#i-pip" /></svg>
+          </button>
+          <button id="fullscreen-button" class="video-tool" type="button" aria-label="Full screen" title="Full screen">
+            <svg><use href="#i-fullscreen" /></svg>
+          </button>
+          <button id="collapse-button" class="video-tool" type="button" aria-label="Hide video" title="Hide video" aria-expanded="true">
+            <svg><use href="#i-collapse" /></svg>
+          </button>
+        </div>
+      </div>
+      <div class="now-playing">
+        <button id="art" class="art" type="button" aria-label="Show video" disabled><span></span><span></span><span></span><span></span><svg><use href="#i-film" /></svg></button>
+        <div class="now-text">
+          <p id="now-title" class="now-title">Nothing playing</p>
+          <p id="now-sub" class="now-sub">Pick a track to start</p>
+        </div>
+      </div>
+      <div class="seek">
+        <span id="time-current" class="time">0:00</span>
+        <input id="seek" type="range" min="0" max="0" step="0.1" value="0" aria-label="Seek" disabled />
+        <span id="time-total" class="time">--:--</span>
+      </div>
+      <div class="controls">
+        <button id="shuffle-button" class="ctrl toggle" type="button" aria-pressed="false" aria-label="Shuffle">
+          <svg><use href="#i-shuffle" /></svg>
+        </button>
+        <button id="prev-button" class="ctrl" type="button" aria-label="Previous track">
+          <svg><use href="#i-prev" /></svg>
+        </button>
+        <button id="play-button" class="ctrl play" type="button" aria-label="Play">
+          <svg><use id="play-icon" href="#i-play" /></svg>
+        </button>
+        <button id="next-button" class="ctrl" type="button" aria-label="Next track">
+          <svg><use href="#i-next" /></svg>
+        </button>
+        <button id="repeat-button" class="ctrl toggle" type="button" aria-label="Repeat: off" data-repeat="off">
+          <svg><use href="#i-repeat" /></svg><span class="repeat-one" aria-hidden="true">1</span>
+        </button>
+      </div>
+    </footer>
+  </div>
+
+
+  <dialog id="url-dialog" class="sheet">
+    <form id="url-form" method="dialog" class="sheet-body" novalidate>
+      <h2>Add from URL</h2>
+      <p class="hint">Paste a direct link to an audio or video file (MP3, M4A, WAV, MP4, WEBM…). It will be downloaded and saved on this device. Links to YouTube, Spotify and other streaming sites won't work.</p>
+      <label class="field">
+        <span>Media URL</span>
+        <input id="url-input" name="url" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://example.com/song.mp3 or clip.mp4" required />
+      </label>
+      <label class="field">
+        <span>Title <em>(optional)</em></span>
+        <input id="url-title" name="title" type="text" autocomplete="off" placeholder="Use file name" />
+      </label>
+      <p id="url-error" class="form-error" role="alert"></p>
+      <div class="sheet-actions">
+        <button class="pill-button" type="button" data-close>Cancel</button>
+        <button class="pill-button primary" type="submit">Download</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="track-dialog" class="sheet">
+    <div class="sheet-body">
+      <h2 id="track-dialog-title">Track</h2>
+      <dl id="track-details" class="details"></dl>
+      <div class="sheet-menu">
+        <button type="button" data-action="play">Play now</button>
+        <button type="button" data-action="rename">Rename</button>
+        <button type="button" data-action="top">Move to top</button>
+        <button type="button" data-action="up">Move up</button>
+        <button type="button" data-action="down">Move down</button>
+        <button type="button" data-action="bottom">Move to bottom</button>
+        <button type="button" data-action="save">Save file to device</button>
+        <button type="button" data-action="redownload">Download again from URL</button>
+        <button type="button" data-action="remove" class="danger">Remove from playlist</button>
+      </div>
+      <div class="sheet-actions">
+        <button class="pill-button" type="button" data-close>Close</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="export-dialog" class="sheet">
+    <form id="export-form" method="dialog" class="sheet-body">
+      <h2>Save playlist</h2>
+      <p class="hint">Saves every track's details to a JSON file you can load later on this or another device.</p>
+      <label class="check">
+        <input id="export-include-media" type="checkbox" checked />
+        <span>Include audio and video inside the file <em id="export-size"></em></span>
+      </label>
+      <p class="hint small">Without media the file is tiny, but only URL tracks can be restored from it. Large videos can make the file too big for a phone to save.</p>
+      <div class="sheet-actions">
+        <button class="pill-button" type="button" data-close>Cancel</button>
+        <button class="pill-button primary" type="submit">Save JSON</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="import-dialog" class="sheet">
+    <div class="sheet-body">
+      <h2>Load playlist</h2>
+      <p id="import-summary" class="hint"></p>
+      <div class="sheet-actions stacked">
+        <button class="pill-button primary" type="button" data-import="replace">Replace current playlist</button>
+        <button class="pill-button" type="button" data-import="append">Add to current playlist</button>
+        <button class="pill-button" type="button" data-close>Cancel</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="menu-dialog" class="sheet">
+    <div class="sheet-body">
+      <h2>Playlist</h2>
+      <p id="storage-info" class="hint"></p>
+      <div class="sheet-menu">
+        <button type="button" data-menu="export">Save playlist to JSON file</button>
+        <button type="button" data-menu="import">Load playlist from JSON file</button>
+        <button type="button" data-menu="clear" class="danger">Clear playlist</button>
+      </div>
+      <div class="sheet-actions">
+        <button class="pill-button" type="button" data-close>Close</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

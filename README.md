@@ -37,6 +37,7 @@ Projects are listed alphabetically, matching the catalog on the landing page.
 - [Northstar EHR](northstar-ehr/) ([Open app](https://alphadyn.github.io/apps/northstar-ehr/)) — Responsive electronic health record demo for patient care workflows and encounter documentation.
 - [Pencil Sketch](pencil-sketch/) ([Open app](https://alphadyn.github.io/apps/pencil-sketch/)) — Image-to-pencil-sketch converter.
 - [Photo Gallery](photo-gallery/) ([Open app](https://alphadyn.github.io/apps/photo-gallery/)) — Responsive gallery app.
+- [Playlist](playlist/) ([Open app](https://alphadyn.github.io/apps/playlist/)) — Installable mobile audio and video player: add files or download media from URLs, play in order or shuffled, drag to reorder, and save/load the playlist as JSON.
 - [Postboard](postboard/) ([Open app](https://alphadyn.github.io/apps/postboard/)) — Personal post archive with rich text, uploads, and Supabase integration.
 - [Pulse](pulse/) ([Open app](https://alphadyn.github.io/apps/pulse/)) — Social/news-style app with posts, tags, and discussion flows.
 - [Signal](signal/) ([Open app](https://alphadyn.github.io/apps/signal/)) — Focused, searchable news-reading list that captures Google News headlines and related stories and downloads them as structured JSON.

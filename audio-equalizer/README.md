@@ -16,13 +16,12 @@ python3 -m http.server 8000
 
 Then open http://localhost:8000. Files are processed locally in the browser and are not uploaded.
 
-## iPhone and lock-screen playback
+## Mobile and lock-screen playback
 
-iPhone and iPad use native audio playback rather than routing sound through Web
-Audio, which iOS may interrupt when the screen locks. The spectrum and waveform
-visualizers remain displayed, but live spectrum, waveform, peak, RMS, and
-sample-rate analysis are unavailable in native playback mode. Other platforms
-use Web Audio for live analysis.
+All platforms route playback through Web Audio so the spectrum, waveform, peak,
+RMS, and sample-rate readings stay live during playback, including on iPhone and
+iPad. iOS may interrupt Web Audio playback when the screen locks, so background
+playback and lock-screen controls may be less reliable than native audio playback.
 
 MP4 and MOV files are played directly through the audio element, without showing
 video, extracting audio, or modifying tracks. Playback requires a browser-supported

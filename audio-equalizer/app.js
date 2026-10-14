@@ -1,10 +1,5 @@
-const analysisMedia = document.querySelector('#media');
-const backgroundMedia = document.querySelector('#background-media');
+const media = document.querySelector('#media');
 const playbackMessage = document.querySelector('#playback-message');
-// iPadOS can identify as a Mac; both iOS media paths need the native playback default.
-const usesNativePlayback = /iPhone|iPad|iPod/.test(navigator.userAgent)
-  || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-let media = usesNativePlayback ? backgroundMedia : analysisMedia;
 const fileInput = document.querySelector('#file-input');
 const loadButton = document.querySelector('#load-button');
 const dropZone = document.querySelector('#drop-zone');
@@ -137,7 +132,7 @@ const updateTimeline = () => {
 };
 
 const updateReadouts = () => {
-  if (usesNativePlayback || document.hidden || media.paused || media.ended
+  if (document.hidden || media.paused || media.ended
     || !analyser || !frequencyData || !waveformData) return;
   analyser.getByteFrequencyData(frequencyData);
   analyser.getByteTimeDomainData(waveformData);
@@ -158,7 +153,7 @@ const ensureAudioGraph = () => {
   analyser = audioContext.createAnalyser();
   analyser.fftSize = 2048;
   analyser.smoothingTimeConstant = 0.78;
-  source = audioContext.createMediaElementSource(analysisMedia);
+  source = audioContext.createMediaElementSource(media);
   source.connect(analyser);
   analyser.connect(audioContext.destination);
   frequencyData = new Uint8Array(analyser.frequencyBinCount);
@@ -185,10 +180,8 @@ const startPlayback = async () => {
   const playingSource = media.src;
   playbackMessage.textContent = '';
   try {
-    if (!usesNativePlayback) {
-      ensureAudioGraph();
-      if (audioContext.state !== 'running') await audioContext.resume();
-    }
+    ensureAudioGraph();
+    if (audioContext.state !== 'running') await audioContext.resume();
     if (navigator.audioSession) navigator.audioSession.type = 'playback';
     if (playingMedia !== media || playingSource !== media.src) return;
     await playingMedia.play();
@@ -220,9 +213,8 @@ const seekTo = (seconds) => {
 const updateMediaSessionActions = () => {
   if (!navigator.mediaSession) return;
   const actions = {
-    // Native play/pause must not depend on Safari running a background JS callback.
-    play: usesNativePlayback ? null : startPlayback,
-    pause: usesNativePlayback ? null : () => media.pause(),
+    play: startPlayback,
+    pause: () => media.pause(),
     stop: stopPlayback,
     seekbackward: ({ seekOffset = 10 }) => seekTo(media.currentTime - seekOffset),
     seekforward: ({ seekOffset = 10 }) => seekTo(media.currentTime + seekOffset),
@@ -285,45 +277,40 @@ skipBackButton.addEventListener('click', () => seekTo(media.currentTime - 10));
 skipForwardButton.addEventListener('click', () => seekTo(media.currentTime + 10));
 volume.addEventListener('input', () => { media.volume = volume.value; });
 timeline.addEventListener('input', () => { if (Number.isFinite(media.duration)) media.currentTime = (timeline.value / 100) * media.duration; });
-[analysisMedia, backgroundMedia].forEach((element) => {
-  const onActiveMedia = (eventName, handler) => element.addEventListener(eventName, () => {
-    if (element === media && hasMedia) handler();
-  });
-  onActiveMedia('loadedmetadata', () => {
-    durationLabel.textContent = formatTime(media.duration);
-    channelLabel.textContent = media.videoWidth ? 'Video audio' : 'Stereo';
-    updateTimeline();
-  });
-  onActiveMedia('timeupdate', updateTimeline);
-  onActiveMedia('progress', updateTimeline);
-  onActiveMedia('ratechange', updateTimeline);
-  onActiveMedia('play', () => {
-    playIcon.textContent = 'Ⅱ';
-    playLabel.textContent = 'Pause';
-    playButton.setAttribute('aria-label', 'Pause');
-    playState.textContent = 'Playing';
-    playState.classList.add('is-playing');
-    if (navigator.mediaSession) navigator.mediaSession.playbackState = 'playing';
-    cancelAnimationFrame(animationFrame);
-    updateReadouts();
-  });
-  onActiveMedia('pause', () => {
-    playIcon.textContent = '▶';
-    playLabel.textContent = 'Play';
-    playButton.setAttribute('aria-label', 'Play');
-    cancelAnimationFrame(animationFrame);
-    if (navigator.mediaSession) navigator.mediaSession.playbackState = 'paused';
-    if (!media.ended) playState.textContent = 'Paused';
-    playState.classList.remove('is-playing');
-  });
-  onActiveMedia('ended', () => {
-    playState.textContent = 'Complete';
-    playState.classList.remove('is-playing');
-    cancelAnimationFrame(animationFrame);
-    if (navigator.mediaSession) navigator.mediaSession.playbackState = 'paused';
-  });
-  onActiveMedia('error', () => reportPlaybackError(media.error));
+media.addEventListener('loadedmetadata', () => {
+  durationLabel.textContent = formatTime(media.duration);
+  channelLabel.textContent = media.videoWidth ? 'Video audio' : 'Stereo';
+  updateTimeline();
 });
+media.addEventListener('timeupdate', updateTimeline);
+media.addEventListener('progress', updateTimeline);
+media.addEventListener('ratechange', updateTimeline);
+media.addEventListener('play', () => {
+  playIcon.textContent = 'Ⅱ';
+  playLabel.textContent = 'Pause';
+  playButton.setAttribute('aria-label', 'Pause');
+  playState.textContent = 'Playing';
+  playState.classList.add('is-playing');
+  if (navigator.mediaSession) navigator.mediaSession.playbackState = 'playing';
+  cancelAnimationFrame(animationFrame);
+  updateReadouts();
+});
+media.addEventListener('pause', () => {
+  playIcon.textContent = '▶';
+  playLabel.textContent = 'Play';
+  playButton.setAttribute('aria-label', 'Play');
+  cancelAnimationFrame(animationFrame);
+  if (navigator.mediaSession) navigator.mediaSession.playbackState = 'paused';
+  if (!media.ended) playState.textContent = 'Paused';
+  playState.classList.remove('is-playing');
+});
+media.addEventListener('ended', () => {
+  playState.textContent = 'Complete';
+  playState.classList.remove('is-playing');
+  cancelAnimationFrame(animationFrame);
+  if (navigator.mediaSession) navigator.mediaSession.playbackState = 'paused';
+});
+media.addEventListener('error', () => reportPlaybackError(media.error));
 
 document.addEventListener('visibilitychange', () => {
   cancelAnimationFrame(animationFrame);

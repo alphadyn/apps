@@ -14,6 +14,7 @@ An installable, mobile-first audio and video player that runs entirely in the br
 - **Save/load the playlist as a JSON file** (⤓ / ⤒ buttons). The file holds every track's details, the play settings and, optionally, the media itself (base64), so a playlist can be fully restored on another device.
 - Lock-screen and headset controls through the Media Session API. The app also remembers the last track and position.
 - Installable PWA (Add to Home Screen) with an offline app shell.
+- Light neutral surfaces, restrained blue accents, and high-contrast playback controls.
 
 ## Storage
 

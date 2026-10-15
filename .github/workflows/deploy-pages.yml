@@ -52,7 +52,7 @@ jobs:
           python3 signal/build_data.py
 
       - name: Test Playlist logic
-        run: node --test playlist/playlist.test.js
+        run: node --test player/playlist.test.js
 
       - name: Build Pulse post previews
         run: |

@@ -2,7 +2,7 @@
 
 An installable, mobile-first audio and video player that runs entirely in the browser. No server or account required.
 
-[Open app](https://alphadyn.github.io/apps/playlist/)
+[Open app](https://alphadyn.github.io/apps/player/)
 
 ## Features
 
@@ -58,8 +58,8 @@ An installable, mobile-first audio and video player that runs entirely in the br
 
 ```bash
 python3 -m http.server 8000   # from the repository root
-# open http://localhost:8000/playlist/
-node --test playlist/playlist.test.js
+# open http://localhost:8000/player/
+node --test player/playlist.test.js
 ```
 
 Files: `index.html` (markup), `styles.css`, `app.js` (UI, playback, downloads, drag-and-drop reorder, import/export), `playlist.js` (pure logic, unit tested), `storage.js` (IndexedDB), `sw.js` + `manifest.webmanifest` (PWA).

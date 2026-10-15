@@ -22,6 +22,12 @@ import {
   streamingServiceName
 } from './playlist.js';
 import {
+  buildArchiveMetadataUrl,
+  buildArchiveSearchUrl,
+  parseArchiveSearch,
+  selectArchiveAudioFile
+} from './audio-search.js';
+import {
   clearMedia,
   deleteMedia,
   listMediaIds,
@@ -56,6 +62,7 @@ let sheetTrackId = null;
 let lastPositionSave = 0;
 let lastPositionState = 0;
 let videoHidden = false;
+let searchController = null;
 
 const $ = (selector) => document.querySelector(selector);
 const media = $('#media');
@@ -66,6 +73,11 @@ const els = {
   downloads: $('#downloads'),
   fileInput: $('#file-input'),
   jsonInput: $('#json-input'),
+  searchForm: $('#search-form'),
+  searchQuery: $('#search-query'),
+  searchButton: $('#search-form button[type="submit"]'),
+  searchStatus: $('#search-status'),
+  searchResults: $('#search-results'),
   player: $('.player'),
   videoStage: $('#video-stage'),
   art: $('#art'),
@@ -786,16 +798,16 @@ async function downloadFromUrl(rawUrl, { title = '', existingId = null, playWhen
     url = normalizeUrl(rawUrl);
   } catch (error) {
     toast(error.message, { error: true });
-    return;
+    return false;
   }
   requestPersistentStorage();
   const service = streamingServiceName(url);
   if (service) {
     toast(streamingServiceMessage(service), { error: true, duration: 8000 });
-    return;
+    return false;
   }
   const key = existingId || createId();
-  if (downloads.has(key)) return;
+  if (downloads.has(key)) return false;
 
   const controller = new AbortController();
   const node = el('li', 'download');
@@ -883,17 +895,99 @@ async function downloadFromUrl(rawUrl, { title = '', existingId = null, playWhen
     toast(`Saved "${title || fileName}"`);
     if (playWhenDone && state.currentId === key) loadTrack(key, { autoplay: true });
     if (!playable) toast('Saved, but this device may not be able to play that format.', { error: true });
+    return true;
   } catch (error) {
     if (error?.name === 'AbortError') {
       downloads.delete(key);
       node.remove();
       if (existingId) renderList();
-      return;
+      return false;
     }
     entry.failed = true;
     entry.status = describeFetchError(error);
     renderDownload(entry);
     if (existingId) renderList();
+    return false;
+  }
+}
+
+/* ---------- Web audio search ---------- */
+
+function renderSearchResults(results) {
+  const fragment = document.createDocumentFragment();
+  for (const result of results) {
+    if (!result || typeof result.title !== 'string' || typeof result.pageUrl !== 'string') continue;
+    let url;
+    try {
+      url = new URL(result.pageUrl);
+    } catch {
+      continue;
+    }
+    if (url.protocol !== 'https:' || url.hostname !== 'archive.org') continue;
+
+    const item = el('li', 'search-result');
+    const main = el('div', 'search-result-main');
+    const title = el('a', 'search-result-title', result.title.slice(0, 300));
+    title.href = result.pageUrl;
+    title.target = '_blank';
+    title.rel = 'noopener noreferrer';
+    const source = el('span', 'search-result-url', 'Internet Archive');
+    main.append(title, source);
+    item.append(main);
+    const addButton = el('button', 'pill-button', 'Add to playlist');
+    addButton.type = 'button';
+    addButton.dataset.archiveId = result.identifier;
+    addButton.dataset.searchTitle = result.title.slice(0, 200);
+    addButton.dataset.searchCreator = result.creator.slice(0, 200);
+    addButton.dataset.searchLicense = result.licenseName;
+    addButton.title = 'Download the licensed audio and save it to the playlist';
+    item.append(addButton);
+    if (typeof result.description === 'string' && result.description) {
+      item.append(el('p', 'search-result-description', result.description.slice(0, 600)));
+    }
+    fragment.append(item);
+  }
+  els.searchResults.replaceChildren(fragment);
+  return els.searchResults.children.length;
+}
+
+async function searchWeb(event) {
+  event.preventDefault();
+  els.searchStatus.classList.remove('error');
+  const query = els.searchQuery.value.trim();
+  if (!query) {
+    els.searchStatus.textContent = 'Enter an artist, song, or album to search.';
+    els.searchQuery.focus();
+    return;
+  }
+
+  searchController?.abort();
+  const controller = new AbortController();
+  searchController = controller;
+  els.searchButton.disabled = true;
+  els.searchStatus.textContent = 'Searching the web…';
+  els.searchResults.replaceChildren();
+
+  try {
+    const response = await fetch(buildArchiveSearchUrl(query), { signal: controller.signal });
+    if (!response.ok) throw new Error(`Internet Archive returned ${response.status}. Try again later.`);
+    const results = parseArchiveSearch(await response.json());
+    const count = renderSearchResults(results);
+    els.searchStatus.textContent = count
+      ? `${count} freely licensed result${count === 1 ? '' : 's'}. Add downloads the audio file to your playlist.`
+      : 'No usable results. Try different search terms.';
+  } catch (error) {
+    if (error?.name === 'AbortError') return;
+    els.searchStatus.classList.add('error');
+    els.searchStatus.textContent = error instanceof TypeError
+      ? 'Could not reach Internet Archive. Check your connection and try again.'
+      : error.message || 'Search failed.';
+    els.searchResults.replaceChildren();
+  } finally {
+    if (searchController === controller) {
+      searchController = null;
+      els.searchButton.disabled = false;
+    }
   }
 }
 
@@ -1251,6 +1345,37 @@ function bindEvents() {
     const files = Array.from(els.fileInput.files || []);
     els.fileInput.value = '';
     await addFiles(files);
+  });
+
+  els.searchForm.addEventListener('submit', searchWeb);
+  els.searchResults.addEventListener('click', async (event) => {
+    const button = event.target.closest('button[data-archive-id]');
+    if (!button || button.disabled) return;
+    button.disabled = true;
+    button.textContent = 'Finding audio…';
+    els.searchStatus.classList.remove('error');
+    els.searchStatus.textContent = 'Checking the license and finding a downloadable audio file…';
+    try {
+      const response = await fetch(buildArchiveMetadataUrl(button.dataset.archiveId));
+      if (!response.ok) throw new Error(`Internet Archive returned ${response.status} while loading the audio file.`);
+      const audio = selectArchiveAudioFile(await response.json());
+      const attribution = [
+        button.dataset.searchTitle,
+        button.dataset.searchCreator,
+        button.dataset.searchLicense
+      ].filter(Boolean).join(' — ');
+      const saved = await downloadFromUrl(audio.url, { title: attribution });
+      if (!saved) throw new Error('The audio file could not be downloaded. Check the download status and try again.');
+      button.textContent = 'Added';
+      els.searchStatus.textContent = 'Licensed audio downloaded and saved to your playlist.';
+    } catch (error) {
+      button.disabled = false;
+      button.textContent = 'Try again';
+      els.searchStatus.classList.add('error');
+      els.searchStatus.textContent = error instanceof TypeError
+        ? 'Could not reach Internet Archive to download the audio. Check your connection and try again.'
+        : error.message || 'Could not add this audio file.';
+    }
   });
 
   $('#add-url-button').addEventListener('click', () => {

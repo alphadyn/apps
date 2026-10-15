@@ -51,8 +51,8 @@ jobs:
           node --test signal/app.test.js
           python3 signal/build_data.py
 
-      - name: Test Playlist logic
-        run: node --test player/playlist.test.js
+      - name: Test Player logic and audio search
+        run: node --test player/playlist.test.js player/audio-search.test.js
 
       - name: Build Pulse post previews
         run: |

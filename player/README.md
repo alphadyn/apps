@@ -7,6 +7,7 @@ An installable, mobile-first audio and video player that runs entirely in the br
 ## Features
 
 - **Add audio and video files** from the device (multi-select), e.g. MP3, M4A, WAV, FLAC, OGG, MP4, MOV, WEBM. Other files are skipped. Audio and video can be mixed in one playlist.
+- **Search Internet Archive** for audio by artist, title, or album. Results are limited to Creative Commons and public-domain items; add a result to download its audio file into the playlist and save it on this device.
 - **Video playback** in an inline player above the controls, with full screen and picture-in-picture (where supported). Tap the video to play/pause. Tap the film icon to hide or show it. Videos are marked with a VIDEO badge.
 - **Add from URL**: paste a direct link to an audio or video file. The app downloads it (with progress and cancel) and saves it on the device, so it plays offline.
 - **Play in order or shuffled**, with repeat off / repeat playlist / repeat one. Shuffle plays every track once per cycle, then reshuffles.
@@ -19,6 +20,7 @@ An installable, mobile-first audio and video player that runs entirely in the br
 ## Storage
 
 - Media files and the playlist manifest are kept in **IndexedDB** in the browser, so they survive reloads and work offline. The app asks the browser for persistent storage.
+- Internet Archive search requires no API key. Search results display the item's creator and license, and the saved track title retains that attribution.
 - Exported JSON follows this shape:
 
 ```json
@@ -50,6 +52,7 @@ An installable, mobile-first audio and video player that runs entirely in the br
 ## Limitations
 
 - URL downloads happen in the browser, so the server must allow cross-origin requests (CORS). Links to web pages or streaming services such as YouTube, Spotify or SoundCloud can't be downloaded; the app recognises these and explains why instead of trying.
+- Search is limited to audio that Internet Archive identifies as Creative Commons or public domain. Check the item's license and terms on its Internet Archive page before using or sharing it; attribution is retained in the saved track title.
 - Playable formats depend on the device's browser (for example, iOS Safari doesn't play OGG/Opus in some versions).
 - Exports that include media are about 1.34× the size of the files. The app asks before building exports over 300 MB, since large videos can fail to save on phones.
 - Mobile browsers usually pause video when the app goes to the background or the screen locks. Use picture-in-picture to keep watching, or audio files for background listening.
@@ -62,4 +65,4 @@ python3 -m http.server 8000   # from the repository root
 node --test player/playlist.test.js
 ```
 
-Files: `index.html` (markup), `styles.css`, `app.js` (UI, playback, downloads, drag-and-drop reorder, import/export), `playlist.js` (pure logic, unit tested), `storage.js` (IndexedDB), `sw.js` + `manifest.webmanifest` (PWA).
+Files: `index.html` (markup), `styles.css`, `app.js` (UI, playback, downloads, drag-and-drop reorder, import/export), `audio-search.js` (Internet Archive search and license validation), `playlist.js` (pure logic, unit tested), `storage.js` (IndexedDB), `sw.js` + `manifest.webmanifest` (PWA).

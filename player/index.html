@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#f4f6fa" />
-  <meta name="description" content="Mobile audio and video player: build a playlist from files or URLs, shuffle or reorder it, and save it to a JSON file." />
+  <meta name="description" content="Mobile audio and video player with free, licensed Internet Archive audio search, on-device downloads, and playlist saving." />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -70,6 +70,16 @@
       <input id="file-input" type="file" accept="audio/*,video/*,.mp3,.m4a,.aac,.wav,.flac,.ogg,.opus,.mp4,.m4v,.mov,.webm,.mkv" multiple hidden />
       <input id="json-input" type="file" accept=".json,application/json" hidden />
     </div>
+
+    <section class="web-search" aria-label="Search free audio">
+      <form id="search-form" class="search-form" novalidate>
+        <input id="search-query" type="search" autocomplete="off" placeholder="Search artist, song, or album" aria-label="Search artist, song, or album" required />
+        <button class="pill-button primary" type="submit">Search audio</button>
+      </form>
+      <p class="search-help">Searches free-to-use Internet Archive audio. Results show each item's license; Add downloads and saves the audio on this device. Check the license before reusing it.</p>
+      <p id="search-status" class="search-status" role="status" aria-live="polite"></p>
+      <ol id="search-results" class="search-results" aria-label="Internet Archive audio results"></ol>
+    </section>
 
     <ul id="downloads" class="downloads" aria-label="Downloads in progress"></ul>
 

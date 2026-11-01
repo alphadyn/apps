@@ -35,7 +35,7 @@ Projects are listed alphabetically, matching the catalog on the landing page.
 - [Photo Gallery](photo-gallery/) ([Open app](https://alphadyn.github.io/apps/photo-gallery/)) — Responsive gallery app.
 - [Pulse](pulse/) ([Open app](https://alphadyn.github.io/apps/pulse/)) — Social/news-style app with posts, tags, and discussion flows.
 - [Signal](signal/) ([Open app](https://alphadyn.github.io/apps/signal/)) — Focused, searchable news-reading list that captures Google News headlines and related stories and downloads them as structured JSON.
-- [S&P Insights](sp-insights/) ([Open app](https://alphadyn.github.io/apps/sp-insights/)) — Table of every S&P 500 security ranked by market cap, net income, price, and their growth rates, using any criteria in any order, with a price-history chart for each security (1W through All).
+- [S&P Insights](sp-insights/) ([Open app](https://alphadyn.github.io/apps/sp-insights/)) — Table of every S&P 500 security ranked by market cap, net income, price, and their growth rates, with hideable filters and a price-history chart for each security (1W through All).
 - [Vault](vault/) ([Open app](https://alphadyn.github.io/apps/vault/)) — Browser-based file and folder encryption; all processing stays on-device.
 - [Contact Card Generator](vcard-generator/) ([Open app](https://alphadyn.github.io/apps/vcard-generator/)) — Contact card and QR code generation.
 
@@ -90,7 +90,7 @@ Open <http://127.0.0.1:5001>, type a ticker or company name, and choose a matchi
 
 ### S&P Insights
 
-[S&P Insights](sp-insights/) is a static page backed by a generated `data.json` snapshot plus per-security `history/*.json` files (gitignored, built at deploy time). Generate them (about three to four minutes because of SEC rate limits), then serve the folder:
+[S&P Insights](sp-insights/) is a static page backed by a generated `data.json` snapshot plus per-security `history/*.json` files (gitignored, built at deploy time). Its filter controls can be shown or hidden to make room for the ranked table. Generate the data (about three to four minutes because of SEC rate limits), then serve the folder:
 
 ```bash
 python3 sp-insights/build_data.py

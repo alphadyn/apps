@@ -63,7 +63,7 @@ function updateProgress(completed, total, label = 'Assessing constituents') {
   elements.progressTrack.setAttribute('aria-valuenow', String(percentage));
 }
 
-const PERFORMANCE_RANGES = { '1d': { label: '1D' }, '1w': { label: '1W', days: 7 }, '1m': { label: '1M', days: 30 }, ytd: { label: 'YTD', ytd: true }, '1y': { label: '1Y', days: 365 }, '2y': { label: '2Y', days: 730 }, '5y': { label: '5Y', days: 1825 }, '10y': { label: '10Y', days: 3650 }, all: { label: 'All', all: true } };
+const PERFORMANCE_RANGES = { '1d': { label: '1D' }, '1w': { label: '1W', days: 7 }, '1m': { label: '1M', days: 30 }, '3m': { label: '3M', days: 90 }, ytd: { label: 'YTD', ytd: true }, '1y': { label: '1Y', days: 365 }, '2y': { label: '2Y', days: 730 }, '5y': { label: '5Y', days: 1825 }, '10y': { label: '10Y', days: 3650 }, all: { label: 'All', all: true } };
 
 function rangeStart(range) {
   const date = new Date();

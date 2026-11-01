@@ -8,7 +8,7 @@ Market Lens is a dependency-free browser dashboard for screening the entire S&P 
 
 The last ranked results are saved to a shared Supabase table (see [`supabase-schema.sql`](supabase-schema.sql)) so every visitor sees the same saved scan. On page load, the dashboard shows the saved results immediately instead of rescanning the market; use the refresh button to run a new scan on request, which overwrites the shared cache.
 
-Scanning the full index means roughly 1,000 Nasdaq requests per scan, so a full refresh can take several minutes; the status line and "scanned / shown" count reflect progress. The scan uses current quote data plus daily end-of-day history; it does not request intraday data. Selecting a security opens its performance graph, with 1-day, 1-week, 1-month, year-to-date, 1-year, 5-year, 10-year, and all-history ranges. If the live constituent list can't be fetched (offline, blocked, etc.), the app falls back to a smaller hardcoded watchlist.
+Scanning the full index means roughly 1,000 Nasdaq requests per scan, so a full refresh can take several minutes; the status line and "scanned / shown" count reflect progress. The scan uses current quote data plus daily end-of-day history; it does not request intraday data. Selecting a security opens its performance graph, with 1-day, 1-week, 1-month, 3-month, year-to-date, 1-year, 5-year, 10-year, and all-history ranges. If the live constituent list can't be fetched (offline, blocked, etc.), the app falls back to a smaller hardcoded watchlist.
 
 ## Run locally
 

@@ -97,11 +97,6 @@ const els = {
   repeat: $('#repeat-button'),
   modeHint: $('#mode-hint'),
   toast: $('#toast'),
-  urlDialog: $('#url-dialog'),
-  urlForm: $('#url-form'),
-  urlInput: $('#url-input'),
-  urlTitle: $('#url-title'),
-  urlError: $('#url-error'),
   trackDialog: $('#track-dialog'),
   trackDialogTitle: $('#track-dialog-title'),
   trackDetails: $('#track-details'),
@@ -1375,26 +1370,6 @@ function bindEvents() {
       els.searchStatus.textContent = error instanceof TypeError
         ? 'Could not reach Internet Archive to download the audio. Check your connection and try again.'
         : error.message || 'Could not add this audio file.';
-    }
-  });
-
-  $('#add-url-button').addEventListener('click', () => {
-    els.urlForm.reset();
-    els.urlError.textContent = '';
-    openDialog(els.urlDialog);
-    setTimeout(() => els.urlInput.focus(), 50);
-  });
-  els.urlForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    try {
-      const url = normalizeUrl(els.urlInput.value);
-      const service = streamingServiceName(url);
-      if (service) throw new Error(streamingServiceMessage(service));
-      const title = els.urlTitle.value.trim();
-      closeDialog(els.urlDialog);
-      downloadFromUrl(url, { title });
-    } catch (error) {
-      els.urlError.textContent = error.message;
     }
   });
 

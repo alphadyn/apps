@@ -1,5 +1,5 @@
 // Offline support for the app shell. Media files live in IndexedDB, not this cache.
-const CACHE = 'playlist-shell-v5';
+const CACHE = 'playlist-shell-v6';
 const SHELL = [
   './',
   'index.html',
@@ -10,6 +10,7 @@ const SHELL = [
   'storage.js',
   'manifest.webmanifest',
   'icon.svg',
+  'favicon.ico',
   'icon-192.png',
   'icon-512.png',
   'apple-touch-icon.png'

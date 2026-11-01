@@ -6,13 +6,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#f4f6fa" />
   <meta name="description" content="Mobile audio and video player with free, licensed Internet Archive audio search, on-device downloads, and playlist saving." />
+  <link rel="canonical" href="https://alphadyn.github.io/apps/player/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Player" />
+  <meta property="og:url" content="https://alphadyn.github.io/apps/player/" />
+  <meta property="og:title" content="Player — Your personal media library" />
+  <meta property="og:description" content="Play audio and video, discover Creative Commons recordings, and keep your library saved on your device." />
+  <meta property="og:image" content="https://alphadyn.github.io/apps/player/social-preview.png" />
+  <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/player/social-preview.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Player, a personal audio and video library with playback controls and an on-device playlist." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Player — Your personal media library" />
+  <meta name="twitter:description" content="Play audio and video, discover Creative Commons recordings, and keep your library saved on your device." />
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/player/social-preview.png" />
+  <meta name="twitter:image:alt" content="Player, a personal audio and video library with playback controls and an on-device playlist." />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Player" />
   <title>Player | Mobile Media Player</title>
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" sizes="any" />
+  <link rel="icon" href="icon-192.png" type="image/png" sizes="192x192" />
+  <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <link rel="stylesheet" href="styles.css" />
   <script type="module" src="app.js"></script>
@@ -26,7 +45,6 @@
     <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M16 4h4v4M4 20 20 4M20 16v4h-4M15 15l5 5M4 4l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-repeat" viewBox="0 0 24 24"><path d="M17 2l4 4-4 4M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4M21 13v1a4 4 0 0 1-4 4H3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
-    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
     <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="19" cy="12" r="1.8" fill="currentColor"/></symbol>
     <symbol id="i-grip" viewBox="0 0 24 24"><path d="M5 8h14M5 12h14M5 16h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
     <symbol id="i-save" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -64,9 +82,6 @@
       <button id="add-files-button" class="pill-button primary" type="button">
         <svg><use href="#i-plus" /></svg>Add files
       </button>
-      <button id="add-url-button" class="pill-button" type="button">
-        <svg><use href="#i-link" /></svg>Add from URL
-      </button>
       <input id="file-input" type="file" accept="audio/*,video/*,.mp3,.m4a,.aac,.wav,.flac,.ogg,.opus,.mp4,.m4v,.mov,.webm,.mkv" multiple hidden />
       <input id="json-input" type="file" accept=".json,application/json" hidden />
     </div>
@@ -92,7 +107,7 @@
       <div id="empty-state" class="empty-state">
         <svg><use href="#i-wave" /></svg>
         <h2>Your playlist is empty</h2>
-        <p>Add audio or video files from your device, paste a link to a media file, or load a saved playlist JSON.</p>
+        <p>Add audio or video files from your device, search licensed audio, or load a saved playlist JSON.</p>
       </div>
     </main>
 
@@ -143,26 +158,6 @@
     </footer>
   </div>
 
-
-  <dialog id="url-dialog" class="sheet">
-    <form id="url-form" method="dialog" class="sheet-body" novalidate>
-      <h2>Add from URL</h2>
-      <p class="hint">Paste a direct link to an audio or video file (MP3, M4A, WAV, MP4, WEBM…). It will be downloaded and saved on this device. Links to YouTube, Spotify and other streaming sites won't work.</p>
-      <label class="field">
-        <span>Media URL</span>
-        <input id="url-input" name="url" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://example.com/song.mp3 or clip.mp4" required />
-      </label>
-      <label class="field">
-        <span>Title <em>(optional)</em></span>
-        <input id="url-title" name="title" type="text" autocomplete="off" placeholder="Use file name" />
-      </label>
-      <p id="url-error" class="form-error" role="alert"></p>
-      <div class="sheet-actions">
-        <button class="pill-button" type="button" data-close>Cancel</button>
-        <button class="pill-button primary" type="submit">Download</button>
-      </div>
-    </form>
-  </dialog>
 
   <dialog id="track-dialog" class="sheet">
     <div class="sheet-body">

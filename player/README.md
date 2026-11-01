@@ -9,7 +9,6 @@ An installable, mobile-first audio and video player that runs entirely in the br
 - **Add audio and video files** from the device (multi-select), e.g. MP3, M4A, WAV, FLAC, OGG, MP4, MOV, WEBM. Other files are skipped. Audio and video can be mixed in one playlist.
 - **Search Internet Archive** for audio by artist, title, or album. Results are limited to Creative Commons and public-domain items; add a result to download its audio file into the playlist and save it on this device.
 - **Video playback** in an inline player above the controls, with full screen and picture-in-picture (where supported). Tap the video to play/pause. Tap the film icon to hide or show it. Videos are marked with a VIDEO badge.
-- **Add from URL**: paste a direct link to an audio or video file. The app downloads it (with progress and cancel) and saves it on the device, so it plays offline.
 - **Play in order or shuffled**, with repeat off / repeat playlist / repeat one. Shuffle plays every track once per cycle, then reshuffles.
 - **Reorder the queue** by dragging and dropping a track (or the ≡ handle on touch), with arrow keys on the handle, or from a track's ⋯ menu (move up/down/top/bottom).
 - **Save/load the playlist as a JSON file** (⤓ / ⤒ buttons). The file holds every track's details, the play settings and, optionally, the media itself (base64), so a playlist can be fully restored on another device.
@@ -47,11 +46,11 @@ An installable, mobile-first audio and video player that runs entirely in the br
 }
 ```
 
-`data` is only present when the playlist was exported with “Include audio and video”. `kind` is `"audio"` or `"video"`; if missing it is guessed from the file type. On import, tracks with `data` are restored directly. Tracks with only a `sourceUrl` are downloaded again. A bare JSON array of track objects is also accepted.
+`data` is only present when the playlist was exported with “Include audio and video”. `kind` is `"audio"` or `"video"`; if missing it is guessed from the file type. On import, tracks with `data` are restored directly. Older playlists with only a `sourceUrl` still restore by downloading the media. A bare JSON array of track objects is also accepted.
 
 ## Limitations
 
-- URL downloads happen in the browser, so the server must allow cross-origin requests (CORS). Links to web pages or streaming services such as YouTube, Spotify or SoundCloud can't be downloaded; the app recognises these and explains why instead of trying.
+- Restoring older playlists with URL-only tracks happens in the browser, so the file server must allow cross-origin requests (CORS). Links to web pages or streaming services such as YouTube, Spotify or SoundCloud can't be downloaded.
 - Search is limited to audio that Internet Archive identifies as Creative Commons or public domain. Check the item's license and terms on its Internet Archive page before using or sharing it; attribution is retained in the saved track title.
 - Playable formats depend on the device's browser (for example, iOS Safari doesn't play OGG/Opus in some versions).
 - Exports that include media are about 1.34× the size of the files. The app asks before building exports over 300 MB, since large videos can fail to save on phones.
@@ -65,4 +64,10 @@ python3 -m http.server 8000   # from the repository root
 node --test player/playlist.test.js
 ```
 
-Files: `index.html` (markup), `styles.css`, `app.js` (UI, playback, downloads, drag-and-drop reorder, import/export), `audio-search.js` (Internet Archive search and license validation), `playlist.js` (pure logic, unit tested), `storage.js` (IndexedDB), `sw.js` + `manifest.webmanifest` (PWA).
+Regenerate the app icons, favicon, and social preview after changing the artwork:
+
+```bash
+python3 player/generate_artwork.py
+```
+
+Files: `index.html` (markup and link-preview metadata), `styles.css`, `app.js` (UI, playback, downloads, drag-and-drop reorder, import/export), `audio-search.js` (Internet Archive search and license validation), `playlist.js` (pure logic, unit tested), `storage.js` (IndexedDB), `sw.js` + `manifest.webmanifest` (PWA).

@@ -1,7 +1,7 @@
 {
-  "name": "Player — Mobile Media Player",
+  "name": "Player — Personal Media Library",
   "short_name": "Player",
-  "description": "Build a playlist from audio and video files or URLs, play it in order or shuffled, reorder it, and save it to a JSON file.",
+  "description": "Play audio and video, discover licensed Internet Archive recordings, and keep your personal media library on your device.",
   "id": "./",
   "start_url": "./",
   "scope": "./",

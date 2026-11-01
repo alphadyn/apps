@@ -168,10 +168,6 @@ h1 { margin: 0; font-size: clamp(1.9rem, 3.6vw, 2.75rem); font-weight: 800; lett
   gap: 6px;
   cursor: pointer;
 }
-.btn-toggle-filters .toggle-icon {
-  width: 16px;
-  height: 16px;
-}
 .filter-summary-row {
   display: flex;
   align-items: center;

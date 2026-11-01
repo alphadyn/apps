@@ -77,8 +77,6 @@ const elements = {
   // Filter controls & toggle
   filterGrid: document.getElementById('filter-grid'),
   btnToggleFilters: document.getElementById('btn-toggle-filters'),
-  toggleFiltersCloseIcon: document.querySelector('.toggle-icon-close'),
-  toggleFiltersOpenIcon: document.querySelector('.toggle-icon-open'),
   filterSummaryRow: document.getElementById('filter-summary-row'),
   filterSummaryEmpty: document.getElementById('filter-summary-empty'),
   filterSummaryActive: document.getElementById('filter-summary-active'),
@@ -376,12 +374,10 @@ function renderFilterControls() {
   // Toggle button and filter grid visibility
   elements.filterGrid.hidden = !state.filtersVisible;
   elements.btnToggleFilters.setAttribute('aria-expanded', state.filtersVisible ? 'true' : 'false');
-  const toggleLabel = state.filtersVisible ? 'Hide filters' : 'Show filters';
+  const toggleLabel = state.filtersVisible ? 'Hide criteria' : 'Show criteria';
   elements.btnToggleFilters.querySelector('.toggle-label').textContent = toggleLabel;
   elements.btnToggleFilters.setAttribute('aria-label', toggleLabel);
   elements.btnToggleFilters.title = toggleLabel;
-  elements.toggleFiltersCloseIcon.hidden = !state.filtersVisible;
-  elements.toggleFiltersOpenIcon.hidden = state.filtersVisible;
 
   // Net Income active period display and buttons
   const activeNiPeriod = state.activeNiPeriod;

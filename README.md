@@ -37,7 +37,7 @@ Projects are listed alphabetically, matching the catalog on the landing page.
 - [Pulse](pulse/) ([Open app](https://alphadyn.github.io/apps/pulse/)) — Social/news-style app with posts, tags, and discussion flows.
 - [Signal](signal/) ([Open app](https://alphadyn.github.io/apps/signal/)) — Focused, searchable news-reading list that captures Google News headlines and related stories and downloads them as structured JSON.
 - [S&P Insights](S%26P%20Insights/) ([Open app](https://alphadyn.github.io/apps/S%26P%20Insights/)) — Table of every S&P 500 security ranked by market cap, net income, price, and their growth rates, using any criteria in any order, with a price-history chart for each security (1W through All).
-- [Vault](vault/) ([Open app](https://alphadyn.github.io/apps/vault/)) — Browser-based text and file encryption app; all processing stays on-device.
+- [Vault](vault/) ([Open app](https://alphadyn.github.io/apps/vault/)) — Browser-based file and folder encryption; all processing stays on-device.
 - [vCard Generator](vcard-generator/) ([Open app](https://alphadyn.github.io/apps/vcard-generator/)) — Card generation and QR code output.
 
 ## Quick start

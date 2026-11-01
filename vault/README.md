@@ -4,11 +4,11 @@
 
 > Standalone browser encryption tool; data stays on-device. See the [repository catalog](../README.md) for shared setup and deployment context.
 
-Vault is a static web app for encrypting and decrypting text or files in your browser. It is designed to be hosted on GitHub Pages: there is no server, account, upload, or build step. The web app files are `index.html`, `styles.css`, and `app.js`.
+Vault is a static web app for encrypting and decrypting files and folders in your browser. It is designed to be hosted on GitHub Pages: there is no server, account, upload, or build step. Folder contents are archived as TAR, compressed with gzip, and then encrypted; the archive preserves relative paths. The web app files are `index.html`, `styles.css`, `app.js`, and `archive.js`.
 
 ## Use it
 
-Open the app over HTTPS (for example, from GitHub Pages), choose **Encrypt** or **Decrypt**, select **Text** or **File**, enter a password, and run the operation. Encrypted results can be copied or downloaded; decrypted results can also be downloaded. The app processes data locally in the browser.
+Open the app over HTTPS (for example, from GitHub Pages), choose **Encrypt** or **Decrypt**, select a file or folder, enter a password, and run the operation. Individual files are encrypted as-is. Folders are TAR archived with gzip compression before encryption. When decrypting a folder, use **Choose folder** to restore its directory tree (supported browsers), or download the `.tar.gz` archive and extract it. The app processes data locally in the browser.
 
 Web Crypto requires a secure context, so use HTTPS or `localhost` rather than opening the page directly as a `file://` URL. To preview locally from the repository root:
 
@@ -24,7 +24,6 @@ In the repository's GitHub Pages settings, publish from the `main` branch and se
 
 ## Encryption format
 
-Vault uses AES-256-GCM with a fresh 16-byte random salt, a fresh 12-byte nonce, and PBKDF2-HMAC-SHA256 with 600,000 iterations. File payloads are laid out as `salt + nonce + authenticated ciphertext`. Text payloads use the same binary format, Base64-encoded for copying.
+Vault uses AES-256-GCM with a fresh 16-byte random salt, a fresh 12-byte nonce, and PBKDF2-HMAC-SHA256 with 600,000 iterations. File payloads are laid out as `salt + nonce + authenticated ciphertext`. Folder payloads encrypt a versioned marker followed by the gzip-compressed TAR bytes. Folder processing is limited to 1 GB of uncompressed data.
 
 Keep your password safe. There is no password reset, and losing the password means the encrypted data cannot be recovered. Encryption happens on-device, but downloaded output and passwords are only as safe as the device and storage you use.
-

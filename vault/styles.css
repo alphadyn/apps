@@ -13,7 +13,7 @@
 
 * { box-sizing: border-box; }
 body { margin: 0; overflow-x: hidden; background: var(--page); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; -webkit-font-smoothing: antialiased; }
-button, input, textarea { font: inherit; }
+button, input { font: inherit; }
 button { cursor: pointer; }
 .page-shell { max-width: 1180px; padding: 0 38px; margin: 0 auto; }
 .topbar { height: 82px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e8eeeb; }
@@ -43,16 +43,13 @@ h1 span { color: #3d9070; }
 .step-label { display: block; margin-bottom: 7px; font-size: 9px; letter-spacing: 1.3px; }
 .step-label span { margin: 0 2px; color: #9bad9f; }
 .section-heading h2 { margin: 0; font: 700 17px/1.35 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; letter-spacing: -.45px; }
-.source-switch { display: inline-flex; flex: none; padding: 3px; background: #f2f5f3; border-radius: 8px; }
-.source-button { min-width: 50px; height: 28px; padding: 0 10px; color: #77837f; background: transparent; border: 0; border-radius: 6px; font-size: 11px; font-weight: 600; }
-.source-button.is-active { color: #315f4e; background: white; box-shadow: 0 1px 4px rgba(24, 49, 40, .1); }
-.source-panel textarea, #text-result { display: block; width: 100%; min-height: 132px; resize: vertical; padding: 14px 15px; color: #243a34; background: #fbfcfb; border: 1px solid #e3eae6; border-radius: 9px; outline: none; font-size: 13px; line-height: 1.6; transition: border-color .18s, box-shadow .18s; }
-.source-panel textarea::placeholder, #text-result::placeholder { color: #a4afaa; }
-.source-panel textarea:focus, #text-result:focus, .password-wrap:focus-within { border-color: #75ad91; box-shadow: 0 0 0 3px rgba(68, 142, 103, .1); }
-.field-foot { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; color: #9aa49f; font-size: 10px; }
+.password-wrap:focus-within { border-color: #75ad91; box-shadow: 0 0 0 3px rgba(68, 142, 103, .1); }
 .dropzone { min-height: 132px; padding: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background: #fbfcfb; border: 1px dashed #cbd9d1; border-radius: 9px; cursor: pointer; transition: border-color .18s, background .18s; }
 .dropzone:hover, .dropzone.is-dragging { border-color: #559574; background: #f4faf6; }
+.dropzone:focus-visible { outline: 2px solid #559574; outline-offset: 3px; }
 .dropzone input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.file-actions { display: flex; gap: 8px; margin-top: 10px; }
+.file-actions .secondary-button { flex: 1; min-height: 38px; }
 .upload-icon { display: grid; place-items: center; width: 34px; height: 34px; margin-bottom: 10px; color: var(--green); background: #eaf4ee; border-radius: 10px; }
 .upload-icon svg { width: 18px; height: 18px; }
 .drop-title { color: #465a52; font-size: 12px; font-weight: 600; }
@@ -99,8 +96,6 @@ h1 span { color: #3d9070; }
 .result-content { min-width: 0; flex: 1; }
 .result-content h2 { margin: 2px 0 4px; font: 700 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
 .result-content p { margin: 0; color: #77857e; font-size: 11px; line-height: 1.5; }
-#text-result-wrap { margin-top: 12px; }
-#text-result { min-height: 80px; max-height: 200px; background: #fbfcfb; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; }
 .result-actions { display: flex; flex: none; gap: 7px; margin-left: 8px; }
 .secondary-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 34px; padding: 0 12px; color: #35644f; background: white; border: 1px solid #dce8df; border-radius: 7px; font-size: 10px; font-weight: 700; }
 .secondary-button:hover { background: #f3f8f4; border-color: #b9d4c0; }
@@ -133,9 +128,7 @@ h1 span { color: #3d9070; }
   .mode-tab { flex: 1; justify-content: center; min-height: 44px; padding: 0 8px; }
   .mode-tab.is-active::after { right: 8px; left: 8px; }
   .section-heading { align-items: flex-start; flex-direction: column; }
-  .source-switch { width: 100%; }
-  .source-button { flex: 1; min-height: 36px; }
-  .source-panel textarea, #text-result { min-height: 158px; }
+  .file-actions .secondary-button { min-height: 42px; }
   .password-wrap { height: 48px; }
   .visibility-button { width: 36px; height: 36px; }
   .primary-button { height: 50px; }

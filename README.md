@@ -1,6 +1,6 @@
 # Alphadyn AI Apps and Experiments
 
-This repository is a portfolio-style collection of 21 independent projects: interactive demos, data visualizations, browser apps, and Python utilities. Each project is designed to be opened, adapted, or expanded on its own. The collection is intentionally mixed: some apps are static browser experiences, while others use Supabase, Flask, or Vercel APIs.
+This repository is a portfolio-style collection of 17 independent projects: interactive demos, data visualizations, browser apps, and Python utilities. Each project is designed to be opened, adapted, or expanded on its own. The collection is intentionally mixed: some apps are static browser experiences, while others use Supabase, Flask, or Vercel APIs.
 
 The root landing page in [index.html](index.html) links directly to the deployed apps and gives a quick overview of the portfolio. It includes a Featured area and a full Catalog of all available apps and experiments.
 
@@ -22,9 +22,7 @@ The landing page highlights these projects:
 
 Projects are listed alphabetically, matching the catalog on the landing page.
 
-- [Architectural Design](architectural-design/) ([Open app](https://alphadyn.github.io/apps/architectural-design/)) — Architectural concept board and home design presentation.
 - [Atlas Store](atlas-store/) ([Open app](https://alphadyn.github.io/apps/atlas-store/)) — Storefront mockup with catalog, cart, and checkout flow.
-- [Audio Equalizer](audio-equalizer/) ([Open app](https://alphadyn.github.io/apps/audio-equalizer/)) — Browser media player with live waveform and spectrum analysis.
 - [Earth 3D Explorer](earth-3d-explorer/) ([Open app](https://alphadyn.github.io/apps/earth-3d-explorer/)) — Three.js globe with overlays and inspection interactions.
 - [Experiences](experiences/) ([Open app](https://alphadyn.github.io/apps/experiences/)) — Supabase-backed journal with trips, shareable Experience collections, Event maps, precise location picking, and media carousels.
 - [Fractal Patterns](fractal-patterns/) ([Open app](https://alphadyn.github.io/apps/fractal-patterns/)) — Interactive fractal visualizer.
@@ -32,13 +30,10 @@ Projects are listed alphabetically, matching the catalog on the landing page.
 - [Market Curve Lab](market-curve-lab/) ([Open app](https://alphadyn.github.io/apps/market-curve-lab/)) — Rank all 500 S&P 500 companies by market cap, search stocks, and inspect selected-ticker all-time performance, trendlines, and concavity.
 - [Market Lens](market-lens/) ([Open app](https://alphadyn.github.io/apps/market-lens/)) — Dashboard for screening and reviewing large-cap equities.
 - [Meetings](meetings/) ([Open app](https://alphadyn.github.io/apps/meetings/)) — Encrypted WebRTC meetings with chat, file sharing, fullscreen mode, and responsive mobile controls.
-- [Multi-Search Engine](multi-search-engine/) ([Open app](https://alphadyn.github.io/apps/multi-search-engine/)) — Search comparison page across multiple engines.
 - [Nexus](nexus/) ([Open app](https://alphadyn.github.io/apps/nexus/)) — Media workspace with browser UI, sample media, filtering, metadata editing, and optional Supabase persistence.
 - [Northstar EHR](northstar-ehr/) ([Open app](https://alphadyn.github.io/apps/northstar-ehr/)) — Responsive electronic health record demo for patient care workflows and encounter documentation.
-- [Pencil Sketch](pencil-sketch/) ([Open app](https://alphadyn.github.io/apps/pencil-sketch/)) — Image-to-pencil-sketch converter.
 - [Photo Gallery](photo-gallery/) ([Open app](https://alphadyn.github.io/apps/photo-gallery/)) — Responsive gallery app.
 - [Player](player/) ([Open app](https://alphadyn.github.io/apps/player/)) — Installable mobile audio and video player with free, licensed Internet Archive search by artist, song, or album; save audio on-device, reorder the queue, and export playlists as JSON.
-- [Postboard](postboard/) ([Open app](https://alphadyn.github.io/apps/postboard/)) — Personal post archive with rich text, uploads, and Supabase integration.
 - [Pulse](pulse/) ([Open app](https://alphadyn.github.io/apps/pulse/)) — Social/news-style app with posts, tags, and discussion flows.
 - [Signal](signal/) ([Open app](https://alphadyn.github.io/apps/signal/)) — Focused, searchable news-reading list that captures Google News headlines and related stories and downloads them as structured JSON.
 - [S&P Insights](S%26P%20Insights/) ([Open app](https://alphadyn.github.io/apps/S%26P%20Insights/)) — Table of every S&P 500 security ranked by market cap, net income, price, and their growth rates, using any criteria in any order, with a price-history chart for each security (1W through All).
@@ -59,9 +54,6 @@ Then visit http://localhost:8000.
 Examples:
 
 ```bash
-cd audio-equalizer
-python3 -m http.server 8000
-
 cd earth-3d-explorer
 python3 -m http.server 8000
 
@@ -107,17 +99,6 @@ cd 'S&P Insights' && python3 -m http.server 8000
 ```
 
 See [S&P Insights/README.md](S%26P%20Insights/README.md) for data sources and methodology.
-
-### Postboard setup
-
-The [Postboard](postboard/) project uses Supabase for persistence and API access. Configure it once:
-
-1. Create a Supabase project.
-2. In the SQL editor, run [postboard/supabase-schema.sql](postboard/supabase-schema.sql).
-3. Copy [postboard/supabase-config.js](postboard/supabase-config.js) and replace the placeholder URL and anon key with your project values.
-4. Serve the folder locally or deploy it to GitHub Pages.
-
-If the app reports a `NetworkError`, the config file still contains placeholder values, or the Supabase URL is unreachable, re-check the project settings and the generated config file.
 
 ### Python utilities
 

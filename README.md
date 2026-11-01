@@ -8,15 +8,14 @@ Deployment configuration and host-specific setup are documented in [DEPLOYMENT.m
 
 ## Featured projects
 
-The landing page highlights these projects:
+The landing page's Top apps section highlights these projects:
 
-1. [Pulse](pulse/) — Social/news app with posts, tags, and threaded discussion
-2. [Market Curve Lab](market-curve-lab/) — S&P 500 rankings, performance, trendlines, and concavity
-3. [Experiences](experiences/) — Maps and authenticated trip journal
-4. [Market Lens](market-lens/) — Large-cap equity screening dashboard
-5. [Nexus](nexus/) — Content and media workspace
-6. [Atlas Store](atlas-store/) — Storefront and checkout experience
-7. [Northstar EHR](northstar-ehr/) — Responsive electronic health record demo for patient care workflows and encounter documentation
+1. [S&P Insights](sp-insights/) — Rank every S&P 500 security by market cap, net income, price, and their growth, with filters and price-history charts
+2. [Pulse](pulse/) — News aggregator with tags, ranking, and threaded discussions
+3. [Nexus](nexus/) — Media workspace for browsing, filtering, previewing, and managing files
+4. [Experiences](experiences/) — Private trip journal with shareable Experiences, named Events, precise location pinning, and media carousels
+5. [Atlas Store](atlas-store/) — Branded storefront with catalog, cart, inventory, and checkout
+6. [Northstar EHR](northstar-ehr/) — Responsive electronic health record demo for patient care workflows
 
 ## App catalog
 

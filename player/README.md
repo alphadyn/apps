@@ -2,7 +2,9 @@
 
 An installable, mobile-first audio and video player that runs entirely in the browser. No server or account required.
 
-[Open app](https://alphadyn.github.io/apps/player/)
+**Deployed application:** [Open the app](https://alphadyn.github.io/apps/player/)
+
+> Installable browser-based audio and video player. See the [repository catalog](../README.md) for shared setup and deployment context.
 
 ## Features
 

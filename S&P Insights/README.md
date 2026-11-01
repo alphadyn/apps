@@ -1,5 +1,9 @@
 # S&P Insights
 
+**Deployed application:** [Open the app](https://alphadyn.github.io/apps/S%26P%20Insights/)
+
+> S&P 500 ranking and price-history dashboard. See the [repository catalog](../README.md) for shared setup and deployment context.
+
 A static web app that lists every security in the S&P 500 and ranks them by any combination of:
 
 - Market capitalization

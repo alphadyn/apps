@@ -35,7 +35,7 @@ Projects are listed alphabetically, matching the catalog on the landing page.
 - [Photo Gallery](photo-gallery/) ([Open app](https://alphadyn.github.io/apps/photo-gallery/)) — Responsive gallery app.
 - [Pulse](pulse/) ([Open app](https://alphadyn.github.io/apps/pulse/)) — Social/news-style app with posts, tags, and discussion flows.
 - [Signal](signal/) ([Open app](https://alphadyn.github.io/apps/signal/)) — Focused, searchable news-reading list that captures Google News headlines and related stories and downloads them as structured JSON.
-- [S&P Insights](S%26P%20Insights/) ([Open app](https://alphadyn.github.io/apps/S%26P%20Insights/)) — Table of every S&P 500 security ranked by market cap, net income, price, and their growth rates, using any criteria in any order, with a price-history chart for each security (1W through All).
+- [S&P Insights](sp-insights/) ([Open app](https://alphadyn.github.io/apps/sp-insights/)) — Table of every S&P 500 security ranked by market cap, net income, price, and their growth rates, using any criteria in any order, with a price-history chart for each security (1W through All).
 - [Vault](vault/) ([Open app](https://alphadyn.github.io/apps/vault/)) — Browser-based file and folder encryption; all processing stays on-device.
 - [Contact Card Generator](vcard-generator/) ([Open app](https://alphadyn.github.io/apps/vcard-generator/)) — Contact card and QR code generation.
 
@@ -90,14 +90,14 @@ Open <http://127.0.0.1:5001>, type a ticker or company name, and choose a matchi
 
 ### S&P Insights
 
-[S&P Insights](S%26P%20Insights/) is a static page backed by a generated `data.json` snapshot plus per-security `history/*.json` files (gitignored, built at deploy time). Generate them (about three to four minutes because of SEC rate limits), then serve the folder:
+[S&P Insights](sp-insights/) is a static page backed by a generated `data.json` snapshot plus per-security `history/*.json` files (gitignored, built at deploy time). Generate them (about three to four minutes because of SEC rate limits), then serve the folder:
 
 ```bash
-python3 'S&P Insights/build_data.py'
-cd 'S&P Insights' && python3 -m http.server 8000
+python3 sp-insights/build_data.py
+cd sp-insights && python3 -m http.server 8000
 ```
 
-See [S&P Insights/README.md](S%26P%20Insights/README.md) for data sources and methodology.
+See [sp-insights/README.md](sp-insights/README.md) for data sources and methodology.
 
 ### Python utilities
 
@@ -131,8 +131,8 @@ The pytest configuration is defined in [pytest.ini](pytest.ini).
 S&P Insights has its own unit tests:
 
 ```bash
-python3 -m unittest discover -s 'S&P Insights' -p test_build_data.py
-node --test 'S&P Insights/ranking.test.js' 'S&P Insights/history.test.js'
+python3 -m unittest discover -s sp-insights -p test_build_data.py
+node --test sp-insights/ranking.test.js sp-insights/history.test.js
 ```
 
 ## Documentation map

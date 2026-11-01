@@ -40,10 +40,10 @@ jobs:
 
       - name: Test and build S&P Insights snapshot
         run: |
-          python3 -m pip install --disable-pip-version-check -r 'S&P Insights/requirements-build.txt'
-          python3 -m unittest discover -s 'S&P Insights' -p test_build_data.py
-          node --test 'S&P Insights/ranking.test.js' 'S&P Insights/history.test.js'
-          python3 'S&P Insights/build_data.py'
+          python3 -m pip install --disable-pip-version-check -r sp-insights/requirements-build.txt
+          python3 -m unittest discover -s sp-insights -p test_build_data.py
+          node --test sp-insights/ranking.test.js sp-insights/history.test.js
+          python3 sp-insights/build_data.py
 
       - name: Test and build Signal news snapshot
         run: |

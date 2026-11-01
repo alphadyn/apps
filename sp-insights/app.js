@@ -376,9 +376,8 @@ function renderFilterControls() {
   // Toggle button and filter grid visibility
   elements.filterGrid.hidden = !state.filtersVisible;
   elements.btnToggleFilters.setAttribute('aria-expanded', state.filtersVisible ? 'true' : 'false');
-  const toggleLabel = state.filtersVisible
-    ? 'Hide filters'
-    : count > 0 ? `Show filters (${count} active)` : 'Show filters';
+  const toggleLabel = state.filtersVisible ? 'Hide filters' : 'Show filters';
+  elements.btnToggleFilters.querySelector('.toggle-label').textContent = toggleLabel;
   elements.btnToggleFilters.setAttribute('aria-label', toggleLabel);
   elements.btnToggleFilters.title = toggleLabel;
   elements.toggleFiltersCloseIcon.hidden = !state.filtersVisible;

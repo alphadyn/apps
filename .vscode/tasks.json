@@ -14,20 +14,6 @@
 			],
 			"isBackground": true,
 			"problemMatcher": []
-		},
-		{
-			"label": "Run Player app",
-			"type": "shell",
-			"command": "python3",
-			"args": [
-				"-m",
-				"http.server",
-				"8000",
-				"--directory",
-				"player"
-			],
-			"isBackground": true,
-			"problemMatcher": []
 		}
 	]
 }

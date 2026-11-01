@@ -38,12 +38,12 @@ jobs:
       - name: Build S&P 500 market snapshot
         run: python3 market-lens/build_data.py
 
-      - name: Test and build S&P 500 Ranker snapshot
+      - name: Test and build S&P Insights snapshot
         run: |
-          python3 -m pip install --disable-pip-version-check -r sp500-ranker/requirements-build.txt
-          python3 -m unittest discover -s sp500-ranker -p test_build_data.py
-          node --test sp500-ranker/ranking.test.js sp500-ranker/history.test.js
-          python3 sp500-ranker/build_data.py
+          python3 -m pip install --disable-pip-version-check -r 'S&P Insights/requirements-build.txt'
+          python3 -m unittest discover -s 'S&P Insights' -p test_build_data.py
+          node --test 'S&P Insights/ranking.test.js' 'S&P Insights/history.test.js'
+          python3 'S&P Insights/build_data.py'
 
       - name: Test and build Signal news snapshot
         run: |

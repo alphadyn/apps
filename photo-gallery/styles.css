@@ -147,6 +147,7 @@ body {
   justify-content: center;
   transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+  touch-action: manipulation;
 }
 
 .play-btn:hover {
@@ -220,6 +221,7 @@ body {
   justify-content: center;
   transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+  touch-action: manipulation;
 }
 
 .maximize-btn:hover {
@@ -303,6 +305,12 @@ body {
 }
 
 @media (max-width: 600px) {
+  .play-btn,
+  .maximize-btn {
+    width: 44px;
+    height: 44px;
+  }
+
   .nav-btn {
     width: 34px;
     height: 34px;

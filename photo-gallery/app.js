@@ -37,7 +37,8 @@ let timerId = null;
 let swipeStartX = 0;
 let swipeStartY = 0;
 let wasPlayingBeforeMaximize = true;
-let isButtonGesture = false;
+let carouselSwipePointerId = null;
+let fullscreenSwipePointerId = null;
 const SWIPE_THRESHOLD = 50;
 
 function isButtonInteraction(target) {
@@ -219,10 +220,9 @@ carousel.addEventListener(
       return;
     }
     if (isButtonInteraction(event.target)) {
-      isButtonGesture = true;
       return;
     }
-    isButtonGesture = false;
+    carouselSwipePointerId = event.pointerId;
     carousel.setPointerCapture(event.pointerId);
     handleSwipeStart(event.clientX, event.clientY);
   },
@@ -232,10 +232,10 @@ carousel.addEventListener(
 carousel.addEventListener(
   "pointerup",
   (event) => {
-    if (isButtonGesture) {
-      isButtonGesture = false;
+    if (carouselSwipePointerId !== event.pointerId) {
       return;
     }
+    carouselSwipePointerId = null;
     handleSwipeEnd(event.clientX, event.clientY);
     if (carousel.hasPointerCapture(event.pointerId)) {
       carousel.releasePointerCapture(event.pointerId);
@@ -243,6 +243,10 @@ carousel.addEventListener(
   },
   { passive: true }
 );
+
+carousel.addEventListener("pointercancel", () => {
+  carouselSwipePointerId = null;
+});
 
 // Fullscreen modal swipe handlers
 fullscreenModal.addEventListener(
@@ -252,10 +256,9 @@ fullscreenModal.addEventListener(
       return;
     }
     if (isButtonInteraction(event.target)) {
-      isButtonGesture = true;
       return;
     }
-    isButtonGesture = false;
+    fullscreenSwipePointerId = event.pointerId;
     fullscreenModal.setPointerCapture(event.pointerId);
     handleFullscreenSwipeStart(event.clientX, event.clientY);
   },
@@ -265,10 +268,10 @@ fullscreenModal.addEventListener(
 fullscreenModal.addEventListener(
   "pointerup",
   (event) => {
-    if (isButtonGesture) {
-      isButtonGesture = false;
+    if (fullscreenSwipePointerId !== event.pointerId) {
       return;
     }
+    fullscreenSwipePointerId = null;
     handleFullscreenSwipeEnd(event.clientX, event.clientY);
     if (fullscreenModal.hasPointerCapture(event.pointerId)) {
       fullscreenModal.releasePointerCapture(event.pointerId);
@@ -276,6 +279,10 @@ fullscreenModal.addEventListener(
   },
   { passive: true }
 );
+
+fullscreenModal.addEventListener("pointercancel", () => {
+  fullscreenSwipePointerId = null;
+});
 
 document.addEventListener("keydown", (event) => {
   if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {

@@ -1,6 +1,6 @@
-# Fractal Atlas Web App
+# Fractals
 
-**Deployed application:** [Open the app](https://alphadyn.github.io/apps/fractal-patterns/)
+**Deployed application:** [Open the app](https://alphadyn.github.io/apps/fractals/)
 
 > Standalone interactive visualization. See the [repository catalog](../README.md) for shared setup and deployment context.
 

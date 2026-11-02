@@ -24,6 +24,14 @@ phrase. Ties prefer longer phrases, then alphabetical order.
 
 On the Pages version, select terms to filter headlines or remove unwanted terms
 from the ranking; removed terms are excluded before selecting the top 20.
+Select **Removed trends**, to the left of **Download JSON**, to search removed
+keywords. Select **+** beside a keyword to restore its eligibility immediately.
+Restored keywords only appear in the top 20 if their headline count qualifies.
+Removal and restoration preferences are saved in this browser. When previewing
+with `python3 serve.py`, changes are also written to `removed_trends.json`;
+static hosting keeps browser-specific restoration overrides instead.
+File writes are attempted only when the server advertises support; GitHub Pages
+and standard static preview servers use browser storage without attempting writes.
 
 ## GitHub Pages
 

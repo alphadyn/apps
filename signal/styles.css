@@ -74,6 +74,25 @@ body {
 .search-field input:focus { outline: none; }
 .download-button { display: inline-flex; align-items: center; gap: 8px; padding: 9px 12px; border: 1px solid #d6ddd2; border-radius: 4px; background: transparent; color: var(--green); text-decoration: none; font-size: 11px; font-weight: 600; }
 .download-button:hover { background: #e9ede6; }
+.download-button { cursor: pointer; white-space: nowrap; }
+.download-button:focus-visible, .trend-restore:focus-visible { outline: 3px solid #9bad7d; outline-offset: 3px; }
+.search-field:focus-within { outline: 2px solid #9bad7d; outline-offset: 2px; }
+.removed-trends-dialog { width: min(820px, calc(100% - 40px)); max-height: 85vh; padding: 36px; border: 1px solid var(--line); border-radius: 6px; background: radial-gradient(ellipse at 15% 5%, rgba(220, 235, 224, .36), transparent 50%), #f4f5f2; color: var(--ink); font-family: 'DM Sans', sans-serif; }
+.removed-trends-dialog::backdrop { background: rgb(32 40 32 / 45%); }
+.removed-trends-dialog .removed-trends-heading { align-items: center; flex-wrap: nowrap; gap: 16px; margin-bottom: 14px; }
+.removed-trends-heading h2 { margin-top: 16px; font-size: clamp(30px, 5vw, 42px); letter-spacing: -1.8px; }
+.removed-trends-heading form { margin: 0; }
+.removed-trends-dialog #removed-trends-description { margin: 0 0 28px; padding-bottom: 28px; border-bottom: 1px solid var(--line); color: #727b72; font-size: 14px; line-height: 1.75; }
+.removed-trends-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.removed-trends-summary .status-copy { min-width: 0; }
+.removed-trends-summary .status-copy span { line-height: 1.6; }
+.removed-trends-summary .status-icon { flex-shrink: 0; }
+.removed-trends-dialog .trend-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; margin-top: 14px; }
+.removed-trends-dialog .trend-item { min-width: 0; justify-content: space-between; gap: 16px; padding: 14px 16px; border: 1px solid #e6e9e3; border-radius: 5px; background: #fff; }
+.removed-trends-dialog .trend-link { overflow-wrap: anywhere; min-width: 0; color: #273128; font: 600 14px/1.5 var(--display); letter-spacing: -.2px; }
+.removed-trends-dialog .trend-link:hover { text-decoration: none; }
+.trend-restore { flex-shrink: 0; width: 32px; height: 32px; border: 1px solid #d6ddd2; border-radius: 4px; background: #edf1e9; color: var(--green); font: 500 20px/1 'DM Sans', sans-serif; cursor: pointer; transition: background .18s, color .18s; }
+.trend-restore:hover { background: var(--green); border-color: var(--green); color: #fff; }
 .status-panel { display: flex; align-items: center; gap: 13px; padding: 15px 17px; border: 1px solid #e5e9e1; border-radius: 5px; background: #ecefe9; }
 .status-icon { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: #dde8dc; color: #66805d; font-size: 14px; }
 .status-panel[data-state='running'] .status-icon { animation: spin 2s linear infinite; }
@@ -107,6 +126,8 @@ body {
 [hidden] { display: none !important; }
 
 @media (max-width: 800px) {
+  .section-heading { flex-wrap: wrap; gap: 16px; }
+  .toolbar { flex-wrap: wrap; }
   .app-shell { padding: 0 25px; }
   .hero { gap: 35px; padding: 65px 0; }
   .hero h1 { letter-spacing: -4px; }
@@ -115,6 +136,10 @@ body {
 }
 
 @media (max-width: 580px) {
+  .removed-trends-dialog { width: calc(100% - 24px); max-height: 90vh; padding: 24px 19px; }
+  .removed-trends-toolbar { align-items: stretch; flex-direction: column; }
+  .removed-trends-toolbar .search-field { min-width: 0; }
+  .removed-trends-dialog .trend-list { grid-template-columns: 1fr; }
   .app-shell { padding: 0 19px; }
   .topbar { height: 70px; }
   .topbar-right { gap: 14px; }
@@ -127,6 +152,7 @@ body {
   .results-section { padding-top: 33px; }
   .toolbar { width: 100%; justify-content: space-between; }
   .search-field { flex: 1; min-width: 0; }
+  .toolbar .search-field { flex-basis: 100%; }
   .section-heading h2 { font-size: 23px; }
   .status-meta { display: none; }
   .footer { align-items: flex-start; justify-content: center; flex-direction: column; gap: 12px; padding: 16px 0; }

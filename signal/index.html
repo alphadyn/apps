@@ -79,6 +79,7 @@
               <span class="search-icon" aria-hidden="true">⌕</span>
               <input id="article-search" type="search" placeholder="Search articles" autocomplete="off">
             </label>
+            <button class="download-button" id="removed-trends-button" type="button" aria-haspopup="dialog">Removed trends</button>
             <button class="download-button" id="download-button" type="button" hidden><span aria-hidden="true">↓</span> Download JSON</button>
           </div>
         </div>
@@ -100,6 +101,29 @@
         <div class="capture-footer" id="capture-footer" hidden></div>
       </section>
     </main>
+
+    <dialog class="removed-trends-dialog" id="removed-trends-dialog" aria-labelledby="removed-trends-title" aria-describedby="removed-trends-description">
+      <header class="section-heading removed-trends-heading">
+        <div>
+          <div class="eyebrow section-eyebrow"><span class="eyebrow-line" aria-hidden="true"></span> SIGNAL / YOUR PREFERENCES</div>
+          <h2 id="removed-trends-title">Removed trends<span class="brand-period">.</span></h2>
+        </div>
+        <form method="dialog"><button class="download-button" type="submit" aria-label="Close removed trends">Close</button></form>
+      </header>
+      <p id="removed-trends-description">Select + beside a keyword to allow it to rank as a trend again.</p>
+      <div class="removed-trends-toolbar">
+        <div class="eyebrow section-eyebrow"><span class="eyebrow-line" aria-hidden="true"></span> REMOVED KEYWORDS</div>
+        <label class="search-field" for="removed-trends-search">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input id="removed-trends-search" type="search" placeholder="Search removed keywords" aria-label="Search removed keywords" autocomplete="off" autofocus>
+        </label>
+      </div>
+      <div class="status-panel removed-trends-summary">
+        <span class="status-icon" aria-hidden="true">✳</span>
+        <div class="status-copy"><strong id="removed-trends-status" role="status" aria-live="polite"></strong><span>Restored keywords return to the ranking when their headline count qualifies.</span></div>
+      </div>
+      <ul class="trend-list" id="removed-trends-list" aria-label="Removed keywords"></ul>
+    </dialog>
 
     <footer class="footer">
       <span>Signal Capture <span class="footer-separator">/</span> A focused way to follow the news.</span>

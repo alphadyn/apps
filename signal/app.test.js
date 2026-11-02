@@ -20,13 +20,19 @@ const snapshot = {
   }],
 };
 
-function setup(fetch) {
+function setup(fetch, storage = new Map()) {
   const nodes = new Map();
   const node = () => ({
     dataset: {}, value: '', hidden: false, disabled: false, textContent: '',
+    attributes: {}, listeners: {},
     append(...children) { this.children = [...(this.children || []), ...children]; },
     replaceChildren(...children) { this.children = children; },
-    addEventListener() {}, setAttribute() {}, click() {}, remove() {},
+    addEventListener(type, listener) { this.listeners[type] = listener; },
+    setAttribute(name, value) { this.attributes[name] = value; },
+    click() { this.listeners.click?.(); }, remove() {},
+    showModal() { this.open = true; },
+    focus() { this.focused = true; },
+    querySelector() { return this.children?.[0]?.children?.[1] || null; },
   });
   const getNode = (id) => {
     if (!nodes.has(id)) nodes.set(id, node());
@@ -37,6 +43,10 @@ function setup(fetch) {
     document: {
       getElementById: getNode, querySelector: getNode,
       createElement: node, body: node(),
+    },
+    localStorage: {
+      getItem(key) { return storage.get(key) ?? null; },
+      setItem(key, value) { storage.set(key, value); },
     },
     fetch, Date, Blob, URL: {
       createObjectURL(blob) { downloaded = blob; return 'blob:download'; },
@@ -139,6 +149,114 @@ test('ranks trending terms, filters stories, and persists removals', async () =>
   app.run("removeTrend('fed')");
   assert.equal(app.run("JSON.stringify(removedTrends)"), '["fed"]');
   assert.equal(app.run("computeTrends(capturedItems, removedTrends).some((t) => t.term === 'fed')"), false);
+});
+
+test('opens removed trends, searches keywords, and restores ranking with the plus button', async () => {
+  const storage = new Map([['signal.removedTrends', '["nasa","apple","absent keyword"]']]);
+  const writes = [];
+  const data = { ...snapshot, news: [
+    { ...snapshot.news[0], header_title: 'NASA launches today' },
+    { ...snapshot.news[0], header_title: 'Reports from NASA arrive' },
+  ] };
+  const app = setup(async (url, options) => {
+    if (options.method === 'PUT') {
+      writes.push(JSON.parse(options.body));
+      return { ok: true };
+    }
+    return {
+      ok: true,
+      headers: { get: () => 'true' },
+      json: async () => url === './news.json' ? data : { removed: ['nasa', 'apple'] },
+    };
+  }, storage);
+  await app.run('fetchGoogleNews()');
+  app.nodes.get('removed-trends-button').click();
+  assert.equal(app.nodes.get('removed-trends-dialog').open, true);
+  const list = app.nodes.get('removed-trends-list');
+  assert.deepEqual(list.children.map((row) => row.children[0].textContent), ['absent keyword', 'apple', 'nasa']);
+  const search = app.nodes.get('removed-trends-search');
+  search.value = '  NaSa ';
+  search.listeners.input();
+  assert.equal(list.children.length, 1);
+  const plus = list.children[0].children[1];
+  assert.equal(plus.textContent, '+');
+  assert.equal(plus.attributes['aria-label'], 'Restore nasa to trending');
+  plus.click();
+  assert.equal(list.children.length, 0);
+  assert.match(app.nodes.get('removed-trends-status').textContent, /No matching/);
+  assert.equal(search.focused, true);
+  assert.equal(app.nodes.get('trend-list').children[0].children[1].textContent, 'nasa');
+  assert.deepEqual(JSON.parse(storage.get('signal.removedTrends')), ['apple', 'absent keyword']);
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.deepEqual(writes.at(-1), { removed: ['absent keyword', 'apple'] });
+  app.nodes.get('removed-trends-button').click();
+  assert.equal(search.value, '');
+  assert.equal(list.children.length, 2);
+
+  const reloaded = setup(async () => ({ ok: true, json: async () => ({ removed: ['NASA', 'apple'] }) }), storage);
+  await reloaded.run('syncRemovedTrendsFromFile()');
+  assert.equal(reloaded.run("removedTrends.some((term) => term.toLowerCase() === 'nasa')"), false);
+  reloaded.run("removeTrend('nasa')");
+  await reloaded.run('syncRemovedTrendsFromFile()');
+  assert.equal(reloaded.run("removedTrends.includes('nasa')"), true);
+  assert.deepEqual(JSON.parse(storage.get('signal.restoredTrends')), []);
+});
+
+test('shows an empty removed list and handles the final restoration without forcing a trend', () => {
+  const app = setup(async () => ({ ok: false, status: 405 }));
+  app.nodes.get('removed-trends-button').click();
+  assert.match(app.nodes.get('removed-trends-status').textContent, /No removed trends/);
+  app.run("removeTrend('rare keyword')");
+  app.run("restoreTrend('rare keyword')");
+  assert.equal(app.nodes.get('removed-trends-list').children.length, 0);
+  assert.match(app.nodes.get('removed-trends-status').textContent, /No removed trends/);
+  assert.equal(app.nodes.get('trend-list').children.length, 0);
+});
+
+test('restoration made before the shared file loads is not undone by synchronization', async () => {
+  let resolveFile;
+  const app = setup((url, options) => options.method === 'PUT'
+    ? Promise.resolve({ ok: true })
+    : new Promise((resolve) => { resolveFile = resolve; }),
+  new Map([['signal.removedTrends', '["nasa"]']]));
+  app.run("restoreTrend('nasa')");
+  resolveFile({ ok: true, json: async () => ({ removed: ['nasa', 'apple'] }) });
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(app.run("JSON.stringify(removedTrends)"), '["apple"]');
+  assert.equal(app.nodes.get('removed-trends-list').children[0].children[0].textContent, 'apple');
+});
+
+test('static hosting saves browser preferences without attempting unsupported file writes', async () => {
+  const methods = [];
+  const storage = new Map();
+  const app = setup(async (url, options) => {
+    methods.push(options.method || 'GET');
+    if (options.method === 'PUT') throw new Error('Unsupported write');
+    return { ok: true, headers: { get: () => null }, json: async () => ({ removed: ['nasa'] }) };
+  }, storage);
+  await app.run('removedTrendsReady');
+  app.run("restoreTrend('nasa')");
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.deepEqual(methods, ['GET']);
+  assert.deepEqual(JSON.parse(storage.get('signal.restoredTrends')), ['nasa']);
+  assert.equal(app.nodes.get('error-message').textContent, '');
+});
+
+test('writable server failures are still reported instead of silently ignored', async () => {
+  for (const failure of [503, 'Network unavailable']) {
+    const app = setup(async (url, options) => {
+      if (options.method === 'PUT') {
+        if (typeof failure === 'string') throw new Error(failure);
+        return { ok: false, status: failure };
+      }
+      return { ok: true, headers: { get: () => 'true' }, json: async () => ({ removed: ['nasa'] }) };
+    });
+    await app.run('removedTrendsReady');
+    app.run("restoreTrend('nasa')");
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.equal(app.nodes.get('error-message').hidden, false);
+    assert.match(app.nodes.get('error-message').textContent, /Could not save trend preferences to the local file/);
+  }
 });
 
 function rank(headlines, removed = []) {

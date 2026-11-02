@@ -14,6 +14,11 @@ class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(ROOT), **kwargs)
 
+    def end_headers(self):
+        if self.path.split("?")[0] == "/removed_trends.json":
+            self.send_header("X-Signal-Preferences-Writable", "true")
+        super().end_headers()
+
     def do_PUT(self):
         if self.path.split("?")[0] != "/removed_trends.json":
             return self.send_error(404)

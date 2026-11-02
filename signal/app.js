@@ -17,6 +17,11 @@ const elements = {
   trends: document.getElementById('trends'),
   trendList: document.getElementById('trend-list'),
   trendsHint: document.getElementById('trends-hint'),
+  removedTrendsButton: document.getElementById('removed-trends-button'),
+  removedTrendsDialog: document.getElementById('removed-trends-dialog'),
+  removedTrendsSearch: document.getElementById('removed-trends-search'),
+  removedTrendsList: document.getElementById('removed-trends-list'),
+  removedTrendsStatus: document.getElementById('removed-trends-status'),
 };
 
 let capturedItems = [];
@@ -24,43 +29,59 @@ let capturedSnapshot = null;
 let activeTrends = [];
 
 const REMOVED_STORAGE_KEY = 'signal.removedTrends';
+const RESTORED_STORAGE_KEY = 'signal.restoredTrends';
 const REMOVED_FILE_URL = './removed_trends.json';
 
 let removedTrends = loadRemovedTrends();
+let restoredTrends = loadRemovedTrends(RESTORED_STORAGE_KEY);
+let removedFileWritable = false;
 
-function loadRemovedTrends() {
+function loadRemovedTrends(key = REMOVED_STORAGE_KEY) {
   try {
-    const stored = JSON.parse(localStorage.getItem(REMOVED_STORAGE_KEY));
+    const stored = JSON.parse(localStorage.getItem(key));
     return Array.isArray(stored) ? stored.filter((term) => typeof term === 'string') : [];
   } catch (error) {
     return [];
   }
 }
 
-function saveRemovedTrends() {
+async function saveRemovedTrends() {
   try {
     localStorage.setItem(REMOVED_STORAGE_KEY, JSON.stringify(removedTrends));
+    localStorage.setItem(RESTORED_STORAGE_KEY, JSON.stringify(restoredTrends));
   } catch (error) {
-    // Storage may be unavailable; removals still apply for this session.
+    showError('Trend preferences could not be saved in this browser. Changes may not survive a reload.');
   }
 
-  // Only the local server (serve.py) accepts this write; static hosting ignores the failure.
-  fetch(REMOVED_FILE_URL, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ removed: [...removedTrends].sort((a, b) => a.localeCompare(b)) }, null, 2),
-  }).catch(() => {});
+  await removedTrendsReady;
+  if (!removedFileWritable) return;
+
+  try {
+    const response = await fetch(REMOVED_FILE_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ removed: [...removedTrends].sort((a, b) => a.localeCompare(b)) }, null, 2),
+    });
+    if (!response.ok) {
+      showError(`Could not save trend preferences to the local file (${response.status}).`);
+    }
+  } catch (error) {
+    showError('Could not save trend preferences to the local file. Browser preferences still apply if browser storage is available.');
+  }
 }
 
 async function syncRemovedTrendsFromFile() {
   try {
     const response = await fetch(REMOVED_FILE_URL, { cache: 'no-store' });
     if (!response.ok) return;
+    removedFileWritable = response.headers?.get('X-Signal-Preferences-Writable') === 'true';
     const saved = (await response.json()).removed;
     if (!Array.isArray(saved)) return;
-    const merged = [...new Set([...removedTrends, ...saved.filter((term) => typeof term === 'string')])];
+    const merged = [...new Set([...removedTrends, ...saved.filter((term) =>
+      typeof term === 'string' && !restoredTrends.some((restored) => restored.toLowerCase() === term.toLowerCase()))])];
     if (merged.length === removedTrends.length) return;
     removedTrends = merged;
+    renderRemovedTrends();
     renderTrends();
     updateSearchResults();
   } catch (error) {
@@ -85,11 +106,51 @@ function selectTrend(term) {
 }
 
 function removeTrend(term) {
+  restoredTrends = restoredTrends.filter((item) => item.toLowerCase() !== term.toLowerCase());
   if (!removedTrends.includes(term)) removedTrends.push(term);
   activeTrends = activeTrends.filter((item) => item !== term);
   saveRemovedTrends();
+  renderRemovedTrends();
   renderTrends();
   updateSearchResults();
+}
+
+function restoreTrend(term) {
+  removedTrends = removedTrends.filter((item) => item.toLowerCase() !== term.toLowerCase());
+  if (!restoredTrends.includes(term)) restoredTrends.push(term);
+  saveRemovedTrends();
+  renderRemovedTrends();
+  renderTrends();
+  updateSearchResults();
+  const nextRestore = elements.removedTrendsList.querySelector('button');
+  (nextRestore || elements.removedTrendsSearch).focus();
+}
+
+function renderRemovedTrends() {
+  const query = elements.removedTrendsSearch.value.trim().toLowerCase();
+  const terms = removedTrends
+    .filter((term) => term.toLowerCase().includes(query))
+    .sort((a, b) => a.localeCompare(b));
+  elements.removedTrendsStatus.textContent = !removedTrends.length
+    ? 'No removed trends. Keywords you remove will appear here.'
+    : !terms.length
+      ? 'No matching removed keywords. Try a different search.'
+      : `${terms.length} removed ${terms.length === 1 ? 'keyword' : 'keywords'}`;
+  elements.removedTrendsList.replaceChildren(...terms.map((term) => {
+    const item = document.createElement('li');
+    item.className = 'trend-item';
+    const keyword = document.createElement('span');
+    keyword.className = 'trend-link';
+    keyword.textContent = term;
+    const restore = document.createElement('button');
+    restore.type = 'button';
+    restore.className = 'trend-restore';
+    restore.textContent = '+';
+    restore.setAttribute('aria-label', `Restore ${term} to trending`);
+    restore.addEventListener('click', () => restoreTrend(term));
+    item.append(keyword, restore);
+    return item;
+  }));
 }
 
 function renderTrends() {
@@ -357,9 +418,15 @@ function bindEvents() {
   elements.captureButton.addEventListener('click', fetchGoogleNews);
   elements.downloadButton.addEventListener('click', downloadAsJson);
   elements.searchInput.addEventListener('input', updateSearchResults);
+  elements.removedTrendsButton.addEventListener('click', () => {
+    elements.removedTrendsSearch.value = '';
+    renderRemovedTrends();
+    elements.removedTrendsDialog.showModal();
+  });
+  elements.removedTrendsSearch.addEventListener('input', renderRemovedTrends);
 }
 
 bindEvents();
-syncRemovedTrendsFromFile();
+const removedTrendsReady = syncRemovedTrendsFromFile();
 renderStories([]);
 setStatus('idle', 'Ready when you are', 'Your captured headlines will appear here.', 'NO CAPTURE YET');

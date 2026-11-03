@@ -313,6 +313,68 @@ function createDemoPatient(scenario, index) {
 const demoPatients = demoPatientScenarios.map(createDemoPatient);
 const allInitialPatients = [...initialPatients, ...demoPatients];
 
+const departments = [
+  { name: "Emergency Department", code: "ED", locations: ["ED Triage", "ED Bay 1", "ED Bay 2"], description: "Emergency assessment, triage, and stabilization." },
+  { name: "Medical Intensive Care", code: "MICU", locations: ["MICU 1", "MICU 2"], description: "Medical critical-care service." },
+  { name: "Surgical Intensive Care", code: "SICU", locations: ["SICU 1", "SICU 2"], description: "Post-operative and surgical critical care." },
+  { name: "Neonatal Intensive Care", code: "NICU", locations: ["NICU 1", "NICU 2"], description: "Newborn intensive-care service." },
+  { name: "Radiology", code: "RAD", locations: ["Radiology", "CT", "MRI", "Ultrasound"], description: "Diagnostic imaging and report coordination." },
+  { name: "Surgery", code: "SURG", locations: ["Pre-op", "Operating Room 1", "Recovery 1"], description: "Perioperative assessment and surgical care." },
+  { name: "Obstetrics & Gynecology", code: "OB/GYN", locations: ["Labor & Delivery", "Women’s Health"], description: "Obstetric and gynecologic services." },
+  { name: "Pediatrics", code: "PEDS", locations: ["Pediatrics Ward", "Pediatric Clinic"], description: "Care for infants, children, and adolescents." },
+  { name: "Neurology", code: "NEURO", locations: ["Neurology Ward", "Neuro Clinic"], description: "Neurologic assessment and inpatient care." },
+  { name: "Telemetry", code: "TELE", locations: ["Telemetry 3A", "Telemetry 3B"], description: "Monitored inpatient care." },
+  { name: "Medicine", code: "MED", locations: ["Ward 2 · 214", "Ward 2 · 216", "Ward 3 · 302"], description: "General medical inpatient care." }
+];
+
+const locations = departments.flatMap((department) => department.locations.map((name, index) => ({
+  name,
+  department: department.name,
+  kind: /ward|telemetry|micu|sicu|nicu|recovery/i.test(name) ? "Inpatient" : "Care area",
+  capacity: /ward|telemetry|micu|sicu|nicu/i.test(name) ? 12 + index * 2 : 8
+})));
+
+const defaultStaffDirectory = [
+  { id: "staff-elena-ruiz", name: "Dr. Elena Ruiz", title: "Physician · Internal Medicine", role: "Provider", department: "Medicine", location: "Ward 2 · 214", email: "elena.ruiz@example.test", status: "Active" },
+  { id: "staff-amir-hassan", name: "Dr. Amir Hassan", title: "Physician · Surgery", role: "Provider", department: "Surgery", location: "Recovery 1", email: "amir.hassan@example.test", status: "Active" },
+  { id: "staff-priya-singh", name: "Dr. Priya Singh", title: "Physician · Obstetrics & Gynecology", role: "Provider", department: "Obstetrics & Gynecology", location: "Labor & Delivery", email: "priya.singh@example.test", status: "Active" },
+  { id: "staff-jordan-lee", name: "Jordan Lee", title: "Registered Nurse", role: "Nurse", department: "Telemetry", location: "Telemetry 3A", email: "jordan.lee@example.test", status: "Active" },
+  { id: "staff-casey-nguyen", name: "Casey Nguyen", title: "Registered Nurse", role: "Nurse", department: "Emergency Department", location: "ED Triage", email: "casey.nguyen@example.test", status: "Active" },
+  { id: "staff-sam-carter", name: "Sam Carter", title: "Registered Nurse", role: "Nurse", department: "Medical Intensive Care", location: "MICU 1", email: "sam.carter@example.test", status: "Active" },
+  { id: "staff-riley-bennett", name: "Riley Bennett", title: "Physician Assistant", role: "PA", department: "Surgery", location: "Recovery 1", email: "riley.bennett@example.test", status: "Active" },
+  { id: "staff-jamie-brooks", name: "Jamie Brooks", title: "Nurse Practitioner", role: "Midlevel", department: "Pediatrics", location: "Pediatrics Ward", email: "jamie.brooks@example.test", status: "Active" },
+  { id: "staff-morgan-ellis", name: "Dr. Morgan Ellis", title: "Radiologist", role: "Provider", department: "Radiology", location: "Radiology", email: "morgan.ellis@example.test", status: "Active" },
+  { id: "staff-taylor-reed", name: "Dr. Taylor Reed", title: "Radiologist", role: "Provider", department: "Radiology", location: "Radiology", email: "taylor.reed@example.test", status: "Active" },
+  { id: "staff-alex-morgan", name: "Alex Morgan", title: "System Administrator", role: "Administrator", department: "Administration", location: "Administration", email: "alex.morgan@example.test", status: "Active" }
+];
+
+allInitialPatients.forEach((patient, index) => {
+  const providerName = patient.provider || "Unassigned";
+  if (!defaultStaffDirectory.some((staff) => staff.name === providerName)) {
+    defaultStaffDirectory.push({
+      id: `staff-provider-${patient.id}`,
+      name: providerName,
+      title: "Medical provider",
+      role: "Provider",
+      department: departments[index % departments.length].name,
+      location: patient.room || "Main campus",
+      email: `provider-${patient.id}@example.test`,
+      status: "Active"
+    });
+  }
+});
+
+const sampleAdmissionAssignments = {
+  2: { department: "Telemetry", location: "Telemetry 3A", nurse: "Jordan Lee", disposition: "Admit to ward" },
+  5: { department: "Medicine", location: "Ward 2 · 214", nurse: "Casey Nguyen", disposition: "Admit to ward" },
+  8: { department: "Surgery", location: "Recovery 1", nurse: "Sam Carter", disposition: "Admit to ward" },
+  11: { department: "Medical Intensive Care", location: "MICU 1", nurse: "Sam Carter", disposition: "Admit to ICU" },
+  14: { department: "Surgical Intensive Care", location: "SICU 1", nurse: "Jordan Lee", disposition: "Admit to ICU" },
+  17: { department: "Neurology", location: "Neurology Ward", nurse: "Casey Nguyen", disposition: "Admit to ward" },
+  20: { department: "Pediatrics", location: "Pediatrics Ward", nurse: "Casey Nguyen", disposition: "Admit to ward" },
+  23: { department: "Obstetrics & Gynecology", location: "Labor & Delivery", nurse: "Jordan Lee", disposition: "Admit to ward" }
+};
+
 function textField(name, label, placeholder = "", required = false) {
   return { name, label, placeholder, required, type: "text" };
 }
@@ -349,6 +411,11 @@ const orderTypeFields = {
     textField("diagnosisOnset", "Onset / effective date", "Date or approximate onset"),
     noteField("diagnosisEvidence", "Clinical basis", "Relevant findings supporting this diagnosis")
   ],
+  "History & physical": [
+    selectField("hAndPType", "H&P type", ["Admission", "Pre-operative", "Consultative"], true),
+    textField("hAndPRequestedBy", "Requesting service", "Service or clinician"),
+    noteField("hAndPScope", "Requested history / exam scope", "Document the requested assessment and pertinent context", true)
+  ],
   Laboratory: [
     textField("labTest", "Test / panel", "Test name or panel", true),
     selectField("labSpecimen", "Specimen", ["Blood", "Urine", "Swab", "Stool", "Other / see instructions"], true),
@@ -356,13 +423,19 @@ const orderTypeFields = {
     textField("labCollectionDate", "Collection date / time", "If timed"),
     noteField("labClinicalInfo", "Clinical indication / collection notes", "Relevant context and special collection instructions")
   ],
-  Imaging: [
+  "Imaging / Radiology": [
     textField("imagingStudy", "Study requested", "e.g., chest radiograph, CT abdomen", true),
     selectField("imagingModality", "Modality", ["X-ray", "CT", "MRI", "Ultrasound", "Mammography", "DEXA", "Other"], true),
     textField("imagingBodySite", "Body site / laterality", "Specify anatomy and side"),
     selectField("imagingContrast", "Contrast", ["Not applicable", "Without contrast", "With contrast", "Without and with contrast", "Per radiology protocol"], true),
     selectField("pregnancyStatus", "Pregnancy status (when applicable)", ["Not applicable", "Not pregnant", "Pregnant", "Unknown / verify"], false),
     noteField("imagingIndication", "Clinical indication / protocol notes", "Symptoms, relevant history, comparison studies, and protocol requests", true)
+  ],
+  Consult: [
+    selectField("consultSpecialty", "Consulting department", departments.map((department) => department.name), true),
+    selectField("consultUrgency", "Requested timeframe", ["Routine", "Within 24 hours", "Urgent", "STAT"], true),
+    noteField("consultQuestion", "Clinical question", "State the focused question or service requested", true),
+    textField("consultContact", "Requesting clinician / callback", "Name or extension")
   ],
   Procedure: [
     textField("procedureName", "Procedure", "Procedure requested", true),
@@ -429,6 +502,15 @@ const documentTypeFields = {
     noteField("admissionPlan", "Initial inpatient plan", "Monitoring, initial management, consultations, and goals", true),
     noteField("admissionReconciliation", "Medication reconciliation / handoff", "Home medications, holds, outstanding tasks, and handoff needs")
   ],
+  "Admission H&P": [
+    noteField("admissionHpiFull", "History of present illness", "Presentation, timeline, and relevant context", true),
+    noteField("admissionHistoryFull", "Medical, surgical, family, and social history", "Relevant history and source"),
+    noteField("admissionMedsFull", "Medications and allergies", "Medication reconciliation and allergy reactions", true),
+    noteField("admissionReviewFull", "Review of systems", "Pertinent positives and negatives", true),
+    noteField("admissionExamFull", "Physical examination", "System-based examination and findings", true),
+    noteField("admissionAssessmentFull", "Assessment and active problems", "Problem-based assessment", true),
+    noteField("admissionPlanFull", "Initial plan", "Monitoring, investigations, care coordination, and goals", true)
+  ],
   "SOAP progress note": [
     noteField("subjective", "S · Subjective", "Patient report, interval events, symptoms, and concerns", true),
     noteField("objective", "O · Objective", "Vitals, examination, intake/output, labs, imaging, and other observed data", true),
@@ -444,6 +526,15 @@ const documentTypeFields = {
     noteField("consultFindings", "Consult examination / findings", "Focused examination and review of results", true),
     noteField("consultImpression", "Impression / recommendations", "Consultant's assessment and recommendations", true),
     noteField("consultFollowup", "Follow-up / communication", "Actions, ownership, and communication back to the primary team")
+  ],
+  "Consultation note": [
+    textField("consultServiceFull", "Consulting department / clinician", "Specialty and consultant", true),
+    textField("consultRequestingService", "Requesting service", "Service or clinician"),
+    noteField("consultQuestionFull", "Consult question", "Focused question to be addressed", true),
+    noteField("consultRecordReview", "Relevant record review", "History, medications, allergies, and pertinent data"),
+    noteField("consultExamFull", "Focused examination and findings", "Exam and results reviewed", true),
+    noteField("consultAssessmentFull", "Impression and recommendations", "Consultant assessment and recommendations", true),
+    noteField("consultCommunication", "Communication and follow-up", "Recommendations communicated to and accepted by the care team")
   ],
   "Nursing note": [
     selectField("nursingShift", "Shift / note type", ["Shift assessment", "Focused assessment", "Care update", "Handoff", "Other"], true),
@@ -475,6 +566,13 @@ const documentTypeFields = {
     noteField("dischargeFollowup", "Follow-up appointments / referrals", "Clinician, service, timeframe, and pending results", true),
     noteField("dischargePrecautions", "Return precautions / contact plan", "Symptoms requiring urgent evaluation and how to obtain help", true),
     noteField("dischargeDisposition", "Discharge destination / transport", "Home, facility, transfer, and transport arrangements")
+  ],
+  "Disposition note": [
+    selectField("dispositionDecision", "Disposition decision", ["Admit to ward", "Admit to ICU", "Discharge home", "Transfer", "Observation"], true),
+    textField("dispositionDestination", "Destination / receiving service", "Unit, facility, or responsible service", true),
+    noteField("dispositionCondition", "Condition at disposition", "Status and pertinent reassessment", true),
+    noteField("dispositionRationale", "Disposition rationale", "Document decision context and coordination", true),
+    noteField("dispositionHandoff", "Handoff / follow-up plan", "Receiving team, pending items, and follow-up")
   ],
   "Referral letter": [
     textField("referralTo", "To / receiving clinician", "Name, specialty, and clinic", true),
@@ -734,11 +832,29 @@ function normalizeAppointment(appointment) {
   };
 }
 
+function getDefaultDepartment(patient, index) {
+  if (patient.age < 18) return "Pediatrics";
+  if (/pregnan|obstetric/i.test(patient.diagnosis || "")) return "Obstetrics & Gynecology";
+  if (/post.?op|surgical|recovery/i.test(`${patient.diagnosis || ""} ${patient.room || ""}`)) return "Surgery";
+  if (/migraine|headache|neurolog|seizure/i.test(patient.diagnosis || "")) return "Neurology";
+  return departments[index % departments.length].name;
+}
+
 function normalizePatient(patient) {
   const clinical = patient.clinical || {};
   const vitals = { ...(patient.vitals || {}), ...(clinical.vitals || {}) };
+  const sampleAdmission = sampleAdmissionAssignments[Number(patient.id)];
+  const seededAdmission = !clinical.department &&
+    sampleAdmission &&
+    (!clinical.stage || (clinical.stage === "Intake" && !clinical.disposition));
+  const department = clinical.department ||
+    (seededAdmission ? sampleAdmission.department : getDefaultDepartment(patient, Number(patient.id) || 0));
+  const defaultLocation = seededAdmission ? sampleAdmission.location : patient.room || "ED Triage";
+  const assignedNurse = clinical.assignedNurse ||
+    (seededAdmission ? sampleAdmission.nurse : "");
   return {
     ...patient,
+    room: clinical.location || defaultLocation,
     chartCompleted: Boolean(patient.chartCompleted),
     medicationReviewed: patient.medicationReviewed !== false,
     appointments: (patient.appointments || []).map(normalizeAppointment),
@@ -760,14 +876,17 @@ function normalizePatient(patient) {
     })),
     clinical: {
       arrivalMode: clinical.arrivalMode || "Walk-in",
-      stage: clinical.stage || "Intake",
+      stage: seededAdmission ? "Admission" : clinical.stage || "Intake",
       chiefComplaint: clinical.chiefComplaint || "",
       acuity: clinical.acuity || "",
       triageNote: clinical.triageNote || "",
       vitals,
       painScore: clinical.painScore || "",
-      location: clinical.location || patient.room || "Waiting",
-      disposition: clinical.disposition || "",
+      location: clinical.location || defaultLocation,
+      department,
+      assignedNurse,
+      attending: clinical.attending || patient.provider || "",
+      disposition: clinical.disposition || (seededAdmission ? sampleAdmission.disposition : ""),
       destination: clinical.destination || "",
       followUpDate: clinical.followUpDate || patient.carePlan?.followUpDate || ""
     },
@@ -863,6 +982,37 @@ function loadPatients() {
   return allInitialPatients.map(normalizePatient);
 }
 
+function normalizeStaff(staff) {
+  return {
+    id: String(staff.id || createRecordId("staff")),
+    name: String(staff.name || "").trim(),
+    title: String(staff.title || "Team member").trim(),
+    role: String(staff.role || "Staff").trim(),
+    department: String(staff.department || "Administration").trim(),
+    location: String(staff.location || "Main campus").trim(),
+    email: String(staff.email || "").trim(),
+    status: staff.status === "Inactive" ? "Inactive" : "Active"
+  };
+}
+
+function loadStaffDirectory() {
+  const storage = safeLocalStorage();
+  try {
+    const saved = storage?.getItem(storageKey);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed.staffDirectory)) {
+        const byId = new Map(defaultStaffDirectory.map((staff) => [staff.id, staff]));
+        parsed.staffDirectory.forEach((staff) => byId.set(staff.id, staff));
+        return [...byId.values()].map(normalizeStaff);
+      }
+    }
+  } catch (error) {
+    console.warn("Unable to load staff directory", error);
+  }
+  return defaultStaffDirectory.map(normalizeStaff);
+}
+
 function loadAuditTrail() {
   const storage = safeLocalStorage();
 
@@ -925,17 +1075,43 @@ function loadSelectedPatient(patients) {
   return patients[0]?.id;
 }
 
+function loadWorkspacePreference(key, fallback) {
+  const storage = safeLocalStorage();
+  try {
+    const saved = storage?.getItem(storageKey);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed[key] !== undefined) return parsed[key];
+    }
+  } catch (error) {
+    console.warn(`Unable to load ${key}`, error);
+  }
+  return fallback;
+}
+
 let patients = loadPatients();
+let staffDirectory = loadStaffDirectory();
 let selectedPatientId = loadSelectedPatient(patients);
+let selectedProfile = loadWorkspacePreference("selectedProfile", { type: "staff", id: staffDirectory[0]?.id || "" });
 let activeDemoAccount = loadDemoSession();
 let currentUser = loadCurrentUser(activeDemoAccount);
 let auditTrail = loadAuditTrail();
 let currentView = loadCurrentView();
+let nursingFilter = loadWorkspacePreference("nursingFilter", currentUser.role === "nurse" ? currentUser.label : "all");
 let workspaceEventsAttached = false;
 
 function saveState() {
   const storage = safeLocalStorage();
-  storage?.setItem(storageKey, JSON.stringify({ patients, selectedPatientId, currentUser, auditTrail, currentView }));
+  storage?.setItem(storageKey, JSON.stringify({
+    patients,
+    staffDirectory,
+    selectedPatientId,
+    selectedProfile,
+    nursingFilter,
+    currentUser,
+    auditTrail,
+    currentView
+  }));
 }
 
 function loadCurrentView() {
@@ -1023,7 +1199,9 @@ function getDetailCardsForView(patient, openTasks) {
         title: "Demographics",
         items: [
           `Primary diagnosis: ${patient.diagnosis}`,
-          `Provider: ${patient.provider}`,
+          `Attending: ${patient.clinical.attending || patient.provider}`,
+          `Nurse: ${patient.clinical.assignedNurse || "Unassigned"}`,
+          `Department: ${patient.clinical.department}`,
           `Care location: ${patient.room}`,
           `Last visit: ${patient.lastVisit}`
         ]
@@ -1064,7 +1242,9 @@ function getDetailCardsForView(patient, openTasks) {
         title: "Demographics",
         items: [
           `Primary diagnosis: ${patient.diagnosis}`,
-          `Provider: ${patient.provider}`,
+          `Attending: ${patient.clinical.attending || patient.provider}`,
+          `Nurse: ${patient.clinical.assignedNurse || "Unassigned"}`,
+          `Department: ${patient.clinical.department}`,
           `Care location: ${patient.room}`,
           `Last visit: ${patient.lastVisit}`
         ]
@@ -1134,8 +1314,11 @@ function getDetailCardsForView(patient, openTasks) {
 }
 
 function getVisibleSections(view) {
+  const extendedViews = ["admissions", "nursing", "departments", "locations", "staff", "profiles"];
   return {
     overviewSection: view === "overview",
+    admittedCensusSection: view === "overview",
+    extendedSection: extendedViews.includes(view),
     recordsSection: view === "overview" || view === "patients" || view === "labs" || view === "billing",
     operationsSection: view === "overview" || view === "appointments" || view === "billing",
     encounterSection: view === "overview" || view === "patients" || view === "labs",
@@ -1306,7 +1489,14 @@ function updateWorkflowForPatient(patient, updates, role = currentUser.role) {
 
   const allowedStages = ["Intake", "Triage", "ED evaluation", "Consultation", "Admission", "Discharge", "Closed"];
   const allowedDispositions = ["", "Admit to ward", "Admit to ICU", "Discharge home", "Refer to PCP", "Refer to specialist", "Transfer"];
-  if (!allowedStages.includes(updates.stage) || !allowedDispositions.includes(updates.disposition || "")) {
+  const allowedDepartments = departments.map((department) => department.name);
+  const allowedNurses = staffDirectory.filter((staff) => staff.role === "Nurse").map((staff) => staff.name);
+  const allowedAttending = staffDirectory.filter((staff) => ["Provider", "PA", "Midlevel"].includes(staff.role)).map((staff) => staff.name);
+  if (!allowedStages.includes(updates.stage) ||
+      !allowedDispositions.includes(updates.disposition || "") ||
+      (!allowedDepartments.includes(updates.department) && updates.department !== patient.clinical.department) ||
+      (updates.assignedNurse && !allowedNurses.includes(updates.assignedNurse) && updates.assignedNurse !== patient.clinical.assignedNurse) ||
+      (updates.attending && !allowedAttending.includes(updates.attending) && updates.attending !== patient.clinical.attending)) {
     return { allowed: false, message: "Select a valid encounter stage and disposition." };
   }
 
@@ -1319,6 +1509,9 @@ function updateWorkflowForPatient(patient, updates, role = currentUser.role) {
     triageNote: (updates.triageNote || "").trim(),
     painScore: updates.painScore || "",
     location: (updates.location || "").trim() || patient.clinical.location,
+    department: updates.department || patient.clinical.department,
+    assignedNurse: updates.assignedNurse || "",
+    attending: updates.attending || patient.clinical.attending,
     disposition: updates.disposition || "",
     destination: (updates.destination || "").trim(),
     followUpDate: updates.followUpDate || "",
@@ -1332,6 +1525,7 @@ function updateWorkflowForPatient(patient, updates, role = currentUser.role) {
   });
   if (patient.clinical.followUpDate) patient.carePlan.followUpDate = patient.clinical.followUpDate;
   patient.room = patient.clinical.location;
+  if (patient.clinical.attending) patient.provider = patient.clinical.attending;
   patient.status = ({
     "Admit to ward": "Admitted · Ward",
     "Admit to ICU": "Admitted · ICU",
@@ -1354,7 +1548,7 @@ function updateWorkflowForPatient(patient, updates, role = currentUser.role) {
   appendAuditEntry({
     action: "workflow:update",
     patientName: patient.name,
-    details: `Updated encounter to ${patient.clinical.stage}${patient.clinical.disposition ? ` · ${patient.clinical.disposition}` : ""}.`,
+    details: `Updated encounter to ${patient.clinical.stage} · ${patient.clinical.department} · ${patient.clinical.location}${patient.clinical.disposition ? ` · ${patient.clinical.disposition}` : ""}.`,
     actorRole: role,
     actorLabel: getRoleLabel(role)
   });
@@ -1579,6 +1773,45 @@ function importPatientRecords(records, role = currentUser.role) {
   return { allowed: true, created, updated };
 }
 
+function isPatientAdmitted(patient) {
+  const clinical = patient.clinical || {};
+  return clinical.stage !== "Closed" &&
+    clinical.disposition !== "Discharge home" &&
+    clinical.disposition !== "Transfer" &&
+    (clinical.stage === "Admission" || clinical.disposition === "Admit to ward" || clinical.disposition === "Admit to ICU");
+}
+
+function getAdmittedPatients() {
+  return patients
+    .filter(isPatientAdmitted)
+    .sort((left, right) => {
+      const priority = (patient) => patient.priority === "Urgent" ? 0 : patient.priority === "High" ? 1 : 2;
+      return priority(left) - priority(right) || left.name.localeCompare(right.name);
+    });
+}
+
+function renderAdmissionTable(container, admittedPatients) {
+  container.innerHTML = admittedPatients.length ? `
+    <table class="data-table">
+      <thead><tr><th>Patient</th><th>Reason for admission</th><th>Department / location</th><th>Attending</th><th>Nurse</th><th>Alerts / latest vitals</th><th>Status</th><th></th></tr></thead>
+      <tbody>${admittedPatients.map((patient) => `
+        <tr>
+          <td><strong>${escapeHtml(patient.name)}</strong><span>${escapeHtml(patient.mrn)} · ${escapeHtml(patient.age)} yrs</span></td>
+          <td>${escapeHtml(patient.diagnosis)}</td>
+          <td>${escapeHtml(patient.clinical.department)}<span>${escapeHtml(patient.clinical.location)}</span></td>
+          <td>${escapeHtml(patient.clinical.attending || patient.provider)}</td>
+          <td>${escapeHtml(patient.clinical.assignedNurse || "Unassigned")}</td>
+          <td><strong>Allergies: ${escapeHtml(patient.allergies.join(", ") || "None listed")}</strong><span>BP ${escapeHtml(patient.vitals.bp || "—")} · HR ${escapeHtml(patient.vitals.hr || "—")} · SpO₂ ${escapeHtml(patient.vitals.spO2 || "—")}</span></td>
+          <td><span class="status-pill">${escapeHtml(patient.clinical.stage)}</span><span>${escapeHtml(patient.priority)} priority</span></td>
+          <td><button class="ghost-btn action-btn" type="button" data-open-patient="${escapeHtml(patient.id)}">Open chart</button></td>
+        </tr>`).join("")}</tbody>
+    </table>` : '<p class="empty-state">No active admissions. Update a patient encounter disposition to add an admission.</p>';
+}
+
+function renderOverviewAdmissions() {
+  renderAdmissionTable(document.getElementById("overviewAdmissions"), getAdmittedPatients());
+}
+
 function renderDashboardStats() {
   const stats = calculateDashboardStats(patients);
   document.getElementById("patientsTodayValue").textContent = stats.patientsToday;
@@ -1614,7 +1847,7 @@ function getFilterDetail(patient) {
 }
 
 function renderPatientList() {
-  const searchField = document.getElementById("patientSearch");
+  const searchField = document.getElementById("patientListSearch");
   const searchTerm = searchField ? searchField.value.toLowerCase() : "";
   const statFilter = activeStatFilter ? STAT_FILTERS[activeStatFilter] : null;
   const filtered = patients.filter((patient) =>
@@ -1665,7 +1898,7 @@ function renderPatientStatusDashboard(patient) {
     ["Pain score", patient.clinical.painScore, " / 10"]
   ];
   const imagingOrders = patient.orders.filter((order) =>
-    order.category === "Imaging" && ["Pending", "Acknowledged"].includes(order.status)
+    ["Imaging", "Imaging / Radiology"].includes(order.category) && ["Pending", "Acknowledged"].includes(order.status)
   );
   const finalReports = patient.imaging.filter((record) => record.status.toLowerCase() === "final").length;
   const preliminaryReports = patient.imaging.filter((record) => record.status.toLowerCase() !== "final").length;
@@ -1680,12 +1913,13 @@ function renderPatientStatusDashboard(patient) {
         <div>
           <p class="eyebrow">Current medical status</p>
           <h4>${escapeHtml(patient.diagnosis)}</h4>
-          <p>${escapeHtml(patient.status)} · ${escapeHtml(patient.clinical.stage)} · ${escapeHtml(patient.room)}</p>
+          <p>${escapeHtml(patient.status)} · ${escapeHtml(patient.clinical.stage)} · ${escapeHtml(patient.clinical.department)} · ${escapeHtml(patient.room)}</p>
         </div>
         <div class="status-overview-tags">
           <span class="status-pill ${patient.priority === "Urgent" ? "status-urgent" : ""}">${escapeHtml(patient.priority)} priority</span>
           ${patient.clinical.acuity ? `<span class="status-pill status-acknowledged">${escapeHtml(patient.clinical.acuity)}</span>` : ""}
-          <span class="status-pill">Care team: ${escapeHtml(patient.provider)}</span>
+          <span class="status-pill">Attending: ${escapeHtml(patient.clinical.attending || patient.provider)}</span>
+          <span class="status-pill">Nurse: ${escapeHtml(patient.clinical.assignedNurse || "Unassigned")}</span>
         </div>
         <p class="allergy-alert"><strong>Allergies:</strong> ${escapeHtml(allergyText)}</p>
       </div>
@@ -1975,10 +2209,304 @@ function renderClinicalWorkspace() {
   `;
 
   const workflowForm = document.getElementById("workflowForm");
+  const nurseOptions = staffDirectory.filter((staff) => staff.role === "Nurse");
+  const providerOptions = staffDirectory.filter((staff) => ["Provider", "PA", "Midlevel"].includes(staff.role));
+  const selectOptions = (select, options, selected, emptyLabel) => {
+    const optionNames = options.map((option) => typeof option === "string" ? option : option.name);
+    if (selected && !optionNames.includes(selected)) optionNames.push(selected);
+    select.innerHTML = `${emptyLabel ? `<option value="">${escapeHtml(emptyLabel)}</option>` : ""}${optionNames.map((value) => {
+      return `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`;
+    }).join("")}`;
+    select.value = selected || "";
+  };
+  selectOptions(document.getElementById("workflowDepartment"), departments.map((department) => department.name), clinical.department);
+  selectOptions(document.getElementById("workflowNurse"), nurseOptions, clinical.assignedNurse, "Unassigned");
+  selectOptions(document.getElementById("workflowAttending"), providerOptions, clinical.attending, "Select provider");
   const values = { ...clinical, ...clinical.vitals };
   Object.entries(values).forEach(([name, value]) => {
     if (workflowForm.elements[name]) workflowForm.elements[name].value = value ?? "";
   });
+}
+
+function openPatientChart(patientId) {
+  const patient = patients.find((item) => Number(item.id) === Number(patientId));
+  if (!patient) return;
+  selectedPatientId = patient.id;
+  currentView = "patients";
+  recordAudit("patient:select", patient.name, `Opened chart for ${patient.mrn}.`);
+  document.getElementById("patientSearch").value = "";
+  render();
+  scrollToWorkspaceTop();
+}
+
+function renderGlobalSearch() {
+  const input = document.getElementById("patientSearch");
+  const resultsPanel = document.getElementById("globalSearchResults");
+  const term = input.value.trim().toLowerCase();
+  if (!term) {
+    resultsPanel.hidden = true;
+    input.setAttribute("aria-expanded", "false");
+    resultsPanel.innerHTML = "";
+    return;
+  }
+
+  const results = [
+    ...patients.filter((patient) =>
+      `${patient.name} ${patient.mrn} ${patient.diagnosis} ${patient.status} ${patient.priority} ${patient.clinical.stage} ${patient.clinical.chiefComplaint} ${patient.clinical.department} ${patient.clinical.location} ${patient.provider} ${patient.clinical.assignedNurse} ${patient.allergies.join(" ")} ${patient.medications.join(" ")}`
+        .toLowerCase().includes(term)
+    ).slice(0, 5).map((patient) => ({
+      type: "patient",
+      id: patient.id,
+      title: patient.name,
+      subtitle: `${patient.mrn} · ${patient.diagnosis}`,
+      kind: "Patient"
+    })),
+    ...staffDirectory.filter((staff) =>
+      `${staff.name} ${staff.title} ${staff.role} ${staff.department} ${staff.location} ${staff.email}`
+        .toLowerCase().includes(term)
+    ).slice(0, 5).map((staff) => ({
+      type: "staff",
+      id: staff.id,
+      title: staff.name,
+      subtitle: `${staff.title} · ${staff.department}`,
+      kind: staff.role
+    })),
+    ...departments.filter((department) =>
+      `${department.name} ${department.code} ${department.description}`.toLowerCase().includes(term)
+    ).slice(0, 5).map((department) => ({
+      type: "department",
+      id: department.name,
+      title: department.name,
+      subtitle: `${department.code} · ${department.description}`,
+      kind: "Department"
+    })),
+    ...locations.filter((location) =>
+      `${location.name} ${location.department} ${location.kind}`.toLowerCase().includes(term)
+    ).slice(0, 5).map((location) => ({
+      type: "location",
+      id: location.name,
+      title: location.name,
+      subtitle: `${location.department} · ${location.kind}`,
+      kind: "Location"
+    }))
+  ];
+
+  resultsPanel.innerHTML = results.length
+    ? results.map((result) => `
+      <button class="global-search-result" type="button" role="option" data-search-type="${escapeHtml(result.type)}" data-search-id="${escapeHtml(result.id)}">
+        <span><strong>${escapeHtml(result.title)}</strong><small>${escapeHtml(result.subtitle)}</small></span>
+        <span class="search-result-kind">${escapeHtml(result.kind)}</span>
+      </button>`).join("")
+    : '<p class="search-empty">No patients, staff, departments, or locations matched.</p>';
+  resultsPanel.hidden = false;
+  input.setAttribute("aria-expanded", "true");
+}
+
+function renderAdmissionsView(container) {
+  const admittedPatients = getAdmittedPatients();
+  container.innerHTML = `
+    <div class="panel">
+      <div class="panel-header">
+        <div><p class="eyebrow">Inpatient management</p><h3>Admissions dashboard</h3></div>
+        <span class="pill">${admittedPatients.length} active ${admittedPatients.length === 1 ? "admission" : "admissions"}</span>
+      </div>
+      <p class="muted-copy">Fictional inpatient census across all departments. Update an encounter disposition to add or remove a patient.</p>
+      <div class="table-wrap" id="admissionsTable"></div>
+    </div>`;
+  renderAdmissionTable(container.querySelector("#admissionsTable"), admittedPatients);
+}
+
+function renderNursingView(container) {
+  const nurses = staffDirectory.filter((staff) => staff.role === "Nurse" && staff.status === "Active");
+  if (nursingFilter !== "all" && !nurses.some((nurse) => nurse.name === nursingFilter)) nursingFilter = "all";
+  const caredFor = patients.filter((patient) =>
+    nursingFilter === "all" || patient.clinical.assignedNurse === nursingFilter
+  );
+  const census = caredFor.filter(isPatientAdmitted);
+  container.innerHTML = `
+    <div class="panel">
+      <div class="panel-header">
+        <div><p class="eyebrow">Nursing operations</p><h3>Nursing station</h3></div>
+        <span class="pill">${census.length} admitted · ${caredFor.length} assigned</span>
+      </div>
+      <div class="nursing-toolbar">
+        <label for="nursingNurseFilter">Nurse assignment
+          <select id="nursingNurseFilter">
+            <option value="all">All nursing assignments</option>
+            ${nurses.map((nurse) => `<option value="${escapeHtml(nurse.name)}">${escapeHtml(nurse.name)} · ${escapeHtml(nurse.department)}</option>`).join("")}
+          </select>
+        </label>
+        <p class="form-caution">Review assignment, location, allergies, and charted observations in the fictional demo chart.</p>
+      </div>
+      <div class="table-wrap">
+        ${caredFor.length ? `<table class="data-table">
+          <thead><tr><th>Patient / MRN</th><th>Location</th><th>Department</th><th>Diagnosis / reason</th><th>Priority / stage</th><th>Vitals</th><th>Allergies</th><th></th></tr></thead>
+          <tbody>${caredFor.map((patient) => `
+            <tr>
+              <td><strong>${escapeHtml(patient.name)}</strong><span>${escapeHtml(patient.mrn)} · ${escapeHtml(patient.age)} yrs · ${escapeHtml(patient.sex)}</span><span>Nurse: ${escapeHtml(patient.clinical.assignedNurse || "Unassigned")}</span></td>
+              <td>${escapeHtml(patient.clinical.location)}</td>
+              <td>${escapeHtml(patient.clinical.department)}</td>
+              <td>${escapeHtml(patient.diagnosis)}</td>
+              <td><strong>${escapeHtml(patient.priority)}</strong><span>${escapeHtml(patient.clinical.stage)}</span></td>
+              <td>BP ${escapeHtml(patient.vitals.bp || "—")} · HR ${escapeHtml(patient.vitals.hr || "—")}<span>Temp ${escapeHtml(patient.vitals.temp || "—")} · SpO₂ ${escapeHtml(patient.vitals.spO2 || "—")}</span></td>
+              <td>${escapeHtml(patient.allergies.join(", "))}</td>
+              <td><button class="ghost-btn action-btn" type="button" data-open-patient="${escapeHtml(patient.id)}">Open chart</button></td>
+            </tr>`).join("")}</tbody>
+        </table>` : '<p class="empty-state">No patients match this nursing assignment.</p>'}
+      </div>
+    </div>`;
+  container.querySelector("#nursingNurseFilter").value = nursingFilter;
+}
+
+function renderDepartmentsView(container) {
+  container.innerHTML = `
+    <div class="panel">
+      <div class="panel-header"><div><p class="eyebrow">Organization</p><h3>Departments & services</h3></div><span class="pill">${departments.length} departments</span></div>
+      <div class="directory-grid">${departments.map((department) => {
+        const census = patients.filter((patient) => patient.clinical.department === department.name && isPatientAdmitted(patient)).length;
+        const team = staffDirectory.filter((staff) => staff.department === department.name && staff.status === "Active").length;
+        return `<article class="directory-card">
+          <div class="record-card-header"><div><span class="record-category">${escapeHtml(department.code)}</span><h4>${escapeHtml(department.name)}</h4></div><span class="status-pill">${census} admitted</span></div>
+          <p>${escapeHtml(department.description)}</p>
+          <dl class="directory-facts"><div><dt>Active personnel</dt><dd>${team}</dd></div><div><dt>Care areas</dt><dd>${department.locations.length}</dd></div></dl>
+          <p class="directory-locations">${department.locations.map(escapeHtml).join(" · ")}</p>
+        </article>`;
+      }).join("")}</div>
+    </div>`;
+}
+
+function renderLocationsView(container) {
+  const locationRows = locations.map((location) => {
+    const assigned = patients.filter((patient) => patient.clinical.location === location.name);
+    const admittedCount = assigned.filter(isPatientAdmitted).length;
+    return { ...location, assigned, admittedCount };
+  });
+  const unlisted = [...new Set(patients.map((patient) => patient.clinical.location))]
+    .filter((name) => name && !locations.some((location) => location.name === name))
+    .map((name) => ({
+      name,
+      department: "Other recorded location",
+      kind: "Care area",
+      capacity: null,
+      assigned: patients.filter((patient) => patient.clinical.location === name),
+      admittedCount: patients.filter((patient) => patient.clinical.location === name && isPatientAdmitted(patient)).length
+    }));
+  container.innerHTML = `
+    <div class="panel">
+      <div class="panel-header"><div><p class="eyebrow">Facility operations</p><h3>Locations & beds</h3></div><span class="pill">${locations.length + unlisted.length} locations</span></div>
+      <p class="muted-copy">Occupancy is derived from the fictional patient assignment list; capacity values are illustrative only.</p>
+      <div class="table-wrap"><table class="data-table">
+        <thead><tr><th>Location</th><th>Department</th><th>Type</th><th>Admitted patients</th><th>Occupancy</th><th>Assigned patients</th></tr></thead>
+        <tbody>${[...locationRows, ...unlisted].map((location) => `
+          <tr><td><strong>${escapeHtml(location.name)}</strong></td><td>${escapeHtml(location.department)}</td><td>${escapeHtml(location.kind)}</td>
+            <td>${location.admittedCount}</td><td>${location.capacity ? `${location.admittedCount} / ${location.capacity}` : "Capacity not set"}</td>
+            <td>${location.assigned.length ? location.assigned.map((patient) => `<button class="inline-link" type="button" data-open-patient="${escapeHtml(patient.id)}">${escapeHtml(patient.name)}</button>`).join(", ") : "—"}</td>
+          </tr>`).join("")}</tbody>
+      </table></div>
+    </div>`;
+}
+
+function renderStaffView(container) {
+  const staffCards = staffDirectory
+    .slice()
+    .sort((left, right) => left.name.localeCompare(right.name))
+    .map((staff) => `
+      <article class="directory-card">
+        <div class="staff-avatar" aria-hidden="true">${escapeHtml(staff.name.split(/\s+/).map((part) => part[0]).slice(0, 2).join(""))}</div>
+        <span class="record-category">${escapeHtml(staff.role)} · ${escapeHtml(staff.status)}</span>
+        <h4>${escapeHtml(staff.name)}</h4>
+        <p>${escapeHtml(staff.title)}</p>
+        <p>${escapeHtml(staff.department)} · ${escapeHtml(staff.location)}</p>
+        <p>${escapeHtml(staff.email || "No contact email recorded")}</p>
+        <button class="ghost-btn action-btn" type="button" data-open-staff-profile="${escapeHtml(staff.id)}">View profile</button>
+      </article>`).join("");
+  container.innerHTML = `
+    <div class="panel">
+      <div class="panel-header"><div><p class="eyebrow">People & workforce</p><h3>Staff directory</h3></div><span class="pill">${staffDirectory.length} profiles</span></div>
+      ${currentUser.role === "admin" ? `
+        <details class="staff-add-panel">
+          <summary>Add staff profile</summary>
+          <form id="staffForm" class="clinical-form">
+            <div class="row"><label>Name<input name="name" required /></label><label>Title / credentials<input name="title" placeholder="e.g., Registered Nurse" required /></label></div>
+            <div class="row"><label>Personnel type<select name="role"><option>Provider</option><option>PA</option><option>Nurse</option><option>Midlevel</option><option>Administrator</option></select></label>
+              <label>Department<select name="department">${departments.map((department) => `<option>${escapeHtml(department.name)}</option>`).join("")}<option>Administration</option></select></label></div>
+            <div class="row"><label>Location<input name="location" placeholder="Unit or work area" required /></label><label>Demo contact email<input name="email" type="email" placeholder="name@example.test" /></label></div>
+            <button class="primary-btn" type="submit">Add to demo directory</button>
+            <p class="form-caution">Profiles are fictional directory records only. Adding a profile does not create an account or grant access.</p>
+          </form>
+        </details>` : '<p class="form-caution">To add a fictional staff directory entry, switch to the Admin demo role. This is not access control and does not create a user account.</p>'}
+      <div class="directory-grid">${staffCards}</div>
+    </div>`;
+}
+
+function renderProfilesView(container) {
+  const currentStaff = staffDirectory.find((staff) => staff.id === selectedProfile.id);
+  const currentPatient = patients.find((patient) => Number(patient.id) === Number(selectedProfile.id));
+  if (selectedProfile.type === "staff" && !currentStaff) selectedProfile = { type: "staff", id: staffDirectory[0]?.id || "" };
+  if (selectedProfile.type === "patient" && !currentPatient) selectedProfile = { type: "patient", id: patients[0]?.id };
+  const profile = selectedProfile.type === "patient"
+    ? patients.find((patient) => Number(patient.id) === Number(selectedProfile.id))
+    : staffDirectory.find((staff) => staff.id === selectedProfile.id);
+  const selector = `
+    <label class="profile-selector">Select a profile
+      <select id="profileSelector">
+        <optgroup label="Staff">${staffDirectory.map((staff) => `<option value="staff:${escapeHtml(staff.id)}">${escapeHtml(staff.name)} · ${escapeHtml(staff.role)}</option>`).join("")}</optgroup>
+        <optgroup label="Patients">${patients.map((patient) => `<option value="patient:${escapeHtml(patient.id)}">${escapeHtml(patient.name)} · ${escapeHtml(patient.mrn)}</option>`).join("")}</optgroup>
+      </select>
+    </label>`;
+  if (!profile) {
+    container.innerHTML = `<div class="panel"><div class="panel-header"><div><p class="eyebrow">Profiles</p><h3>People in Northstar</h3></div></div>${selector}<p class="empty-state">No profile is available.</p></div>`;
+    return;
+  }
+  const isPatient = selectedProfile.type === "patient";
+  const profileBody = isPatient ? `
+    <div class="profile-header">
+      <div class="staff-avatar patient-avatar" aria-hidden="true">${escapeHtml(profile.name.split(/\s+/).map((part) => part[0]).slice(0, 2).join(""))}</div>
+      <div><p class="eyebrow">Patient profile · fictional data</p><h3>${escapeHtml(profile.name)}</h3><p>${escapeHtml(profile.mrn)} · ${escapeHtml(profile.age)} years · ${escapeHtml(profile.sex)}</p></div>
+      <button class="primary-btn" type="button" data-open-patient="${escapeHtml(profile.id)}">Open full chart</button>
+    </div>
+    <div class="profile-facts">
+      <article><span>Encounter</span><strong>${escapeHtml(profile.clinical.stage)} · ${escapeHtml(profile.priority)}</strong></article>
+      <article><span>Department / location</span><strong>${escapeHtml(profile.clinical.department)} · ${escapeHtml(profile.clinical.location)}</strong></article>
+      <article><span>Care team</span><strong>${escapeHtml(profile.clinical.attending || profile.provider)} · ${escapeHtml(profile.clinical.assignedNurse || "Nurse unassigned")}</strong></article>
+      <article><span>Primary diagnosis</span><strong>${escapeHtml(profile.diagnosis)}</strong></article>
+      <article><span>Allergies</span><strong>${escapeHtml(profile.allergies.join(", "))}</strong></article>
+      <article><span>Current medication list</span><strong>${escapeHtml(profile.medications.join(", "))}</strong></article>
+      <article><span>Latest observations</span><strong>BP ${escapeHtml(profile.vitals.bp || "—")} · HR ${escapeHtml(profile.vitals.hr || "—")} · Temp ${escapeHtml(profile.vitals.temp || "—")} · SpO₂ ${escapeHtml(profile.vitals.spO2 || "—")}</strong></article>
+      <article><span>Open orders / notes</span><strong>${profile.orders.filter((order) => !["Completed", "Cancelled"].includes(order.status)).length} open orders · ${profile.documents.length} notes</strong></article>
+    </div>` : `
+    <div class="profile-header">
+      <div class="staff-avatar" aria-hidden="true">${escapeHtml(profile.name.split(/\s+/).map((part) => part[0]).slice(0, 2).join(""))}</div>
+      <div><p class="eyebrow">Staff profile · directory only</p><h3>${escapeHtml(profile.name)}</h3><p>${escapeHtml(profile.title)} · ${escapeHtml(profile.status)}</p></div>
+    </div>
+    <div class="profile-facts">
+      <article><span>Personnel type</span><strong>${escapeHtml(profile.role)}</strong></article>
+      <article><span>Department</span><strong>${escapeHtml(profile.department)}</strong></article>
+      <article><span>Work location</span><strong>${escapeHtml(profile.location)}</strong></article>
+      <article><span>Demo contact</span><strong>${escapeHtml(profile.email || "Not recorded")}</strong></article>
+      <article><span>Patients on care team</span><strong>${patients.filter((patient) => patient.clinical.attending === profile.name || patient.clinical.assignedNurse === profile.name).length}</strong></article>
+      <article><span>System access</span><strong>Directory profile only · no account linked</strong></article>
+    </div>`;
+  container.innerHTML = `<div class="panel profile-panel">
+    <div class="panel-header"><div><p class="eyebrow">Identity & care team</p><h3>Profiles</h3></div>${selector}</div>
+    ${profileBody}
+    <p class="form-caution">All content is fictional and stored in this browser demo. Profiles are not verified identities or access credentials.</p>
+  </div>`;
+  container.querySelector("#profileSelector").value = `${selectedProfile.type}:${selectedProfile.id}`;
+}
+
+function renderExtendedWorkspace() {
+  const container = document.getElementById("extendedContent");
+  if (!container) return;
+  switch (currentView) {
+    case "admissions": renderAdmissionsView(container); break;
+    case "nursing": renderNursingView(container); break;
+    case "departments": renderDepartmentsView(container); break;
+    case "locations": renderLocationsView(container); break;
+    case "staff": renderStaffView(container); break;
+    case "profiles": renderProfilesView(container); break;
+    default: container.innerHTML = "";
+  }
 }
 
 function renderStructuredFields(containerId, fields) {
@@ -2256,6 +2784,9 @@ function render() {
   renderRoleSummary();
   renderDashboardStats();
   renderPermissions();
+  renderGlobalSearch();
+  renderOverviewAdmissions();
+  renderExtendedWorkspace();
   renderPatientList();
   renderPatientDetail();
   renderAppointments();
@@ -2355,7 +2886,54 @@ function handleDocumentSubmit(event) {
 }
 
 function attachEvents() {
-  document.getElementById("patientSearch").addEventListener("input", renderPatientList);
+  document.getElementById("patientSearch").addEventListener("input", renderGlobalSearch);
+  document.getElementById("patientSearch").addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      event.currentTarget.value = "";
+      renderGlobalSearch();
+    } else if (event.key === "ArrowDown") {
+      const firstResult = document.querySelector("#globalSearchResults .global-search-result");
+      if (firstResult) {
+        event.preventDefault();
+        firstResult.focus();
+      }
+    }
+  });
+  document.getElementById("globalSearchResults").addEventListener("keydown", (event) => {
+    const results = [...event.currentTarget.querySelectorAll(".global-search-result")];
+    const index = results.indexOf(event.target);
+    if (event.key === "ArrowDown" && index < results.length - 1) {
+      event.preventDefault();
+      results[index + 1].focus();
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      if (index > 0) results[index - 1].focus();
+      else document.getElementById("patientSearch").focus();
+    } else if (event.key === "Escape") {
+      document.getElementById("patientSearch").value = "";
+      document.getElementById("patientSearch").focus();
+      renderGlobalSearch();
+    }
+  });
+  document.getElementById("globalSearchResults").addEventListener("click", (event) => {
+    const result = event.target.closest("[data-search-type]");
+    if (!result) return;
+    const { searchType, searchId } = result.dataset;
+    document.getElementById("patientSearch").value = "";
+    if (searchType === "patient") {
+      selectedPatientId = Number(searchId);
+      selectedProfile = { type: "patient", id: selectedPatientId };
+      setCurrentView("profiles");
+    } else if (searchType === "staff") {
+      selectedProfile = { type: "staff", id: searchId };
+      setCurrentView("profiles");
+    } else {
+      setCurrentView(searchType === "department" ? "departments" : "locations");
+    }
+    render();
+    scrollToWorkspaceTop();
+  });
+  document.getElementById("patientListSearch").addEventListener("input", renderPatientList);
   document.querySelectorAll("[data-stat-filter]").forEach((card) => {
     card.addEventListener("click", () => setStatFilter(card.dataset.statFilter));
   });
@@ -2364,6 +2942,71 @@ function attachEvents() {
   document.getElementById("patientList").addEventListener("click", (event) => {
     const card = event.target.closest(".patient-card");
     if (card) handlePatientSelection(card.dataset.id);
+  });
+  document.getElementById("overviewAdmissions").addEventListener("click", (event) => {
+    const patientButton = event.target.closest("[data-open-patient]");
+    if (patientButton) openPatientChart(patientButton.dataset.openPatient);
+  });
+  document.getElementById("admittedCensusSection").addEventListener("click", (event) => {
+    if (event.target.closest("[data-open-view]")) {
+      setCurrentView("admissions");
+      render();
+      scrollToWorkspaceTop();
+    }
+  });
+  document.getElementById("extendedContent").addEventListener("click", (event) => {
+    const patientButton = event.target.closest("[data-open-patient]");
+    if (patientButton) {
+      openPatientChart(patientButton.dataset.openPatient);
+      return;
+    }
+    const staffButton = event.target.closest("[data-open-staff-profile]");
+    if (staffButton) {
+      selectedProfile = { type: "staff", id: staffButton.dataset.openStaffProfile };
+      setCurrentView("profiles");
+      render();
+      scrollToWorkspaceTop();
+    }
+  });
+  document.getElementById("extendedContent").addEventListener("change", (event) => {
+    if (event.target.id === "nursingNurseFilter") {
+      nursingFilter = event.target.value;
+      render();
+    } else if (event.target.id === "profileSelector") {
+      const [type, ...idParts] = event.target.value.split(":");
+      selectedProfile = { type, id: type === "patient" ? Number(idParts.join(":")) : idParts.join(":") };
+      render();
+    }
+  });
+  document.getElementById("extendedContent").addEventListener("submit", (event) => {
+    if (event.target.id !== "staffForm") return;
+    event.preventDefault();
+    if (currentUser.role !== "admin") {
+      document.getElementById("encounterStatus").textContent = "Switch to the Admin demo role to add a staff directory entry.";
+      return;
+    }
+    const formData = new FormData(event.target);
+    const name = String(formData.get("name") || "").trim();
+    if (staffDirectory.some((staff) => staff.name.toLowerCase() === name.toLowerCase())) {
+      document.getElementById("encounterStatus").textContent = "A staff profile with that name already exists.";
+      return;
+    }
+    const staff = normalizeStaff({
+      id: createRecordId("staff"),
+      name,
+      title: formData.get("title"),
+      role: formData.get("role"),
+      department: formData.get("department"),
+      location: formData.get("location"),
+      email: formData.get("email"),
+      status: "Active"
+    });
+    staffDirectory.push(staff);
+    selectedProfile = { type: "staff", id: staff.id };
+    recordAudit("staff:create", "System", `Added fictional staff directory profile for ${staff.name}.`);
+    setCurrentView("profiles");
+    render();
+    document.getElementById("encounterStatus").textContent = `Added ${staff.name} to the demo staff directory.`;
   });
 
   document.querySelectorAll(".nav-link").forEach((link) => {
@@ -2382,6 +3025,7 @@ function attachEvents() {
 
   document.getElementById("roleSelector").addEventListener("change", (event) => {
     const nextUser = setCurrentRole(event.target.value);
+    if (nextUser.role === "nurse") nursingFilter = nextUser.label;
     document.getElementById("encounterStatus").textContent = `Active role switched to ${nextUser.label}.`;
     render();
   });
@@ -2544,6 +3188,7 @@ function handleLoginSubmit(event) {
   }
   activeDemoAccount = account;
   currentUser = normalizeCurrentUser({ accountId: account.id, role: account.role });
+  if (currentUser.role === "nurse") nursingFilter = currentUser.label;
   error.textContent = "";
   form.reset();
   showWorkspace();

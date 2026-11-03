@@ -10,15 +10,21 @@ A responsive electronic health record demonstration covering patient charts, eme
 
 - Data exchange: export the selected patient or all patients as Northstar JSON, an Epic-compatible HL7 FHIR R4 or R5 Bundle (Patient, Condition, AllergyIntolerance, MedicationRequest, Observation, DiagnosticReport, Appointment, DocumentReference), or a CSV roster; import any of these (auto-detected) and upsert by MRN. Import requires the `data:import` permission (Clinician, Admin). File-based only: no live Epic connection or OAuth.
 - Patient worklist with 23 fictional patient charts, searchable diagnoses, demographics, histories, allergies, medications, labs, and vitals
+- Admissions census dashboard with patient, diagnosis, department, location, attending, nurse, priority, and encounter stage for every active sample admission
+- Nursing station dashboard with nurse assignment filtering, patient location, demographics, diagnosis, observations, allergies, and direct chart navigation
+- Organization directories for ED, MICU, SICU, NICU, radiology, surgery, OB/GYN, pediatrics, neurology, telemetry, and medicine, with locations and illustrative occupancy
+- Staff directory and profiles for administrators, physicians, PAs, nurses, and midlevels; admin demo role can add fictional directory entries
+- Unified search across patients, staff, departments, and care locations; patient and staff results open their profiles
+- Patient profile pages and staff directory profiles with care-team and encounter context
 - Patient status dashboard with current encounter status, allergy visibility, vital-sign history, imaging/report counts, and latest radiology summary
 - Chronological patient timeline combining clinical notes, workflow updates, vitals, orders, imaging, and appointment activity; click or keyboard-expand an event to view its recorded details
 - Encounter progression for intake, triage, ED evaluation, consultation, admission, discharge, and closure
 - Intake and triage capture for arrival mode, chief complaint, acuity, nursing note, vital signs, pain score, and location
 - Disposition tracking for ward/ICU admission, home discharge, PCP or specialist referral, and transfer
-- Type-specific structured details for nursing, vitals, diagnosis, laboratory, imaging, procedure, medication, and referral orders
+- Type-specific structured details for nursing, vitals, diagnosis, H&P, laboratory, imaging/radiology, procedure, medication, consult, and referral orders
 - Per-patient imaging and radiology records with modality, body site, indication, report, status, and radiologist; selected charts display attributed, openly licensed radiology examples clearly marked as reference images, not patient scans
 - Workflow-specific structured drafts for ED, history and physical, admission, SOAP/progress, consult, nursing, procedure, discharge, and referral documents
-- Clinician and nurse workflow roles, plus an admin review role and an activity audit trail
+- Patient workflow assignment to a department, care location, attending provider, and nurse; clinician and nurse workflow roles, an admin review role, and an activity audit trail
 - Client-side demo sign-in; not real authentication or server-enforced authorization
 - Appointment management, care tasks, follow-up planning, patient summary export, and billing context
 - Local browser persistence for the demonstration dataset

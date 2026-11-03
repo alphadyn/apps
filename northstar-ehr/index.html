@@ -5,14 +5,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Northstar EHR</title>
-    <meta name="description" content="Northstar EHR: clinical operations workspace for patients, appointments, orders, labs and billing." />
+    <meta name="description" content="Northstar EHR: a fictional-data demo for patient charts, admissions, nursing, departments, care teams, orders and notes." />
     <link rel="icon" href="favicon.ico" sizes="48x48" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Northstar EHR" />
     <meta property="og:title" content="Northstar EHR" />
-    <meta property="og:description" content="Clinical operations workspace for patients, appointments, orders, labs and billing." />
+    <meta property="og:description" content="A fictional-data EHR demo for patient charts, admissions, nursing, departments, care teams, orders and notes." />
     <meta property="og:url" content="https://alphadyn.github.io/apps/northstar-ehr/" />
     <meta property="og:image" content="https://alphadyn.github.io/apps/northstar-ehr/social-preview.png" />
     <meta property="og:image:type" content="image/png" />
@@ -74,14 +74,23 @@
             <p class="nav-group-title">Workspace</p>
             <button class="nav-link active" type="button" data-view="overview">Overview</button>
             <button class="nav-link" type="button" data-view="patients">Patients</button>
+            <button class="nav-link" type="button" data-view="admissions">Admissions</button>
+            <button class="nav-link" type="button" data-view="nursing">Nursing station</button>
             <button class="nav-link" type="button" data-view="appointments">Appointments</button>
           </div>
           <div class="nav-group">
             <p class="nav-group-title">Care delivery</p>
             <button class="nav-link" type="button" data-view="clinical">ED & Inpatient</button>
             <button class="nav-link" type="button" data-view="orders">Orders</button>
-            <button class="nav-link" type="button" data-view="documents">Documents</button>
+            <button class="nav-link" type="button" data-view="documents">Notes & Documents</button>
             <button class="nav-link" type="button" data-view="labs">Labs & Meds</button>
+          </div>
+          <div class="nav-group">
+            <p class="nav-group-title">Organization</p>
+            <button class="nav-link" type="button" data-view="departments">Departments</button>
+            <button class="nav-link" type="button" data-view="locations">Locations</button>
+            <button class="nav-link" type="button" data-view="staff">Staff directory</button>
+            <button class="nav-link" type="button" data-view="profiles">Profiles</button>
           </div>
           <div class="nav-group">
             <p class="nav-group-title">Administration</p>
@@ -118,8 +127,9 @@
           <div class="topbar-actions">
             <label class="search-box" for="patientSearch">
               <span aria-hidden="true">⌕</span>
-              <input id="patientSearch" type="text" aria-label="Search patients by name, MRN, or diagnosis" placeholder="Search patients..." />
+              <input id="patientSearch" type="search" role="combobox" aria-autocomplete="list" aria-controls="globalSearchResults" aria-expanded="false" aria-label="Search patients, staff, departments, and locations" placeholder="Search people, departments, locations..." />
             </label>
+            <div id="globalSearchResults" class="global-search-results" role="listbox" aria-label="Search results" hidden></div>
             <span class="demo-badge">Demo data</span>
             <div class="data-exchange" role="group" aria-label="Import and export">
               <select id="exchangeFormat" aria-label="Export format" title="Export format">
@@ -162,6 +172,21 @@
             <strong id="medRecValue">0%</strong>
             <span id="medRecMeta">0 patient charts reviewed</span>
           </button>
+        </section>
+
+        <section id="admittedCensusSection" class="panel view-section">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Inpatient census</p>
+              <h3>Current admissions</h3>
+            </div>
+            <button class="ghost-btn" type="button" data-open-view="admissions">View all admissions</button>
+          </div>
+          <div id="overviewAdmissions" class="table-wrap"></div>
+        </section>
+
+        <section id="extendedSection" class="view-section hidden-section" aria-live="polite">
+          <div id="extendedContent"></div>
         </section>
 
         <section id="clinicalSection" class="clinical-workspace view-section">
@@ -233,6 +258,17 @@
                 </label>
               </div>
               <div class="row">
+                <label>Department / service
+                  <select name="department" id="workflowDepartment"></select>
+                </label>
+                <label>Attending provider
+                  <select name="attending" id="workflowAttending"></select>
+                </label>
+              </div>
+              <label>Assigned nurse
+                <select name="assignedNurse" id="workflowNurse"></select>
+              </label>
+              <div class="row">
                 <label>Receiving service / referral destination
                   <input name="destination" type="text" placeholder="Service, specialist, or PCP" />
                 </label>
@@ -254,8 +290,9 @@
               <div class="row">
                 <label>Order category
                   <select name="category">
-                    <option>Nursing</option><option>Vitals</option><option>Diagnosis</option><option>Laboratory</option>
-                    <option>Imaging</option><option>Procedure</option><option>Medication</option><option>Referral</option>
+                    <option>Nursing</option><option>Vitals</option><option>Diagnosis</option><option>History &amp; physical</option>
+                    <option>Laboratory</option><option>Imaging / Radiology</option><option>Procedure</option><option>Medication</option>
+                    <option>Consult</option><option>Referral</option>
                   </select>
                 </label>
                 <label>Priority<select name="priority"><option>Routine</option><option>Urgent</option><option>STAT</option></select></label>
@@ -285,9 +322,10 @@
               <div class="row">
                 <label>Document type
                   <select name="type">
-                    <option>ED provider note</option><option>History & physical</option><option>Admission note</option>
-                    <option>SOAP progress note</option><option>Consult note</option><option>Nursing note</option>
-                    <option>Procedure note</option><option>Discharge summary</option><option>Referral letter</option>
+                    <option>ED provider note</option><option>History &amp; physical</option><option>Admission note</option>
+                    <option>Admission H&amp;P</option><option>SOAP progress note</option><option>Consult note</option>
+                    <option>Consultation note</option><option>Nursing note</option><option>Procedure note</option>
+                    <option>Discharge summary</option><option>Disposition note</option><option>Referral letter</option>
                   </select>
                 </label>
                 <label>Document title<input name="title" type="text" placeholder="e.g., Initial evaluation" required /></label>
@@ -312,6 +350,9 @@
               <span id="activeFilterLabel"></span>
               <button id="clearFilterBtn" class="ghost-btn" type="button">Clear filter</button>
             </div>
+            <label class="patient-list-search" for="patientListSearch">Filter patient worklist
+              <input id="patientListSearch" type="search" placeholder="Name, MRN, diagnosis, status..." />
+            </label>
             <div id="patientList" class="patient-list"></div>
           </div>
 

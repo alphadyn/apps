@@ -11,11 +11,9 @@ Deployment configuration and host-specific setup are documented in [DEPLOYMENT.m
 The landing page's Top apps section highlights these projects:
 
 1. [S&P Insights](sp-insights/) — Rank every S&P 500 security by market cap, net income, price, and their growth, with filters and price-history charts
-2. [Pulse](pulse/) — News aggregator with tags, ranking, and threaded discussions
-3. [Nexus](nexus/) — Media workspace for browsing, filtering, previewing, and managing files
-4. [Experiences](experiences/) — Private trip journal with shareable Experiences, named Events, precise location pinning, and media carousels
-5. [Atlas Store](atlas-store/) — Branded storefront with catalog, cart, inventory, and checkout
-6. [Northstar EHR](northstar-ehr/) — Responsive electronic health record demo for patient care workflows
+2. [Signal](signal/) — Turn Google News headlines into a focused, searchable reading list you can download as JSON
+3. [Pulse](pulse/) — News aggregator with tags, ranking, and threaded discussions
+4. [Northstar EHR](northstar-ehr/) — Responsive electronic health record demo for patient care workflows
 
 ## App catalog
 

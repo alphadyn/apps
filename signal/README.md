@@ -27,11 +27,13 @@ from the ranking; removed terms are excluded before selecting the top 20.
 Select **Removed trends**, to the left of **Download JSON**, to search removed
 keywords. Select **+** beside a keyword to restore its eligibility immediately.
 Restored keywords only appear in the top 20 if their headline count qualifies.
-Removal and restoration preferences are saved in this browser. When previewing
-with `python3 serve.py`, changes are also written to `removed_trends.json`;
-static hosting keeps browser-specific restoration overrides instead.
-File writes are attempted only when the server advertises support; GitHub Pages
-and standard static preview servers use browser storage without attempting writes.
+Removed trends are shared across visitors and saved in the Signal Supabase
+project. Run the SQL in [supabase-schema.sql](./supabase-schema.sql) once in the
+Supabase SQL Editor to create and seed the public shared list with the current
+removed keywords. Anyone visiting the app
+can remove a trend or restore a keyword; both changes are immediately written
+to the shared table. A local browser cache is used if the database is temporarily
+unavailable, and the page reports when a change could not be shared.
 
 ## GitHub Pages
 

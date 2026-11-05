@@ -87,12 +87,11 @@ body {
 .removed-trends-summary .status-copy { min-width: 0; }
 .removed-trends-summary .status-copy span { line-height: 1.6; }
 .removed-trends-summary .status-icon { flex-shrink: 0; }
-.removed-trends-dialog .trend-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; margin-top: 14px; }
-.removed-trends-dialog .trend-item { min-width: 0; justify-content: space-between; gap: 16px; padding: 14px 16px; border: 1px solid #e6e9e3; border-radius: 5px; background: #fff; }
-.removed-trends-dialog .trend-link { overflow-wrap: anywhere; min-width: 0; color: #273128; font: 600 14px/1.5 var(--display); letter-spacing: -.2px; }
+.removed-trends-error { margin: 12px 0 0; color: #a4513a; font-size: 12px; line-height: 1.5; }
+.removed-trends-dialog .trend-link { overflow-wrap: anywhere; }
 .removed-trends-dialog .trend-link:hover { text-decoration: none; }
-.trend-restore { flex-shrink: 0; width: 32px; height: 32px; border: 1px solid #d6ddd2; border-radius: 4px; background: #edf1e9; color: var(--green); font: 500 20px/1 'DM Sans', sans-serif; cursor: pointer; transition: background .18s, color .18s; }
-.trend-restore:hover { background: var(--green); border-color: var(--green); color: #fff; }
+.trend-restore { flex-shrink: 0; width: 20px; height: 20px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--ink); font: 500 15px/1 'DM Sans', sans-serif; cursor: pointer; transition: background .18s, color .18s; }
+.trend-restore:hover { background: #e2e5df; }
 .status-panel { display: flex; align-items: center; gap: 13px; padding: 15px 17px; border: 1px solid #e5e9e1; border-radius: 5px; background: #ecefe9; }
 .status-icon { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: #dde8dc; color: #66805d; font-size: 14px; }
 .status-panel[data-state='running'] .status-icon { animation: spin 2s linear infinite; }
@@ -139,7 +138,6 @@ body {
   .removed-trends-dialog { width: calc(100% - 24px); max-height: 90vh; padding: 24px 19px; }
   .removed-trends-toolbar { align-items: stretch; flex-direction: column; }
   .removed-trends-toolbar .search-field { min-width: 0; }
-  .removed-trends-dialog .trend-list { grid-template-columns: 1fr; }
   .app-shell { padding: 0 19px; }
   .topbar { height: 70px; }
   .topbar-right { gap: 14px; }

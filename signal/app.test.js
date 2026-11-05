@@ -5,6 +5,7 @@ import vm from 'node:vm';
 
 const script = readFileSync(new URL('./app.js', import.meta.url), 'utf8');
 const trendsScript = readFileSync(new URL('./static/trends.js', import.meta.url), 'utf8');
+const supabaseUrl = 'https://vftmcftccahjlxbxcnsf.supabase.co/rest/v1/signal_removed_trends';
 const snapshot = {
   source_feeds: [
     { section: 'Top Stories', url: 'https://news.google.com/rss' },
@@ -20,8 +21,10 @@ const snapshot = {
   }],
 };
 
-function setup(fetch, storage = new Map()) {
+function setup(fetch, storage = new Map(), options = {}) {
   const nodes = new Map();
+  const removed = [...(options.removed || [])];
+  const supabaseRequests = [];
   const node = () => ({
     dataset: {}, value: '', hidden: false, disabled: false, textContent: '',
     attributes: {}, listeners: {},
@@ -38,7 +41,29 @@ function setup(fetch, storage = new Map()) {
     if (!nodes.has(id)) nodes.set(id, node());
     return nodes.get(id);
   };
+  getNode('removed-trends-error').hidden = true;
   let downloaded;
+  const appFetch = async (url, request = {}) => {
+    if (String(url).startsWith(supabaseUrl)) {
+      supabaseRequests.push({ url, ...request });
+      if (options.supabaseFetch) return options.supabaseFetch(url, request);
+      const method = request.method || 'GET';
+      if (method === 'GET') return { ok: true, json: async () => removed.map((term) => ({ term })) };
+      if (method === 'POST') {
+        const { term } = JSON.parse(request.body);
+        if (!removed.includes(term)) removed.push(term);
+        return { ok: true };
+      }
+      if (method === 'DELETE') {
+        const term = new URL(url).searchParams.get('term')?.slice(3);
+        const index = removed.findIndex((item) => item === term);
+        if (index !== -1) removed.splice(index, 1);
+        return { ok: true };
+      }
+      return { ok: false, status: 405 };
+    }
+    return fetch(url, request);
+  };
   const context = vm.createContext({
     document: {
       getElementById: getNode, querySelector: getNode,
@@ -48,14 +73,21 @@ function setup(fetch, storage = new Map()) {
       getItem(key) { return storage.get(key) ?? null; },
       setItem(key, value) { storage.set(key, value); },
     },
-    fetch, Date, Blob, URL: {
+    window: { SIGNAL_SUPABASE: { url: 'https://vftmcftccahjlxbxcnsf.supabase.co', anonKey: 'test-key' } },
+    fetch: appFetch, Date, Blob, URLSearchParams, URL: {
       createObjectURL(blob) { downloaded = blob; return 'blob:download'; },
       revokeObjectURL() {},
     },
   });
   vm.runInContext(trendsScript, context);
   vm.runInContext(script, context);
-  return { nodes, run: (code) => vm.runInContext(code, context), download: () => downloaded };
+  return {
+    nodes,
+    run: (code) => vm.runInContext(code, context),
+    download: () => downloaded,
+    removed,
+    supabaseRequests,
+  };
 }
 
 test('loads same-origin snapshot and downloads original timestamp and metadata', async () => {
@@ -153,22 +185,18 @@ test('ranks trending terms, filters stories, and persists removals', async () =>
 
 test('opens removed trends, searches keywords, and restores ranking with the plus button', async () => {
   const storage = new Map([['signal.removedTrends', '["nasa","apple","absent keyword"]']]);
-  const writes = [];
   const data = { ...snapshot, news: [
     { ...snapshot.news[0], header_title: 'NASA launches today' },
     { ...snapshot.news[0], header_title: 'Reports from NASA arrive' },
   ] };
   const app = setup(async (url, options) => {
-    if (options.method === 'PUT') {
-      writes.push(JSON.parse(options.body));
-      return { ok: true };
-    }
     return {
       ok: true,
       headers: { get: () => 'true' },
-      json: async () => url === './news.json' ? data : { removed: ['nasa', 'apple'] },
+      json: async () => data,
     };
-  }, storage);
+  }, storage, { removed: ['nasa', 'apple', 'absent keyword'] });
+  await app.run('removedTrendsReady');
   await app.run('fetchGoogleNews()');
   app.nodes.get('removed-trends-button').click();
   assert.equal(app.nodes.get('removed-trends-dialog').open, true);
@@ -188,22 +216,24 @@ test('opens removed trends, searches keywords, and restores ranking with the plu
   assert.equal(app.nodes.get('trend-list').children[0].children[1].textContent, 'nasa');
   assert.deepEqual(JSON.parse(storage.get('signal.removedTrends')), ['apple', 'absent keyword']);
   await new Promise((resolve) => setImmediate(resolve));
-  assert.deepEqual(writes.at(-1), { removed: ['absent keyword', 'apple'] });
+  assert.deepEqual(app.removed, ['apple', 'absent keyword']);
+  assert.equal(app.supabaseRequests.at(-1).method, 'DELETE');
   app.nodes.get('removed-trends-button').click();
   assert.equal(search.value, '');
   assert.equal(list.children.length, 2);
 
-  const reloaded = setup(async () => ({ ok: true, json: async () => ({ removed: ['NASA', 'apple'] }) }), storage);
-  await reloaded.run('syncRemovedTrendsFromFile()');
+  const reloaded = setup(async () => ({ ok: true }), storage, { removed: ['apple'] });
+  await reloaded.run('syncRemovedTrendsFromDatabase()');
   assert.equal(reloaded.run("removedTrends.some((term) => term.toLowerCase() === 'nasa')"), false);
   reloaded.run("removeTrend('nasa')");
-  await reloaded.run('syncRemovedTrendsFromFile()');
+  await new Promise((resolve) => setImmediate(resolve));
   assert.equal(reloaded.run("removedTrends.includes('nasa')"), true);
-  assert.deepEqual(JSON.parse(storage.get('signal.restoredTrends')), []);
+  assert.deepEqual(reloaded.removed, ['apple', 'nasa']);
 });
 
-test('shows an empty removed list and handles the final restoration without forcing a trend', () => {
+test('shows an empty removed list and handles the final restoration without forcing a trend', async () => {
   const app = setup(async () => ({ ok: false, status: 405 }));
+  await app.run('removedTrendsReady');
   app.nodes.get('removed-trends-button').click();
   assert.match(app.nodes.get('removed-trends-status').textContent, /No removed trends/);
   app.run("removeTrend('rare keyword')");
@@ -213,49 +243,62 @@ test('shows an empty removed list and handles the final restoration without forc
   assert.equal(app.nodes.get('trend-list').children.length, 0);
 });
 
-test('restoration made before the shared file loads is not undone by synchronization', async () => {
-  let resolveFile;
-  const app = setup((url, options) => options.method === 'PUT'
-    ? Promise.resolve({ ok: true })
-    : new Promise((resolve) => { resolveFile = resolve; }),
-  new Map([['signal.removedTrends', '["nasa"]']]));
+test('restoration made before the shared list loads is not undone by synchronization', async () => {
+  let resolveDatabase;
+  const app = setup(async () => ({ ok: true }), new Map([['signal.removedTrends', '["nasa"]']]), {
+    supabaseFetch: (url, options) => options.method === 'GET'
+      ? new Promise((resolve) => { resolveDatabase = resolve; })
+      : Promise.resolve({ ok: true }),
+  });
   app.run("restoreTrend('nasa')");
-  resolveFile({ ok: true, json: async () => ({ removed: ['nasa', 'apple'] }) });
+  resolveDatabase({ ok: true, json: async () => [{ term: 'nasa' }, { term: 'apple' }] });
+  await app.run('removedTrendsReady');
   await new Promise((resolve) => setImmediate(resolve));
   assert.equal(app.run("JSON.stringify(removedTrends)"), '["apple"]');
   assert.equal(app.nodes.get('removed-trends-list').children[0].children[0].textContent, 'apple');
 });
 
-test('static hosting saves browser preferences without attempting unsupported file writes', async () => {
-  const methods = [];
+test('shared removals and restorations are written to Supabase', async () => {
   const storage = new Map();
-  const app = setup(async (url, options) => {
-    methods.push(options.method || 'GET');
-    if (options.method === 'PUT') throw new Error('Unsupported write');
-    return { ok: true, headers: { get: () => null }, json: async () => ({ removed: ['nasa'] }) };
-  }, storage);
+  const app = setup(async () => ({ ok: true }), storage, { removed: ['nasa'] });
   await app.run('removedTrendsReady');
+  app.run("removeTrend('amazon')");
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.deepEqual(app.removed, ['nasa', 'amazon']);
+  assert.equal(app.supabaseRequests.at(-1).method, 'POST');
+  assert.deepEqual(JSON.parse(app.supabaseRequests.at(-1).body), { term: 'amazon' });
+
   app.run("restoreTrend('nasa')");
   await new Promise((resolve) => setImmediate(resolve));
-  assert.deepEqual(methods, ['GET']);
-  assert.deepEqual(JSON.parse(storage.get('signal.restoredTrends')), ['nasa']);
-  assert.equal(app.nodes.get('error-message').textContent, '');
+  assert.deepEqual(app.supabaseRequests.map(({ method }) => method || 'GET'), ['GET', 'POST', 'DELETE']);
+  assert.deepEqual(app.removed, ['amazon']);
+  assert.deepEqual(JSON.parse(storage.get('signal.removedTrends')), ['amazon']);
 });
 
-test('writable server failures are still reported instead of silently ignored', async () => {
+test('database read failures remain visible while opening the removed trends dialog', async () => {
+  const app = setup(async () => ({ ok: true }), new Map(), {
+    supabaseFetch: async () => ({ ok: false, status: 404 }),
+  });
+  await app.run('removedTrendsReady');
+  app.nodes.get('removed-trends-button').click();
+  assert.equal(app.nodes.get('removed-trends-error').hidden, false);
+  assert.match(app.nodes.get('removed-trends-error').textContent, /Supabase returned 404/);
+});
+
+test('database write failures are reported instead of silently treated as shared', async () => {
   for (const failure of [503, 'Network unavailable']) {
-    const app = setup(async (url, options) => {
-      if (options.method === 'PUT') {
+    const app = setup(async () => ({ ok: true }), new Map(), {
+      supabaseFetch: async (url, options) => {
+        if (options.method === 'GET') return { ok: true, json: async () => [{ term: 'nasa' }] };
         if (typeof failure === 'string') throw new Error(failure);
         return { ok: false, status: failure };
-      }
-      return { ok: true, headers: { get: () => 'true' }, json: async () => ({ removed: ['nasa'] }) };
+      },
     });
     await app.run('removedTrendsReady');
     app.run("restoreTrend('nasa')");
     await new Promise((resolve) => setImmediate(resolve));
     assert.equal(app.nodes.get('error-message').hidden, false);
-    assert.match(app.nodes.get('error-message').textContent, /Could not save trend preferences to the local file/);
+    assert.match(app.nodes.get('error-message').textContent, /Could not save the shared removed trends list/);
   }
 });
 

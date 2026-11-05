@@ -30,6 +30,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css">
+  <script src="./supabase-config.js" defer></script>
   <script src="./static/trends.js" defer></script>
   <script src="./app.js" defer></script>
 </head>
@@ -122,6 +123,7 @@
         <span class="status-icon" aria-hidden="true">✳</span>
         <div class="status-copy"><strong id="removed-trends-status" role="status" aria-live="polite"></strong><span>Restored keywords return to the ranking when their headline count qualifies.</span></div>
       </div>
+      <p class="removed-trends-error" id="removed-trends-error" role="alert" hidden></p>
       <ul class="trend-list" id="removed-trends-list" aria-label="Removed keywords"></ul>
     </dialog>
 

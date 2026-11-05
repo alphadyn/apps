@@ -22,6 +22,7 @@ const elements = {
   removedTrendsSearch: document.getElementById('removed-trends-search'),
   removedTrendsList: document.getElementById('removed-trends-list'),
   removedTrendsStatus: document.getElementById('removed-trends-status'),
+  removedTrendsError: document.getElementById('removed-trends-error'),
 };
 
 let capturedItems = [];
@@ -29,63 +30,86 @@ let capturedSnapshot = null;
 let activeTrends = [];
 
 const REMOVED_STORAGE_KEY = 'signal.removedTrends';
-const RESTORED_STORAGE_KEY = 'signal.restoredTrends';
-const REMOVED_FILE_URL = './removed_trends.json';
+const SUPABASE_CONFIG = window.SIGNAL_SUPABASE;
+const REMOVED_TRENDS_URL = `${SUPABASE_CONFIG.url}/rest/v1/signal_removed_trends`;
 
 let removedTrends = loadRemovedTrends();
-let restoredTrends = loadRemovedTrends(RESTORED_STORAGE_KEY);
-let removedFileWritable = false;
 
-function loadRemovedTrends(key = REMOVED_STORAGE_KEY) {
+function loadRemovedTrends() {
   try {
-    const stored = JSON.parse(localStorage.getItem(key));
+    const stored = JSON.parse(localStorage.getItem(REMOVED_STORAGE_KEY));
     return Array.isArray(stored) ? stored.filter((term) => typeof term === 'string') : [];
-  } catch (error) {
+  } catch {
     return [];
   }
 }
 
-async function saveRemovedTrends() {
+function cacheRemovedTrends() {
   try {
     localStorage.setItem(REMOVED_STORAGE_KEY, JSON.stringify(removedTrends));
-    localStorage.setItem(RESTORED_STORAGE_KEY, JSON.stringify(restoredTrends));
-  } catch (error) {
-    showError('Trend preferences could not be saved in this browser. Changes may not survive a reload.');
-  }
-
-  await removedTrendsReady;
-  if (!removedFileWritable) return;
-
-  try {
-    const response = await fetch(REMOVED_FILE_URL, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ removed: [...removedTrends].sort((a, b) => a.localeCompare(b)) }, null, 2),
-    });
-    if (!response.ok) {
-      showError(`Could not save trend preferences to the local file (${response.status}).`);
-    }
-  } catch (error) {
-    showError('Could not save trend preferences to the local file. Browser preferences still apply if browser storage is available.');
+  } catch {
+    showRemovedTrendsError('The shared list is available, but this browser could not save its local cache.');
   }
 }
 
-async function syncRemovedTrendsFromFile() {
+function removedTrendsHeaders() {
+  return {
+    apikey: SUPABASE_CONFIG.anonKey,
+    Authorization: `Bearer ${SUPABASE_CONFIG.anonKey}`,
+    'Content-Type': 'application/json',
+  };
+}
+
+async function saveRemovedTrend(term, shouldRemove) {
+  await removedTrendsReady;
+  removedTrends = shouldRemove
+    ? [...removedTrends.filter((item) => item.toLowerCase() !== term.toLowerCase()), term]
+    : removedTrends.filter((item) => item.toLowerCase() !== term.toLowerCase());
+  cacheRemovedTrends();
+  renderRemovedTrends();
+  renderTrends();
+  updateSearchResults();
+
   try {
-    const response = await fetch(REMOVED_FILE_URL, { cache: 'no-store' });
-    if (!response.ok) return;
-    removedFileWritable = response.headers?.get('X-Signal-Preferences-Writable') === 'true';
-    const saved = (await response.json()).removed;
-    if (!Array.isArray(saved)) return;
-    const merged = [...new Set([...removedTrends, ...saved.filter((term) =>
-      typeof term === 'string' && !restoredTrends.some((restored) => restored.toLowerCase() === term.toLowerCase()))])];
-    if (merged.length === removedTrends.length) return;
-    removedTrends = merged;
+    const url = shouldRemove
+      ? REMOVED_TRENDS_URL
+      : `${REMOVED_TRENDS_URL}?term=eq.${encodeURIComponent(term)}`;
+    const response = await fetch(url, {
+      method: shouldRemove ? 'POST' : 'DELETE',
+      headers: {
+        ...removedTrendsHeaders(),
+        ...(shouldRemove ? { Prefer: 'resolution=ignore-duplicates,return=minimal' } : {}),
+      },
+      ...(shouldRemove ? { body: JSON.stringify({ term }) } : {}),
+    });
+    if (!response.ok) {
+      showRemovedTrendsError(`Could not save the shared removed trends list (${response.status}). This change is only saved in this browser.`);
+    } else {
+      clearRemovedTrendsError();
+    }
+  } catch {
+    showRemovedTrendsError('Could not save the shared removed trends list. This change is only saved in this browser.');
+  }
+}
+
+async function syncRemovedTrendsFromDatabase() {
+  try {
+    const response = await fetch(`${REMOVED_TRENDS_URL}?select=term&order=term.asc`, {
+      headers: removedTrendsHeaders(),
+    });
+    if (!response.ok) throw new Error(`Supabase returned ${response.status}`);
+    const rows = await response.json();
+    if (!Array.isArray(rows) || rows.some((row) => typeof row?.term !== 'string')) {
+      throw new Error('Supabase returned an invalid removed trends list');
+    }
+    removedTrends = [...new Set(rows.map((row) => row.term))];
+    cacheRemovedTrends();
+    clearRemovedTrendsError();
     renderRemovedTrends();
     renderTrends();
     updateSearchResults();
   } catch (error) {
-    // The file only exists when running through serve.py.
+    showRemovedTrendsError(`Could not load the shared removed trends list: ${error.message}. Showing this browser’s saved copy.`);
   }
 }
 
@@ -106,10 +130,10 @@ function selectTrend(term) {
 }
 
 function removeTrend(term) {
-  restoredTrends = restoredTrends.filter((item) => item.toLowerCase() !== term.toLowerCase());
   if (!removedTrends.includes(term)) removedTrends.push(term);
   activeTrends = activeTrends.filter((item) => item !== term);
-  saveRemovedTrends();
+  cacheRemovedTrends();
+  saveRemovedTrend(term, true);
   renderRemovedTrends();
   renderTrends();
   updateSearchResults();
@@ -117,8 +141,8 @@ function removeTrend(term) {
 
 function restoreTrend(term) {
   removedTrends = removedTrends.filter((item) => item.toLowerCase() !== term.toLowerCase());
-  if (!restoredTrends.includes(term)) restoredTrends.push(term);
-  saveRemovedTrends();
+  cacheRemovedTrends();
+  saveRemovedTrend(term, false);
   renderRemovedTrends();
   renderTrends();
   updateSearchResults();
@@ -328,6 +352,20 @@ function showError(message) {
   elements.errorMessage.textContent = message;
 }
 
+function showRemovedTrendsError(message) {
+  elements.removedTrendsError.hidden = false;
+  elements.removedTrendsError.textContent = message;
+  showError(message);
+}
+
+function clearRemovedTrendsError() {
+  elements.removedTrendsError.hidden = true;
+  elements.removedTrendsError.textContent = '';
+  if (/^(Could not (?:load|save) the shared removed trends list|The shared list is available)/.test(elements.errorMessage.textContent)) {
+    clearError();
+  }
+}
+
 function clearError() {
   elements.errorMessage.hidden = true;
   elements.errorMessage.textContent = '';
@@ -427,6 +465,6 @@ function bindEvents() {
 }
 
 bindEvents();
-const removedTrendsReady = syncRemovedTrendsFromFile();
+const removedTrendsReady = syncRemovedTrendsFromDatabase();
 renderStories([]);
 setStatus('idle', 'Ready when you are', 'Your captured headlines will appear here.', 'NO CAPTURE YET');

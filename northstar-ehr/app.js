@@ -2,9 +2,9 @@ const storageKey = "northstar-ehr-state-v3";
 const demoSessionKey = "northstar-ehr-demo-account";
 
 const demoAccounts = [
-  { id: "clinician", username: "elena.ruiz", password: "northstar", displayName: "Elena Ruiz", role: "clinician" },
-  { id: "nurse", username: "jordan.lee", password: "northstar", displayName: "Jordan Lee", role: "nurse" },
-  { id: "admin", username: "alex.morgan", password: "northstar", displayName: "Alex Morgan", role: "admin" }
+  { id: "clinician", username: "elena.ruiz", password: "northstar", displayName: "Elena Ruiz", role: "clinician", authorizedRoles: ["clinician", "admin"] },
+  { id: "nurse", username: "jordan.lee", password: "northstar", displayName: "Jordan Lee", role: "nurse", authorizedRoles: ["nurse"] },
+  { id: "admin", username: "alex.morgan", password: "northstar", displayName: "Alex Morgan", role: "admin", authorizedRoles: ["admin"] }
 ];
 
 const rolePermissions = {
@@ -1152,7 +1152,7 @@ function loadAccountRoles() {
     const value = saved?.[account.id];
     const candidates = Array.isArray(value) ? value : [value];
     const authorized = [...new Set(candidates.filter(isValidRole))];
-    return [account.id, authorized.length ? authorized : [account.role]];
+    return [account.id, authorized.length ? authorized : [...account.authorizedRoles]];
   }));
   if (!Object.values(roles).some((authorized) => authorized.includes("admin"))) {
     roles.admin.push("admin");
@@ -1944,12 +1944,13 @@ function renderRoleSummary() {
   const roleHelp = document.getElementById("roleHelp");
   if (!roleValue || !roleHelp) return;
 
-  roleValue.textContent = `${currentUser.label} · ${rolePermissions[currentUser.role].label}`;
+  roleValue.textContent = currentUser.label;
   roleHelp.textContent = hasPermission(currentUser.role, "roles:manage")
     ? "Switch among your authorized roles, or manage account roles in Overview. Demo permissions only."
     : "Switch only among roles authorized by an Admin. Demo permissions only.";
   const roleSelector = document.getElementById("roleSelector");
   const authorizedRoles = accountRoles[currentUser.accountId] || [currentUser.role];
+  document.getElementById("authorizedRolesValue").textContent = `Authorized roles: ${formatRoleList(authorizedRoles)}`;
   roleSelector.innerHTML = authorizedRoles.map((role) =>
     `<option value="${role}">${escapeHtml(getRoleLabel(role))}</option>`).join("");
   roleSelector.value = currentUser.role;

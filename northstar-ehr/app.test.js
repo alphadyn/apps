@@ -36,7 +36,7 @@ test("only Admins can change authorized account roles", () => {
     const { api } = setup(accountId);
     assert.equal(api.updateAccountRole("admin", "staff").allowed, false);
     assert.equal(api.updateAccountRoles(accountId, ["clinician", "admin"]).allowed, false);
-    assert.equal(api.setCurrentRole("admin").role, accountId);
+    assert.equal(api.setCurrentRole("staff").role, accountId);
   }
 });
 
@@ -51,6 +51,7 @@ test("Admin assignments persist across sign-in and reload", () => {
 
 test("the last Admin cannot be removed and invalid assignments are rejected", () => {
   const { api } = setup("admin");
+  assert.equal(api.updateAccountRole("clinician", "clinician").allowed, true);
   assert.equal(api.updateAccountRole("admin", "staff").allowed, false);
   assert.equal(api.updateAccountRole("missing", "staff").allowed, false);
   assert.equal(api.updateAccountRole("clinician", "invalid").allowed, false);
@@ -61,7 +62,8 @@ test("the last Admin cannot be removed and invalid assignments are rejected", ()
 
 test("legacy unrestricted role switches do not override account assignments", () => {
   const storage = new Map([[storageKey, JSON.stringify({
-    currentUser: { accountId: "clinician", role: "admin" }
+    currentUser: { accountId: "clinician", role: "admin" },
+    accountRoles: { clinician: ["clinician"] }
   })]]);
   const { api } = setup("clinician", storage);
   assert.equal(api.setCurrentRole("admin").role, "clinician");
@@ -77,12 +79,12 @@ test("Staff remains nonclinical while Provider and Nurse retain workflow capabil
 
 test("invalid saved roles are repaired and a saved workspace retains an Admin", () => {
   const storage = new Map([[storageKey, JSON.stringify({
-    accountRoles: { clinician: "constructor", nurse: "staff", admin: "staff" }
+    accountRoles: { clinician: "staff", nurse: "constructor", admin: "staff" }
   })]]);
   const { api } = setup("admin", storage);
   assert.equal(api.getVisibleSections("overview").roleManagementSection, true);
   assert.equal(api.updateAccountRole("nurse", "midlevel").allowed, true);
-  assert.deepEqual(JSON.parse(storage.get(storageKey)).accountRoles.clinician, ["clinician"]);
+  assert.deepEqual(JSON.parse(storage.get(storageKey)).accountRoles.clinician, ["staff"]);
 });
 
 test("users can switch only among their authorized roles and preserve the active role on reload", () => {
@@ -111,6 +113,7 @@ test("Admin authorization changes preserve a valid active role and replace a rev
 
 test("empty authorization lists and removing the last authorized Admin are rejected", () => {
   const { api } = setup("admin");
+  assert.equal(api.updateAccountRole("clinician", "clinician").allowed, true);
   assert.equal(api.updateAccountRoles("clinician", []).allowed, false);
   assert.equal(api.updateAccountRoles("clinician", ["constructor"]).allowed, false);
   assert.equal(api.updateAccountRoles("admin", ["staff"]).allowed, false);
@@ -124,4 +127,14 @@ test("legacy single-role assignments migrate without authorizing extra roles", (
   const { api } = setup("clinician", storage);
   assert.equal(api.setCurrentRole("clinician").role, "midlevel");
   assert.deepEqual(JSON.parse(storage.get(storageKey)).accountRoles.clinician, ["midlevel"]);
+});
+
+test("Elena defaults to Provider and Admin with only the active role's permissions", () => {
+  const { api, storage } = setup("clinician");
+  assert.equal(api.getVisibleSections("overview").roleManagementSection, false);
+  assert.equal(api.setCurrentRole("admin").role, "admin");
+  assert.equal(api.getVisibleSections("overview").roleManagementSection, true);
+  assert.deepEqual(JSON.parse(storage.get(storageKey)).accountRoles.clinician, ["clinician", "admin"]);
+  assert.equal(api.setCurrentRole("clinician").role, "clinician");
+  assert.equal(api.getVisibleSections("overview").roleManagementSection, false);
 });

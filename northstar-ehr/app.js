@@ -9,8 +9,16 @@ const demoAccounts = [
 
 const rolePermissions = {
   clinician: {
-    label: "Clinician",
+    label: "Provider",
     actions: ["encounter:create", "workflow:update", "order:create", "document:create", "appointment:complete", "task:complete", "patient:select", "report:export", "data:import"]
+  },
+  midlevel: {
+    label: "Midlevel (PA / NP)",
+    actions: ["encounter:create", "workflow:update", "order:create", "document:create", "appointment:complete", "task:complete", "patient:select", "report:export", "data:import"]
+  },
+  staff: {
+    label: "Staff",
+    actions: ["appointment:complete", "patient:select"]
   },
   nurse: {
     label: "Nurse",
@@ -18,7 +26,7 @@ const rolePermissions = {
   },
   admin: {
     label: "Admin",
-    actions: ["appointment:cancel", "appointment:complete", "patient:select", "report:export", "data:import", "audit:view", "billing:view"]
+    actions: ["appointment:cancel", "appointment:complete", "patient:select", "report:export", "data:import", "audit:view", "billing:view", "roles:manage"]
   }
 };
 
@@ -951,7 +959,8 @@ function normalizeAuditEntry(entry) {
 
 function normalizeCurrentUser(user) {
   const account = demoAccounts.find((demoAccount) => demoAccount.id === user?.accountId);
-  const role = rolePermissions[user?.role] ? user.role : account?.role || "clinician";
+  const authorizedRoles = account ? accountRoles[account.id] : ["clinician"];
+  const role = authorizedRoles.includes(user?.role) ? user.role : authorizedRoles[0];
   return {
     accountId: account?.id || null,
     label: account?.displayName || rolePermissions[role].label,
@@ -1094,9 +1103,11 @@ let staffDirectory = loadStaffDirectory();
 let selectedPatientId = loadSelectedPatient(patients);
 let selectedProfile = loadWorkspacePreference("selectedProfile", { type: "staff", id: staffDirectory[0]?.id || "" });
 let activeDemoAccount = loadDemoSession();
+let accountRoles = loadAccountRoles();
 let currentUser = loadCurrentUser(activeDemoAccount);
 let auditTrail = loadAuditTrail();
 let currentView = loadCurrentView();
+if (currentView === "profiles" && selectedProfile.type === "patient") currentView = "patient-profiles";
 let nursingFilter = loadWorkspacePreference("nursingFilter", currentUser.role === "nurse" ? currentUser.label : "all");
 let workspaceEventsAttached = false;
 
@@ -1109,6 +1120,7 @@ function saveState() {
     selectedProfile,
     nursingFilter,
     currentUser,
+    accountRoles,
     auditTrail,
     currentView
   }));
@@ -1134,8 +1146,30 @@ function getSelectedPatient() {
   return patients.find((patient) => patient.id === selectedPatientId) || patients[0];
 }
 
+function loadAccountRoles() {
+  const saved = loadWorkspacePreference("accountRoles", {});
+  const roles = Object.fromEntries(demoAccounts.map((account) => {
+    const value = saved?.[account.id];
+    const candidates = Array.isArray(value) ? value : [value];
+    const authorized = [...new Set(candidates.filter(isValidRole))];
+    return [account.id, authorized.length ? authorized : [account.role]];
+  }));
+  if (!Object.values(roles).some((authorized) => authorized.includes("admin"))) {
+    roles.admin.push("admin");
+  }
+  return roles;
+}
+
 function getRoleLabel(role) {
   return rolePermissions[role]?.label || role;
+}
+
+function isValidRole(role) {
+  return typeof role === "string" && Object.hasOwn(rolePermissions, role);
+}
+
+function formatRoleList(roles) {
+  return roles.map(getRoleLabel).join(", ");
 }
 
 function hasPermission(role, action) {
@@ -1174,17 +1208,51 @@ function evaluatePermission(role, action, patientName) {
 }
 
 function setCurrentRole(role) {
-  const nextUser = normalizeCurrentUser({ accountId: currentUser.accountId, role });
-  currentUser = nextUser;
-  appendAuditEntry({
-    action: "role:switch",
-    patientName: "System",
-    details: `Switched active role to ${nextUser.label}.`,
-    actorRole: nextUser.role,
-    actorLabel: nextUser.label
-  });
+  if (!accountRoles[currentUser.accountId]?.includes(role)) {
+    recordAudit("role:switch:denied", "System", `Attempted to activate an unauthorized role: ${String(role)}.`);
+    saveState();
+    return currentUser;
+  }
+  if (currentUser.role === role) return currentUser;
+  recordAudit("role:switch", "System", `Switched active role from ${getRoleLabel(currentUser.role)} to ${getRoleLabel(role)}.`);
+  currentUser = normalizeCurrentUser({ ...currentUser, role });
+  if (role === "nurse") nursingFilter = currentUser.label;
   saveState();
   return currentUser;
+}
+
+function updateAccountRole(accountId, role) {
+  return updateAccountRoles(accountId, [role]);
+}
+
+function updateAccountRoles(accountId, roles) {
+  const permission = evaluatePermission(currentUser.role, "roles:manage", "System");
+  if (!permission.allowed) {
+    appendAuditEntry(permission.audit);
+    saveState();
+    return permission;
+  }
+  const account = demoAccounts.find((item) => item.id === accountId);
+  if (!account || !Array.isArray(roles) || !roles.length
+      || !roles.every(isValidRole)) {
+    recordAudit("roles:manage:denied", "System", "Invalid account or role assignment.");
+    saveState();
+    return { allowed: false, message: "Select a valid sign-in account and at least one authorized role." };
+  }
+  const authorizedRoles = [...new Set(roles)];
+  const previousRoles = accountRoles[accountId];
+  if (previousRoles.includes("admin") && !authorizedRoles.includes("admin")
+      && Object.values(accountRoles).filter((item) => item.includes("admin")).length === 1) {
+    recordAudit("roles:manage:denied", "System", "Attempted to remove the last Admin role.");
+    saveState();
+    return { allowed: false, message: "Keep at least one Admin account. Assign another Admin before changing this role." };
+  }
+  recordAudit("roles:manage", "System", `Changed ${account.displayName}'s authorized roles from ${formatRoleList(previousRoles)} to ${formatRoleList(authorizedRoles)}.`);
+  accountRoles[accountId] = authorizedRoles;
+  currentUser = normalizeCurrentUser(currentUser);
+  if (currentUser.role === "nurse") nursingFilter = currentUser.label;
+  saveState();
+  return { allowed: true, message: `${account.displayName}'s authorized roles are now ${formatRoleList(authorizedRoles)}.` };
 }
 
 function setCurrentView(view) {
@@ -1314,15 +1382,16 @@ function getDetailCardsForView(patient, openTasks) {
 }
 
 function getVisibleSections(view) {
-  const extendedViews = ["admissions", "nursing", "departments", "locations", "staff", "profiles"];
+  const extendedViews = ["admissions", "nursing", "departments", "locations", "staff", "profiles", "patient-profiles"];
   return {
     overviewSection: view === "overview",
-    admittedCensusSection: view === "overview",
+    operationsOverviewSection: view === "overview",
+    roleManagementSection: view === "overview" && hasPermission(currentUser.role, "roles:manage"),
     extendedSection: extendedViews.includes(view),
-    recordsSection: view === "overview" || view === "patients" || view === "labs" || view === "billing",
-    operationsSection: view === "overview" || view === "appointments" || view === "billing",
-    encounterSection: view === "overview" || view === "patients" || view === "labs",
-    auditSection: view === "overview" || view === "billing" || view === "appointments",
+    recordsSection: view === "patients" || view === "labs" || view === "billing",
+    operationsSection: view === "appointments" || view === "billing",
+    encounterSection: view === "patients" || view === "labs",
+    auditSection: (view === "overview" || view === "billing" || view === "appointments") && hasPermission(currentUser.role, "audit:view"),
     clinicalSection: ["clinical", "orders", "documents"].includes(view)
   };
 }
@@ -1334,6 +1403,13 @@ function renderNavigation() {
     if (active) item.setAttribute("aria-current", "page");
     else item.removeAttribute("aria-current");
   });
+  const patientsMenu = document.getElementById("patientsMenu");
+  const patientView = Boolean(patientsMenu.querySelector(`[data-view="${currentView}"]`));
+  patientsMenu.dataset.active = String(patientView);
+  if (patientView) patientsMenu.open = true;
+  const heading = document.querySelector(".topbar h2");
+  const activeLink = [...document.querySelectorAll(".nav-link")].find((item) => item.dataset.view === currentView);
+  heading.textContent = activeLink?.textContent || "Overview";
 }
 
 function scrollToWorkspaceTop() {
@@ -1397,6 +1473,7 @@ function isCriticalFollowup(patient) {
 
 function setStatFilter(filter) {
   activeStatFilter = STAT_FILTERS[filter] && filter !== activeStatFilter ? filter : null;
+  if (STAT_FILTERS[filter]) currentView = "patients";
   render();
 }
 
@@ -1808,8 +1885,41 @@ function renderAdmissionTable(container, admittedPatients) {
     </table>` : '<p class="empty-state">No active admissions. Update a patient encounter disposition to add an admission.</p>';
 }
 
-function renderOverviewAdmissions() {
-  renderAdmissionTable(document.getElementById("overviewAdmissions"), getAdmittedPatients());
+function renderOperationsOverview() {
+  const openOrders = patients.reduce((total, patient) =>
+    total + patient.orders.filter((order) => !["Completed", "Cancelled"].includes(order.status)).length, 0);
+  const summaries = [
+    ["Active admissions", getAdmittedPatients().length],
+    ["Care departments", departments.length],
+    ["Active team members", staffDirectory.filter((staff) => staff.status === "Active").length],
+    ["Open orders", openOrders]
+  ];
+  document.getElementById("operationsOverview").innerHTML = `
+    <p class="overview-welcome">Welcome, ${escapeHtml(currentUser.label)} <span class="pill">${escapeHtml(getRoleLabel(currentUser.role))}</span></p>
+    <p class="muted-copy">Open Patients for charts and care workflows, or Organization for team and location information.</p>
+    <div class="overview-summary">${summaries.map(([label, value]) => `
+      <div><strong>${value}</strong><p>${escapeHtml(label)}</p></div>`).join("")}</div>`;
+}
+
+function renderAccountRoles() {
+  const container = document.getElementById("accountRoles");
+  if (!hasPermission(currentUser.role, "roles:manage")) {
+    container.replaceChildren();
+    return;
+  }
+  container.innerHTML = demoAccounts.map((account) => `
+    <form class="account-role-form" data-account-id="${account.id}">
+      <div class="account-role-heading">
+        <h4>${escapeHtml(account.displayName)}</h4>
+        <p>${escapeHtml(account.username)}</p>
+      </div>
+        <fieldset class="authorized-role-options">
+          <legend>Authorized roles for ${escapeHtml(account.displayName)}</legend>
+          ${Object.entries(rolePermissions).map(([role, settings]) =>
+            `<label><input type="checkbox" name="roles" value="${role}" ${accountRoles[account.id].includes(role) ? "checked" : ""}>${escapeHtml(settings.label)}</label>`).join("")}
+        </fieldset>
+        <button class="ghost-btn" type="submit">Save roles</button>
+    </form>`).join("");
 }
 
 function renderDashboardStats() {
@@ -1832,12 +1942,18 @@ function renderDashboardStats() {
 function renderRoleSummary() {
   const roleValue = document.getElementById("roleValue");
   const roleHelp = document.getElementById("roleHelp");
-  const roleSelector = document.getElementById("roleSelector");
-  if (!roleValue || !roleHelp || !roleSelector) return;
+  if (!roleValue || !roleHelp) return;
 
   roleValue.textContent = `${currentUser.label} · ${rolePermissions[currentUser.role].label}`;
-  roleHelp.textContent = "Demo-only capabilities; this selection does not authenticate users or enforce access permissions.";
+  roleHelp.textContent = hasPermission(currentUser.role, "roles:manage")
+    ? "Switch among your authorized roles, or manage account roles in Overview. Demo permissions only."
+    : "Switch only among roles authorized by an Admin. Demo permissions only.";
+  const roleSelector = document.getElementById("roleSelector");
+  const authorizedRoles = accountRoles[currentUser.accountId] || [currentUser.role];
+  roleSelector.innerHTML = authorizedRoles.map((role) =>
+    `<option value="${role}">${escapeHtml(getRoleLabel(role))}</option>`).join("");
   roleSelector.value = currentUser.role;
+  roleSelector.disabled = authorizedRoles.length < 2;
 }
 
 function getFilterDetail(patient) {
@@ -2434,12 +2550,18 @@ function renderStaffView(container) {
             <button class="primary-btn" type="submit">Add to demo directory</button>
             <p class="form-caution">Profiles are fictional directory records only. Adding a profile does not create an account or grant access.</p>
           </form>
-        </details>` : '<p class="form-caution">To add a fictional staff directory entry, switch to the Admin demo role. This is not access control and does not create a user account.</p>'}
+        </details>` : '<p class="form-caution">Sign in with an Admin account to add a fictional staff directory entry. This does not create a sign-in account.</p>'}
       <div class="directory-grid">${staffCards}</div>
     </div>`;
 }
 
 function renderProfilesView(container) {
+  const profileType = currentView === "patient-profiles" ? "patient" : "staff";
+  if (selectedProfile.type !== profileType) {
+    selectedProfile = profileType === "patient"
+      ? { type: "patient", id: selectedPatientId }
+      : { type: "staff", id: staffDirectory[0]?.id || "" };
+  }
   const currentStaff = staffDirectory.find((staff) => staff.id === selectedProfile.id);
   const currentPatient = patients.find((patient) => Number(patient.id) === Number(selectedProfile.id));
   if (selectedProfile.type === "staff" && !currentStaff) selectedProfile = { type: "staff", id: staffDirectory[0]?.id || "" };
@@ -2450,8 +2572,9 @@ function renderProfilesView(container) {
   const selector = `
     <label class="profile-selector">Select a profile
       <select id="profileSelector">
-        <optgroup label="Staff">${staffDirectory.map((staff) => `<option value="staff:${escapeHtml(staff.id)}">${escapeHtml(staff.name)} · ${escapeHtml(staff.role)}</option>`).join("")}</optgroup>
-        <optgroup label="Patients">${patients.map((patient) => `<option value="patient:${escapeHtml(patient.id)}">${escapeHtml(patient.name)} · ${escapeHtml(patient.mrn)}</option>`).join("")}</optgroup>
+        ${profileType === "staff"
+          ? staffDirectory.map((staff) => `<option value="staff:${escapeHtml(staff.id)}">${escapeHtml(staff.name)} · ${escapeHtml(staff.role)}</option>`).join("")
+          : patients.map((patient) => `<option value="patient:${escapeHtml(patient.id)}">${escapeHtml(patient.name)} · ${escapeHtml(patient.mrn)}</option>`).join("")}
       </select>
     </label>`;
   if (!profile) {
@@ -2505,6 +2628,7 @@ function renderExtendedWorkspace() {
     case "locations": renderLocationsView(container); break;
     case "staff": renderStaffView(container); break;
     case "profiles": renderProfilesView(container); break;
+    case "patient-profiles": renderProfilesView(container); break;
     default: container.innerHTML = "";
   }
 }
@@ -2785,7 +2909,8 @@ function render() {
   renderDashboardStats();
   renderPermissions();
   renderGlobalSearch();
-  renderOverviewAdmissions();
+  renderOperationsOverview();
+  renderAccountRoles();
   renderExtendedWorkspace();
   renderPatientList();
   renderPatientDetail();
@@ -2923,7 +3048,7 @@ function attachEvents() {
     if (searchType === "patient") {
       selectedPatientId = Number(searchId);
       selectedProfile = { type: "patient", id: selectedPatientId };
-      setCurrentView("profiles");
+      setCurrentView("patient-profiles");
     } else if (searchType === "staff") {
       selectedProfile = { type: "staff", id: searchId };
       setCurrentView("profiles");
@@ -2943,11 +3068,7 @@ function attachEvents() {
     const card = event.target.closest(".patient-card");
     if (card) handlePatientSelection(card.dataset.id);
   });
-  document.getElementById("overviewAdmissions").addEventListener("click", (event) => {
-    const patientButton = event.target.closest("[data-open-patient]");
-    if (patientButton) openPatientChart(patientButton.dataset.openPatient);
-  });
-  document.getElementById("admittedCensusSection").addEventListener("click", (event) => {
+  document.getElementById("operationsOverviewSection").addEventListener("click", (event) => {
     if (event.target.closest("[data-open-view]")) {
       setCurrentView("admissions");
       render();
@@ -2982,7 +3103,7 @@ function attachEvents() {
     if (event.target.id !== "staffForm") return;
     event.preventDefault();
     if (currentUser.role !== "admin") {
-      document.getElementById("encounterStatus").textContent = "Switch to the Admin demo role to add a staff directory entry.";
+      document.getElementById("encounterStatus").textContent = "Sign in with an Admin account to add a staff directory entry.";
       return;
     }
     const formData = new FormData(event.target);
@@ -3023,11 +3144,22 @@ function attachEvents() {
     scrollToWorkspaceTop();
   });
 
-  document.getElementById("roleSelector").addEventListener("change", (event) => {
-    const nextUser = setCurrentRole(event.target.value);
-    if (nextUser.role === "nurse") nursingFilter = nextUser.label;
-    document.getElementById("encounterStatus").textContent = `Active role switched to ${nextUser.label}.`;
+  document.getElementById("accountRoles").addEventListener("submit", (event) => {
+    const form = event.target.closest("[data-account-id]");
+    if (!form) return;
+    event.preventDefault();
+    const result = updateAccountRoles(form.dataset.accountId, new FormData(form).getAll("roles"));
     render();
+    document.getElementById("accountRoleStatus").textContent = result.message;
+  });
+
+  document.getElementById("roleSelector").addEventListener("change", (event) => {
+    const role = event.target.value;
+    const nextUser = setCurrentRole(role);
+    render();
+    document.getElementById("roleSwitchStatus").textContent = nextUser.role === role
+      ? `Active role: ${getRoleLabel(role)}.`
+      : "That role is not authorized for your account.";
   });
 
   document.getElementById("encounterForm").addEventListener("submit", handleEncounterSubmit);
@@ -3187,7 +3319,11 @@ function handleLoginSubmit(event) {
     return;
   }
   activeDemoAccount = account;
-  currentUser = normalizeCurrentUser({ accountId: account.id, role: account.role });
+  currentUser = loadCurrentUser(account);
+  currentView = "overview";
+  activeStatFilter = null;
+  document.getElementById("roleSwitchStatus").textContent = "";
+  document.getElementById("accountRoleStatus").textContent = "";
   if (currentUser.role === "nurse") nursingFilter = currentUser.label;
   error.textContent = "";
   form.reset();
@@ -3232,6 +3368,9 @@ const appApi = {
   normalizePatient,
   parseVitalsInput,
   setCurrentRole,
+  updateAccountRole,
+  updateAccountRoles,
+  getVisibleSections,
   updateOrderStatus,
   updateAppointmentStatus,
   updateWorkflowForPatient

@@ -73,24 +73,27 @@
           <div class="nav-group">
             <p class="nav-group-title">Workspace</p>
             <button class="nav-link active" type="button" data-view="overview">Overview</button>
-            <button class="nav-link" type="button" data-view="patients">Patients</button>
-            <button class="nav-link" type="button" data-view="admissions">Admissions</button>
-            <button class="nav-link" type="button" data-view="nursing">Nursing station</button>
-            <button class="nav-link" type="button" data-view="appointments">Appointments</button>
           </div>
-          <div class="nav-group">
-            <p class="nav-group-title">Care delivery</p>
-            <button class="nav-link" type="button" data-view="clinical">ED & Inpatient</button>
-            <button class="nav-link" type="button" data-view="orders">Orders</button>
-            <button class="nav-link" type="button" data-view="documents">Notes & Documents</button>
-            <button class="nav-link" type="button" data-view="labs">Labs & Meds</button>
-          </div>
+          <details id="patientsMenu" class="nav-group patients-menu">
+            <summary>Patients</summary>
+            <div class="nav-submenu">
+              <button class="nav-link" type="button" data-view="patients">Worklist &amp; charts</button>
+              <button class="nav-link" type="button" data-view="patient-profiles">Patient profiles</button>
+              <button class="nav-link" type="button" data-view="admissions">Admissions</button>
+              <button class="nav-link" type="button" data-view="nursing">Nursing station</button>
+              <button class="nav-link" type="button" data-view="appointments">Appointments</button>
+              <button class="nav-link" type="button" data-view="clinical">ED & Inpatient</button>
+              <button class="nav-link" type="button" data-view="orders">Orders</button>
+              <button class="nav-link" type="button" data-view="documents">Notes & Documents</button>
+              <button class="nav-link" type="button" data-view="labs">Labs & Meds</button>
+            </div>
+          </details>
           <div class="nav-group">
             <p class="nav-group-title">Organization</p>
             <button class="nav-link" type="button" data-view="departments">Departments</button>
             <button class="nav-link" type="button" data-view="locations">Locations</button>
             <button class="nav-link" type="button" data-view="staff">Staff directory</button>
-            <button class="nav-link" type="button" data-view="profiles">Profiles</button>
+            <button class="nav-link" type="button" data-view="profiles">Staff profiles</button>
           </div>
           <div class="nav-group">
             <p class="nav-group-title">Administration</p>
@@ -105,15 +108,12 @@
         </div>
 
         <div class="sidebar-card role-card">
-          <h3>Demo Role (Not Access Control)</h3>
-          <p id="roleValue">Clinician</p>
-          <span id="roleHelp" class="role-help">This demo selector does not authenticate users or protect patient data.</span>
-          <label for="roleSelector" class="role-label">Change demo role</label>
-          <select id="roleSelector">
-            <option value="clinician">Clinician</option>
-            <option value="nurse">Nurse</option>
-            <option value="admin">Admin</option>
-          </select>
+          <h3>Signed-in account</h3>
+          <p id="roleValue">Provider</p>
+          <span id="roleHelp" class="role-help">Demo-only permissions. Admins manage account roles from Overview.</span>
+          <label for="roleSelector" class="role-label">Active role</label>
+          <select id="roleSelector" aria-describedby="roleHelp"></select>
+          <span id="roleSwitchStatus" class="role-switch-status" role="status" aria-live="polite"></span>
           <button id="signOutBtn" class="sign-out-btn" type="button">Sign out</button>
         </div>
       </aside>
@@ -174,15 +174,28 @@
           </button>
         </section>
 
-        <section id="admittedCensusSection" class="panel view-section">
+        <section id="operationsOverviewSection" class="panel view-section">
           <div class="panel-header">
             <div>
-              <p class="eyebrow">Inpatient census</p>
-              <h3>Current admissions</h3>
+              <p class="eyebrow">Workspace at a glance</p>
+              <h3>Operations overview</h3>
             </div>
             <button class="ghost-btn" type="button" data-open-view="admissions">View all admissions</button>
           </div>
-          <div id="overviewAdmissions" class="table-wrap"></div>
+          <div id="operationsOverview"></div>
+          <p id="accountRoleStatus" class="status-message" role="status" aria-live="polite"></p>
+        </section>
+
+        <section id="roleManagementSection" class="panel view-section hidden-section" aria-labelledby="roleManagementTitle">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Administration</p>
+              <h3 id="roleManagementTitle">Account roles</h3>
+            </div>
+          </div>
+          <p class="muted-copy">Authorize one or more roles per account. Users switch roles with the sidebar’s Active role selector.</p>
+          <div id="accountRoles" class="account-role-grid"></div>
+          <p class="form-caution">Browser-local demo permissions only, not server-enforced authorization. Directory profiles do not create sign-in accounts.</p>
         </section>
 
         <section id="extendedSection" class="view-section hidden-section" aria-live="polite">

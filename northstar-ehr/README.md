@@ -8,7 +8,9 @@ A responsive electronic health record demonstration covering patient charts, eme
 
 ## Features
 
-- Data exchange: export the selected patient or all patients as Northstar JSON, an Epic-compatible HL7 FHIR R4 or R5 Bundle (Patient, Condition, AllergyIntolerance, MedicationRequest, Observation, DiagnosticReport, Appointment, DocumentReference), or a CSV roster; import any of these (auto-detected) and upsert by MRN. Import requires the `data:import` permission (Clinician, Admin). File-based only: no live Epic connection or OAuth.
+- Data exchange: export the selected patient or all patients as Northstar JSON, an Epic-compatible HL7 FHIR R4 or R5 Bundle (Patient, Condition, AllergyIntolerance, MedicationRequest, Observation, DiagnosticReport, Appointment, DocumentReference), or a CSV roster; import any of these (auto-detected) and upsert by MRN. Import requires the `data:import` permission (Provider, Midlevel, Admin). File-based only: no live Epic connection or OAuth.
+- Aggregate Overview with chart activity, admission, department, team, and open-order counts; Admin-only authorized-role management with a last-Admin safeguard, plus user switching among their authorized roles
+- Expandable Patients menu groups charts, admissions, nursing, appointments, encounters, orders, notes, and labs for provider and midlevel workflows
 - Patient worklist with 23 fictional patient charts, searchable diagnoses, demographics, histories, allergies, medications, labs, and vitals
 - Admissions census dashboard with patient, diagnosis, department, location, attending, nurse, priority, and encounter stage for every active sample admission
 - Nursing station dashboard with nurse assignment filtering, patient location, demographics, diagnosis, observations, allergies, and direct chart navigation
@@ -57,6 +59,12 @@ Then browse to http://localhost:8000.
 
 ## Test the project
 
+Run the focused workflow and role tests with Node.js 18 or newer:
+
+```bash
+node --test northstar-ehr/app.test.js
+```
+
 Run the repository-wide test suite from the project root:
 
 ```bash
@@ -65,7 +73,7 @@ Run the repository-wide test suite from the project root:
 
 ## Security status and important limitations
 
-This is a public, browser-only prototype with fictional sample patients and illustrative imaging text. **Its client-side demo sign-in is not real authentication, and there is no server-enforced authorization or HIPAA safeguard.** Data is stored in browser local storage and is not protected, backed up, or shared with a care team. Role selection is a demonstration control, not access control. Do not enter, import, or export real patient information or use this application to make or document clinical decisions. Orders and notes are not sent to clinical systems, and medications are not prescribed.
+This is a public, browser-only prototype with fictional sample patients and illustrative imaging text. **Its client-side demo sign-in is not real authentication, and there is no server-enforced authorization or HIPAA safeguard.** Data is stored in browser local storage and is not protected, backed up, or shared with a care team. Admin-managed roles are browser-local demonstration settings, not trusted access control. Do not enter, import, or export real patient information or use this application to make or document clinical decisions. Orders and notes are not sent to clinical systems, and medications are not prescribed.
 
 Signing out ends the tab's demo session only; it does not protect or clear locally stored data.
 

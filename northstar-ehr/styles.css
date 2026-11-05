@@ -314,6 +314,136 @@ textarea {
   gap: 3px;
 }
 
+.patients-menu {
+  display: block;
+}
+
+.patients-menu > summary {
+  padding: 10px 12px;
+  min-height: 42px;
+  color: #cbd5e1;
+  cursor: pointer;
+  border-radius: 9px;
+}
+.patients-menu[data-active="true"] > summary {
+  color: #fff;
+  background: rgba(59, 130, 246, 0.16);
+}
+
+.patients-menu > summary:hover {
+  background: rgba(148, 163, 184, 0.15);
+}
+
+.nav-submenu {
+  display: grid;
+  gap: 3px;
+  padding-left: 12px;
+}
+
+.overview-welcome {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+.overview-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.overview-summary > div {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+}
+
+.overview-summary strong {
+  display: block;
+  font-size: 1.5rem;
+}
+
+.overview-summary p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.account-role-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.account-role-form {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.account-role-heading h4 {
+  margin: 0;
+}
+
+.account-role-heading p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.authorized-role-options {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.authorized-role-options legend {
+  margin-bottom: 10px;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.authorized-role-options label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  cursor: pointer;
+}
+
+.authorized-role-options input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  padding: 0;
+  flex-shrink: 0;
+  accent-color: var(--accent);
+}
+
+.account-role-form > button {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+#accountRoleStatus:empty,
+#roleSwitchStatus:empty {
+  display: none;
+}
+
 .nav-group-title {
   margin: 0 0 4px;
   padding: 0 12px;
@@ -396,6 +526,11 @@ textarea {
   color: #cbd5e1;
   font-size: 0.88rem;
   line-height: 1.5;
+}
+
+.role-switch-status {
+  color: #cbd5e1;
+  font-size: 0.8rem;
 }
 
 .role-label {
@@ -1947,6 +2082,7 @@ textarea:focus-visible {
   .nav-links {
     width: 100%;
     flex-direction: row;
+    flex-wrap: wrap;
     gap: 8px;
     overflow-x: auto;
     padding-bottom: 4px;
@@ -1955,6 +2091,9 @@ textarea:focus-visible {
   .nav-group {
     display: contents;
   }
+
+  .patients-menu { display: block; flex: 0 0 100%; }
+  .patients-menu .nav-submenu { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
 
   .nav-group-title {
     display: none;
@@ -2002,6 +2141,10 @@ textarea:focus-visible {
 
   .role-card select {
     min-width: 125px;
+  }
+
+  .role-switch-status {
+    grid-column: 1 / -1;
   }
 
   .topbar,
@@ -2311,6 +2454,15 @@ h4.collapse-head .collapse-toggle {
 
   .role-card .sign-out-btn {
     flex: 0 0 auto;
+  }
+
+  .role-card:has(.role-switch-status:not(:empty)) {
+    flex-wrap: wrap;
+  }
+
+  .role-card .role-switch-status:not(:empty) {
+    flex: 0 0 100%;
+    order: 1;
   }
 
   .sign-out-btn {

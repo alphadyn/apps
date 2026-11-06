@@ -246,7 +246,7 @@ test('shows an empty removed list and handles the final restoration without forc
 test('restoration made before the shared list loads is not undone by synchronization', async () => {
   let resolveDatabase;
   const app = setup(async () => ({ ok: true }), new Map([['signal.removedTrends', '["nasa"]']]), {
-    supabaseFetch: (url, options) => options.method === 'GET'
+    supabaseFetch: (url, options) => (options.method || 'GET') === 'GET'
       ? new Promise((resolve) => { resolveDatabase = resolve; })
       : Promise.resolve({ ok: true }),
   });

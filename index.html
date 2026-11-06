@@ -47,17 +47,8 @@
     .apps { display: grid; grid-template-columns: repeat(auto-fit, minmax(245px, 1fr)); gap: 14px; }
     .app { position: relative; display: flex; flex-direction: column; min-height: 150px; padding: 22px; background: color-mix(in srgb, var(--panel) 90%, transparent); border: 1px solid var(--line); border-radius: 10px; text-decoration: none; color: inherit; transition: transform .18s ease, border-color .18s ease, background .18s ease; }
     .app:hover, .app:focus-visible { transform: translateY(-4px); border-color: var(--accent); background: #1b2946; outline: none; }
-    .app-brand, .app-brand-image { position: absolute; top: 44px; right: 22px; display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; margin: 0; border: 1px solid var(--line); border-radius: 11px; background: rgba(11, 16, 32, .46); color: var(--accent); font-size: 1.1rem; font-weight: 800; line-height: 1; }
-    .app-brand-image { display: block; object-fit: cover; }
-    .app:has(> .app-brand, > .app-brand-image) h2 { min-height: 42px; margin-right: 56px; display: flex; align-items: center; }
-    .app-brand-pulse { color: #d6f36b; font-size: 1.7rem; }
-    .app-brand-nexus { color: #8aa7ff; font-size: 1.8rem; }
-    .app-brand-atlas { border-radius: 50%; background: #f4ead9; color: #17212b; font-family: Georgia, serif; font-size: 1.35rem; }
-    .app-brand-meetings { background: #162d31; }
-    .app-brand-meetings::before { width: 12px; height: 12px; border-radius: 50%; background: #6ee7d2; box-shadow: 0 0 14px rgba(110, 231, 210, .8); content: ""; }
-    .app-brand-ehr { background: #e7f6ef; color: #167b58; font-size: 1.7rem; }
-    .app-brand-northstar { background: #172b40; color: #64d1ff; }
-    .app-brand-legal { background: #172b40; color: #8aa7ff; font-size: 1.45rem; }
+    .app-brand-image { position: absolute; top: 44px; right: 22px; display: block; width: 42px; height: 42px; margin: 0; border: 1px solid var(--line); border-radius: 11px; background: rgba(11, 16, 32, .46); object-fit: cover; }
+    .app:has(> .app-brand-image) h2 { min-height: 42px; margin-right: 56px; display: flex; align-items: center; }
     .app strong { color: var(--accent); font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; }
     .app h2 { margin: 10px 0 6px; font-size: 1.15rem; }
     .app p { margin: 0; color: var(--muted); font-size: .92rem; }
@@ -90,8 +81,8 @@
       <div class="apps">
         <a class="app" href="https://alphadyn.github.io/apps/sp-insights/"><img class="app-brand-image" src="sp-insights/favicon.svg" alt="" /><strong>Markets</strong><h2>S&amp;P Insights</h2><p>Screen S&amp;P 500 securities by valuation, earnings, and nine performance periods, with sortable results and price-history charts.</p></a>
         <a class="app" href="https://alphadyn.github.io/apps/signal/"><img class="app-brand-image" src="signal/assets/favicon.svg" alt="" /><strong>News</strong><h2>Signal</h2><p>Explore Google News headlines, filter by ranked trends, manage shared removed keywords, and export captures as JSON.</p></a>
-        <a class="app" href="https://alphadyn.github.io/apps/pulse/"><span class="app-brand app-brand-pulse" aria-hidden="true">◎</span><strong>Social</strong><h2>Pulse</h2><p>Share tagged posts and media, vote, and join threaded discussions with public profiles and moderation.</p></a>
-        <a class="app" href="https://alphadyn.github.io/apps/northstar-ehr/"><span class="app-brand app-brand-northstar" aria-hidden="true">✦</span><strong>EHR</strong><h2>Northstar EHR</h2><p>Responsive electronic health record demo for patient care workflows.</p></a>
+        <a class="app" href="https://alphadyn.github.io/apps/pulse/"><img class="app-brand-image" src="pulse/app-icon.svg" alt="" /><strong>Social</strong><h2>Pulse</h2><p>Share tagged posts and media, vote, and join threaded discussions with public profiles and moderation.</p></a>
+        <a class="app" href="https://alphadyn.github.io/apps/northstar-ehr/"><img class="app-brand-image" src="northstar-ehr/favicon.svg" alt="" /><strong>EHR</strong><h2>Northstar EHR</h2><p>Responsive electronic health record demo for patient care workflows.</p></a>
       </div>
     </section>
     <section class="catalog-section" aria-labelledby="catalog-heading">
@@ -102,19 +93,19 @@
         </div>
       </div>
       <div class="apps" aria-label="Catalog of available applications">
-        <a class="app" href="https://alphadyn.github.io/apps/earth-3d-explorer/"><span class="app-brand app-brand-earth" aria-hidden="true">◉</span><strong>3D</strong><h2>3D Earth Explorer</h2><p>Interactive globe with country overlays.</p></a>
-        <a class="app" href="https://alphadyn.github.io/apps/atlas-store/"><span class="app-brand app-brand-atlas" aria-hidden="true">A</span><strong>Commerce</strong><h2>Atlas Store</h2><p>Branded online store with product tiles, encrypted cart storage, and checkout.</p></a>
+        <a class="app" href="https://alphadyn.github.io/apps/earth-3d-explorer/"><img class="app-brand-image" src="earth-3d-explorer/app-icon.svg" alt="" /><strong>3D</strong><h2>3D Earth Explorer</h2><p>Interactive globe with country overlays.</p></a>
+        <a class="app" href="https://alphadyn.github.io/apps/atlas-store/"><img class="app-brand-image" src="atlas-store/app-icon.svg" alt="" /><strong>Commerce</strong><h2>Atlas Store</h2><p>Branded online store with product tiles, encrypted cart storage, and checkout.</p></a>
         <a class="app" href="https://alphadyn.github.io/apps/contact-card-generator/"><img class="app-brand-image" src="contact-card-generator/favicon.svg" alt="" /><strong>Utility</strong><h2>Contact Card Generator</h2><p>Create vCard contact files and QR codes with optional profile photos.</p></a>
         <a class="app" href="https://alphadyn.github.io/apps/experiences/"><img class="app-brand-image" src="experiences/assets/experiences-favicon.svg" alt="" /><strong>Maps</strong><h2>Experiences</h2><p>Private trip journal with shareable Experiences, named Events, precise location pinning, and media carousels.</p></a>
-        <a class="app" href="https://alphadyn.github.io/apps/fractals/"><span class="app-brand app-brand-fractals" aria-hidden="true">❋</span><strong>Visuals</strong><h2>Fractals</h2><p>Interactive fractal visualizer.</p></a>
-        <a class="app" href="https://alphadyn.github.io/apps/lexhaven-legal-docketing/"><span class="app-brand app-brand-legal" aria-hidden="true">⚖</span><strong>Operations</strong><h2>Lexhaven Legal Docketing</h2><p>Matter and deadline tracking.</p></a>
+        <a class="app" href="https://alphadyn.github.io/apps/fractals/"><img class="app-brand-image" src="fractals/app-icon.svg" alt="" /><strong>Visuals</strong><h2>Fractals</h2><p>Interactive fractal visualizer.</p></a>
+        <a class="app" href="https://alphadyn.github.io/apps/lexhaven-legal-docketing/"><img class="app-brand-image" src="lexhaven-legal-docketing/favicon.svg" alt="" /><strong>Operations</strong><h2>Lexhaven Legal Docketing</h2><p>Matter and deadline tracking.</p></a>
         <a class="app" href="https://alphadyn.github.io/apps/market-curve-lab/"><img class="app-brand-image" src="market-curve-lab/static/market-curve-mark.svg" alt="" /><strong>Markets</strong><h2>Market Curve Lab</h2><p>Rank all 500 S&amp;P companies, search tickers, and inspect selected-stock performance, trendlines, and concavity.</p></a>
         <a class="app" href="https://alphadyn.github.io/apps/market-lens/"><img class="app-brand-image" src="market-lens/brand-mark.svg" alt="" /><strong>Finance</strong><h2>Market Lens</h2><p>S&amp;P 500 screening dashboard with saved results and transparent Buy/Hold/Sell signals.</p></a>
-        <a class="app" href="https://alphadyn.github.io/apps/meetings/"><span class="app-brand app-brand-meetings" aria-hidden="true"></span><strong>Communication</strong><h2>Meetings</h2><p>Encrypted video meetings with chat, file sharing, fullscreen, and mobile-friendly controls.</p></a>
-        <a class="app" href="https://alphadyn.github.io/apps/nexus/"><span class="app-brand app-brand-nexus" aria-hidden="true">◇</span><strong>Workspace</strong><h2>Nexus</h2><p>Media workspace for organizing, previewing, and managing files.</p></a>
-        <a class="app" href="https://alphadyn.github.io/apps/northstar-ehr/"><span class="app-brand app-brand-northstar" aria-hidden="true">✦</span><strong>EHR</strong><h2>Northstar EHR</h2><p>Responsive electronic health record demo for patient care workflows.</p></a>
-        <a class="app" href="https://alphadyn.github.io/apps/photo-gallery/"><span class="app-brand app-brand-gallery" aria-hidden="true">▧</span><strong>Gallery</strong><h2>Photo Gallery</h2><p>Responsive gallery with random images.</p></a>
-        <a class="app" href="https://alphadyn.github.io/apps/pulse/"><span class="app-brand app-brand-pulse" aria-hidden="true">◎</span><strong>Social</strong><h2>Pulse</h2><p>Share tagged posts and media, vote, and join threaded discussions with public profiles and moderation.</p></a>
+        <a class="app" href="https://alphadyn.github.io/apps/meetings/"><img class="app-brand-image" src="meetings/app-icon.svg" alt="" /><strong>Communication</strong><h2>Meetings</h2><p>Encrypted video meetings with chat, file sharing, fullscreen, and mobile-friendly controls.</p></a>
+        <a class="app" href="https://alphadyn.github.io/apps/nexus/"><img class="app-brand-image" src="nexus/app-icon.svg" alt="" /><strong>Workspace</strong><h2>Nexus</h2><p>Media workspace for organizing, previewing, and managing files.</p></a>
+        <a class="app" href="https://alphadyn.github.io/apps/northstar-ehr/"><img class="app-brand-image" src="northstar-ehr/favicon.svg" alt="" /><strong>EHR</strong><h2>Northstar EHR</h2><p>Responsive electronic health record demo for patient care workflows.</p></a>
+        <a class="app" href="https://alphadyn.github.io/apps/photo-gallery/"><img class="app-brand-image" src="photo-gallery/app-icon.svg" alt="" /><strong>Gallery</strong><h2>Photo Gallery</h2><p>Responsive gallery with random images.</p></a>
+        <a class="app" href="https://alphadyn.github.io/apps/pulse/"><img class="app-brand-image" src="pulse/app-icon.svg" alt="" /><strong>Social</strong><h2>Pulse</h2><p>Share tagged posts and media, vote, and join threaded discussions with public profiles and moderation.</p></a>
         <a class="app" href="https://alphadyn.github.io/apps/sp-insights/"><img class="app-brand-image" src="sp-insights/favicon.svg" alt="" /><strong>Markets</strong><h2>S&amp;P Insights</h2><p>Screen S&amp;P 500 securities by valuation, earnings, and nine performance periods, with sortable results and price-history charts.</p></a>
         <a class="app" href="https://alphadyn.github.io/apps/signal/"><img class="app-brand-image" src="signal/assets/favicon.svg" alt="" /><strong>News</strong><h2>Signal</h2><p>Explore Google News headlines, filter by ranked trends, manage shared removed keywords, and export captures as JSON.</p></a>
         <a class="app" href="https://alphadyn.github.io/apps/vault/"><img class="app-brand-image" src="vault/favicon.svg" alt="" /><strong>Security</strong><h2>Vault</h2><p>Encrypt and decrypt files and folders privately in your browser.</p></a>

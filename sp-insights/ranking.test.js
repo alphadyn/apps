@@ -56,7 +56,7 @@ test('fair-value sorting uses the DCF estimate and puts missing valuations last'
 test('DCF difference is fair value minus price and sorts with missing values last', () => {
   const securities = [
     { symbol: 'A', net_income: 100, net_income_change_1y: 0, market_cap: 1000, price: 10 },
-    { symbol: 'B', net_income: 100, net_income_change_1y: 0, market_cap: 1000, price: 20 },
+    { symbol: 'B', net_income: 100, net_income_change_1y: 0, market_cap: 2000, price: 20 },
     { symbol: 'C', net_income: -1, market_cap: 1000, price: 10 },
   ];
   assert.equal(discountedCashFlowDifference(securities[0]), discountedCashFlowValue(securities[0]) - 10);

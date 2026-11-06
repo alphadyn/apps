@@ -111,7 +111,7 @@ h1 { margin: 0; font-size: clamp(1.9rem, 3.6vw, 2.75rem); font-weight: 800; lett
 
 /* --- Filter Panel --- */
 .filter-panel {
-  padding: 18px 20px;
+  padding: 20px;
   margin-bottom: 16px;
 }
 .filter-panel-head {
@@ -248,29 +248,25 @@ h1 { margin: 0; font-size: clamp(1.9rem, 3.6vw, 2.75rem); font-weight: 800; lett
 }
 .filter-grid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
 }
 .filter-card {
-  grid-column: span 2;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 14px 16px;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface-2);
-}
-.filter-card-ni,
-.filter-card-perf {
-  grid-column: span 3;
+  border-radius: 12px;
+  background: var(--surface);
 }
 .filter-card-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 8px;
-  min-height: 22px;
+  min-height: 24px;
 }
 .filter-range-inputs {
   display: flex;
@@ -279,14 +275,15 @@ h1 { margin: 0; font-size: clamp(1.9rem, 3.6vw, 2.75rem); font-weight: 800; lett
 }
 .input-wrap {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   flex: 1;
   min-width: 0;
-  height: 34px;
+  min-height: 52px;
   border: 1px solid var(--border);
-  border-radius: 7px;
-  background: var(--surface);
-  padding: 0 8px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  padding: 6px 10px;
   transition: border-color .15s, box-shadow .15s;
 }
 .input-wrap:focus-within {
@@ -295,9 +292,8 @@ h1 { margin: 0; font-size: clamp(1.9rem, 3.6vw, 2.75rem); font-weight: 800; lett
 }
 .input-label {
   color: var(--muted);
-  font-size: .72rem;
+  font-size: .68rem;
   font-weight: 600;
-  margin-right: 4px;
   flex: none;
 }
 .input-wrap input {
@@ -305,7 +301,7 @@ h1 { margin: 0; font-size: clamp(1.9rem, 3.6vw, 2.75rem); font-weight: 800; lett
   min-width: 0;
   border: 0;
   background: transparent;
-  font-size: .84rem;
+  font-size: .88rem;
   color: var(--text);
   padding: 0;
 }
@@ -320,15 +316,16 @@ h1 { margin: 0; font-size: clamp(1.9rem, 3.6vw, 2.75rem); font-weight: 800; lett
 .filter-presets {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
+  gap: 6px;
 }
 .preset-chip {
-  padding: 3px 7px;
+  min-height: 28px;
+  padding: 4px 9px;
   border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--surface);
+  border-radius: 7px;
+  background: var(--surface-2);
   color: var(--text-2);
-  font-size: .73rem;
+  font-size: .75rem;
   font-weight: 500;
   transition: all .15s;
 }
@@ -661,11 +658,11 @@ body.detail-open { overflow: hidden; }
 /* --- Responsive --- */
 @media (max-width: 1024px) {
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 760px) {
   :root { --rank-w: 46px; }
   .filter-grid { grid-template-columns: 1fr; }
-  .filter-card, .filter-card-ni, .filter-card-perf { grid-column: span 1; }
   main, .appbar-inner { width: calc(100% - 24px); }
   .appbar-inner { gap: 8px; }
   .hero { padding: 24px 0 16px; }

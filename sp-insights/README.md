@@ -1,25 +1,25 @@
 # S&P Insights
 
-**Deployed application:** [Open the app](https://alphadyn.github.io/apps/S%26P%20Insights/)
+**Deployed application:** [Open the app](https://alphadyn.github.io/apps/sp-insights/)
 
 > S&P 500 ranking and price-history dashboard. See the [repository catalog](../README.md) for shared setup and deployment context.
 
-A static web app that lists every security in the S&P 500 and ranks them by any combination of:
+A static equity screener for every listed S&P 500 security, backed by generated market and price-history snapshots. Filter the constituent table by:
 
-- Market capitalization
-- Year-over-year market cap growth
-- Net income (trailing twelve months)
-- Year-over-year net income growth
-- Price
-- Yearly (1Y) price growth
-- Quarterly (3M) price growth
+- Market capitalization, including shorthand amounts such as `1B`
+- P/E ratio, with a profitable-only option
+- Share price
+- Net income: trailing twelve months, year-over-year growth, or prior fiscal year
+- Price performance across **1W, 1M, 3M, YTD, 1Y, 2Y, 5Y, 10Y, and All**
+- Company name or ticker, and GICS sector
 
-Add criteria in any order (or none — the default is alphabetical by ticker), flip each between *High → Low* and *Low → High*, reorder them, and choose how they combine:
+Use minimum/maximum inputs or presets. Net-income and performance bounds can be applied across multiple periods at once. Active criteria appear as removable chips with the matching-security count. **Hide criteria** keeps the table in focus without clearing filters; **Clear all filters** resets the screen.
 
-- **Priority order** — sort by criterion #1, break ties with #2, and so on.
-- **Average rank** — rank the securities on each criterion separately, then order by the mean rank so every criterion counts equally.
+## Sorting and market summary
 
-Selected columns move to the left of the table in priority order, followed by the remaining columns in their default order. Click a column heading to add it as the next criterion, or click it again to flip its direction. Search and sector filters narrow the table without changing overall ranks. The current ranking is stored in the URL hash (for example `#sort=market_cap:desc,price_change_3m:asc&method=average`) so it can be bookmarked or shared.
+The table initially sorts by market cap, highest first. Click a column heading to sort by that metric, then click again to reverse direction. Rankings apply to the filtered result set. Columns include valuation, price, current and prior net income, income growth, and all nine performance periods.
+
+The selected security, history range, and table sorting are represented in the URL hash. Do not assume that copying the URL preserves all numeric filter inputs.
 
 A summary strip above the controls shows the combined market cap, total TTM net income, median 1Y return (with the leader), and the share of securities trading higher than a year ago. It follows the sector filter. Totals count each issuer once, so multi-class companies are not double-counted.
 
@@ -60,7 +60,7 @@ python3 build_share_pages.py
 | [ranking.js](ranking.js) | Pure ranking, URL-state, and formatting logic |
 | [history.js](history.js), [detail.js](detail.js) | Range math and chart helpers; the security detail view |
 | [share-preview.html](share-preview.html) | Mobile Messages / SMS link preview mockup |
-| [build_share_pages.py](build_share_pages.py), [test_build_share_pages.py](test_build_share_pages.py) | Builds static crawler-readable preview pages for all 503 constituents |
+| [build_share_pages.py](build_share_pages.py), [test_build_share_pages.py](test_build_share_pages.py) | Builds static crawler-readable preview pages for the current constituent list |
 | [generate_social_preview.py](generate_social_preview.py) | Renders `social-preview.png` and `apple-touch-icon.png` |
 | [build_data.py](build_data.py) | Builds `data.json` and `history/*.json` from public sources |
 | [ranking.test.js](ranking.test.js), [history.test.js](history.test.js), [test_build_data.py](test_build_data.py) | Unit tests |
@@ -85,7 +85,10 @@ If an upstream source fails, the committed `data.json` stays in place. In that c
 
 ## Run locally
 
+From this app's folder, install the build dependencies before refreshing the snapshot:
+
 ```bash
+python3 -m pip install -r requirements-build.txt
 python3 build_data.py          # refresh data.json and history/ (~3–4 minutes; needed for charts)
 python3 -m http.server 8000    # then open http://localhost:8000
 ```
@@ -94,5 +97,10 @@ python3 -m http.server 8000    # then open http://localhost:8000
 
 ```bash
 python3 -m unittest discover -s . -p test_build_data.py
+python3 -m unittest discover -s . -p test_build_share_pages.py
 node --test ranking.test.js history.test.js
 ```
+
+## Limitations
+
+This is a research and demonstration tool, not investment advice or a real-time market feed. Check the displayed snapshot timestamp and upstream methodology before interpreting results. Missing data and shorter listing histories affect comparisons; returns exclude dividends.

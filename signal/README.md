@@ -2,9 +2,11 @@
 
 **Deployed application:** [Open the app](https://alphadyn.github.io/apps/signal/)
 
-> A focused news-reading list powered by Google News. Signal collects headlines and related stories, then lets you search and download them as structured JSON. See the [repository catalog](../README.md) for shared setup and deployment context.
+> Google News headlines with ranked trends, search, and JSON export. See the [repository catalog](../README.md) for shared setup and deployment context.
 
-Signal can run as a browser-based page or as a local Flask app. The local app opens Google News in headless Chromium, scrolls the feed to load additional stories, and extracts article titles, links, and related reads. Captures are shown in a responsive interface, can be searched, and can be downloaded as structured JSON. The local app also saves a copy beside itself as `google_news.json`.
+The GitHub Pages app loads a periodically generated Google News RSS snapshot; **Capture today's headlines** loads that snapshot rather than scraping Google News in the browser. Search headlines, select trending terms to filter stories, and download the original capture timestamp and metadata as JSON.
+
+A separate local Flask app opens Google News in headless Chromium, scrolls the feed, and extracts headlines, links, and related reads. It also saves a copy as `google_news.json`. Both interfaces share the trend extractor, but the Pages app's shared removed-keyword management is not part of the Flask UI.
 
 ## Trending names and phrases
 
@@ -26,14 +28,18 @@ On the Pages version, select terms to filter headlines or remove unwanted terms
 from the ranking; removed terms are excluded before selecting the top 20.
 Select **Removed trends**, to the left of **Download JSON**, to search removed
 keywords. Select **+** beside a keyword to restore its eligibility immediately.
-Restored keywords only appear in the top 20 if their headline count qualifies.
-Removed trends are shared across visitors and saved in the Signal Supabase
-project. Run the SQL in [supabase-schema.sql](./supabase-schema.sql) once in the
+Restored keywords only appear in the top 20 if their headline count qualifies. Removed keywords use the same compact pill layout as the ranked terms.
+
+### Shared removed trends
+
+The Pages frontend stores removed keywords in the Supabase `signal_removed_trends`
+table, not in a writable GitHub Pages JSON file. Run the SQL in [supabase-schema.sql](./supabase-schema.sql) once in the
 Supabase SQL Editor to create and seed the public shared list with the current
-removed keywords. Anyone visiting the app
-can remove a trend or restore a keyword; both changes are immediately written
-to the shared table. A local browser cache is used if the database is temporarily
-unavailable, and the page reports when a change could not be shared.
+removed keywords. Configure the project URL and public key in [supabase-config.js](./supabase-config.js); never put a service-role key in the frontend.
+
+Anyone visiting the app can add a removed term or restore one. Successful changes are stored in the shared table and loaded by other visitors when they open or reload the app; there is no live cross-browser subscription. A local browser cache is used if the database is temporarily unavailable, and the page reports when a change could not be shared. A browser-only change is not a successful shared save.
+
+The schema intentionally permits public edits. Do not use this table for private data. Run the seed script only for initial setup: rerunning it can reinsert seeded keywords that users have restored.
 
 ## GitHub Pages
 
@@ -68,7 +74,7 @@ python3 -m unittest discover -s . -p test_build_data.py
 node --test app.test.js
 ```
 
-## Requirements
+## Local Flask requirements
 
 - Python 3.10 or newer
 - Flask
@@ -81,7 +87,7 @@ python3 -m pip install -r requirements.txt
 python3 -m playwright install chromium
 ```
 
-## Run
+## Run the local Flask app
 
 ```sh
 python3 app.py
@@ -90,3 +96,7 @@ python3 app.py
 Open <http://127.0.0.1:5000> in your browser and select **Capture today’s headlines**. The server scrolls the feed until it stops adding stories (up to 15 passes), then displays the extracted cards and related reads. Select **Download JSON** to save the capture. The app is local-only by default; it binds to `127.0.0.1`.
 
 Each entry in the `news` array has `header_title`, `header_url`, and a `subtitles` array of `{ "title", "url" }` objects. Google News may change its page markup, and available headlines vary by region and time. An internet connection is required. Only save content you're permitted to download and retain, and follow Google's applicable terms.
+
+## Deployment troubleshooting
+
+If the live page does not reflect a push, check the [Pages workflow](../.github/workflows/deploy-pages.yml). The previous site remains live if a test or build fails. After a successful deployment, reload the page. If the removed list cannot load or save, check its visible error message, Supabase table and policies, and public configuration.

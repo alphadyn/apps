@@ -8,14 +8,14 @@ Pulse is a Reddit/Hacker-News-style social news aggregator. Anyone can post,
 anyone can comment, and registered users get persistent identity, voting
 history, and (for admins) moderation tools.
 
-**Pulse is a fully static site** (`index.html` / `styles.css` / `app.js`) —
-there is no backend server to run. The browser talks directly to a Supabase
+**Pulse has a static frontend** (`index.html` / `styles.css` / `app.js`) —
+there is no custom application server to run. Supabase provides the backend. The browser talks directly to a Supabase
 project over HTTPS using the public "anon" key, the same pattern used by
 other Supabase-backed apps in this repo. Authentication is handled by
 Supabase Auth, and every authorization rule (who can post, vote, delete,
 moderate, etc.) is enforced by Postgres Row Level Security policies defined
-in [`supabase-schema.sql`](supabase-schema.sql) — not by client-side code, so
-it can't be bypassed by someone calling the API directly. This also means
+in [`supabase-schema.sql`](supabase-schema.sql). UI controls complement those
+database policies; hiding a button alone does not enforce authorization. This also means
 Pulse can be hosted anywhere that serves static files, including GitHub
 Pages.
 
@@ -24,20 +24,21 @@ Pages.
 ### Accounts & roles
 - **Anonymous browsing and posting** — no account required to read, post, comment, or vote.
 - **Registered users** (`user` role) post and comment under a persistent username, managed via Supabase Auth.
-- **Administrators** (`admin` role) can delete/restore any post or comment and manage user roles.
+- **Administrators** (`admin` role) can moderate posts and comments, manage user roles, and restore legacy soft-deleted content. Permanently deleted posts cannot be restored.
 - **Profiles**: registered users can open their profile screen to edit their username, display name, status, profile URL, and picture (PNG/JPEG/GIF/WEBP/SVG, up to 256KB). The picture is shown as a small icon next to their username, their posts, their comments, and in the admin Users table. Anonymous authors and users without an avatar get a generated initial icon instead.
 - Usernames and avatars link to public profile screens at `index.html?user=<user-id>`, so anyone can view a user's name, status, picture, and URL.
 - The search box also searches public profiles by username and links directly to matching profile screens.
 
 ### Posts
-- Title, optional external link, rich-text body (bold/italic/lists/links via the built-in editor), and **any number of file attachments** — images, documents, audio, video, or arbitrary binary files (stored as data URLs).
+- Title, optional external link, rich-text body (bold/italic/lists/links via the built-in editor), and up to **four attachments** per post or comment, with a 5 MiB combined size limit. Images larger than 1.5 MiB are resized to a maximum dimension of 1600 pixels; 1.5 MiB is a resize threshold, not a per-file rejection limit.
+- Attachments are uploaded to the public `pulse-attachments` Supabase Storage bucket when available. Inline data URLs remain supported for older content and when an upload cannot complete. Media carousels support browsing multiple attachments.
 - Up to 12 free-form tags per post for categorization and search.
 - Upvote / downvote with one vote per user (or per anonymous browser id) — score updates live.
 - Every post can be opened in the app at `https://alphadyn.github.io/apps/pulse/?post=<post-id>`. Post-title links and the Share action use its preview permalink, `https://alphadyn.github.io/apps/pulse/share/<post-id>/`, which serves post-specific metadata and redirects to the app post when opened. GitHub Pages cannot vary metadata for query-string URLs, so the preview permalink is used when sharing.
 - Share posts directly to supported apps such as Messages/RCS with the post title/body as the highlighted shared text and image attachments included for preview when the share target supports file sharing.
 - Three sort modes: **Hot** (Reddit-style time-decayed rank), **New** (most recent first), **Top** (highest score first).
 - Full-text search across titles, body text, and tags, combinable with tag filtering.
-- Registered users can edit or delete their own posts, while anonymous posts can be edited or deleted by any signed-in user. Admins can edit or delete any post; deleting a post permanently removes its comments, votes, and attachments.
+- Registered users can edit or delete their own posts, while anonymous posts can be edited or deleted by any signed-in user. Admins can edit or delete any post; deleting a post permanently removes its database row, comments, votes, and attachment references. This does not promise deletion of uploaded objects from the public Storage bucket.
 
 ### Discussions
 - Threaded comments with unlimited reply depth (each comment can reply to another comment).
@@ -50,12 +51,12 @@ Pages.
 - **Overview** tab: site-wide stats (registered users, active posts, legacy deleted posts, anonymous posts, comments).
 - **Users** tab: view every account and promote/demote between `user` and `admin`.
 - **Posts & moderation** tab: view every post, jump to any post, permanently delete posts, and clean up or restore older soft-deleted rows from previous schema versions.
-- These aren't just hidden UI — the database itself rejects role changes and restores from anyone whose Postgres role isn't `admin` (see **How authorization works** below).
+- Database policies and helpers check the authenticated user's Pulse profile role before allowing administrative actions (see **How authorization works** below).
 
 ## Setup (required before first use)
 
 1. Create a free project at [supabase.com](https://supabase.com), or reuse an existing one — Pulse's tables are namespaced as `pulse_profiles`, `pulse_posts`, `pulse_comments`, `pulse_post_votes`, and `pulse_comment_votes` so they won't collide with other apps' tables in the same project (e.g. Nexus's `media_items`).
-2. Open the SQL editor and run the entire [`supabase-schema.sql`](supabase-schema.sql) file — this creates only the `pulse_profiles`/`pulse_posts`/`pulse_comments`/vote tables and `pulse_` voting RPC functions, then locks everything down with Row Level Security. **This script drops and recreates only Pulse's namespaced tables every time it's run**, so re-running it later (e.g. after a schema update) wipes any Pulse posts/comments/accounts created so far — it does not touch other apps' objects.
+2. For a fresh installation, run the entire [`supabase-schema.sql`](supabase-schema.sql) file in the SQL editor. It creates Pulse's namespaced tables, functions, triggers, and Row Level Security policies. **It drops and recreates Pulse tables on every run**, wiping posts, comments, votes, and profiles (including Admin role assignments). Supabase Auth accounts are separate. For existing installations, use the relevant data-preserving migration below instead.
   If the app reports that a profile could not be created, run [`profile-row-migration.sql`](profile-row-migration.sql) once. It preserves existing data, adds the current profile columns, restores the own-profile insert policy, and reloads the PostgREST schema cache.
   If Pulse is already running and you only need to add the profile fields, run [`profile-fields-migration.sql`](profile-fields-migration.sql) instead. It preserves existing data and reloads the PostgREST schema cache, fixing errors such as `Could not find the 'profile_url' column of 'profiles' in the schema cache`.
   If Pulse is already running and you only need to fix post deletion, run [`post-delete-migration.sql`](post-delete-migration.sql) instead. It preserves existing data while allowing permanent post deletes and blocking new soft-deleted post rows.
@@ -72,7 +73,7 @@ Pages.
      anonKey: 'your-anon-public-key'
    };
    ```
-6. Serve the folder with any static file server, e.g. `python3 -m http.server 8000` from inside `news_aggregator_app/`, then open `http://localhost:8000`. It also works out of the box on GitHub Pages or any other static host.
+6. From the repository root, run `cd pulse && python3 -m http.server 8000`, then open <http://localhost:8000>. The same frontend can be deployed to GitHub Pages or another static host after the Supabase setup.
 
 ### Link previews for shared posts
 
@@ -90,9 +91,10 @@ included in the image because some link-preview clients omit text descriptions.
 The share domain appears below the image. Its link stays on
 `alphadyn.github.io` and opens the app's post detail when tapped.
 
-The Pages workflow runs after GitHub's branch-based Pages build, on demand,
-and on a scheduled five-minute interval. Running afterward ensures its
-generated per-post pages are included in the final deployment. Saves, edits,
+The Pages workflow runs on pushes to `main`, on manual dispatch,
+and hourly (scheduled runs can be delayed by GitHub). Configure Pages to use
+**GitHub Actions**, not branch publishing, so generated preview pages are
+included in the deployment. Saves, edits,
 and deletions are picked up on the **next successful publish**, not instantly.
 Newly created share URLs may be 404 until then;
 edits can show the previous preview, and deleted posts' pages are removed at
@@ -135,22 +137,22 @@ Re-running `supabase-schema.sql` later drops and recreates every Pulse table,
 so it also clears this role change along with all other data — repeat this
 step afterward if you do.
 
-## How authorization works (no backend, so Postgres is the trust boundary)
+## How authorization works (Postgres is the trust boundary)
 
-Because there's no server to enforce rules, **Row Level Security policies
+Because there's no custom application server to enforce rules, **Row Level Security policies
 and a couple of `SECURITY DEFINER` functions in `supabase-schema.sql` are the
 only thing standing between a visitor and the database** — the anon key is
 public and anyone can call the Supabase REST API directly with it, so every
 rule has to hold up even against a client that skips `app.js` entirely:
 
 - **Posts/comments**: anyone can `INSERT` a row where `author_id` is either their own user id or `null` (anonymous). Only the original author or an admin can `UPDATE` or `DELETE` a registered user's post; anonymous posts may be updated or deleted by any signed-in user (registered or admin), but not by anonymous visitors. Deleting a post uses a real `DELETE`, so Postgres cascades its comments and votes. A trigger blocks new post soft-deletes by rejecting direct `is_deleted: false → true` patches, while still allowing admins to restore older soft-deleted rows from previous schema versions.
-- **Voting**: the `upvotes`/`downvotes` columns are never writable directly by clients. Voting goes through `cast_post_vote()` / `cast_comment_vote()`, `SECURITY DEFINER` Postgres functions that atomically apply the vote-count delta — a client can't just `PATCH` a post to set an arbitrary score.
-- **Roles**: a user can update their own `profiles` row (e.g. their avatar), but a trigger silently reverts any change to the `role` column unless the request comes from an existing admin. A regular user calling the API directly cannot self-promote.
+- **Voting**: voting goes through `pulse_cast_post_vote()` / `pulse_cast_comment_vote()`, `SECURITY DEFINER` Postgres functions that atomically apply the vote-count delta.
+- **Roles**: a user can update their own `pulse_profiles` row (e.g. their avatar), but a trigger reverts changes to the `role` column unless the request comes from an existing admin.
 - **Profiles are public** (username, avatar, role, join date) — like a forum member list — so every post/comment can show author badges. Nothing sensitive (no emails, password hashes, or session tokens) lives in a client-readable table; Supabase Auth keeps those internally.
 
 ## Security
 
-- **Passwords** are handled entirely by Supabase Auth (industry-standard hashing, session/JWT issuance, refresh tokens) — Pulse's own code never sees or stores a raw password.
+- **Passwords** are submitted by the sign-in/sign-up form to Supabase Auth over HTTPS. Supabase handles credential storage and session issuance; the app does not persist raw passwords.
 - **Transport encryption**: all traffic goes over HTTPS to your Supabase project (Supabase provisions TLS by default) and to whatever static host you deploy Pulse's own files to (GitHub Pages, Netlify, etc. all serve over HTTPS).
 - **Input handling**: rich-text post/comment bodies are passed through a whitelist HTML sanitizer (`sanitizeRichText` in `app.js`) that strips `<script>`/`<style>`/`<iframe>` tags, inline event handlers (`onclick`, …), and `javascript:` URLs. This runs **both before submitting and again every time content is rendered**, so even content inserted by a client that bypassed the sanitizer on the way in is still neutralized on the way out.
 - **Authorization**: every write is checked in Postgres via RLS (see above), not just hidden in the UI.
@@ -163,4 +165,16 @@ rule has to hold up even against a client that skips `app.js` entirely:
 - `index.html` / `styles.css` / `app.js` — the entire application (feed, post detail, threaded comments, auth modals, rich-text/file-upload post composer, admin screen, and all Supabase REST/Auth calls).
 - `supabase-config.js` — your project's public URL + anon key (safe to commit; it's meaningless without the RLS policies in your project).
 - `supabase-schema.sql` — table definitions, RLS policies, and the vote-casting RPC functions. Run this once per Supabase project.
-- `../market-curve-lab/api/pulse-share.js` — Vercel serverless endpoint that renders per-post Open Graph metadata (and the post's image) so shared links preview the actual post in messaging apps.
+- [build_share_pages.py](build_share_pages.py), [requirements-build.txt](requirements-build.txt) — generate the GitHub Pages per-post preview pages.
+- [storage-attachments-migration.sql](storage-attachments-migration.sql), [migrate_attachments_to_storage.py](migrate_attachments_to_storage.py) — enable file storage and migrate existing inline attachments.
+- [../market-curve-lab/api/pulse-share.js](../market-curve-lab/api/pulse-share.js) — legacy Vercel preview endpoint for older shares.
+
+## Test
+
+From the repository root:
+
+```bash
+python3 -m unittest discover -s pulse -p 'test_*.py'
+```
+
+These tests cover namespaced database references and generated share pages; they do not replace checking the deployed Supabase policies and authentication configuration.

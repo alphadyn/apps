@@ -2,7 +2,7 @@
 
 This repository is a portfolio-style collection of 16 active, independent projects: interactive demos, data visualizations, browser apps, and Python utilities. Each project is designed to be opened, adapted, or expanded on its own. The collection is intentionally mixed: some apps are static browser experiences, while others use Supabase, Flask, or Vercel APIs.
 
-The root landing page in [index.html](index.html) links directly to the deployed apps and gives a quick overview of the portfolio. It includes a Featured area and a full Catalog of all available apps and experiments.
+The root landing page in [index.html](index.html) links directly to the deployed apps and gives a quick overview of the portfolio. It includes a Top apps section and a full catalog of all available apps and experiments.
 
 Deployment configuration and host-specific setup are documented in [DEPLOYMENT.md](DEPLOYMENT.md).
 
@@ -10,17 +10,18 @@ Deployment configuration and host-specific setup are documented in [DEPLOYMENT.m
 
 The landing page's Top apps section highlights these projects:
 
-1. [S&P Insights](sp-insights/) — Rank every S&P 500 security by market cap, net income, price, and their growth, with filters and price-history charts
-2. [Signal](signal/) — Turn Google News headlines into a focused, searchable reading list you can download as JSON
-3. [Pulse](pulse/) — News aggregator with tags, ranking, and threaded discussions
+1. [S&P Insights](sp-insights/) — Screen S&P 500 securities by valuation, earnings, and nine performance periods, with sortable results and price-history charts
+2. [Signal](signal/) — Explore Google News headlines, filter by ranked trends, manage shared removed keywords, and export captures as JSON
+3. [Pulse](pulse/) — Share tagged posts and media, vote, and join threaded discussions with public profiles and moderation
 4. [Northstar EHR](northstar-ehr/) — Responsive electronic health record demo for patient care workflows
 
 ## App catalog
 
 Projects are listed alphabetically, matching the catalog on the landing page.
 
-- [Atlas Store](atlas-store/) ([Open app](https://alphadyn.github.io/apps/atlas-store/)) — Storefront mockup with catalog, cart, and checkout flow.
 - [3D Earth Explorer](earth-3d-explorer/) ([Open app](https://alphadyn.github.io/apps/earth-3d-explorer/)) — Three.js globe with overlays and inspection interactions.
+- [Atlas Store](atlas-store/) ([Open app](https://alphadyn.github.io/apps/atlas-store/)) — Storefront mockup with catalog, cart, and checkout flow.
+- [Contact Card Generator](contact-card-generator/) ([Open app](https://alphadyn.github.io/apps/contact-card-generator/)) — Create vCard contact files and QR codes with optional profile photos.
 - [Experiences](experiences/) ([Open app](https://alphadyn.github.io/apps/experiences/)) — Supabase-backed journal with trips, shareable Experience collections, Event maps, precise location picking, and media carousels.
 - [Fractals](fractals/) ([Open app](https://alphadyn.github.io/apps/fractals/)) — Interactive fractal visualizer.
 - [Lexhaven Legal Docketing](lexhaven-legal-docketing/) ([Open app](https://alphadyn.github.io/apps/lexhaven-legal-docketing/)) — Matter and deadline tracking app.
@@ -30,11 +31,10 @@ Projects are listed alphabetically, matching the catalog on the landing page.
 - [Nexus](nexus/) ([Open app](https://alphadyn.github.io/apps/nexus/)) — Media workspace with browser UI, sample media, filtering, metadata editing, and optional Supabase persistence.
 - [Northstar EHR](northstar-ehr/) ([Open app](https://alphadyn.github.io/apps/northstar-ehr/)) — Responsive electronic health record demo for patient care workflows and encounter documentation.
 - [Photo Gallery](photo-gallery/) ([Open app](https://alphadyn.github.io/apps/photo-gallery/)) — Responsive gallery app.
-- [Pulse](pulse/) ([Open app](https://alphadyn.github.io/apps/pulse/)) — Social/news-style app with posts, tags, and discussion flows.
-- [Signal](signal/) ([Open app](https://alphadyn.github.io/apps/signal/)) — Focused, searchable news-reading list that captures Google News headlines and related stories and downloads them as structured JSON.
-- [S&P Insights](sp-insights/) ([Open app](https://alphadyn.github.io/apps/sp-insights/)) — Table of every S&P 500 security ranked by market cap, net income, price, and their growth rates, with hideable filters and a price-history chart for each security (1W through All).
+- [Pulse](pulse/) ([Open app](https://alphadyn.github.io/apps/pulse/)) — Supabase-backed social news with tagged posts, media attachments, voting, threaded comments, public profiles, and Admin moderation.
+- [S&P Insights](sp-insights/) ([Open app](https://alphadyn.github.io/apps/sp-insights/)) — S&P 500 screener with valuation and earnings bounds, nine performance periods, sortable filtered results, and interactive price-history charts.
+- [Signal](signal/) ([Open app](https://alphadyn.github.io/apps/signal/)) — Google News snapshot reader with ranked trending names and phrases, shared removed-keyword preferences, search, and JSON export.
 - [Vault](vault/) ([Open app](https://alphadyn.github.io/apps/vault/)) — Browser-based file and folder encryption; all processing stays on-device.
-- [Contact Card Generator](vcard-generator/) ([Open app](https://alphadyn.github.io/apps/vcard-generator/)) — Contact card and QR code generation.
 
 ## Quick start
 
@@ -85,11 +85,18 @@ python3 app.py
 
 Open <http://127.0.0.1:5001>, type a ticker or company name, and choose a matching stock. The complete S&P 500 is listed in market-cap order; ranking data is cached for six hours, and selected-ticker histories for one hour. The dashboard shows the closest-fitting model by R² and classifies recent performance curvature as concave up or down.
 
+### Contact Card Generator, Pulse, and Signal
+
+- [Contact Card Generator](contact-card-generator/README.md) is a static utility with browser-side contact generation and a CDN-hosted QR library. Serve `contact-card-generator/`; no account or database is needed.
+- [Pulse](pulse/README.md) uses Supabase Auth, namespaced tables, RLS policies, and optional attachment Storage. Follow its setup guide before using a new project; the initial schema is destructive on rerun, so existing installations should use the documented migrations.
+- [Signal](signal/README.md) loads a generated RSS snapshot. Run `python3 signal/build_data.py` before a local preview. Its shared removed-keyword list uses a public-edit Supabase table configured separately from the snapshot; the local Flask capture is a separate interface.
+
 ### S&P Insights
 
-[S&P Insights](sp-insights/) is a static page backed by a generated `data.json` snapshot plus per-security `history/*.json` files (gitignored, built at deploy time). Its filter controls can be shown or hidden to make room for the ranked table. Generate the data (about three to four minutes because of SEC rate limits), then serve the folder:
+[S&P Insights](sp-insights/) is a static page backed by a generated `data.json` snapshot plus per-security `history/*.json` files (gitignored, built at deploy time). Filter by valuation, earnings, and performance, then sort the matching securities. Install build dependencies and generate the data before serving:
 
 ```bash
+python3 -m pip install -r sp-insights/requirements-build.txt
 python3 sp-insights/build_data.py
 cd sp-insights && python3 -m http.server 8000
 ```
@@ -125,12 +132,21 @@ A convenience wrapper is also included:
 
 The pytest configuration is defined in [pytest.ini](pytest.ini).
 
-S&P Insights has its own unit tests:
+Signal, Pulse, and S&P Insights also have focused regression tests (JavaScript tests require Node.js 18 or newer):
 
 ```bash
+python3 -m unittest discover -s signal -p test_build_data.py
+python3 -m unittest discover -s pulse -p 'test_*.py'
 python3 -m unittest discover -s sp-insights -p test_build_data.py
-node --test sp-insights/ranking.test.js sp-insights/history.test.js
+python3 -m unittest discover -s sp-insights -p test_build_share_pages.py
+node --test signal/app.test.js sp-insights/ranking.test.js sp-insights/history.test.js
 ```
+
+## GitHub Pages updates
+
+The [Pages workflow](.github/workflows/deploy-pages.yml) publishes on pushes to `main`, hourly, and on manual dispatch. Set Pages Source to **GitHub Actions**. It generates market/news snapshots and share-preview pages before publication; a failed test or build can leave the previous deployment live.
+
+Pulse posts and Signal removed keywords are stored in Supabase, independently of Pages publication. Pulse's generated share previews update only on the next successful publish, and messaging apps may cache earlier previews.
 
 ## Documentation map
 

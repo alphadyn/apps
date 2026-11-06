@@ -119,6 +119,44 @@ export function getSecurityPE(security) {
   return null;
 }
 
+const DCF_YEARS = 5;
+const DCF_DISCOUNT_RATE = 0.10;
+const DCF_TERMINAL_GROWTH = 0.025;
+const DCF_MAX_EARNINGS_GROWTH = 0.05;
+
+export function discountedCashFlowValue(security) {
+  const { net_income, net_income_change_1y, market_cap, price } = security || {};
+  if (![net_income, market_cap, price].every(finite) || net_income <= 0 || market_cap <= 0 || price <= 0) {
+    return null;
+  }
+
+  const historicalGrowth = finite(net_income_change_1y) ? net_income_change_1y : 0;
+  const growth = Math.max(-DCF_MAX_EARNINGS_GROWTH, Math.min(DCF_MAX_EARNINGS_GROWTH, historicalGrowth));
+  let projectedIncome = net_income;
+  let presentValue = 0;
+  for (let year = 1; year <= DCF_YEARS; year += 1) {
+    projectedIncome *= 1 + growth;
+    presentValue += projectedIncome / (1 + DCF_DISCOUNT_RATE) ** year;
+  }
+
+  const terminalValue = projectedIncome * (1 + DCF_TERMINAL_GROWTH)
+    / (DCF_DISCOUNT_RATE - DCF_TERMINAL_GROWTH);
+  presentValue += terminalValue / (1 + DCF_DISCOUNT_RATE) ** DCF_YEARS;
+
+  const estimatedShares = market_cap / price;
+  return presentValue / estimatedShares;
+}
+
+export function discountedCashFlowDifference(security) {
+  const fairValue = discountedCashFlowValue(security);
+  return fairValue === null || !finite(security?.price) ? null : fairValue - security.price;
+}
+
+export function discountedCashFlowUpside(security) {
+  const difference = discountedCashFlowDifference(security);
+  return difference === null || security.price <= 0 ? null : difference / security.price;
+}
+
 export function getSecurityPerformance(security, rangeKey) {
   if (security.performance && security.performance[rangeKey] !== undefined) {
     return security.performance[rangeKey];
@@ -260,6 +298,15 @@ export function rankFilteredSecurities(securities, sortKey = 'market_cap', sortD
     if (sortKey === 'pe') {
       aVal = getSecurityPE(a);
       bVal = getSecurityPE(b);
+    } else if (sortKey === 'fair_value') {
+      aVal = discountedCashFlowValue(a);
+      bVal = discountedCashFlowValue(b);
+    } else if (sortKey === 'fair_value_difference') {
+      aVal = discountedCashFlowDifference(a);
+      bVal = discountedCashFlowDifference(b);
+    } else if (sortKey === 'fair_value_upside') {
+      aVal = discountedCashFlowUpside(a);
+      bVal = discountedCashFlowUpside(b);
     } else if (sortKey === 'net_income' || sortKey === 'net_income_ttm') {
       aVal = a.net_income ?? null;
       bVal = b.net_income ?? null;

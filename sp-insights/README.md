@@ -17,7 +17,7 @@ Use minimum/maximum inputs or presets. Net-income and performance bounds can be 
 
 ## Sorting and market summary
 
-The table initially sorts by market cap, highest first. Click a column heading to sort by that metric, then click again to reverse direction. Rankings apply to the filtered result set. Columns include valuation, price, current and prior net income, income growth, and all nine performance periods.
+The table initially sorts by market cap, highest first. Click a column heading to sort by that metric, then click again to reverse direction. Rankings apply to the filtered result set. Columns include valuation, price, a DCF fair-value estimate, its dollar difference from price and implied upside/downside, current and prior net income, income growth, and all nine performance periods.
 
 The selected security, history range, and table sorting are represented in the URL hash. Do not assume that copying the URL preserves all numeric filter inputs.
 
@@ -73,6 +73,9 @@ python3 build_share_pages.py
 - **Market cap** from the Nasdaq stock screener, rescaled to the latest close.
 - **Prices** from Yahoo Finance daily closes. 1Y and 3M growth compare the latest close with the split-adjusted close on or before the same date one year and three months earlier. Dividends are excluded.
 - **Net income** from SEC EDGAR XBRL (`NetIncomeLoss`, with fallbacks). TTM sums the last four quarters, and fiscal Q4 is derived as annual minus nine-month YTD. If quarterly data is incomplete, the latest fiscal year is used. Growth against a negative base is measured relative to its absolute value.
+- **DCF fair value** uses TTM net income as an equity-cash-flow proxy, projects it for five years using the latest YoY net-income growth capped at ±5% (0% when missing), discounts at 10%, and adds a 2.5% perpetual-growth terminal value. The per-share estimate divides by shares implied by market cap ÷ price. It does not use recent price performance or valuation multiples. This is a simplified estimate, not a full free-cash-flow forecast; it is unavailable for non-positive or missing net income and missing price or market cap.
+- **DCF − price** is fair value per share minus current price. Positive values mean estimated fair value is above the market price; negative values mean it is below.
+- **Implied upside/downside** is (DCF fair value − current price) ÷ current price, expressed as a percentage.
 - **YoY market cap growth** = 1Y price growth × the change in split-restated weighted-average diluted shares from SEC filings. This captures buybacks and issuance. Implausible share changes (outside 0.5×–2×) are discarded.
 
 Missing values display as — and always rank last.

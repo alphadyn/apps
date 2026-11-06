@@ -1,6 +1,6 @@
 import {
-  FILTER_RANGES,
-  filterSecurities, formatMoney, formatPE, formatPercent, formatSecuritySummary, formatValue, getSecurityPE,
+  FILTER_RANGES, discountedCashFlowDifference, discountedCashFlowUpside, discountedCashFlowValue,
+  filterSecurities, formatMoney, formatPE, formatPercent, formatPrice, formatSecuritySummary, formatValue, getSecurityPE,
   getSecurityPerformance, marketSummary, parseMoneyInput, parsePercentInput,
   parseState, rankFilteredSecurities, serializeState,
 } from './ranking.js';
@@ -56,6 +56,9 @@ const FILTER_COLUMNS = [
   { key: 'market_cap', label: 'Market cap', defaultDir: 'desc' },
   { key: 'pe', label: 'P/E', defaultDir: 'asc' },
   { key: 'price', label: 'Price', defaultDir: 'desc' },
+  { key: 'fair_value', label: 'DCF fair value', defaultDir: 'desc', title: 'Discounted cash flow estimate; assumptions are in Methodology & data sources' },
+  { key: 'fair_value_difference', label: 'DCF − price', defaultDir: 'desc', title: 'DCF fair value minus current price; positive means estimated value is above price' },
+  { key: 'fair_value_upside', label: 'Implied upside/downside', defaultDir: 'desc', title: 'DCF fair value minus current price, divided by current price' },
   { key: 'net_income', label: 'Net inc', defaultDir: 'desc' },
   { key: 'net_income_change_1y', label: 'Net inc YoY', defaultDir: 'desc' },
   { key: 'net_income_prior', label: 'Prior net inc', defaultDir: 'desc' },
@@ -475,7 +478,7 @@ function renderFilterHead() {
     const arrow = isActive ? (currentDir === 'asc' ? ' ↑' : ' ↓') : '<span class="sort-icon" aria-hidden="true">↕</span>';
     const ariaSort = isActive ? ` aria-sort="${currentDir === 'asc' ? 'ascending' : 'descending'}"` : '';
     return `<th scope="col" class="num${isActive ? ' active' : ''}"${ariaSort}>
-      <button type="button" data-fcol="${col.key}">${escapeHtml(col.label)}${arrow}</button>
+      <button type="button" data-fcol="${col.key}" title="${escapeHtml(col.title || `Sort by ${col.label}`)}">${escapeHtml(col.label)}${arrow}</button>
     </th>`;
   }).join('');
 
@@ -515,6 +518,19 @@ function renderFilterTable() {
     const mcapCell = `<td class="num${sortKey === 'market_cap' ? ' active' : ''}">${escapeHtml(formatMoney(security.market_cap))}</td>`;
     const peCell = `<td class="num${sortKey === 'pe' ? ' active' : ''}">${escapeHtml(formatPE(pe))}</td>`;
     const priceCell = `<td class="num${sortKey === 'price' ? ' active' : ''}">${escapeHtml(formatMoney(security.price))}</td>`;
+    const fairValue = discountedCashFlowValue(security);
+    const fairValueCell = `<td class="num${sortKey === 'fair_value' ? ' active' : ''}" title="DCF estimate using net income as an equity-cash-flow proxy">${escapeHtml(formatPrice(fairValue))}</td>`;
+    const fairValueDifference = discountedCashFlowDifference(security);
+    const fairValueDifferenceText = Number.isFinite(fairValueDifference)
+      ? `${fairValueDifference > 0 ? '+' : ''}${formatPrice(fairValueDifference)}`
+      : formatPrice(fairValueDifference);
+    const fairValueDifferenceCell = `<td class="num ${toneClass('percent', fairValueDifference)}${sortKey === 'fair_value_difference' ? ' active' : ''}" title="DCF fair value minus current price">${escapeHtml(fairValueDifferenceText)}</td>`;
+    const fairValueUpside = discountedCashFlowUpside(security);
+    const fairValueUpsideText = formatPercent(fairValueUpside);
+    const fairValueUpsideContent = Number.isFinite(fairValueUpside)
+      ? `<span class="delta">${fairValueUpsideText}</span>`
+      : fairValueUpsideText;
+    const fairValueUpsideCell = `<td class="num ${toneClass('percent', fairValueUpside)}${sortKey === 'fair_value_upside' ? ' active' : ''}" title="(DCF fair value − current price) ÷ current price">${fairValueUpsideContent}</td>`;
 
     const niTone = toneClass('money', security.net_income);
     const niCell = `<td class="num ${niTone}${sortKey === 'net_income' ? ' active' : ''}" title="${escapeHtml(cellTitle(security, 'net_income'))}">${escapeHtml(formatMoney(security.net_income))}</td>`;
@@ -549,6 +565,9 @@ function renderFilterTable() {
       ${mcapCell}
       ${peCell}
       ${priceCell}
+      ${fairValueCell}
+      ${fairValueDifferenceCell}
+      ${fairValueUpsideCell}
       ${niCell}
       ${niGrowthCell}
       ${niPriorCell}

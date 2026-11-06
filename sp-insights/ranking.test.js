@@ -5,6 +5,7 @@ import {
   addCriterion, criterionRanks, filterRanked, formatMoney, formatPercent, formatPrice, moveCriterion,
   parseState, rankSecurities, removeCriterion, serializeState, toggleDirection,
   filterSecurities, rankFilteredSecurities, parseMoneyInput, parsePercentInput, formatPE, getSecurityPE,
+  discountedCashFlowDifference, discountedCashFlowUpside, discountedCashFlowValue,
   formatSecuritySummary,
 } from './ranking.js';
 
@@ -25,6 +26,66 @@ test('no criteria lists securities alphabetically with sequential ranks', () => 
 test('single criterion sorts either direction with missing values last', () => {
   assert.deepEqual(symbols(rankSecurities(rows, [{ key: 'market_cap', direction: 'desc' }])), ['CCC', 'BBB', 'AAA', 'DDD']);
   assert.deepEqual(symbols(rankSecurities(rows, [{ key: 'market_cap', direction: 'asc' }])), ['AAA', 'BBB', 'CCC', 'DDD']);
+});
+
+test('DCF fair value discounts capped earnings growth and returns a per-share estimate', () => {
+  const security = { net_income: 100, net_income_change_1y: 0.05, market_cap: 1000, price: 10 };
+  const value = discountedCashFlowValue(security);
+  assert.ok(value > 15.1 && value < 15.3);
+  assert.equal(
+    discountedCashFlowValue({ ...security, net_income_change_1y: 1 }),
+    value,
+    'earnings growth above 5% is capped',
+  );
+  assert.equal(discountedCashFlowValue({ ...security, net_income: -1 }), null);
+  assert.equal(discountedCashFlowValue({ ...security, market_cap: null }), null);
+});
+
+test('fair-value sorting uses the DCF estimate and puts missing valuations last', () => {
+  const securities = [
+    { symbol: 'A', net_income: 100, net_income_change_1y: 0, market_cap: 1000, price: 10 },
+    { symbol: 'B', net_income: 100, net_income_change_1y: 0, market_cap: 1000, price: 20 },
+    { symbol: 'C', net_income: -1, market_cap: 1000, price: 10 },
+  ];
+  assert.deepEqual(
+    rankFilteredSecurities(securities, 'fair_value', 'desc').map(({ security }) => security.symbol),
+    ['B', 'A', 'C'],
+  );
+});
+
+test('DCF difference is fair value minus price and sorts with missing values last', () => {
+  const securities = [
+    { symbol: 'A', net_income: 100, net_income_change_1y: 0, market_cap: 1000, price: 10 },
+    { symbol: 'B', net_income: 100, net_income_change_1y: 0, market_cap: 1000, price: 20 },
+    { symbol: 'C', net_income: -1, market_cap: 1000, price: 10 },
+  ];
+  assert.equal(discountedCashFlowDifference(securities[0]), discountedCashFlowValue(securities[0]) - 10);
+  assert.ok(discountedCashFlowDifference(securities[0]) > 0);
+  assert.ok(discountedCashFlowDifference(securities[1]) < 0);
+  assert.equal(discountedCashFlowDifference(securities[2]), null);
+  assert.deepEqual(
+    rankFilteredSecurities(securities, 'fair_value_difference', 'desc').map(({ security }) => security.symbol),
+    ['B', 'A', 'C'],
+  );
+});
+
+test('implied upside is DCF difference divided by price and sorts with missing values last', () => {
+  const securities = [
+    { symbol: 'A', net_income: 100, net_income_change_1y: 0, market_cap: 1000, price: 10 },
+    { symbol: 'B', net_income: 100, net_income_change_1y: 0, market_cap: 2000, price: 20 },
+    { symbol: 'C', net_income: -1, market_cap: 1000, price: 10 },
+  ];
+  assert.equal(
+    discountedCashFlowUpside(securities[0]),
+    discountedCashFlowDifference(securities[0]) / securities[0].price,
+  );
+  assert.ok(discountedCashFlowUpside(securities[0]) > 0);
+  assert.ok(discountedCashFlowUpside(securities[1]) < 0);
+  assert.equal(discountedCashFlowUpside(securities[2]), null);
+  assert.deepEqual(
+    rankFilteredSecurities(securities, 'fair_value_upside', 'desc').map(({ security }) => security.symbol),
+    ['A', 'B', 'C'],
+  );
 });
 
 test('later criteria break ties in priority order', () => {

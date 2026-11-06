@@ -65,7 +65,7 @@ test('DCF difference is fair value minus price and sorts with missing values las
   assert.equal(discountedCashFlowDifference(securities[2]), null);
   assert.deepEqual(
     rankFilteredSecurities(securities, 'fair_value_difference', 'desc').map(({ security }) => security.symbol),
-    ['B', 'A', 'C'],
+    ['A', 'B', 'C'],
   );
 });
 

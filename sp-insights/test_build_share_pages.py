@@ -37,13 +37,16 @@ class BuildSharePagesTests(unittest.TestCase):
         self.assertNotIn('<script>alert("xss")</script>', html_content)
         self.assertIn("&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;", html_content)
         self.assertIn('property="og:title" content="TEST · Test &amp; Co', html_content)
-        self.assertIn('property="og:url" content="https://alphadyn.github.io/apps/S%26P%20Insights/s/TEST/"', html_content)
-        self.assertIn('property="og:image" content="https://alphadyn.github.io/apps/S%26P%20Insights/s/TEST/preview.png?v=1"', html_content)
-        self.assertIn('location.replace("https://alphadyn.github.io/apps/S%26P%20Insights/#symbol=TEST")', html_content)
+        self.assertIn('property="og:url" content="https://alphadyn.github.io/apps/sp-insights/s/TEST/"', html_content)
+        self.assertIn('property="og:image" content="https://alphadyn.github.io/apps/sp-insights/s/TEST/preview.png?v=1"', html_content)
+        self.assertIn('location.replace("https://alphadyn.github.io/apps/sp-insights/#symbol=TEST")', html_content)
 
     def test_build_pages_creates_directories_and_files(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             output_dir = Path(tmpdir) / "s"
+            stale_page = output_dir / "OLD"
+            stale_page.mkdir(parents=True)
+            (stale_page / "index.html").write_text("stale", encoding="utf-8")
             securities = [
                 {"symbol": "AAPL", "name": "Apple Inc.", "price": 336.64},
                 {"symbol": "MSFT", "name": "Microsoft Corp.", "price": 450.0},
@@ -52,6 +55,7 @@ class BuildSharePagesTests(unittest.TestCase):
             self.assertEqual(count, 2)
             self.assertTrue((output_dir / "AAPL" / "index.html").exists())
             self.assertTrue((output_dir / "MSFT" / "index.html").exists())
+            self.assertFalse(stale_page.exists())
             if build_share_pages.HAS_PILLOW:
                 self.assertTrue((output_dir / "AAPL" / "preview.png").exists())
                 self.assertTrue((output_dir / "MSFT" / "preview.png").exists())

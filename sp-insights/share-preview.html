@@ -639,7 +639,7 @@
         <span class="contact-dot" aria-hidden="true">A</span>
         <article class="bubble">
           <p class="message-text" id="preview-message">Take a look at this S&amp;P 500 stock screener and ranking tool.</p>
-          <a class="link-card" id="preview-link" href="https://alphadyn.github.io/apps/S%26P%20Insights/" aria-label="Open S&P Insights">
+          <a class="link-card" id="preview-link" href="https://alphadyn.github.io/apps/sp-insights/" aria-label="Open S&P Insights">
             <div class="card-visual">
               <img class="cover" id="preview-cover-img" src="social-preview.png?v=3" alt="S&amp;P 500 Screener &amp; Ranker preview banner">
               <div class="preview-graph-card" id="preview-graph-card" style="display: none;">
@@ -700,7 +700,7 @@
       message: 'Take a look at this S&P 500 stock screener and ranking tool.',
       title: 'S&P Insights',
       description: 'Filter and rank every S&P 500 company by market cap, P/E, price, net income, and performance across 9 periods. Interactive charts and 10 years of price history.',
-      url: 'https://alphadyn.github.io/apps/S%26P%20Insights/',
+      url: 'https://alphadyn.github.io/apps/sp-insights/',
     };
 
     const el = {
@@ -877,7 +877,7 @@
       }
 
       el.desc.textContent = summary.description;
-      el.link.href = `https://alphadyn.github.io/apps/S%26P%20Insights/#symbol=${encodeURIComponent(security.symbol)}`;
+      el.link.href = `https://alphadyn.github.io/apps/sp-insights/#symbol=${encodeURIComponent(security.symbol)}`;
       el.link.setAttribute('aria-label', `Open ${summary.title}`);
 
       await updateGraph(symbol, currentRange || '1y');
@@ -959,7 +959,7 @@
       el.select.addEventListener('change', (e) => {
         const symbol = e.target.value;
         if (el.urlInput) {
-          el.urlInput.value = symbol ? `https://alphadyn.github.io/apps/S%26P%20Insights/s/${symbol}/` : '';
+          el.urlInput.value = symbol ? `https://alphadyn.github.io/apps/sp-insights/s/${symbol}/` : '';
         }
         if (symbol) {
           location.hash = `symbol=${encodeURIComponent(symbol)}`;

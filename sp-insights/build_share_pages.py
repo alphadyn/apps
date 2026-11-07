@@ -22,7 +22,7 @@ except ImportError:
     HAS_PILLOW = False
 
 ROOT = Path(__file__).resolve().parent
-APP_URL = "https://alphadyn.github.io/apps/S%26P%20Insights/"
+APP_URL = "https://alphadyn.github.io/apps/sp-insights/"
 SHARE_URL = APP_URL + "s/"
 IMAGE_URL = APP_URL + "social-preview.png?v=3"
 DEFAULT_DATA = ROOT / "data.json"
@@ -613,6 +613,10 @@ def render_page(security: dict) -> str:
 
 def build_pages(output_dir: Path, securities: list[dict]) -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
+    symbols = {security.get("symbol") for security in securities if security.get("symbol")}
+    for existing_page in output_dir.iterdir():
+        if existing_page.is_dir() and not existing_page.is_symlink() and existing_page.name not in symbols:
+            shutil.rmtree(existing_page)
 
     def write_single_security(security):
         symbol = security.get("symbol")

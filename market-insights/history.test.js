@@ -49,7 +49,7 @@ test('sliceRange uses the close on or before the start as base', () => {
   assert.equal(year.change, 1);
   assert.equal(year.changeAmount, 50);
   assert.equal(year.partial, false);
-  assert.equal(year.points.length, 7);
+  assert.equal(year.points.length, 8);
   assert.deepEqual([year.high.close, year.low.close], [100, 50]);
 
   assert.equal(sliceRange(history, 'ytd').base.close, 60);

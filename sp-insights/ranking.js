@@ -16,6 +16,7 @@ export const FILTER_RANGES = [
   { key: '1w', label: '1W', name: '1 week' },
   { key: '1m', label: '1M', name: '1 month' },
   { key: '3m', label: '3M', name: '3 months (Q)' },
+  { key: '6m', label: '6M', name: '6 months' },
   { key: 'ytd', label: 'YTD', name: 'Year to date' },
   { key: '1y', label: '1Y', name: '1 year' },
   { key: '2y', label: '2Y', name: '2 years' },
@@ -560,7 +561,7 @@ export function formatSecuritySummary(security) {
     };
   });
 
-  const featuredKeys = ['1w', '1m', '3m', 'ytd', '1y', '5y'];
+  const featuredKeys = ['1w', '1m', '3m', '6m', 'ytd', '1y', '5y'];
   const performanceText = performanceList
     .filter((item) => featuredKeys.includes(item.key) && item.text !== '—')
     .map((item) => `${item.label} ${item.text}`)
@@ -568,7 +569,7 @@ export function formatSecuritySummary(security) {
 
   const perfClause = performanceText ? `. Performance: ${performanceText}` : '';
   const title = `${security.symbol} · ${security.name} — S&P Insights`;
-  const description = `${security.name} (${security.symbol}): ${price} (${ret1y} 1Y)${perfClause}. Market Cap: ${mcap}${peClause}${niClause}. Explore performance graph across 9 periods and 10 years of price history.`;
+  const description = `${security.name} (${security.symbol}): ${price} (${ret1y} 1Y)${perfClause}. Market Cap: ${mcap}${peClause}${niClause}. Explore performance graph across 10 periods and 10 years of price history.`;
   const ytdItem = performanceList.find((item) => item.key === 'ytd');
   const ytdText = ytdItem && ytdItem.text !== '—' ? `, YTD: ${ytdItem.text}` : '';
   const message = `Take a look at ${security.symbol} on S&P Insights (1Y: ${ret1y}${ytdText}).`;

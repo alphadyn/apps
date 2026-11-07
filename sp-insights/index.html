@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>S&amp;P Insights — Filter, rank, and chart every S&amp;P 500 constituent</title>
-  <meta name="description" content="Filter and rank every S&amp;P 500 company by market cap, P/E, price, net income, and performance across 9 periods. Interactive charts and 10 years of price history.">
+  <meta name="description" content="Filter and rank every S&amp;P 500 company by market cap, P/E, price, net income, and performance across 10 periods. Interactive charts and 10 years of price history.">
   <meta name="theme-color" content="#f4f7fb">
   <meta name="color-scheme" content="light">
   <link rel="canonical" href="https://alphadyn.github.io/apps/sp-insights/">
@@ -16,7 +16,7 @@
   <meta property="og:locale" content="en_US">
   <meta property="og:url" content="https://alphadyn.github.io/apps/sp-insights/">
   <meta property="og:title" content="S&amp;P Insights">
-  <meta property="og:description" content="Filter and rank every S&amp;P 500 company by market cap, P/E, price, net income, and performance across 9 periods. Interactive charts and 10 years of price history.">
+  <meta property="og:description" content="Filter and rank every S&amp;P 500 company by market cap, P/E, price, net income, and performance across 10 periods. Interactive charts and 10 years of price history.">
   <meta property="og:image" content="https://alphadyn.github.io/apps/sp-insights/social-preview.png?v=3">
   <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/sp-insights/social-preview.png?v=3">
   <meta property="og:image:type" content="image/png">
@@ -25,7 +25,7 @@
   <meta property="og:image:alt" content="S&amp;P Insights: a filtered and ranked table of S&amp;P 500 companies with market cap, net income, P/E, and performance beside an interactive price chart.">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="S&amp;P Insights">
-  <meta name="twitter:description" content="Filter and rank every S&amp;P 500 company by market cap, P/E, price, net income, and performance across 9 periods. Interactive charts and 10 years of price history.">
+  <meta name="twitter:description" content="Filter and rank every S&amp;P 500 company by market cap, P/E, price, net income, and performance across 10 periods. Interactive charts and 10 years of price history.">
   <meta name="twitter:image" content="https://alphadyn.github.io/apps/sp-insights/social-preview.png?v=3">
   <meta name="twitter:image:alt" content="S&amp;P Insights: a filtered and ranked table of S&amp;P 500 companies with market cap, net income, P/E, and performance beside an interactive price chart.">
 
@@ -51,7 +51,7 @@
     <section class="hero" aria-labelledby="page-title">
       <p class="eyebrow">Equity screener</p>
       <h1 id="page-title">S&amp;P Insights</h1>
-      <p class="lede">Filter and rank every constituent by market cap, P/E, price, DCF fair value, net income, and performance across 9 periods. Click any column heading to sort. Select any company to open its price history.</p>
+      <p class="lede">Filter and rank every constituent by market cap, P/E, price, DCF fair value, net income, and performance across 10 periods. Click any column heading to sort. Select any company to open its price history.</p>
     </section>
 
     <section class="kpis" id="kpis" aria-label="Market summary" aria-live="polite">
@@ -215,7 +215,7 @@
             </div>
           </div>
 
-          <!-- Performance Card: w/m/q/ytd/1y/2y/5y/10y/all -->
+          <!-- Performance Card: w/m/q/6m/ytd/1y/2y/5y/10y/all -->
           <div class="filter-card filter-card-perf">
             <div class="filter-card-head">
               <span class="label">Performance</span>
@@ -225,6 +225,7 @@
               <button type="button" class="perf-pill-btn" data-period="1w" aria-label="1 Week (w)">1W</button>
               <button type="button" class="perf-pill-btn" data-period="1m" aria-label="1 Month (m)">1M</button>
               <button type="button" class="perf-pill-btn" data-period="3m" aria-label="3 Months / Quarter (q)">3M</button>
+              <button type="button" class="perf-pill-btn" data-period="6m" aria-label="6 Months">6M</button>
               <button type="button" class="perf-pill-btn" data-period="ytd" aria-label="Year to Date">YTD</button>
               <button type="button" class="perf-pill-btn active" data-period="1y" aria-label="1 Year">1Y</button>
               <button type="button" class="perf-pill-btn" data-period="2y" aria-label="2 Years">2Y</button>
@@ -282,6 +283,7 @@
                 <th scope="col" class="num"><button type="button" data-fcol="1w" title="Sort by 1-week performance">1W<span class="sort-icon" aria-hidden="true">↕</span></button></th>
                 <th scope="col" class="num"><button type="button" data-fcol="1m" title="Sort by 1-month performance">1M<span class="sort-icon" aria-hidden="true">↕</span></button></th>
                 <th scope="col" class="num"><button type="button" data-fcol="3m" title="Sort by 3-month (quarter) performance">3M<span class="sort-icon" aria-hidden="true">↕</span></button></th>
+                <th scope="col" class="num"><button type="button" data-fcol="6m" title="Sort by 6-month performance">6M<span class="sort-icon" aria-hidden="true">↕</span></button></th>
                 <th scope="col" class="num"><button type="button" data-fcol="ytd" title="Sort by year-to-date performance">YTD<span class="sort-icon" aria-hidden="true">↕</span></button></th>
                 <th scope="col" class="num"><button type="button" data-fcol="1y" title="Sort by 1-year performance">1Y<span class="sort-icon" aria-hidden="true">↕</span></button></th>
                 <th scope="col" class="num"><button type="button" data-fcol="2y" title="Sort by 2-year performance">2Y<span class="sort-icon" aria-hidden="true">↕</span></button></th>
@@ -291,7 +293,7 @@
               </tr>
             </thead>
             <tbody id="filter-table-body">
-              <tr><td colspan="20" class="status">Loading…</td></tr>
+              <tr><td colspan="21" class="status">Loading…</td></tr>
             </tbody>
           </table>
         </div>
@@ -302,7 +304,7 @@
       <summary><h2>Methodology &amp; data sources</h2><span class="hint">How each figure is calculated</span></summary>
       <ul>
         <li><strong>Constituents</strong> come from the public S&amp;P 500 list; multi-class issuers (e.g. GOOGL/GOOG) appear once per listed security.</li>
-        <li><strong>Price</strong> is the latest close; <strong>1Y</strong> and <strong>3M</strong> growth compare it with the split-adjusted close one year and three months earlier (excluding dividends).</li>
+        <li><strong>Price</strong> is the latest close; <strong>1Y</strong>, <strong>6M</strong>, and <strong>3M</strong> growth compare it with the split-adjusted close one year, six months, and three months earlier (excluding dividends).</li>
         <li><strong>Market cap</strong> is Nasdaq's issuer-level figure re-based to the latest close. <strong>YoY market cap growth</strong> combines 1-year price growth with the change in split-restated weighted diluted shares from SEC filings.</li>
         <li><strong>Net income</strong> is trailing twelve months attributable to the company, built from SEC 10-Q/10-K filings (fiscal year when quarterly data is incomplete). Growth against a negative base is measured relative to its absolute value.</li>
         <li><strong>DCF fair value</strong> discounts five years of projected TTM net income (used as an equity-cash-flow proxy) at 10%, then adds a terminal value growing at 2.5%. Forecast earnings growth uses the latest YoY net-income growth, capped at ±5%; missing growth is assumed flat. Per-share value divides by estimated shares (market cap ÷ price). It does not use recent price performance or valuation multiples. This simplified estimate is not a full free-cash-flow forecast, and is unavailable when net income, market cap, or price is missing or net income is non-positive.</li>

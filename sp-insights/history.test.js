@@ -18,7 +18,7 @@ test('calendar shifts clamp to month end', () => {
 test('range starts', () => {
   const last = day('2026-10-09');
   const expected = {
-    '1w': '2026-10-02', '1m': '2026-09-09', '3m': '2026-07-09', ytd: '2025-12-31', '1y': '2025-10-09',
+    '1w': '2026-10-02', '1m': '2026-09-09', '3m': '2026-07-09', '6m': '2026-04-09', ytd: '2025-12-31', '1y': '2025-10-09',
     '2y': '2024-10-09', '5y': '2021-10-09', '10y': '2016-10-09', all: '1990-01-01',
   };
   for (const { key } of RANGES) assert.equal(iso(rangeStartDay(last, key, day('1990-01-01'))), expected[key], key);
@@ -40,7 +40,7 @@ test('index searches', () => {
 
 const history = points([
   ['2017-06-02', 10], ['2025-10-08', 50], ['2025-12-31', 60], ['2026-01-02', 61],
-  ['2026-07-09', 80], ['2026-10-01', 95], ['2026-10-02', 96], ['2026-10-09', 100],
+  ['2026-04-09', 70], ['2026-07-09', 80], ['2026-10-01', 95], ['2026-10-02', 96], ['2026-10-09', 100],
 ]);
 
 test('sliceRange uses the close on or before the start as base', () => {
@@ -54,6 +54,7 @@ test('sliceRange uses the close on or before the start as base', () => {
 
   assert.equal(sliceRange(history, 'ytd').base.close, 60);
   assert.equal(sliceRange(history, '3m').change, 0.25);
+  assert.equal(sliceRange(history, '6m').change, 3 / 7);
   assert.equal(sliceRange(history, '1w').base.close, 96);
   assert.equal(sliceRange(history, 'all').change, 9);
   assert.equal(sliceRange([], '1y'), null);

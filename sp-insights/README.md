@@ -10,14 +10,14 @@ A static equity screener for every listed S&P 500 security, backed by generated 
 - P/E ratio, with a profitable-only option
 - Share price
 - Net income: trailing twelve months, year-over-year growth, or prior fiscal year
-- Price performance across **1W, 1M, 3M, YTD, 1Y, 2Y, 5Y, 10Y, and All**
+- Price performance across **1W, 1M, 3M, 6M, YTD, 1Y, 2Y, 5Y, 10Y, and All**
 - Company name or ticker, and GICS sector
 
 Use minimum/maximum inputs or presets. Net-income and performance bounds can be applied across multiple periods at once. Active criteria appear as removable chips with the matching-security count. **Hide criteria** keeps the table in focus without clearing filters; **Clear all filters** resets the screen.
 
 ## Sorting and market summary
 
-The table initially sorts by market cap, highest first. Click a column heading to sort by that metric, then click again to reverse direction. Rankings apply to the filtered result set. Columns include valuation, price, a DCF fair-value estimate, its dollar difference from price and implied upside/downside, current and prior net income, income growth, and all nine performance periods.
+The table initially sorts by market cap, highest first. Click a column heading to sort by that metric, then click again to reverse direction. Rankings apply to the filtered result set. Columns include valuation, price, a DCF fair-value estimate, its dollar difference from price and implied upside/downside, current and prior net income, income growth, and all ten performance periods.
 
 The selected security, history range, and table sorting are represented in the URL hash. Do not assume that copying the URL preserves all numeric filter inputs.
 
@@ -25,13 +25,13 @@ A summary strip above the controls shows the combined market cap, total TTM net 
 
 ## Security history
 
-Click any row to open that security's price history. Choose **1W, 1M, 3M, YTD, 1Y, 2Y, 5Y, 10Y, or All**. Each range button shows its return, and the view includes:
+Click any row to open that security's price history. Choose **1W, 1M, 3M, 6M, YTD, 1Y, 2Y, 5Y, 10Y, or All**. Each range button shows its return, and the view includes:
 
 - an interactive chart (hover, or focus it and use ←/→, Shift+←/→, Home, and End) with an optional log scale;
 - the start, end, change, annualized rate, high, and low for the selected period;
 - the security's ranking metrics.
 
-Each range measures from the last close on or before its start date (Dec 31 of the prior year for YTD), so the 1Y and 3M returns match the table. Ranges longer than a security's listed history are measured from its first close and marked with `*`. The open security and range are kept in the URL hash (for example `#symbol=AAPL&range=5y`). The browser Back button, Esc, and **Back to rankings** all return to the table.
+Each range measures from the last close on or before its start date (Dec 31 of the prior year for YTD), so the 1Y, 6M, and 3M returns match the table. Ranges longer than a security's listed history are measured from its first close and marked with `*`. The open security and range are kept in the URL hash (for example `#symbol=AAPL&range=5y`). The browser Back button, Esc, and **Back to rankings** all return to the table.
 
 ## Link preview
 
@@ -71,7 +71,7 @@ python3 build_share_pages.py
 
 - **Constituents** (ticker, name, GICS sector, CIK) from [datasets/s-and-p-500-companies](https://github.com/datasets/s-and-p-500-companies). Multi-class issuers appear once per listed security.
 - **Market cap** from the Nasdaq stock screener, rescaled to the latest close.
-- **Prices** from Yahoo Finance daily closes. 1Y and 3M growth compare the latest close with the split-adjusted close on or before the same date one year and three months earlier. Dividends are excluded.
+- **Prices** from Yahoo Finance daily closes. 1Y, 6M, and 3M growth compare the latest close with the split-adjusted close on or before the same date one year, six months, and three months earlier. Dividends are excluded.
 - **Net income** from SEC EDGAR XBRL (`NetIncomeLoss`, with fallbacks). TTM sums the last four quarters, and fiscal Q4 is derived as annual minus nine-month YTD. If quarterly data is incomplete, the latest fiscal year is used. Growth against a negative base is measured relative to its absolute value.
 - **DCF fair value** uses TTM net income as an equity-cash-flow proxy, projects it for five years using the latest YoY net-income growth capped at ±5% (0% when missing), discounts at 10%, and adds a 2.5% perpetual-growth terminal value. The per-share estimate divides by shares implied by market cap ÷ price. It does not use recent price performance or valuation multiples. This is a simplified estimate, not a full free-cash-flow forecast; it is unavailable for non-positive or missing net income and missing price or market cap.
 - **DCF − price** is fair value per share minus current price. Positive values mean estimated fair value is above the market price; negative values mean it is below.

@@ -4,6 +4,7 @@ export const RANGES = [
   { key: '1w', label: '1W', name: '1 week' },
   { key: '1m', label: '1M', name: '1 month' },
   { key: '3m', label: '3M', name: '3 months' },
+  { key: '6m', label: '6M', name: '6 months' },
   { key: 'ytd', label: 'YTD', name: 'Year to date' },
   { key: '1y', label: '1Y', name: '1 year' },
   { key: '2y', label: '2Y', name: '2 years' },
@@ -15,7 +16,7 @@ export const RANGE_KEYS = RANGES.map((range) => range.key);
 export const DEFAULT_RANGE = '1y';
 
 const DAY_MS = 86_400_000;
-const MONTHS = { '1m': 1, '3m': 3, '1y': 12, '2y': 24, '5y': 60, '10y': 120 };
+const MONTHS = { '1m': 1, '3m': 3, '6m': 6, '1y': 12, '2y': 24, '5y': 60, '10y': 120 };
 
 export function dayToDate(day) {
   return new Date(day * DAY_MS);

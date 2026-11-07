@@ -212,6 +212,7 @@ def price_metrics(payload):
     price = meta.get("regularMarketPrice") or last_close
     year_ago = close_on_or_before(points, shift_months(last_date, -12))
     quarter_ago = close_on_or_before(points, shift_months(last_date, -3))
+    six_months_ago = close_on_or_before(points, shift_months(last_date, -6))
     return {
         "price": round(float(price), 4),
         "price_date": last_date.isoformat(),
@@ -219,11 +220,12 @@ def price_metrics(payload):
         "close_1y": year_ago[1] if year_ago else None,
         "price_change_1y": growth(last_close, year_ago[1]) if year_ago else None,
         "price_change_3m": growth(last_close, quarter_ago[1]) if quarter_ago else None,
+        "price_change_6m": growth(last_close, six_months_ago[1]) if six_months_ago else None,
     }
 
 
 def performance_ranges(points):
-    """Calculate performance across 1w, 1m, 3m, ytd, 1y, 2y, 5y, 10y, all from sorted (date, close) points."""
+    """Calculate performance across 1w, 1m, 3m, 6m, ytd, 1y, 2y, 5y, 10y, all from sorted (date, close) points."""
     if not points or len(points) < 2:
         return {}
     last_date, last_close = points[-1]
@@ -232,6 +234,7 @@ def performance_ranges(points):
         "1w": last_date - timedelta(days=7),
         "1m": shift_months(last_date, -1),
         "3m": shift_months(last_date, -3),
+        "6m": shift_months(last_date, -6),
         "ytd": date(last_date.year - 1, 12, 31),
         "1y": shift_months(last_date, -12),
         "2y": shift_months(last_date, -24),
@@ -242,7 +245,7 @@ def performance_ranges(points):
     result = {}
     for key, target_date in targets.items():
         base = close_on_or_before(points, target_date)
-        if not base and key in ("all", "10y", "5y", "2y", "1y"):
+        if not base and key in ("all", "10y", "5y", "2y", "1y", "6m"):
             base = points[0]
         if base and base[1] > 0:
             result[key] = round(growth(last_close, base[1]), 6)
@@ -456,6 +459,7 @@ def build_record(company, prices, cap_entry, fundamentals, history=None):
         "price_date": prices.get("price_date"),
         "price_change_1y": prices.get("price_change_1y"),
         "price_change_3m": prices.get("price_change_3m"),
+        "price_change_6m": prices.get("price_change_6m"),
         "market_cap": None,
         "market_cap_change_1y": None,
         "net_income": None,
@@ -497,9 +501,10 @@ def build_record(company, prices, cap_entry, fundamentals, history=None):
         record["performance"] = {
             "1y": record.get("price_change_1y"),
             "3m": record.get("price_change_3m"),
+            "6m": record.get("price_change_6m"),
         }
 
-    for key in ("price_change_1y", "price_change_3m", "market_cap_change_1y", "net_income_change_1y"):
+    for key in ("price_change_1y", "price_change_3m", "price_change_6m", "market_cap_change_1y", "net_income_change_1y"):
         if record[key] is not None:
             record[key] = round(record[key], 6)
     return record

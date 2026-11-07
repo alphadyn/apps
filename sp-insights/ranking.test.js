@@ -169,6 +169,7 @@ test('formatSecuritySummary formats highlighted link preview details for a secur
       '1w': 0.016,
       '1m': 0.178,
       '3m': 0.277,
+      '6m': 0.30,
       ytd: 0.253,
       '1y': 0.191,
       '2y': 0.178,
@@ -186,9 +187,9 @@ test('formatSecuritySummary formats highlighted link preview details for a secur
   assert.equal(summary.mcap, '$5.60T');
   assert.equal(summary.netIncome, '$63.1B');
   assert.equal(summary.title, 'NVDA · Nvidia — S&P Insights');
-  assert.match(summary.description, /Nvidia \(NVDA\): \$229\.28 \(\+19\.1% 1Y\)\. Performance: 1W \+1\.6%, 1M \+17\.8%, 3M \+27\.7%, YTD \+25\.3%, 1Y \+19\.1%, 5Y \+11\.9%\. Market Cap: \$5\.60T, P\/E: 58\.4, Net Income: \$63\.1B/);
+  assert.match(summary.description, /Nvidia \(NVDA\): \$229\.28 \(\+19\.1% 1Y\)\. Performance: 1W \+1\.6%, 1M \+17\.8%, 3M \+27\.7%, 6M \+30\.0%, YTD \+25\.3%, 1Y \+19\.1%, 5Y \+11\.9%\. Market Cap: \$5\.60T, P\/E: 58\.4, Net Income: \$63\.1B/);
   assert.match(summary.message, /Take a look at NVDA on S&P Insights \(1Y: \+19\.1%, YTD: \+25\.3%\)\./);
-  assert.equal(summary.performanceList.length, 9);
+  assert.equal(summary.performanceList.length, 10);
   assert.equal(summary.performanceList[0].key, '1w');
   assert.equal(summary.performanceList[0].text, '+1.6%');
 });
@@ -237,22 +238,22 @@ test('filterSecurities filters by market cap, P/E, price, implied upside, and pe
     {
       symbol: 'AAPL', name: 'Apple Inc.', sector: 'Information Technology',
       market_cap: 3_000_000_000_000, price: 200, net_income: 100_000_000_000, net_income_prior: 76_900_000_000, net_income_change_1y: 0.30, pe: 30,
-      performance: { '1w': 0.01, '1m': 0.05, '3m': 0.10, ytd: 0.15, '1y': 0.30, '2y': 0.45, '5y': 1.2, '10y': 5.0, all: 20.0 },
+      performance: { '1w': 0.01, '1m': 0.05, '3m': 0.10, '6m': 0.20, ytd: 0.15, '1y': 0.30, '2y': 0.45, '5y': 1.2, '10y': 5.0, all: 20.0 },
     },
     {
       symbol: 'MSFT', name: 'Microsoft Corp.', sector: 'Information Technology',
       market_cap: 2_500_000_000_000, price: 400, net_income: 80_000_000_000, net_income_prior: 64_000_000_000, net_income_change_1y: 0.25, pe: 31.25,
-      performance: { '1w': -0.01, '1m': 0.02, '3m': 0.08, ytd: 0.12, '1y': 0.25, '2y': 0.40, '5y': 1.1, '10y': 6.0, all: 15.0 },
+      performance: { '1w': -0.01, '1m': 0.02, '3m': 0.08, '6m': 0.10, ytd: 0.12, '1y': 0.25, '2y': 0.40, '5y': 1.1, '10y': 6.0, all: 15.0 },
     },
     {
       symbol: 'JNJ', name: 'Johnson & Johnson', sector: 'Health Care',
       market_cap: 400_000_000_000, price: 160, net_income: 20_000_000_000, net_income_prior: 19_000_000_000, net_income_change_1y: 0.05, pe: 20,
-      performance: { '1w': 0.005, '1m': -0.02, '3m': -0.01, ytd: 0.03, '1y': 0.05, '2y': 0.10, '5y': 0.3, '10y': 1.2, all: 5.0 },
+      performance: { '1w': 0.005, '1m': -0.02, '3m': -0.01, '6m': 0.05, ytd: 0.03, '1y': 0.05, '2y': 0.10, '5y': 0.3, '10y': 1.2, all: 5.0 },
     },
     {
       symbol: 'LOSS', name: 'Unprofitable Co.', sector: 'Health Care',
       market_cap: 5_000_000_000, price: 25, net_income: -500_000_000, net_income_prior: -333_000_000, net_income_change_1y: -0.50, pe: null,
-      performance: { '1w': -0.05, '1m': -0.10, '3m': -0.20, ytd: -0.30, '1y': -0.50, '2y': -0.40, '5y': -0.2, '10y': null, all: -0.5 },
+      performance: { '1w': -0.05, '1m': -0.10, '3m': -0.20, '6m': -0.25, ytd: -0.30, '1y': -0.50, '2y': -0.40, '5y': -0.2, '10y': null, all: -0.5 },
     },
   ];
 
@@ -287,6 +288,9 @@ test('filterSecurities filters by market cap, P/E, price, implied upside, and pe
 
   const strong1Y = filterSecurities(testSecurities, { performance: { '1y': { min: 0.20 } } });
   assert.deepEqual(strong1Y.map((s) => s.symbol), ['AAPL', 'MSFT']);
+
+  const strong6M = filterSecurities(testSecurities, { performance: { '6m': { min: 0.15 } } });
+  assert.deepEqual(strong6M.map((s) => s.symbol), ['AAPL']);
 
   const multiPeriod = filterSecurities(testSecurities, {
     performance: { '1y': { min: 0.25 }, '1m': { min: 0.03 } },

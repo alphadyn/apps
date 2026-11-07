@@ -89,12 +89,13 @@ class PriceAndRecordTests(unittest.TestCase):
     def test_price_metrics_measures_one_year_and_one_quarter(self):
         payload = self.chart([
             (date(2025, 10, 8), 50.0), (date(2025, 10, 9), None), (date(2026, 7, 9), 80.0),
-            (date(2026, 7, 13), 90.0), (date(2026, 10, 9), 100.0),
+            (date(2026, 4, 8), 75.0), (date(2026, 7, 13), 90.0), (date(2026, 10, 9), 100.0),
         ])
         metrics = build_data.price_metrics(payload)
         self.assertEqual(metrics["price"], 100.0)
         self.assertEqual(metrics["price_change_1y"], 1.0)
         self.assertEqual(metrics["price_change_3m"], 0.25)
+        self.assertAlmostEqual(metrics["price_change_6m"], 1 / 3)
         self.assertIsNone(build_data.price_metrics({"chart": {"result": []}}))
 
     def test_shift_months_clamps_to_month_end(self):
@@ -110,6 +111,14 @@ class PriceAndRecordTests(unittest.TestCase):
             (date(2024, 1, 5), 10.0), (date(2024, 1, 12), 11.0), (date(2024, 1, 15), 12.5), (date(2024, 1, 16), 13.0),
         ])
         self.assertEqual(build_data.merge_history(daily, None)[0], (date(2024, 1, 15), 12.5))
+
+    def test_performance_ranges_includes_six_month_return(self):
+        points = [
+            (date(2025, 10, 9), 50.0),
+            (date(2026, 4, 9), 75.0),
+            (date(2026, 10, 9), 100.0),
+        ]
+        self.assertEqual(build_data.performance_ranges(points)["6m"], round(100 / 75 - 1, 6))
 
     def test_encode_and_write_histories(self):
         points = [(date(1970, 1, 2), 1.23456789), (date(2026, 10, 9), 254.5)]

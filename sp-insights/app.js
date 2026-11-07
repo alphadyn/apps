@@ -1082,7 +1082,7 @@ async function init() {
   bindEvents();
   render({ updateHash: false });
   try {
-    const response = await fetch('data.json', { cache: 'no-cache' });
+    const response = await fetch(`data.json?_=${Date.now()}`, { cache: 'no-store' });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
     state.securities = data.securities || [];

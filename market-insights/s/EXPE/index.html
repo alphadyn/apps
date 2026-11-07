@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f8fafc">
+  <title>EXPE · Expedia Group — Market Insights</title>
+  <meta name="description" content="Expedia Group (EXPE): $259.24 (+18.0% 1Y). Performance: 1W −9.3%, 1M −0.3%, 3M −15.4%, 6M +5.1%, YTD −8.5%, 1Y +18.0%, 5Y +42.3%. Market Cap: $29.7B, P/E: 14.1, Net Income: $2.11B. Explore interactive price graph and performance across 10 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/market-insights/s/EXPE/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/market-insights/s/EXPE/">
+  <meta property="og:title" content="EXPE · Expedia Group — Market Insights">
+  <meta property="og:description" content="Expedia Group (EXPE): $259.24 (+18.0% 1Y). Performance: 1W −9.3%, 1M −0.3%, 3M −15.4%, 6M +5.1%, YTD −8.5%, 1Y +18.0%, 5Y +42.3%. Market Cap: $29.7B, P/E: 14.1, Net Income: $2.11B. Explore interactive price graph and performance across 10 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/market-insights/s/EXPE/preview.png?v=1">
+  <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/market-insights/s/EXPE/preview.png?v=1">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="EXPE · Expedia Group — Market Insights">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="EXPE · Expedia Group — Market Insights">
+  <meta name="twitter:description" content="Expedia Group (EXPE): $259.24 (+18.0% 1Y). Performance: 1W −9.3%, 1M −0.3%, 3M −15.4%, 6M +5.1%, YTD −8.5%, 1Y +18.0%, 5Y +42.3%. Market Cap: $29.7B, P/E: 14.1, Net Income: $2.11B. Explore interactive price graph and performance across 10 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/market-insights/s/EXPE/preview.png?v=1">
+  <meta name="twitter:image:alt" content="EXPE · Expedia Group — Market Insights">
+
+  <link rel="icon" href="https://alphadyn.github.io/apps/market-insights/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="https://alphadyn.github.io/apps/market-insights/apple-touch-icon.png">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #f8fafc;
+      color: #0f172a;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      color: #0369a1;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #059669; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #dc2626; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #ffffff;
+      text-align: center;
+    }
+    .perf-chip.up {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+    .perf-chip.down {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #64748b;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 0.88rem;
+      color: #64748b;
+    }
+    .stats-row strong { color: #0f172a; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #64748b;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #0284c7;
+      color: #ffffff;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #0369a1;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">EXPE</span>
+    <h1>Expedia Group</h1>
+    <div class="quote-row">
+      <span class="price">$259.24</span>
+      <span class="change up">+18.0% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+18.0%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for EXPE">
+    <defs>
+      <linearGradient id="chart-fill-EXPE" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#059669" stop-opacity="0.22"/>
+        <stop offset="100%" stop-color="#059669" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="130.2" x2="416" y2="130.2" stroke="#cbd5e1" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,130.2 L13.6,93.3 L15.2,84.0 L16.8,86.6 L18.4,78.6 L20.0,84.6 L21.7,87.2 L23.3,106.8 L24.9,110.8 L26.5,110.8 L28.1,115.8 L29.7,103.6 L31.3,102.0 L32.9,93.4 L34.5,93.9 L36.1,95.8 L37.8,92.7 L39.4,88.1 L41.0,89.3 L42.6,93.2 L44.2,88.4 L45.8,87.4 L47.4,90.4 L49.0,78.2 L50.6,71.4 L52.2,78.1 L53.8,69.2 L55.5,67.7 L57.1,69.8 L58.7,67.2 L60.3,63.7 L61.9,63.6 L63.5,64.7 L65.1,66.2 L66.7,65.3 L68.3,66.0 L69.9,67.8 L71.6,69.4 L73.2,69.7 L74.8,65.4 L76.4,54.2 L78.0,56.1 L79.6,52.2 L81.2,56.9 L82.8,61.5 L84.4,53.4 L86.0,62.2 L87.6,58.9 L89.3,67.6 L90.9,80.0 L92.5,80.6 L94.1,72.9 L95.7,81.0 L97.3,82.6 L98.9,85.2 L100.5,86.1 L102.1,79.4 L103.7,87.0 L105.4,75.7 L107.0,116.1 L108.6,114.1 L110.2,119.1 L111.8,113.8 L113.4,114.2 L115.0,109.3 L116.6,116.9 L118.2,123.0 L119.8,136.9 L121.5,148.6 L123.1,145.4 L124.7,149.2 L126.3,145.7 L127.9,160.0 L129.5,150.8 L131.1,145.4 L132.7,131.9 L134.3,134.0 L135.9,136.4 L137.5,134.5 L139.2,128.2 L140.8,99.7 L142.4,101.6 L144.0,109.3 L145.6,118.7 L147.2,120.0 L148.8,122.6 L150.4,121.9 L152.0,118.9 L153.6,109.6 L155.3,110.7 L156.9,111.3 L158.5,115.4 L160.1,114.0 L161.7,113.7 L163.3,114.3 L164.9,117.6 L166.5,124.3 L168.1,123.7 L169.7,119.5 L171.3,122.6 L173.0,124.8 L174.6,121.3 L176.2,125.8 L177.8,113.7 L179.4,120.1 L181.0,122.2 L182.6,110.6 L184.2,102.6 L185.8,94.1 L187.4,97.0 L189.1,86.1 L190.7,79.0 L192.3,78.5 L193.9,87.3 L195.5,100.9 L197.1,99.8 L198.7,105.8 L200.3,108.7 L201.9,100.7 L203.5,102.8 L205.1,99.5 L206.8,104.6 L208.4,102.5 L210.0,104.4 L211.6,98.5 L213.2,120.4 L214.8,128.5 L216.4,128.5 L218.0,132.2 L219.6,132.6 L221.2,132.1 L222.9,134.7 L224.5,134.7 L226.1,132.2 L227.7,131.7 L229.3,135.0 L230.9,127.1 L232.5,123.6 L234.1,122.7 L235.7,124.4 L237.3,121.9 L238.9,123.8 L240.6,124.7 L242.2,123.0 L243.8,121.4 L245.4,124.3 L247.0,119.3 L248.6,130.9 L250.2,125.4 L251.8,125.2 L253.4,113.7 L255.0,107.4 L256.7,111.3 L258.3,109.9 L259.9,112.7 L261.5,105.9 L263.1,89.6 L264.7,100.3 L266.3,89.0 L267.9,86.6 L269.5,95.6 L271.1,87.3 L272.7,83.3 L274.4,85.2 L276.0,82.2 L277.6,91.4 L279.2,84.2 L280.8,81.3 L282.4,86.3 L284.0,85.6 L285.6,84.9 L287.2,81.2 L288.8,83.3 L290.5,86.8 L292.1,86.9 L293.7,90.6 L295.3,93.9 L296.9,91.7 L298.5,74.1 L300.1,57.4 L301.7,49.3 L303.3,60.2 L304.9,58.4 L306.5,55.3 L308.2,41.9 L309.8,34.6 L311.4,47.1 L313.0,43.2 L314.6,40.0 L316.2,33.3 L317.8,29.0 L319.4,26.3 L321.0,22.2 L322.6,35.7 L324.3,32.9 L325.9,28.3 L327.5,30.3 L329.1,32.7 L330.7,16.0 L332.3,17.1 L333.9,21.4 L335.5,35.3 L337.1,25.3 L338.7,37.0 L340.4,49.4 L342.0,45.7 L343.6,50.4 L345.2,55.3 L346.8,77.7 L348.4,79.6 L350.0,75.5 L351.6,71.7 L353.2,65.0 L354.8,60.0 L356.4,65.9 L358.1,68.2 L359.7,73.2 L361.3,71.6 L362.9,71.9 L364.5,92.6 L366.1,90.0 L367.7,87.7 L369.3,87.6 L370.9,85.6 L372.5,88.4 L374.2,89.1 L375.8,86.9 L377.4,91.5 L379.0,91.6 L380.6,92.7 L382.2,82.0 L383.8,78.1 L385.4,83.6 L387.0,78.8 L388.6,77.6 L390.2,61.2 L391.9,64.0 L393.5,61.3 L395.1,52.7 L396.7,67.1 L398.3,54.9 L399.9,63.9 L401.5,68.7 L403.1,74.4 L404.7,76.8 L406.3,69.9 L408.0,66.9 L409.6,54.4 L411.2,67.0 L412.8,38.2 L414.4,79.7 L416.0,92.4 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-EXPE)"/>
+    <path d="M12.0,130.2 L13.6,93.3 L15.2,84.0 L16.8,86.6 L18.4,78.6 L20.0,84.6 L21.7,87.2 L23.3,106.8 L24.9,110.8 L26.5,110.8 L28.1,115.8 L29.7,103.6 L31.3,102.0 L32.9,93.4 L34.5,93.9 L36.1,95.8 L37.8,92.7 L39.4,88.1 L41.0,89.3 L42.6,93.2 L44.2,88.4 L45.8,87.4 L47.4,90.4 L49.0,78.2 L50.6,71.4 L52.2,78.1 L53.8,69.2 L55.5,67.7 L57.1,69.8 L58.7,67.2 L60.3,63.7 L61.9,63.6 L63.5,64.7 L65.1,66.2 L66.7,65.3 L68.3,66.0 L69.9,67.8 L71.6,69.4 L73.2,69.7 L74.8,65.4 L76.4,54.2 L78.0,56.1 L79.6,52.2 L81.2,56.9 L82.8,61.5 L84.4,53.4 L86.0,62.2 L87.6,58.9 L89.3,67.6 L90.9,80.0 L92.5,80.6 L94.1,72.9 L95.7,81.0 L97.3,82.6 L98.9,85.2 L100.5,86.1 L102.1,79.4 L103.7,87.0 L105.4,75.7 L107.0,116.1 L108.6,114.1 L110.2,119.1 L111.8,113.8 L113.4,114.2 L115.0,109.3 L116.6,116.9 L118.2,123.0 L119.8,136.9 L121.5,148.6 L123.1,145.4 L124.7,149.2 L126.3,145.7 L127.9,160.0 L129.5,150.8 L131.1,145.4 L132.7,131.9 L134.3,134.0 L135.9,136.4 L137.5,134.5 L139.2,128.2 L140.8,99.7 L142.4,101.6 L144.0,109.3 L145.6,118.7 L147.2,120.0 L148.8,122.6 L150.4,121.9 L152.0,118.9 L153.6,109.6 L155.3,110.7 L156.9,111.3 L158.5,115.4 L160.1,114.0 L161.7,113.7 L163.3,114.3 L164.9,117.6 L166.5,124.3 L168.1,123.7 L169.7,119.5 L171.3,122.6 L173.0,124.8 L174.6,121.3 L176.2,125.8 L177.8,113.7 L179.4,120.1 L181.0,122.2 L182.6,110.6 L184.2,102.6 L185.8,94.1 L187.4,97.0 L189.1,86.1 L190.7,79.0 L192.3,78.5 L193.9,87.3 L195.5,100.9 L197.1,99.8 L198.7,105.8 L200.3,108.7 L201.9,100.7 L203.5,102.8 L205.1,99.5 L206.8,104.6 L208.4,102.5 L210.0,104.4 L211.6,98.5 L213.2,120.4 L214.8,128.5 L216.4,128.5 L218.0,132.2 L219.6,132.6 L221.2,132.1 L222.9,134.7 L224.5,134.7 L226.1,132.2 L227.7,131.7 L229.3,135.0 L230.9,127.1 L232.5,123.6 L234.1,122.7 L235.7,124.4 L237.3,121.9 L238.9,123.8 L240.6,124.7 L242.2,123.0 L243.8,121.4 L245.4,124.3 L247.0,119.3 L248.6,130.9 L250.2,125.4 L251.8,125.2 L253.4,113.7 L255.0,107.4 L256.7,111.3 L258.3,109.9 L259.9,112.7 L261.5,105.9 L263.1,89.6 L264.7,100.3 L266.3,89.0 L267.9,86.6 L269.5,95.6 L271.1,87.3 L272.7,83.3 L274.4,85.2 L276.0,82.2 L277.6,91.4 L279.2,84.2 L280.8,81.3 L282.4,86.3 L284.0,85.6 L285.6,84.9 L287.2,81.2 L288.8,83.3 L290.5,86.8 L292.1,86.9 L293.7,90.6 L295.3,93.9 L296.9,91.7 L298.5,74.1 L300.1,57.4 L301.7,49.3 L303.3,60.2 L304.9,58.4 L306.5,55.3 L308.2,41.9 L309.8,34.6 L311.4,47.1 L313.0,43.2 L314.6,40.0 L316.2,33.3 L317.8,29.0 L319.4,26.3 L321.0,22.2 L322.6,35.7 L324.3,32.9 L325.9,28.3 L327.5,30.3 L329.1,32.7 L330.7,16.0 L332.3,17.1 L333.9,21.4 L335.5,35.3 L337.1,25.3 L338.7,37.0 L340.4,49.4 L342.0,45.7 L343.6,50.4 L345.2,55.3 L346.8,77.7 L348.4,79.6 L350.0,75.5 L351.6,71.7 L353.2,65.0 L354.8,60.0 L356.4,65.9 L358.1,68.2 L359.7,73.2 L361.3,71.6 L362.9,71.9 L364.5,92.6 L366.1,90.0 L367.7,87.7 L369.3,87.6 L370.9,85.6 L372.5,88.4 L374.2,89.1 L375.8,86.9 L377.4,91.5 L379.0,91.6 L380.6,92.7 L382.2,82.0 L383.8,78.1 L385.4,83.6 L387.0,78.8 L388.6,77.6 L390.2,61.2 L391.9,64.0 L393.5,61.3 L395.1,52.7 L396.7,67.1 L398.3,54.9 L399.9,63.9 L401.5,68.7 L403.1,74.4 L404.7,76.8 L406.3,69.9 L408.0,66.9 L409.6,54.4 L411.2,67.0 L412.8,38.2 L414.4,79.7 L416.0,92.4" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="92.4" fill="#059669" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$259.24</text>
+    <text x="474" y="130.2" fill="#64748b" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$219.70</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip down"><span class="perf-label">1W</span><strong class="perf-value">−9.3%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−0.3%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−15.4%</strong></div><div class="perf-chip up"><span class="perf-label">6M</span><strong class="perf-value">+5.1%</strong></div><div class="perf-chip down"><span class="perf-label">YTD</span><strong class="perf-value">−8.5%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+18.0%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+50.9%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+42.3%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+107.0%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+421.4%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$29.7B</strong></span><span>P/E: <strong>14.1</strong></span><span>Net Income: <strong>$2.11B</strong></span>
+    </div>
+
+    <p class="summary">Expedia Group (EXPE): $259.24 (+18.0% 1Y). Performance: 1W −9.3%, 1M −0.3%, 3M −15.4%, 6M +5.1%, YTD −8.5%, 1Y +18.0%, 5Y +42.3%. Market Cap: $29.7B, P/E: 14.1, Net Income: $2.11B. Explore interactive price graph and performance across 10 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/market-insights/#symbol=EXPE">Open EXPE in Market Insights</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/market-insights/#symbol=EXPE");</script>
+</body>
+</html>

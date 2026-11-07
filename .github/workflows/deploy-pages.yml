@@ -38,12 +38,12 @@ jobs:
       - name: Build S&P 500 market snapshot
         run: python3 market-lens/build_data.py
 
-      - name: Test and build S&P Insights snapshot
+      - name: Test and build Market Insights snapshot
         run: |
-          python3 -m pip install --disable-pip-version-check -r sp-insights/requirements-build.txt
-          python3 -m unittest discover -s sp-insights -p test_build_data.py
-          node --test sp-insights/ranking.test.js sp-insights/history.test.js
-          python3 sp-insights/build_data.py
+          python3 -m pip install --disable-pip-version-check -r market-insights/requirements-build.txt
+          python3 -m unittest discover -s market-insights -p 'test_build*.py'
+          node --test market-insights/ranking.test.js market-insights/history.test.js
+          python3 market-insights/build_data.py
 
       - name: Test and build Signal news snapshot
         run: |

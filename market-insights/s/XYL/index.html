@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f8fafc">
+  <title>XYL · Xylem Inc. — Market Insights</title>
+  <meta name="description" content="Xylem Inc. (XYL): $97.83 (−34.9% 1Y). Performance: 1W +5.9%, 1M −6.4%, 3M −19.0%, 6M −17.5%, YTD −28.2%, 1Y −34.9%, 5Y −25.3%. Market Cap: $22.4B, P/E: 20.7, Net Income: $1.08B. Explore interactive price graph and performance across 10 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/market-insights/s/XYL/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/market-insights/s/XYL/">
+  <meta property="og:title" content="XYL · Xylem Inc. — Market Insights">
+  <meta property="og:description" content="Xylem Inc. (XYL): $97.83 (−34.9% 1Y). Performance: 1W +5.9%, 1M −6.4%, 3M −19.0%, 6M −17.5%, YTD −28.2%, 1Y −34.9%, 5Y −25.3%. Market Cap: $22.4B, P/E: 20.7, Net Income: $1.08B. Explore interactive price graph and performance across 10 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/market-insights/s/XYL/preview.png?v=1">
+  <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/market-insights/s/XYL/preview.png?v=1">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="XYL · Xylem Inc. — Market Insights">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="XYL · Xylem Inc. — Market Insights">
+  <meta name="twitter:description" content="Xylem Inc. (XYL): $97.83 (−34.9% 1Y). Performance: 1W +5.9%, 1M −6.4%, 3M −19.0%, 6M −17.5%, YTD −28.2%, 1Y −34.9%, 5Y −25.3%. Market Cap: $22.4B, P/E: 20.7, Net Income: $1.08B. Explore interactive price graph and performance across 10 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/market-insights/s/XYL/preview.png?v=1">
+  <meta name="twitter:image:alt" content="XYL · Xylem Inc. — Market Insights">
+
+  <link rel="icon" href="https://alphadyn.github.io/apps/market-insights/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="https://alphadyn.github.io/apps/market-insights/apple-touch-icon.png">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #f8fafc;
+      color: #0f172a;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      color: #0369a1;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #059669; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #dc2626; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #ffffff;
+      text-align: center;
+    }
+    .perf-chip.up {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+    .perf-chip.down {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #64748b;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 0.88rem;
+      color: #64748b;
+    }
+    .stats-row strong { color: #0f172a; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #64748b;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #0284c7;
+      color: #ffffff;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #0369a1;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">XYL</span>
+    <h1>Xylem Inc.</h1>
+    <div class="quote-row">
+      <span class="price">$97.83</span>
+      <span class="change down">−34.9% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−34.9%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for XYL">
+    <defs>
+      <linearGradient id="chart-fill-XYL" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#dc2626" stop-opacity="0.22"/>
+        <stop offset="100%" stop-color="#dc2626" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="18.2" x2="416" y2="18.2" stroke="#cbd5e1" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,18.2 L13.6,16.0 L15.2,16.6 L16.8,19.5 L18.4,19.3 L20.0,25.2 L21.7,35.6 L23.3,39.6 L24.9,41.5 L26.5,44.1 L28.1,46.3 L29.7,40.9 L31.3,37.6 L32.9,38.4 L34.5,39.3 L36.1,40.3 L37.8,43.2 L39.4,43.1 L41.0,39.8 L42.6,39.8 L44.2,44.1 L45.8,45.7 L47.4,48.8 L49.0,45.3 L50.6,41.7 L52.2,48.4 L53.8,45.8 L55.5,47.3 L57.1,48.9 L58.7,49.4 L60.3,46.2 L61.9,43.9 L63.5,45.0 L65.1,44.7 L66.7,44.6 L68.3,45.4 L69.9,47.3 L71.6,50.5 L73.2,48.4 L74.8,44.1 L76.4,38.8 L78.0,43.1 L79.6,39.8 L81.2,42.5 L82.8,43.9 L84.4,41.6 L86.0,41.6 L87.6,30.8 L89.3,27.8 L90.9,44.5 L92.5,37.8 L94.1,35.2 L95.7,39.0 L97.3,34.2 L98.9,40.9 L100.5,52.0 L102.1,46.6 L103.7,46.7 L105.4,42.1 L107.0,45.1 L108.6,42.4 L110.2,43.6 L111.8,37.0 L113.4,41.4 L115.0,67.1 L116.6,72.0 L118.2,73.5 L119.8,69.0 L121.5,68.8 L123.1,66.4 L124.7,66.5 L126.3,67.7 L127.9,70.9 L129.5,68.9 L131.1,68.6 L132.7,60.2 L134.3,65.7 L135.9,67.0 L137.5,71.1 L139.2,66.0 L140.8,73.3 L142.4,80.3 L144.0,79.4 L145.6,81.3 L147.2,82.1 L148.8,87.4 L150.4,87.7 L152.0,85.0 L153.6,83.5 L155.3,88.3 L156.9,86.3 L158.5,86.5 L160.1,87.6 L161.7,86.4 L163.3,83.5 L164.9,88.6 L166.5,93.1 L168.1,96.2 L169.7,88.6 L171.3,81.8 L173.0,84.6 L174.6,78.7 L176.2,77.7 L177.8,69.3 L179.4,66.0 L181.0,67.6 L182.6,67.3 L184.2,65.4 L185.8,75.6 L187.4,75.6 L189.1,84.9 L190.7,86.4 L192.3,87.5 L193.9,84.1 L195.5,83.6 L197.1,84.1 L198.7,79.5 L200.3,92.2 L201.9,98.0 L203.5,91.7 L205.1,98.0 L206.8,99.3 L208.4,95.7 L210.0,90.7 L211.6,97.4 L213.2,101.8 L214.8,105.7 L216.4,106.8 L218.0,112.6 L219.6,111.6 L221.2,114.6 L222.9,114.2 L224.5,118.7 L226.1,114.4 L227.7,113.3 L229.3,109.7 L230.9,107.7 L232.5,110.1 L234.1,112.0 L235.7,111.4 L237.3,114.1 L238.9,109.6 L240.6,111.0 L242.2,109.9 L243.8,110.4 L245.4,111.4 L247.0,108.3 L248.6,116.9 L250.2,112.5 L251.8,110.1 L253.4,108.1 L255.0,105.7 L256.7,109.6 L258.3,107.1 L259.9,106.3 L261.5,109.4 L263.1,105.6 L264.7,94.3 L266.3,95.6 L267.9,94.9 L269.5,91.6 L271.1,93.7 L272.7,91.8 L274.4,88.8 L276.0,86.0 L277.6,90.6 L279.2,90.0 L280.8,84.7 L282.4,84.7 L284.0,83.9 L285.6,84.2 L287.2,75.4 L288.8,81.1 L290.5,86.1 L292.1,94.3 L293.7,96.3 L295.3,94.6 L296.9,88.0 L298.5,87.1 L300.1,76.1 L301.7,82.6 L303.3,94.7 L304.9,94.4 L306.5,89.6 L308.2,82.5 L309.8,82.3 L311.4,85.7 L313.0,86.7 L314.6,84.8 L316.2,80.2 L317.8,83.1 L319.4,86.7 L321.0,88.2 L322.6,93.3 L324.3,101.3 L325.9,96.1 L327.5,102.5 L329.1,102.5 L330.7,100.8 L332.3,103.9 L333.9,102.5 L335.5,104.3 L337.1,107.3 L338.7,110.1 L340.4,117.4 L342.0,117.7 L343.6,115.1 L345.2,120.1 L346.8,113.0 L348.4,115.7 L350.0,118.2 L351.6,117.2 L353.2,116.0 L354.8,116.0 L356.4,116.5 L358.1,115.8 L359.7,115.9 L361.3,116.6 L362.9,115.2 L364.5,113.4 L366.1,127.1 L367.7,127.1 L369.3,131.1 L370.9,131.0 L372.5,130.2 L374.2,131.1 L375.8,129.0 L377.4,127.6 L379.0,122.7 L380.6,129.0 L382.2,128.6 L383.8,126.9 L385.4,127.2 L387.0,127.3 L388.6,126.9 L390.2,125.4 L391.9,123.9 L393.5,125.1 L395.1,121.7 L396.7,118.6 L398.3,112.0 L399.9,113.2 L401.5,114.3 L403.1,149.4 L404.7,160.0 L406.3,154.2 L408.0,150.5 L409.6,139.4 L411.2,141.6 L412.8,130.7 L414.4,133.0 L416.0,138.1 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-XYL)"/>
+    <path d="M12.0,18.2 L13.6,16.0 L15.2,16.6 L16.8,19.5 L18.4,19.3 L20.0,25.2 L21.7,35.6 L23.3,39.6 L24.9,41.5 L26.5,44.1 L28.1,46.3 L29.7,40.9 L31.3,37.6 L32.9,38.4 L34.5,39.3 L36.1,40.3 L37.8,43.2 L39.4,43.1 L41.0,39.8 L42.6,39.8 L44.2,44.1 L45.8,45.7 L47.4,48.8 L49.0,45.3 L50.6,41.7 L52.2,48.4 L53.8,45.8 L55.5,47.3 L57.1,48.9 L58.7,49.4 L60.3,46.2 L61.9,43.9 L63.5,45.0 L65.1,44.7 L66.7,44.6 L68.3,45.4 L69.9,47.3 L71.6,50.5 L73.2,48.4 L74.8,44.1 L76.4,38.8 L78.0,43.1 L79.6,39.8 L81.2,42.5 L82.8,43.9 L84.4,41.6 L86.0,41.6 L87.6,30.8 L89.3,27.8 L90.9,44.5 L92.5,37.8 L94.1,35.2 L95.7,39.0 L97.3,34.2 L98.9,40.9 L100.5,52.0 L102.1,46.6 L103.7,46.7 L105.4,42.1 L107.0,45.1 L108.6,42.4 L110.2,43.6 L111.8,37.0 L113.4,41.4 L115.0,67.1 L116.6,72.0 L118.2,73.5 L119.8,69.0 L121.5,68.8 L123.1,66.4 L124.7,66.5 L126.3,67.7 L127.9,70.9 L129.5,68.9 L131.1,68.6 L132.7,60.2 L134.3,65.7 L135.9,67.0 L137.5,71.1 L139.2,66.0 L140.8,73.3 L142.4,80.3 L144.0,79.4 L145.6,81.3 L147.2,82.1 L148.8,87.4 L150.4,87.7 L152.0,85.0 L153.6,83.5 L155.3,88.3 L156.9,86.3 L158.5,86.5 L160.1,87.6 L161.7,86.4 L163.3,83.5 L164.9,88.6 L166.5,93.1 L168.1,96.2 L169.7,88.6 L171.3,81.8 L173.0,84.6 L174.6,78.7 L176.2,77.7 L177.8,69.3 L179.4,66.0 L181.0,67.6 L182.6,67.3 L184.2,65.4 L185.8,75.6 L187.4,75.6 L189.1,84.9 L190.7,86.4 L192.3,87.5 L193.9,84.1 L195.5,83.6 L197.1,84.1 L198.7,79.5 L200.3,92.2 L201.9,98.0 L203.5,91.7 L205.1,98.0 L206.8,99.3 L208.4,95.7 L210.0,90.7 L211.6,97.4 L213.2,101.8 L214.8,105.7 L216.4,106.8 L218.0,112.6 L219.6,111.6 L221.2,114.6 L222.9,114.2 L224.5,118.7 L226.1,114.4 L227.7,113.3 L229.3,109.7 L230.9,107.7 L232.5,110.1 L234.1,112.0 L235.7,111.4 L237.3,114.1 L238.9,109.6 L240.6,111.0 L242.2,109.9 L243.8,110.4 L245.4,111.4 L247.0,108.3 L248.6,116.9 L250.2,112.5 L251.8,110.1 L253.4,108.1 L255.0,105.7 L256.7,109.6 L258.3,107.1 L259.9,106.3 L261.5,109.4 L263.1,105.6 L264.7,94.3 L266.3,95.6 L267.9,94.9 L269.5,91.6 L271.1,93.7 L272.7,91.8 L274.4,88.8 L276.0,86.0 L277.6,90.6 L279.2,90.0 L280.8,84.7 L282.4,84.7 L284.0,83.9 L285.6,84.2 L287.2,75.4 L288.8,81.1 L290.5,86.1 L292.1,94.3 L293.7,96.3 L295.3,94.6 L296.9,88.0 L298.5,87.1 L300.1,76.1 L301.7,82.6 L303.3,94.7 L304.9,94.4 L306.5,89.6 L308.2,82.5 L309.8,82.3 L311.4,85.7 L313.0,86.7 L314.6,84.8 L316.2,80.2 L317.8,83.1 L319.4,86.7 L321.0,88.2 L322.6,93.3 L324.3,101.3 L325.9,96.1 L327.5,102.5 L329.1,102.5 L330.7,100.8 L332.3,103.9 L333.9,102.5 L335.5,104.3 L337.1,107.3 L338.7,110.1 L340.4,117.4 L342.0,117.7 L343.6,115.1 L345.2,120.1 L346.8,113.0 L348.4,115.7 L350.0,118.2 L351.6,117.2 L353.2,116.0 L354.8,116.0 L356.4,116.5 L358.1,115.8 L359.7,115.9 L361.3,116.6 L362.9,115.2 L364.5,113.4 L366.1,127.1 L367.7,127.1 L369.3,131.1 L370.9,131.0 L372.5,130.2 L374.2,131.1 L375.8,129.0 L377.4,127.6 L379.0,122.7 L380.6,129.0 L382.2,128.6 L383.8,126.9 L385.4,127.2 L387.0,127.3 L388.6,126.9 L390.2,125.4 L391.9,123.9 L393.5,125.1 L395.1,121.7 L396.7,118.6 L398.3,112.0 L399.9,113.2 L401.5,114.3 L403.1,149.4 L404.7,160.0 L406.3,154.2 L408.0,150.5 L409.6,139.4 L411.2,141.6 L412.8,130.7 L414.4,133.0 L416.0,138.1" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="138.1" fill="#dc2626" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$97.83</text>
+    <text x="474" y="18.2" fill="#64748b" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$150.34</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+5.9%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−6.4%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−19.0%</strong></div><div class="perf-chip down"><span class="perf-label">6M</span><strong class="perf-value">−17.5%</strong></div><div class="perf-chip down"><span class="perf-label">YTD</span><strong class="perf-value">−28.2%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−34.9%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−20.9%</strong></div><div class="perf-chip down"><span class="perf-label">5Y</span><strong class="perf-value">−25.3%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+106.4%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+285.9%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$22.4B</strong></span><span>P/E: <strong>20.7</strong></span><span>Net Income: <strong>$1.08B</strong></span>
+    </div>
+
+    <p class="summary">Xylem Inc. (XYL): $97.83 (−34.9% 1Y). Performance: 1W +5.9%, 1M −6.4%, 3M −19.0%, 6M −17.5%, YTD −28.2%, 1Y −34.9%, 5Y −25.3%. Market Cap: $22.4B, P/E: 20.7, Net Income: $1.08B. Explore interactive price graph and performance across 10 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/market-insights/#symbol=XYL">Open XYL in Market Insights</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/market-insights/#symbol=XYL");</script>
+</body>
+</html>

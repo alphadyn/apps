@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f8fafc">
+  <title>INVH · Invitation Homes — Market Insights</title>
+  <meta name="description" content="Invitation Homes (INVH): $27.09 (−2.6% 1Y). Performance: 1W +2.0%, 1M +2.7%, 3M −10.8%, 6M −5.7%, YTD −2.5%, 1Y −2.6%, 5Y −33.6%. Market Cap: $15.6B, P/E: 22.9, Net Income: $682M. Explore interactive price graph and performance across 10 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/market-insights/s/INVH/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/market-insights/s/INVH/">
+  <meta property="og:title" content="INVH · Invitation Homes — Market Insights">
+  <meta property="og:description" content="Invitation Homes (INVH): $27.09 (−2.6% 1Y). Performance: 1W +2.0%, 1M +2.7%, 3M −10.8%, 6M −5.7%, YTD −2.5%, 1Y −2.6%, 5Y −33.6%. Market Cap: $15.6B, P/E: 22.9, Net Income: $682M. Explore interactive price graph and performance across 10 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/market-insights/s/INVH/preview.png?v=1">
+  <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/market-insights/s/INVH/preview.png?v=1">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="INVH · Invitation Homes — Market Insights">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="INVH · Invitation Homes — Market Insights">
+  <meta name="twitter:description" content="Invitation Homes (INVH): $27.09 (−2.6% 1Y). Performance: 1W +2.0%, 1M +2.7%, 3M −10.8%, 6M −5.7%, YTD −2.5%, 1Y −2.6%, 5Y −33.6%. Market Cap: $15.6B, P/E: 22.9, Net Income: $682M. Explore interactive price graph and performance across 10 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/market-insights/s/INVH/preview.png?v=1">
+  <meta name="twitter:image:alt" content="INVH · Invitation Homes — Market Insights">
+
+  <link rel="icon" href="https://alphadyn.github.io/apps/market-insights/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="https://alphadyn.github.io/apps/market-insights/apple-touch-icon.png">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #f8fafc;
+      color: #0f172a;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      color: #0369a1;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #059669; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #dc2626; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #ffffff;
+      text-align: center;
+    }
+    .perf-chip.up {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+    .perf-chip.down {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #64748b;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 0.88rem;
+      color: #64748b;
+    }
+    .stats-row strong { color: #0f172a; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #64748b;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #0284c7;
+      color: #ffffff;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #0369a1;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">INVH</span>
+    <h1>Invitation Homes</h1>
+    <div class="quote-row">
+      <span class="price">$27.09</span>
+      <span class="change down">−2.6% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−2.6%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for INVH">
+    <defs>
+      <linearGradient id="chart-fill-INVH" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#dc2626" stop-opacity="0.22"/>
+        <stop offset="100%" stop-color="#dc2626" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="80.6" x2="416" y2="80.6" stroke="#cbd5e1" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,80.6 L13.6,75.9 L15.2,75.2 L16.8,61.3 L18.4,55.0 L20.0,70.1 L21.7,67.1 L23.3,75.2 L24.9,86.8 L26.5,88.9 L28.1,77.3 L29.7,71.7 L31.3,72.9 L32.9,75.2 L34.5,77.8 L36.1,71.5 L37.8,81.0 L39.4,78.5 L41.0,84.1 L42.6,90.6 L44.2,96.1 L45.8,107.3 L47.4,120.5 L49.0,111.5 L50.6,109.8 L52.2,114.5 L53.8,101.7 L55.5,103.1 L57.1,91.0 L58.7,89.9 L60.3,98.2 L61.9,91.5 L63.5,101.9 L65.1,91.9 L66.7,88.9 L68.3,82.2 L69.9,77.1 L71.6,81.0 L73.2,82.7 L74.8,88.5 L76.4,73.8 L78.0,113.1 L79.6,107.7 L81.2,111.0 L82.8,107.7 L84.4,117.3 L86.0,105.2 L87.6,98.0 L89.3,84.3 L90.9,92.6 L92.5,87.8 L94.1,98.9 L95.7,95.0 L97.3,101.7 L98.9,104.7 L100.5,117.7 L102.1,114.5 L103.7,105.7 L105.4,116.8 L107.0,118.4 L108.6,111.7 L110.2,113.1 L111.8,114.7 L113.4,112.4 L115.0,90.6 L116.6,94.7 L118.2,103.1 L119.8,99.6 L121.5,96.1 L123.1,103.1 L124.7,130.0 L126.3,138.9 L127.9,130.5 L129.5,130.3 L131.1,131.4 L132.7,115.6 L134.3,114.7 L135.9,119.1 L137.5,116.1 L139.2,103.3 L140.8,112.9 L142.4,117.7 L144.0,123.3 L145.6,128.4 L147.2,141.0 L148.8,143.3 L150.4,146.1 L152.0,143.3 L153.6,136.5 L155.3,146.8 L156.9,145.8 L158.5,160.0 L160.1,151.4 L161.7,145.6 L163.3,148.4 L164.9,149.8 L166.5,158.1 L168.1,151.2 L169.7,149.3 L171.3,149.3 L173.0,133.1 L174.6,134.9 L176.2,131.4 L177.8,127.0 L179.4,122.6 L181.0,122.1 L182.6,123.5 L184.2,111.7 L185.8,116.1 L187.4,116.3 L189.1,98.7 L190.7,88.7 L192.3,100.8 L193.9,106.8 L195.5,92.4 L197.1,96.4 L198.7,94.0 L200.3,72.9 L201.9,74.5 L203.5,58.3 L205.1,63.8 L206.8,63.4 L208.4,61.1 L210.0,59.0 L211.6,53.6 L213.2,59.2 L214.8,54.8 L216.4,65.5 L218.0,65.5 L219.6,65.0 L221.2,77.8 L222.9,58.7 L224.5,60.8 L226.1,49.0 L227.7,52.2 L229.3,46.2 L230.9,43.6 L232.5,43.4 L234.1,44.1 L235.7,47.1 L237.3,50.6 L238.9,55.9 L240.6,53.4 L242.2,41.8 L243.8,28.8 L245.4,44.1 L247.0,34.3 L248.6,36.4 L250.2,42.5 L251.8,37.1 L253.4,49.0 L255.0,52.9 L256.7,64.8 L258.3,66.6 L259.9,65.9 L261.5,51.8 L263.1,38.1 L264.7,31.8 L266.3,19.0 L267.9,16.0 L269.5,24.8 L271.1,21.6 L272.7,17.4 L274.4,29.2 L276.0,25.1 L277.6,38.3 L279.2,44.3 L280.8,39.0 L282.4,27.1 L284.0,24.4 L285.6,33.9 L287.2,19.9 L288.8,26.9 L290.5,27.8 L292.1,33.2 L293.7,41.3 L295.3,42.7 L296.9,34.8 L298.5,38.3 L300.1,28.5 L301.7,27.1 L303.3,37.4 L304.9,36.2 L306.5,18.3 L308.2,18.8 L309.8,18.1 L311.4,21.1 L313.0,21.1 L314.6,32.3 L316.2,34.6 L317.8,34.8 L319.4,22.7 L321.0,23.0 L322.6,36.9 L324.3,36.2 L325.9,25.1 L327.5,23.4 L329.1,27.1 L330.7,19.0 L332.3,24.8 L333.9,32.3 L335.5,47.6 L337.1,47.4 L338.7,49.7 L340.4,49.9 L342.0,56.6 L343.6,65.7 L345.2,67.1 L346.8,71.0 L348.4,72.0 L350.0,86.4 L351.6,86.8 L353.2,85.7 L354.8,84.5 L356.4,94.5 L358.1,95.9 L359.7,101.5 L361.3,97.5 L362.9,96.1 L364.5,101.0 L366.1,111.0 L367.7,108.2 L369.3,110.1 L370.9,109.4 L372.5,114.9 L374.2,113.3 L375.8,121.7 L377.4,121.2 L379.0,113.5 L380.6,125.9 L382.2,111.5 L383.8,104.3 L385.4,106.3 L387.0,108.9 L388.6,110.1 L390.2,104.0 L391.9,97.8 L393.5,106.1 L395.1,99.4 L396.7,103.8 L398.3,87.1 L399.9,86.8 L401.5,87.3 L403.1,95.0 L404.7,105.2 L406.3,107.7 L408.0,109.6 L409.6,102.6 L411.2,108.7 L412.8,86.1 L414.4,86.4 L416.0,97.3 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-INVH)"/>
+    <path d="M12.0,80.6 L13.6,75.9 L15.2,75.2 L16.8,61.3 L18.4,55.0 L20.0,70.1 L21.7,67.1 L23.3,75.2 L24.9,86.8 L26.5,88.9 L28.1,77.3 L29.7,71.7 L31.3,72.9 L32.9,75.2 L34.5,77.8 L36.1,71.5 L37.8,81.0 L39.4,78.5 L41.0,84.1 L42.6,90.6 L44.2,96.1 L45.8,107.3 L47.4,120.5 L49.0,111.5 L50.6,109.8 L52.2,114.5 L53.8,101.7 L55.5,103.1 L57.1,91.0 L58.7,89.9 L60.3,98.2 L61.9,91.5 L63.5,101.9 L65.1,91.9 L66.7,88.9 L68.3,82.2 L69.9,77.1 L71.6,81.0 L73.2,82.7 L74.8,88.5 L76.4,73.8 L78.0,113.1 L79.6,107.7 L81.2,111.0 L82.8,107.7 L84.4,117.3 L86.0,105.2 L87.6,98.0 L89.3,84.3 L90.9,92.6 L92.5,87.8 L94.1,98.9 L95.7,95.0 L97.3,101.7 L98.9,104.7 L100.5,117.7 L102.1,114.5 L103.7,105.7 L105.4,116.8 L107.0,118.4 L108.6,111.7 L110.2,113.1 L111.8,114.7 L113.4,112.4 L115.0,90.6 L116.6,94.7 L118.2,103.1 L119.8,99.6 L121.5,96.1 L123.1,103.1 L124.7,130.0 L126.3,138.9 L127.9,130.5 L129.5,130.3 L131.1,131.4 L132.7,115.6 L134.3,114.7 L135.9,119.1 L137.5,116.1 L139.2,103.3 L140.8,112.9 L142.4,117.7 L144.0,123.3 L145.6,128.4 L147.2,141.0 L148.8,143.3 L150.4,146.1 L152.0,143.3 L153.6,136.5 L155.3,146.8 L156.9,145.8 L158.5,160.0 L160.1,151.4 L161.7,145.6 L163.3,148.4 L164.9,149.8 L166.5,158.1 L168.1,151.2 L169.7,149.3 L171.3,149.3 L173.0,133.1 L174.6,134.9 L176.2,131.4 L177.8,127.0 L179.4,122.6 L181.0,122.1 L182.6,123.5 L184.2,111.7 L185.8,116.1 L187.4,116.3 L189.1,98.7 L190.7,88.7 L192.3,100.8 L193.9,106.8 L195.5,92.4 L197.1,96.4 L198.7,94.0 L200.3,72.9 L201.9,74.5 L203.5,58.3 L205.1,63.8 L206.8,63.4 L208.4,61.1 L210.0,59.0 L211.6,53.6 L213.2,59.2 L214.8,54.8 L216.4,65.5 L218.0,65.5 L219.6,65.0 L221.2,77.8 L222.9,58.7 L224.5,60.8 L226.1,49.0 L227.7,52.2 L229.3,46.2 L230.9,43.6 L232.5,43.4 L234.1,44.1 L235.7,47.1 L237.3,50.6 L238.9,55.9 L240.6,53.4 L242.2,41.8 L243.8,28.8 L245.4,44.1 L247.0,34.3 L248.6,36.4 L250.2,42.5 L251.8,37.1 L253.4,49.0 L255.0,52.9 L256.7,64.8 L258.3,66.6 L259.9,65.9 L261.5,51.8 L263.1,38.1 L264.7,31.8 L266.3,19.0 L267.9,16.0 L269.5,24.8 L271.1,21.6 L272.7,17.4 L274.4,29.2 L276.0,25.1 L277.6,38.3 L279.2,44.3 L280.8,39.0 L282.4,27.1 L284.0,24.4 L285.6,33.9 L287.2,19.9 L288.8,26.9 L290.5,27.8 L292.1,33.2 L293.7,41.3 L295.3,42.7 L296.9,34.8 L298.5,38.3 L300.1,28.5 L301.7,27.1 L303.3,37.4 L304.9,36.2 L306.5,18.3 L308.2,18.8 L309.8,18.1 L311.4,21.1 L313.0,21.1 L314.6,32.3 L316.2,34.6 L317.8,34.8 L319.4,22.7 L321.0,23.0 L322.6,36.9 L324.3,36.2 L325.9,25.1 L327.5,23.4 L329.1,27.1 L330.7,19.0 L332.3,24.8 L333.9,32.3 L335.5,47.6 L337.1,47.4 L338.7,49.7 L340.4,49.9 L342.0,56.6 L343.6,65.7 L345.2,67.1 L346.8,71.0 L348.4,72.0 L350.0,86.4 L351.6,86.8 L353.2,85.7 L354.8,84.5 L356.4,94.5 L358.1,95.9 L359.7,101.5 L361.3,97.5 L362.9,96.1 L364.5,101.0 L366.1,111.0 L367.7,108.2 L369.3,110.1 L370.9,109.4 L372.5,114.9 L374.2,113.3 L375.8,121.7 L377.4,121.2 L379.0,113.5 L380.6,125.9 L382.2,111.5 L383.8,104.3 L385.4,106.3 L387.0,108.9 L388.6,110.1 L390.2,104.0 L391.9,97.8 L393.5,106.1 L395.1,99.4 L396.7,103.8 L398.3,87.1 L399.9,86.8 L401.5,87.3 L403.1,95.0 L404.7,105.2 L406.3,107.7 L408.0,109.6 L409.6,102.6 L411.2,108.7 L412.8,86.1 L414.4,86.4 L416.0,97.3" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="97.3" fill="#dc2626" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$27.09</text>
+    <text x="474" y="80.6" fill="#64748b" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$27.81</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+2.0%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+2.7%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−10.8%</strong></div><div class="perf-chip down"><span class="perf-label">6M</span><strong class="perf-value">−5.7%</strong></div><div class="perf-chip down"><span class="perf-label">YTD</span><strong class="perf-value">−2.5%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−2.6%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−18.8%</strong></div><div class="perf-chip down"><span class="perf-label">5Y</span><strong class="perf-value">−33.6%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+31.3%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+31.3%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$15.6B</strong></span><span>P/E: <strong>22.9</strong></span><span>Net Income: <strong>$682M</strong></span>
+    </div>
+
+    <p class="summary">Invitation Homes (INVH): $27.09 (−2.6% 1Y). Performance: 1W +2.0%, 1M +2.7%, 3M −10.8%, 6M −5.7%, YTD −2.5%, 1Y −2.6%, 5Y −33.6%. Market Cap: $15.6B, P/E: 22.9, Net Income: $682M. Explore interactive price graph and performance across 10 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/market-insights/#symbol=INVH">Open INVH in Market Insights</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/market-insights/#symbol=INVH");</script>
+</body>
+</html>

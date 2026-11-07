@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f8fafc">
+  <title>J · Jacobs Solutions — Market Insights</title>
+  <meta name="description" content="Jacobs Solutions (J): $148.87 (−3.0% 1Y). Performance: 1W −3.7%, 1M +6.9%, 3M +3.4%, 6M +17.6%, YTD +12.4%, 1Y −3.0%, 5Y +26.2%. Market Cap: $17.4B, P/E: 51.5, Net Income: $338M. Explore interactive price graph and performance across 10 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/market-insights/s/J/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/market-insights/s/J/">
+  <meta property="og:title" content="J · Jacobs Solutions — Market Insights">
+  <meta property="og:description" content="Jacobs Solutions (J): $148.87 (−3.0% 1Y). Performance: 1W −3.7%, 1M +6.9%, 3M +3.4%, 6M +17.6%, YTD +12.4%, 1Y −3.0%, 5Y +26.2%. Market Cap: $17.4B, P/E: 51.5, Net Income: $338M. Explore interactive price graph and performance across 10 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/market-insights/s/J/preview.png?v=1">
+  <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/market-insights/s/J/preview.png?v=1">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="J · Jacobs Solutions — Market Insights">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="J · Jacobs Solutions — Market Insights">
+  <meta name="twitter:description" content="Jacobs Solutions (J): $148.87 (−3.0% 1Y). Performance: 1W −3.7%, 1M +6.9%, 3M +3.4%, 6M +17.6%, YTD +12.4%, 1Y −3.0%, 5Y +26.2%. Market Cap: $17.4B, P/E: 51.5, Net Income: $338M. Explore interactive price graph and performance across 10 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/market-insights/s/J/preview.png?v=1">
+  <meta name="twitter:image:alt" content="J · Jacobs Solutions — Market Insights">
+
+  <link rel="icon" href="https://alphadyn.github.io/apps/market-insights/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="https://alphadyn.github.io/apps/market-insights/apple-touch-icon.png">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #f8fafc;
+      color: #0f172a;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      color: #0369a1;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #059669; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #dc2626; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #ffffff;
+      text-align: center;
+    }
+    .perf-chip.up {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+    .perf-chip.down {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #64748b;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 0.88rem;
+      color: #64748b;
+    }
+    .stats-row strong { color: #0f172a; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #64748b;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #0284c7;
+      color: #ffffff;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #0369a1;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">J</span>
+    <h1>Jacobs Solutions</h1>
+    <div class="quote-row">
+      <span class="price">$148.87</span>
+      <span class="change down">−3.0% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−3.0%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for J">
+    <defs>
+      <linearGradient id="chart-fill-J" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#dc2626" stop-opacity="0.22"/>
+        <stop offset="100%" stop-color="#dc2626" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="34.4" x2="416" y2="34.4" stroke="#cbd5e1" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,34.4 L13.6,34.7 L15.2,32.2 L16.8,31.1 L18.4,31.3 L20.0,35.1 L21.7,31.8 L23.3,42.2 L24.9,41.8 L26.5,57.3 L28.1,100.5 L29.7,101.6 L31.3,90.4 L32.9,88.6 L34.5,82.3 L36.1,85.1 L37.8,90.5 L39.4,84.6 L41.0,74.5 L42.6,69.0 L44.2,70.4 L45.8,70.9 L47.4,78.4 L49.0,83.9 L50.6,79.9 L52.2,82.7 L53.8,83.2 L55.5,87.5 L57.1,91.7 L58.7,90.9 L60.3,87.1 L61.9,82.8 L63.5,82.3 L65.1,81.6 L66.7,83.9 L68.3,83.9 L69.9,87.5 L71.6,91.5 L73.2,83.7 L74.8,74.1 L76.4,77.4 L78.0,79.7 L79.6,75.4 L81.2,71.2 L82.8,72.4 L84.4,72.4 L86.0,73.7 L87.6,66.9 L89.3,71.2 L90.9,81.3 L92.5,75.2 L94.1,70.8 L95.7,76.8 L97.3,79.2 L98.9,79.8 L100.5,80.0 L102.1,81.1 L103.7,83.9 L105.4,79.5 L107.0,90.3 L108.6,62.0 L110.2,60.9 L111.8,47.1 L113.4,41.2 L115.0,40.7 L116.6,64.6 L118.2,94.1 L119.8,90.6 L121.5,80.6 L123.1,67.0 L124.7,72.9 L126.3,76.7 L127.9,93.3 L129.5,85.9 L131.1,88.8 L132.7,71.7 L134.3,76.8 L135.9,73.7 L137.5,74.1 L139.2,76.1 L140.8,81.6 L142.4,79.7 L144.0,85.5 L145.6,93.2 L147.2,90.3 L148.8,99.6 L150.4,103.5 L152.0,101.4 L153.6,97.2 L155.3,104.2 L156.9,103.6 L158.5,102.4 L160.1,100.4 L161.7,101.3 L163.3,98.3 L164.9,99.5 L166.5,109.4 L168.1,112.3 L169.7,105.6 L171.3,102.5 L173.0,103.6 L174.6,103.5 L176.2,105.8 L177.8,95.1 L179.4,106.0 L181.0,117.6 L182.6,111.0 L184.2,110.7 L185.8,105.5 L187.4,108.4 L189.1,101.1 L190.7,101.3 L192.3,99.5 L193.9,104.9 L195.5,104.8 L197.1,107.5 L198.7,109.6 L200.3,107.8 L201.9,110.3 L203.5,99.8 L205.1,101.1 L206.8,96.2 L208.4,80.4 L210.0,107.4 L211.6,117.9 L213.2,129.7 L214.8,133.5 L216.4,141.3 L218.0,160.0 L219.6,145.1 L221.2,151.2 L222.9,142.8 L224.5,144.7 L226.1,142.2 L227.7,141.6 L229.3,139.8 L230.9,136.7 L232.5,136.5 L234.1,128.2 L235.7,125.8 L237.3,117.2 L238.9,120.1 L240.6,121.9 L242.2,115.7 L243.8,118.5 L245.4,125.5 L247.0,110.6 L248.6,120.6 L250.2,108.2 L251.8,106.4 L253.4,113.0 L255.0,112.3 L256.7,117.6 L258.3,122.8 L259.9,128.9 L261.5,122.9 L263.1,119.8 L264.7,113.5 L266.3,109.9 L267.9,115.0 L269.5,109.1 L271.1,112.8 L272.7,103.9 L274.4,101.0 L276.0,97.4 L277.6,99.0 L279.2,109.5 L280.8,109.5 L282.4,107.6 L284.0,100.2 L285.6,99.1 L287.2,91.9 L288.8,93.5 L290.5,99.6 L292.1,99.2 L293.7,96.8 L295.3,92.8 L296.9,85.8 L298.5,84.0 L300.1,69.4 L301.7,82.1 L303.3,90.7 L304.9,84.8 L306.5,74.5 L308.2,63.7 L309.8,58.3 L311.4,60.1 L313.0,57.2 L314.6,51.1 L316.2,50.3 L317.8,56.4 L319.4,60.4 L321.0,58.4 L322.6,61.2 L324.3,63.2 L325.9,51.0 L327.5,49.4 L329.1,43.6 L330.7,39.5 L332.3,41.5 L333.9,39.7 L335.5,42.2 L337.1,38.5 L338.7,46.4 L340.4,53.8 L342.0,51.8 L343.6,50.5 L345.2,54.1 L346.8,59.4 L348.4,66.3 L350.0,69.6 L351.6,66.0 L353.2,60.0 L354.8,57.7 L356.4,61.5 L358.1,59.7 L359.7,61.8 L361.3,60.8 L362.9,62.5 L364.5,68.0 L366.1,83.7 L367.7,75.5 L369.3,75.5 L370.9,80.6 L372.5,83.9 L374.2,71.6 L375.8,76.3 L377.4,74.6 L379.0,73.1 L380.6,80.9 L382.2,74.9 L383.8,73.3 L385.4,72.6 L387.0,65.0 L388.6,65.6 L390.2,65.7 L391.9,68.1 L393.5,75.5 L395.1,71.9 L396.7,64.3 L398.3,54.0 L399.9,57.3 L401.5,51.6 L403.1,48.4 L404.7,41.4 L406.3,36.3 L408.0,31.3 L409.6,16.0 L411.2,17.1 L412.8,16.4 L414.4,50.5 L416.0,46.9 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-J)"/>
+    <path d="M12.0,34.4 L13.6,34.7 L15.2,32.2 L16.8,31.1 L18.4,31.3 L20.0,35.1 L21.7,31.8 L23.3,42.2 L24.9,41.8 L26.5,57.3 L28.1,100.5 L29.7,101.6 L31.3,90.4 L32.9,88.6 L34.5,82.3 L36.1,85.1 L37.8,90.5 L39.4,84.6 L41.0,74.5 L42.6,69.0 L44.2,70.4 L45.8,70.9 L47.4,78.4 L49.0,83.9 L50.6,79.9 L52.2,82.7 L53.8,83.2 L55.5,87.5 L57.1,91.7 L58.7,90.9 L60.3,87.1 L61.9,82.8 L63.5,82.3 L65.1,81.6 L66.7,83.9 L68.3,83.9 L69.9,87.5 L71.6,91.5 L73.2,83.7 L74.8,74.1 L76.4,77.4 L78.0,79.7 L79.6,75.4 L81.2,71.2 L82.8,72.4 L84.4,72.4 L86.0,73.7 L87.6,66.9 L89.3,71.2 L90.9,81.3 L92.5,75.2 L94.1,70.8 L95.7,76.8 L97.3,79.2 L98.9,79.8 L100.5,80.0 L102.1,81.1 L103.7,83.9 L105.4,79.5 L107.0,90.3 L108.6,62.0 L110.2,60.9 L111.8,47.1 L113.4,41.2 L115.0,40.7 L116.6,64.6 L118.2,94.1 L119.8,90.6 L121.5,80.6 L123.1,67.0 L124.7,72.9 L126.3,76.7 L127.9,93.3 L129.5,85.9 L131.1,88.8 L132.7,71.7 L134.3,76.8 L135.9,73.7 L137.5,74.1 L139.2,76.1 L140.8,81.6 L142.4,79.7 L144.0,85.5 L145.6,93.2 L147.2,90.3 L148.8,99.6 L150.4,103.5 L152.0,101.4 L153.6,97.2 L155.3,104.2 L156.9,103.6 L158.5,102.4 L160.1,100.4 L161.7,101.3 L163.3,98.3 L164.9,99.5 L166.5,109.4 L168.1,112.3 L169.7,105.6 L171.3,102.5 L173.0,103.6 L174.6,103.5 L176.2,105.8 L177.8,95.1 L179.4,106.0 L181.0,117.6 L182.6,111.0 L184.2,110.7 L185.8,105.5 L187.4,108.4 L189.1,101.1 L190.7,101.3 L192.3,99.5 L193.9,104.9 L195.5,104.8 L197.1,107.5 L198.7,109.6 L200.3,107.8 L201.9,110.3 L203.5,99.8 L205.1,101.1 L206.8,96.2 L208.4,80.4 L210.0,107.4 L211.6,117.9 L213.2,129.7 L214.8,133.5 L216.4,141.3 L218.0,160.0 L219.6,145.1 L221.2,151.2 L222.9,142.8 L224.5,144.7 L226.1,142.2 L227.7,141.6 L229.3,139.8 L230.9,136.7 L232.5,136.5 L234.1,128.2 L235.7,125.8 L237.3,117.2 L238.9,120.1 L240.6,121.9 L242.2,115.7 L243.8,118.5 L245.4,125.5 L247.0,110.6 L248.6,120.6 L250.2,108.2 L251.8,106.4 L253.4,113.0 L255.0,112.3 L256.7,117.6 L258.3,122.8 L259.9,128.9 L261.5,122.9 L263.1,119.8 L264.7,113.5 L266.3,109.9 L267.9,115.0 L269.5,109.1 L271.1,112.8 L272.7,103.9 L274.4,101.0 L276.0,97.4 L277.6,99.0 L279.2,109.5 L280.8,109.5 L282.4,107.6 L284.0,100.2 L285.6,99.1 L287.2,91.9 L288.8,93.5 L290.5,99.6 L292.1,99.2 L293.7,96.8 L295.3,92.8 L296.9,85.8 L298.5,84.0 L300.1,69.4 L301.7,82.1 L303.3,90.7 L304.9,84.8 L306.5,74.5 L308.2,63.7 L309.8,58.3 L311.4,60.1 L313.0,57.2 L314.6,51.1 L316.2,50.3 L317.8,56.4 L319.4,60.4 L321.0,58.4 L322.6,61.2 L324.3,63.2 L325.9,51.0 L327.5,49.4 L329.1,43.6 L330.7,39.5 L332.3,41.5 L333.9,39.7 L335.5,42.2 L337.1,38.5 L338.7,46.4 L340.4,53.8 L342.0,51.8 L343.6,50.5 L345.2,54.1 L346.8,59.4 L348.4,66.3 L350.0,69.6 L351.6,66.0 L353.2,60.0 L354.8,57.7 L356.4,61.5 L358.1,59.7 L359.7,61.8 L361.3,60.8 L362.9,62.5 L364.5,68.0 L366.1,83.7 L367.7,75.5 L369.3,75.5 L370.9,80.6 L372.5,83.9 L374.2,71.6 L375.8,76.3 L377.4,74.6 L379.0,73.1 L380.6,80.9 L382.2,74.9 L383.8,73.3 L385.4,72.6 L387.0,65.0 L388.6,65.6 L390.2,65.7 L391.9,68.1 L393.5,75.5 L395.1,71.9 L396.7,64.3 L398.3,54.0 L399.9,57.3 L401.5,51.6 L403.1,48.4 L404.7,41.4 L406.3,36.3 L408.0,31.3 L409.6,16.0 L411.2,17.1 L412.8,16.4 L414.4,50.5 L416.0,46.9" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="46.9" fill="#dc2626" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$148.87</text>
+    <text x="474" y="34.4" fill="#64748b" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$153.49</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip down"><span class="perf-label">1W</span><strong class="perf-value">−3.7%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+6.9%</strong></div><div class="perf-chip up"><span class="perf-label">3M</span><strong class="perf-value">+3.4%</strong></div><div class="perf-chip up"><span class="perf-label">6M</span><strong class="perf-value">+17.6%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+12.4%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−3.0%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+1.9%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+26.2%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+265.4%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+31896%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$17.4B</strong></span><span>P/E: <strong>51.5</strong></span><span>Net Income: <strong>$338M</strong></span>
+    </div>
+
+    <p class="summary">Jacobs Solutions (J): $148.87 (−3.0% 1Y). Performance: 1W −3.7%, 1M +6.9%, 3M +3.4%, 6M +17.6%, YTD +12.4%, 1Y −3.0%, 5Y +26.2%. Market Cap: $17.4B, P/E: 51.5, Net Income: $338M. Explore interactive price graph and performance across 10 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/market-insights/#symbol=J">Open J in Market Insights</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/market-insights/#symbol=J");</script>
+</body>
+</html>

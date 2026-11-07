@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f8fafc">
+  <title>MGM · MGM Resorts — Market Insights</title>
+  <meta name="description" content="MGM Resorts (MGM): $32.33 (+1.9% 1Y). Performance: 1W +7.9%, 1M +5.9%, 3M −27.7%, 6M −15.4%, YTD −11.4%, 1Y +1.9%, 5Y −35.8%. Market Cap: $8.18B. Explore interactive price graph and performance across 10 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/market-insights/s/MGM/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/market-insights/s/MGM/">
+  <meta property="og:title" content="MGM · MGM Resorts — Market Insights">
+  <meta property="og:description" content="MGM Resorts (MGM): $32.33 (+1.9% 1Y). Performance: 1W +7.9%, 1M +5.9%, 3M −27.7%, 6M −15.4%, YTD −11.4%, 1Y +1.9%, 5Y −35.8%. Market Cap: $8.18B. Explore interactive price graph and performance across 10 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/market-insights/s/MGM/preview.png?v=1">
+  <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/market-insights/s/MGM/preview.png?v=1">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="MGM · MGM Resorts — Market Insights">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MGM · MGM Resorts — Market Insights">
+  <meta name="twitter:description" content="MGM Resorts (MGM): $32.33 (+1.9% 1Y). Performance: 1W +7.9%, 1M +5.9%, 3M −27.7%, 6M −15.4%, YTD −11.4%, 1Y +1.9%, 5Y −35.8%. Market Cap: $8.18B. Explore interactive price graph and performance across 10 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/market-insights/s/MGM/preview.png?v=1">
+  <meta name="twitter:image:alt" content="MGM · MGM Resorts — Market Insights">
+
+  <link rel="icon" href="https://alphadyn.github.io/apps/market-insights/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="https://alphadyn.github.io/apps/market-insights/apple-touch-icon.png">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #f8fafc;
+      color: #0f172a;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      color: #0369a1;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #059669; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #dc2626; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #ffffff;
+      text-align: center;
+    }
+    .perf-chip.up {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+    .perf-chip.down {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #64748b;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 0.88rem;
+      color: #64748b;
+    }
+    .stats-row strong { color: #0f172a; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #64748b;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #0284c7;
+      color: #ffffff;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #0369a1;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">MGM</span>
+    <h1>MGM Resorts</h1>
+    <div class="quote-row">
+      <span class="price">$32.33</span>
+      <span class="change up">+1.9% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+1.9%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for MGM">
+    <defs>
+      <linearGradient id="chart-fill-MGM" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#059669" stop-opacity="0.22"/>
+        <stop offset="100%" stop-color="#059669" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="132.6" x2="416" y2="132.6" stroke="#cbd5e1" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,132.6 L13.6,126.9 L15.2,125.7 L16.8,125.6 L18.4,123.7 L20.0,125.9 L21.7,128.0 L23.3,134.7 L24.9,134.5 L26.5,136.5 L28.1,138.5 L29.7,127.5 L31.3,128.6 L32.9,117.8 L34.5,113.8 L36.1,110.7 L37.8,109.8 L39.4,110.4 L41.0,109.2 L42.6,110.1 L44.2,105.9 L45.8,110.5 L47.4,107.0 L49.0,98.9 L50.6,97.5 L52.2,97.7 L53.8,97.8 L55.5,101.2 L57.1,105.1 L58.7,101.6 L60.3,98.3 L61.9,96.8 L63.5,100.4 L65.1,99.6 L66.7,96.0 L68.3,99.2 L69.9,101.8 L71.6,103.3 L73.2,103.3 L74.8,106.6 L76.4,107.9 L78.0,117.9 L79.6,111.5 L81.2,115.9 L82.8,113.6 L84.4,114.6 L86.0,116.1 L87.6,110.0 L89.3,112.6 L90.9,121.1 L92.5,119.2 L94.1,116.0 L95.7,118.4 L97.3,118.0 L98.9,121.8 L100.5,126.3 L102.1,122.7 L103.7,121.4 L105.4,121.8 L107.0,117.6 L108.6,100.6 L110.2,104.6 L111.8,97.2 L113.4,93.7 L115.0,98.0 L116.6,104.1 L118.2,117.5 L119.8,117.8 L121.5,117.0 L123.1,99.0 L124.7,103.5 L126.3,101.5 L127.9,117.1 L129.5,112.2 L131.1,109.0 L132.7,96.4 L134.3,101.0 L135.9,108.0 L137.5,107.2 L139.2,102.1 L140.8,99.4 L142.4,109.0 L144.0,108.5 L145.6,112.5 L147.2,104.5 L148.8,104.5 L150.4,102.1 L152.0,106.4 L153.6,101.0 L155.3,104.0 L156.9,99.3 L158.5,110.2 L160.1,100.5 L161.7,99.5 L163.3,97.2 L164.9,96.7 L166.5,104.4 L168.1,108.7 L169.7,100.1 L171.3,101.5 L173.0,102.1 L174.6,96.5 L176.2,94.7 L177.8,99.6 L179.4,100.6 L181.0,98.2 L182.6,101.7 L184.2,101.8 L185.8,91.8 L187.4,91.0 L189.1,90.4 L190.7,85.4 L192.3,87.2 L193.9,86.4 L195.5,88.2 L197.1,84.6 L198.7,78.3 L200.3,83.3 L201.9,86.2 L203.5,88.2 L205.1,91.0 L206.8,92.5 L208.4,94.6 L210.0,92.7 L211.6,93.3 L213.2,89.2 L214.8,98.3 L216.4,100.8 L218.0,97.7 L219.6,101.3 L221.2,100.4 L222.9,99.6 L224.5,106.2 L226.1,103.2 L227.7,96.1 L229.3,91.6 L230.9,91.3 L232.5,69.7 L234.1,63.7 L235.7,59.2 L237.3,16.0 L238.9,30.3 L240.6,30.7 L242.2,32.9 L243.8,35.6 L245.4,37.1 L247.0,37.8 L248.6,39.2 L250.2,37.3 L251.8,26.6 L253.4,28.7 L255.0,32.7 L256.7,39.1 L258.3,39.7 L259.9,41.3 L261.5,39.2 L263.1,38.1 L264.7,37.5 L266.3,25.2 L267.9,22.1 L269.5,33.7 L271.1,35.5 L272.7,38.1 L274.4,39.4 L276.0,40.9 L277.6,41.1 L279.2,42.1 L280.8,39.4 L282.4,37.2 L284.0,40.7 L285.6,39.7 L287.2,39.3 L288.8,44.0 L290.5,42.7 L292.1,46.9 L293.7,48.0 L295.3,51.0 L296.9,47.7 L298.5,43.0 L300.1,43.6 L301.7,45.9 L303.3,46.9 L304.9,53.6 L306.5,54.1 L308.2,46.6 L309.8,54.0 L311.4,52.8 L313.0,54.2 L314.6,61.1 L316.2,56.3 L317.8,57.3 L319.4,56.7 L321.0,56.5 L322.6,58.5 L324.3,61.3 L325.9,61.9 L327.5,62.2 L329.1,58.7 L330.7,59.0 L332.3,61.2 L333.9,60.5 L335.5,63.5 L337.1,67.7 L338.7,73.4 L340.4,77.0 L342.0,72.9 L343.6,74.8 L345.2,74.2 L346.8,77.2 L348.4,77.7 L350.0,77.2 L351.6,82.4 L353.2,82.8 L354.8,86.5 L356.4,91.6 L358.1,92.1 L359.7,95.2 L361.3,89.5 L362.9,88.5 L364.5,94.9 L366.1,120.5 L367.7,127.4 L369.3,131.8 L370.9,133.9 L372.5,136.8 L374.2,140.3 L375.8,140.3 L377.4,142.2 L379.0,139.9 L380.6,143.2 L382.2,143.2 L383.8,147.7 L385.4,147.4 L387.0,146.9 L388.6,149.6 L390.2,146.4 L391.9,151.8 L393.5,152.6 L395.1,150.0 L396.7,150.2 L398.3,146.3 L399.9,155.1 L401.5,152.2 L403.1,155.6 L404.7,160.0 L406.3,150.4 L408.0,143.5 L409.6,139.8 L411.2,136.9 L412.8,125.9 L414.4,127.6 L416.0,128.9 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-MGM)"/>
+    <path d="M12.0,132.6 L13.6,126.9 L15.2,125.7 L16.8,125.6 L18.4,123.7 L20.0,125.9 L21.7,128.0 L23.3,134.7 L24.9,134.5 L26.5,136.5 L28.1,138.5 L29.7,127.5 L31.3,128.6 L32.9,117.8 L34.5,113.8 L36.1,110.7 L37.8,109.8 L39.4,110.4 L41.0,109.2 L42.6,110.1 L44.2,105.9 L45.8,110.5 L47.4,107.0 L49.0,98.9 L50.6,97.5 L52.2,97.7 L53.8,97.8 L55.5,101.2 L57.1,105.1 L58.7,101.6 L60.3,98.3 L61.9,96.8 L63.5,100.4 L65.1,99.6 L66.7,96.0 L68.3,99.2 L69.9,101.8 L71.6,103.3 L73.2,103.3 L74.8,106.6 L76.4,107.9 L78.0,117.9 L79.6,111.5 L81.2,115.9 L82.8,113.6 L84.4,114.6 L86.0,116.1 L87.6,110.0 L89.3,112.6 L90.9,121.1 L92.5,119.2 L94.1,116.0 L95.7,118.4 L97.3,118.0 L98.9,121.8 L100.5,126.3 L102.1,122.7 L103.7,121.4 L105.4,121.8 L107.0,117.6 L108.6,100.6 L110.2,104.6 L111.8,97.2 L113.4,93.7 L115.0,98.0 L116.6,104.1 L118.2,117.5 L119.8,117.8 L121.5,117.0 L123.1,99.0 L124.7,103.5 L126.3,101.5 L127.9,117.1 L129.5,112.2 L131.1,109.0 L132.7,96.4 L134.3,101.0 L135.9,108.0 L137.5,107.2 L139.2,102.1 L140.8,99.4 L142.4,109.0 L144.0,108.5 L145.6,112.5 L147.2,104.5 L148.8,104.5 L150.4,102.1 L152.0,106.4 L153.6,101.0 L155.3,104.0 L156.9,99.3 L158.5,110.2 L160.1,100.5 L161.7,99.5 L163.3,97.2 L164.9,96.7 L166.5,104.4 L168.1,108.7 L169.7,100.1 L171.3,101.5 L173.0,102.1 L174.6,96.5 L176.2,94.7 L177.8,99.6 L179.4,100.6 L181.0,98.2 L182.6,101.7 L184.2,101.8 L185.8,91.8 L187.4,91.0 L189.1,90.4 L190.7,85.4 L192.3,87.2 L193.9,86.4 L195.5,88.2 L197.1,84.6 L198.7,78.3 L200.3,83.3 L201.9,86.2 L203.5,88.2 L205.1,91.0 L206.8,92.5 L208.4,94.6 L210.0,92.7 L211.6,93.3 L213.2,89.2 L214.8,98.3 L216.4,100.8 L218.0,97.7 L219.6,101.3 L221.2,100.4 L222.9,99.6 L224.5,106.2 L226.1,103.2 L227.7,96.1 L229.3,91.6 L230.9,91.3 L232.5,69.7 L234.1,63.7 L235.7,59.2 L237.3,16.0 L238.9,30.3 L240.6,30.7 L242.2,32.9 L243.8,35.6 L245.4,37.1 L247.0,37.8 L248.6,39.2 L250.2,37.3 L251.8,26.6 L253.4,28.7 L255.0,32.7 L256.7,39.1 L258.3,39.7 L259.9,41.3 L261.5,39.2 L263.1,38.1 L264.7,37.5 L266.3,25.2 L267.9,22.1 L269.5,33.7 L271.1,35.5 L272.7,38.1 L274.4,39.4 L276.0,40.9 L277.6,41.1 L279.2,42.1 L280.8,39.4 L282.4,37.2 L284.0,40.7 L285.6,39.7 L287.2,39.3 L288.8,44.0 L290.5,42.7 L292.1,46.9 L293.7,48.0 L295.3,51.0 L296.9,47.7 L298.5,43.0 L300.1,43.6 L301.7,45.9 L303.3,46.9 L304.9,53.6 L306.5,54.1 L308.2,46.6 L309.8,54.0 L311.4,52.8 L313.0,54.2 L314.6,61.1 L316.2,56.3 L317.8,57.3 L319.4,56.7 L321.0,56.5 L322.6,58.5 L324.3,61.3 L325.9,61.9 L327.5,62.2 L329.1,58.7 L330.7,59.0 L332.3,61.2 L333.9,60.5 L335.5,63.5 L337.1,67.7 L338.7,73.4 L340.4,77.0 L342.0,72.9 L343.6,74.8 L345.2,74.2 L346.8,77.2 L348.4,77.7 L350.0,77.2 L351.6,82.4 L353.2,82.8 L354.8,86.5 L356.4,91.6 L358.1,92.1 L359.7,95.2 L361.3,89.5 L362.9,88.5 L364.5,94.9 L366.1,120.5 L367.7,127.4 L369.3,131.8 L370.9,133.9 L372.5,136.8 L374.2,140.3 L375.8,140.3 L377.4,142.2 L379.0,139.9 L380.6,143.2 L382.2,143.2 L383.8,147.7 L385.4,147.4 L387.0,146.9 L388.6,149.6 L390.2,146.4 L391.9,151.8 L393.5,152.6 L395.1,150.0 L396.7,150.2 L398.3,146.3 L399.9,155.1 L401.5,152.2 L403.1,155.6 L404.7,160.0 L406.3,150.4 L408.0,143.5 L409.6,139.8 L411.2,136.9 L412.8,125.9 L414.4,127.6 L416.0,128.9" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="128.9" fill="#059669" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$32.33</text>
+    <text x="474" y="132.6" fill="#64748b" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$31.72</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+7.9%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+5.9%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−27.7%</strong></div><div class="perf-chip down"><span class="perf-label">6M</span><strong class="perf-value">−15.4%</strong></div><div class="perf-chip down"><span class="perf-label">YTD</span><strong class="perf-value">−11.4%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+1.9%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−13.6%</strong></div><div class="perf-chip down"><span class="perf-label">5Y</span><strong class="perf-value">−35.8%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+22.4%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+1076%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$8.18B</strong></span><span>P/E: <strong>—</strong></span><span>Net Income: <strong>—</strong></span>
+    </div>
+
+    <p class="summary">MGM Resorts (MGM): $32.33 (+1.9% 1Y). Performance: 1W +7.9%, 1M +5.9%, 3M −27.7%, 6M −15.4%, YTD −11.4%, 1Y +1.9%, 5Y −35.8%. Market Cap: $8.18B. Explore interactive price graph and performance across 10 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/market-insights/#symbol=MGM">Open MGM in Market Insights</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/market-insights/#symbol=MGM");</script>
+</body>
+</html>

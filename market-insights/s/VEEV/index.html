@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f8fafc">
+  <title>VEEV · Veeva Systems — Market Insights</title>
+  <meta name="description" content="Veeva Systems (VEEV): $303.78 (+4.3% 1Y). Performance: 1W −2.9%, 1M +7.2%, 3M +39.5%, 6M +81.5%, YTD +36.1%, 1Y +4.3%, 5Y −4.7%. Market Cap: $49.2B, P/E: 48.5, Net Income: $1.01B. Explore interactive price graph and performance across 10 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/market-insights/s/VEEV/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/market-insights/s/VEEV/">
+  <meta property="og:title" content="VEEV · Veeva Systems — Market Insights">
+  <meta property="og:description" content="Veeva Systems (VEEV): $303.78 (+4.3% 1Y). Performance: 1W −2.9%, 1M +7.2%, 3M +39.5%, 6M +81.5%, YTD +36.1%, 1Y +4.3%, 5Y −4.7%. Market Cap: $49.2B, P/E: 48.5, Net Income: $1.01B. Explore interactive price graph and performance across 10 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/market-insights/s/VEEV/preview.png?v=1">
+  <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/market-insights/s/VEEV/preview.png?v=1">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="VEEV · Veeva Systems — Market Insights">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="VEEV · Veeva Systems — Market Insights">
+  <meta name="twitter:description" content="Veeva Systems (VEEV): $303.78 (+4.3% 1Y). Performance: 1W −2.9%, 1M +7.2%, 3M +39.5%, 6M +81.5%, YTD +36.1%, 1Y +4.3%, 5Y −4.7%. Market Cap: $49.2B, P/E: 48.5, Net Income: $1.01B. Explore interactive price graph and performance across 10 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/market-insights/s/VEEV/preview.png?v=1">
+  <meta name="twitter:image:alt" content="VEEV · Veeva Systems — Market Insights">
+
+  <link rel="icon" href="https://alphadyn.github.io/apps/market-insights/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="https://alphadyn.github.io/apps/market-insights/apple-touch-icon.png">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #f8fafc;
+      color: #0f172a;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      color: #0369a1;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #059669; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #dc2626; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #ffffff;
+      text-align: center;
+    }
+    .perf-chip.up {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+    .perf-chip.down {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #64748b;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 0.88rem;
+      color: #64748b;
+    }
+    .stats-row strong { color: #0f172a; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #64748b;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #0284c7;
+      color: #ffffff;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #0369a1;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">VEEV</span>
+    <h1>Veeva Systems</h1>
+    <div class="quote-row">
+      <span class="price">$303.78</span>
+      <span class="change up">+4.3% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+4.3%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for VEEV">
+    <defs>
+      <linearGradient id="chart-fill-VEEV" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#059669" stop-opacity="0.22"/>
+        <stop offset="100%" stop-color="#059669" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="42.7" x2="416" y2="42.7" stroke="#cbd5e1" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,42.7 L13.6,39.6 L15.2,38.9 L16.8,36.1 L18.4,37.9 L20.0,42.3 L21.7,40.9 L23.3,54.6 L24.9,57.4 L26.5,58.0 L28.1,60.1 L29.7,82.3 L31.3,89.3 L32.9,85.7 L34.5,85.1 L36.1,85.4 L37.8,85.3 L39.4,85.6 L41.0,84.6 L42.6,83.8 L44.2,84.0 L45.8,86.5 L47.4,92.4 L49.0,94.8 L50.6,94.5 L52.2,99.7 L53.8,102.4 L55.5,103.0 L57.1,106.3 L58.7,104.1 L60.3,100.9 L61.9,99.6 L63.5,98.9 L65.1,99.8 L66.7,98.6 L68.3,98.2 L69.9,98.6 L71.6,99.8 L73.2,102.9 L74.8,101.4 L76.4,87.5 L78.0,86.2 L79.6,84.7 L81.2,85.6 L82.8,91.4 L84.4,95.3 L86.0,103.4 L87.6,103.3 L89.3,100.6 L90.9,105.6 L92.5,102.7 L94.1,98.0 L95.7,100.8 L97.3,99.0 L98.9,104.2 L100.5,104.1 L102.1,110.9 L103.7,116.0 L105.4,116.4 L107.0,127.0 L108.6,127.1 L110.2,132.8 L111.8,133.0 L113.4,132.2 L115.0,130.2 L116.6,138.5 L118.2,142.7 L119.8,141.0 L121.5,138.7 L123.1,135.0 L124.7,133.9 L126.3,135.8 L127.9,142.6 L129.5,139.6 L131.1,139.0 L132.7,133.6 L134.3,134.3 L135.9,134.8 L137.5,131.1 L139.2,128.9 L140.8,122.6 L142.4,123.0 L144.0,123.0 L145.6,127.9 L147.2,130.1 L148.8,135.4 L150.4,137.0 L152.0,131.6 L153.6,130.4 L155.3,132.6 L156.9,131.3 L158.5,132.6 L160.1,131.6 L161.7,136.8 L163.3,137.6 L164.9,137.5 L166.5,142.2 L168.1,139.4 L169.7,139.7 L171.3,142.1 L173.0,141.1 L174.6,140.5 L176.2,142.3 L177.8,147.3 L179.4,155.3 L181.0,160.0 L182.6,154.1 L184.2,153.6 L185.8,146.7 L187.4,146.4 L189.1,146.1 L190.7,145.4 L192.3,146.3 L193.9,149.6 L195.5,156.0 L197.1,151.9 L198.7,152.4 L200.3,154.1 L201.9,154.3 L203.5,156.2 L205.1,143.1 L206.8,144.2 L208.4,143.4 L210.0,146.6 L211.6,145.9 L213.2,147.5 L214.8,153.4 L216.4,153.3 L218.0,156.4 L219.6,156.0 L221.2,153.8 L222.9,149.6 L224.5,150.0 L226.1,148.6 L227.7,154.3 L229.3,152.7 L230.9,154.0 L232.5,154.1 L234.1,149.1 L235.7,140.8 L237.3,128.8 L238.9,133.6 L240.6,137.1 L242.2,137.2 L243.8,142.2 L245.4,146.7 L247.0,146.4 L248.6,149.7 L250.2,151.5 L251.8,153.2 L253.4,151.0 L255.0,150.0 L256.7,157.1 L258.3,158.4 L259.9,158.5 L261.5,153.1 L263.1,151.7 L264.7,154.4 L266.3,143.3 L267.9,139.2 L269.5,138.1 L271.1,132.5 L272.7,125.3 L274.4,125.9 L276.0,125.7 L277.6,129.2 L279.2,127.9 L280.8,127.5 L282.4,121.9 L284.0,125.0 L285.6,124.6 L287.2,121.5 L288.8,123.1 L290.5,121.4 L292.1,128.3 L293.7,132.2 L295.3,136.4 L296.9,130.8 L298.5,123.9 L300.1,118.2 L301.7,112.6 L303.3,117.9 L304.9,116.1 L306.5,114.0 L308.2,109.3 L309.8,107.9 L311.4,104.3 L313.0,93.7 L314.6,90.1 L316.2,88.5 L317.8,84.4 L319.4,75.1 L321.0,82.5 L322.6,87.1 L324.3,83.4 L325.9,76.4 L327.5,76.8 L329.1,79.1 L330.7,78.6 L332.3,80.0 L333.9,81.6 L335.5,50.3 L337.1,54.9 L338.7,47.3 L340.4,52.8 L342.0,51.5 L343.6,48.4 L345.2,56.2 L346.8,64.8 L348.4,68.2 L350.0,68.1 L351.6,66.9 L353.2,64.1 L354.8,63.3 L356.4,64.8 L358.1,65.8 L359.7,68.7 L361.3,67.8 L362.9,68.1 L364.5,59.9 L366.1,56.4 L367.7,51.5 L369.3,52.1 L370.9,53.3 L372.5,47.5 L374.2,50.5 L375.8,57.7 L377.4,49.2 L379.0,49.2 L380.6,50.0 L382.2,48.1 L383.8,38.6 L385.4,38.8 L387.0,34.0 L388.6,37.6 L390.2,24.4 L391.9,26.6 L393.5,21.2 L395.1,19.7 L396.7,18.1 L398.3,16.4 L399.9,16.0 L401.5,20.1 L403.1,24.0 L404.7,20.4 L406.3,26.7 L408.0,24.5 L409.6,29.5 L411.2,32.6 L412.8,26.4 L414.4,26.9 L416.0,32.2 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-VEEV)"/>
+    <path d="M12.0,42.7 L13.6,39.6 L15.2,38.9 L16.8,36.1 L18.4,37.9 L20.0,42.3 L21.7,40.9 L23.3,54.6 L24.9,57.4 L26.5,58.0 L28.1,60.1 L29.7,82.3 L31.3,89.3 L32.9,85.7 L34.5,85.1 L36.1,85.4 L37.8,85.3 L39.4,85.6 L41.0,84.6 L42.6,83.8 L44.2,84.0 L45.8,86.5 L47.4,92.4 L49.0,94.8 L50.6,94.5 L52.2,99.7 L53.8,102.4 L55.5,103.0 L57.1,106.3 L58.7,104.1 L60.3,100.9 L61.9,99.6 L63.5,98.9 L65.1,99.8 L66.7,98.6 L68.3,98.2 L69.9,98.6 L71.6,99.8 L73.2,102.9 L74.8,101.4 L76.4,87.5 L78.0,86.2 L79.6,84.7 L81.2,85.6 L82.8,91.4 L84.4,95.3 L86.0,103.4 L87.6,103.3 L89.3,100.6 L90.9,105.6 L92.5,102.7 L94.1,98.0 L95.7,100.8 L97.3,99.0 L98.9,104.2 L100.5,104.1 L102.1,110.9 L103.7,116.0 L105.4,116.4 L107.0,127.0 L108.6,127.1 L110.2,132.8 L111.8,133.0 L113.4,132.2 L115.0,130.2 L116.6,138.5 L118.2,142.7 L119.8,141.0 L121.5,138.7 L123.1,135.0 L124.7,133.9 L126.3,135.8 L127.9,142.6 L129.5,139.6 L131.1,139.0 L132.7,133.6 L134.3,134.3 L135.9,134.8 L137.5,131.1 L139.2,128.9 L140.8,122.6 L142.4,123.0 L144.0,123.0 L145.6,127.9 L147.2,130.1 L148.8,135.4 L150.4,137.0 L152.0,131.6 L153.6,130.4 L155.3,132.6 L156.9,131.3 L158.5,132.6 L160.1,131.6 L161.7,136.8 L163.3,137.6 L164.9,137.5 L166.5,142.2 L168.1,139.4 L169.7,139.7 L171.3,142.1 L173.0,141.1 L174.6,140.5 L176.2,142.3 L177.8,147.3 L179.4,155.3 L181.0,160.0 L182.6,154.1 L184.2,153.6 L185.8,146.7 L187.4,146.4 L189.1,146.1 L190.7,145.4 L192.3,146.3 L193.9,149.6 L195.5,156.0 L197.1,151.9 L198.7,152.4 L200.3,154.1 L201.9,154.3 L203.5,156.2 L205.1,143.1 L206.8,144.2 L208.4,143.4 L210.0,146.6 L211.6,145.9 L213.2,147.5 L214.8,153.4 L216.4,153.3 L218.0,156.4 L219.6,156.0 L221.2,153.8 L222.9,149.6 L224.5,150.0 L226.1,148.6 L227.7,154.3 L229.3,152.7 L230.9,154.0 L232.5,154.1 L234.1,149.1 L235.7,140.8 L237.3,128.8 L238.9,133.6 L240.6,137.1 L242.2,137.2 L243.8,142.2 L245.4,146.7 L247.0,146.4 L248.6,149.7 L250.2,151.5 L251.8,153.2 L253.4,151.0 L255.0,150.0 L256.7,157.1 L258.3,158.4 L259.9,158.5 L261.5,153.1 L263.1,151.7 L264.7,154.4 L266.3,143.3 L267.9,139.2 L269.5,138.1 L271.1,132.5 L272.7,125.3 L274.4,125.9 L276.0,125.7 L277.6,129.2 L279.2,127.9 L280.8,127.5 L282.4,121.9 L284.0,125.0 L285.6,124.6 L287.2,121.5 L288.8,123.1 L290.5,121.4 L292.1,128.3 L293.7,132.2 L295.3,136.4 L296.9,130.8 L298.5,123.9 L300.1,118.2 L301.7,112.6 L303.3,117.9 L304.9,116.1 L306.5,114.0 L308.2,109.3 L309.8,107.9 L311.4,104.3 L313.0,93.7 L314.6,90.1 L316.2,88.5 L317.8,84.4 L319.4,75.1 L321.0,82.5 L322.6,87.1 L324.3,83.4 L325.9,76.4 L327.5,76.8 L329.1,79.1 L330.7,78.6 L332.3,80.0 L333.9,81.6 L335.5,50.3 L337.1,54.9 L338.7,47.3 L340.4,52.8 L342.0,51.5 L343.6,48.4 L345.2,56.2 L346.8,64.8 L348.4,68.2 L350.0,68.1 L351.6,66.9 L353.2,64.1 L354.8,63.3 L356.4,64.8 L358.1,65.8 L359.7,68.7 L361.3,67.8 L362.9,68.1 L364.5,59.9 L366.1,56.4 L367.7,51.5 L369.3,52.1 L370.9,53.3 L372.5,47.5 L374.2,50.5 L375.8,57.7 L377.4,49.2 L379.0,49.2 L380.6,50.0 L382.2,48.1 L383.8,38.6 L385.4,38.8 L387.0,34.0 L388.6,37.6 L390.2,24.4 L391.9,26.6 L393.5,21.2 L395.1,19.7 L396.7,18.1 L398.3,16.4 L399.9,16.0 L401.5,20.1 L403.1,24.0 L404.7,20.4 L406.3,26.7 L408.0,24.5 L409.6,29.5 L411.2,32.6 L412.8,26.4 L414.4,26.9 L416.0,32.2" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="32.2" fill="#059669" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$303.78</text>
+    <text x="474" y="42.7" fill="#64748b" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$291.21</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip down"><span class="perf-label">1W</span><strong class="perf-value">−2.9%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+7.2%</strong></div><div class="perf-chip up"><span class="perf-label">3M</span><strong class="perf-value">+39.5%</strong></div><div class="perf-chip up"><span class="perf-label">6M</span><strong class="perf-value">+81.5%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+36.1%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+4.3%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+40.3%</strong></div><div class="perf-chip down"><span class="perf-label">5Y</span><strong class="perf-value">−4.7%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+709.2%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+584.3%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$49.2B</strong></span><span>P/E: <strong>48.5</strong></span><span>Net Income: <strong>$1.01B</strong></span>
+    </div>
+
+    <p class="summary">Veeva Systems (VEEV): $303.78 (+4.3% 1Y). Performance: 1W −2.9%, 1M +7.2%, 3M +39.5%, 6M +81.5%, YTD +36.1%, 1Y +4.3%, 5Y −4.7%. Market Cap: $49.2B, P/E: 48.5, Net Income: $1.01B. Explore interactive price graph and performance across 10 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/market-insights/#symbol=VEEV">Open VEEV in Market Insights</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/market-insights/#symbol=VEEV");</script>
+</body>
+</html>

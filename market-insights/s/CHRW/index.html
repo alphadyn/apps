@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f8fafc">
+  <title>CHRW · C.H. Robinson — Market Insights</title>
+  <meta name="description" content="C.H. Robinson (CHRW): $125.33 (−15.4% 1Y). Performance: 1W +0.6%, 1M −7.2%, 3M −14.5%, 6M −25.7%, YTD −22.0%, 1Y −15.4%, 5Y +33.6%. Market Cap: $14.5B, P/E: 21.7, Net Income: $669M. Explore interactive price graph and performance across 10 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/market-insights/s/CHRW/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/market-insights/s/CHRW/">
+  <meta property="og:title" content="CHRW · C.H. Robinson — Market Insights">
+  <meta property="og:description" content="C.H. Robinson (CHRW): $125.33 (−15.4% 1Y). Performance: 1W +0.6%, 1M −7.2%, 3M −14.5%, 6M −25.7%, YTD −22.0%, 1Y −15.4%, 5Y +33.6%. Market Cap: $14.5B, P/E: 21.7, Net Income: $669M. Explore interactive price graph and performance across 10 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/market-insights/s/CHRW/preview.png?v=1">
+  <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/market-insights/s/CHRW/preview.png?v=1">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="CHRW · C.H. Robinson — Market Insights">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CHRW · C.H. Robinson — Market Insights">
+  <meta name="twitter:description" content="C.H. Robinson (CHRW): $125.33 (−15.4% 1Y). Performance: 1W +0.6%, 1M −7.2%, 3M −14.5%, 6M −25.7%, YTD −22.0%, 1Y −15.4%, 5Y +33.6%. Market Cap: $14.5B, P/E: 21.7, Net Income: $669M. Explore interactive price graph and performance across 10 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/market-insights/s/CHRW/preview.png?v=1">
+  <meta name="twitter:image:alt" content="CHRW · C.H. Robinson — Market Insights">
+
+  <link rel="icon" href="https://alphadyn.github.io/apps/market-insights/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="https://alphadyn.github.io/apps/market-insights/apple-touch-icon.png">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #f8fafc;
+      color: #0f172a;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      color: #0369a1;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #059669; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #dc2626; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #ffffff;
+      text-align: center;
+    }
+    .perf-chip.up {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+    .perf-chip.down {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #64748b;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 0.88rem;
+      color: #64748b;
+    }
+    .stats-row strong { color: #0f172a; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #64748b;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #0284c7;
+      color: #ffffff;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #0369a1;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">CHRW</span>
+    <h1>C.H. Robinson</h1>
+    <div class="quote-row">
+      <span class="price">$125.33</span>
+      <span class="change down">−15.4% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−15.4%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for CHRW">
+    <defs>
+      <linearGradient id="chart-fill-CHRW" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#dc2626" stop-opacity="0.22"/>
+        <stop offset="100%" stop-color="#dc2626" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="119.9" x2="416" y2="119.9" stroke="#cbd5e1" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,119.9 L13.6,117.8 L15.2,114.0 L16.8,115.7 L18.4,111.8 L20.0,114.1 L21.7,112.1 L23.3,112.4 L24.9,114.0 L26.5,114.6 L28.1,119.3 L29.7,114.0 L31.3,109.1 L32.9,104.4 L34.5,100.7 L36.1,101.8 L37.8,99.4 L39.4,100.5 L41.0,100.7 L42.6,103.2 L44.2,104.6 L45.8,111.1 L47.4,112.6 L49.0,102.7 L50.6,100.3 L52.2,104.9 L53.8,104.0 L55.5,101.5 L57.1,99.7 L58.7,91.4 L60.3,88.9 L61.9,91.4 L63.5,92.1 L65.1,91.5 L66.7,92.0 L68.3,93.2 L69.9,96.6 L71.6,98.6 L73.2,93.6 L74.8,87.7 L76.4,86.9 L78.0,88.5 L79.6,89.7 L81.2,81.6 L82.8,78.6 L84.4,77.1 L86.0,79.0 L87.6,73.9 L89.3,73.1 L90.9,74.3 L92.5,67.0 L94.1,69.5 L95.7,71.6 L97.3,69.2 L98.9,65.2 L100.5,58.7 L102.1,42.7 L103.7,40.6 L105.4,34.5 L107.0,32.5 L108.6,34.1 L110.2,36.3 L111.8,31.0 L113.4,31.5 L115.0,37.8 L116.6,38.2 L118.2,86.7 L119.8,72.7 L121.5,70.4 L123.1,56.0 L124.7,57.1 L126.3,48.9 L127.9,70.7 L129.5,70.5 L131.1,72.9 L132.7,59.0 L134.3,57.0 L135.9,53.7 L137.5,43.3 L139.2,49.2 L140.8,57.8 L142.4,66.6 L144.0,62.7 L145.6,73.0 L147.2,73.1 L148.8,79.8 L150.4,84.0 L152.0,82.1 L153.6,80.0 L155.3,81.8 L156.9,74.8 L158.5,84.8 L160.1,88.3 L161.7,84.3 L163.3,83.4 L164.9,86.9 L166.5,97.2 L168.1,96.7 L169.7,89.6 L171.3,85.5 L173.0,86.6 L174.6,84.6 L176.2,89.6 L177.8,78.8 L179.4,82.6 L181.0,94.0 L182.6,91.6 L184.2,85.5 L185.8,86.2 L187.4,63.2 L189.1,62.1 L190.7,59.2 L192.3,59.8 L193.9,62.0 L195.5,59.6 L197.1,60.8 L198.7,51.7 L200.3,52.4 L201.9,55.0 L203.5,62.9 L205.1,70.5 L206.8,97.8 L208.4,87.8 L210.0,85.3 L211.6,80.6 L213.2,80.6 L214.8,83.0 L216.4,87.7 L218.0,94.4 L219.6,100.3 L221.2,93.8 L222.9,83.4 L224.5,77.8 L226.1,64.9 L227.7,69.1 L229.3,75.7 L230.9,69.5 L232.5,71.9 L234.1,73.7 L235.7,68.2 L237.3,66.1 L238.9,68.5 L240.6,64.7 L242.2,58.2 L243.8,59.0 L245.4,52.1 L247.0,46.2 L248.6,57.5 L250.2,47.1 L251.8,42.6 L253.4,48.5 L255.0,50.0 L256.7,57.1 L258.3,57.4 L259.9,53.9 L261.5,67.9 L263.1,70.6 L264.7,65.4 L266.3,67.1 L267.9,57.9 L269.5,51.8 L271.1,46.8 L272.7,49.2 L274.4,51.4 L276.0,47.4 L277.6,49.1 L279.2,44.3 L280.8,43.0 L282.4,37.9 L284.0,32.7 L285.6,36.2 L287.2,22.2 L288.8,17.6 L290.5,22.1 L292.1,16.0 L293.7,19.5 L295.3,22.6 L296.9,54.9 L298.5,75.4 L300.1,84.1 L301.7,76.6 L303.3,122.1 L304.9,120.7 L306.5,122.0 L308.2,108.8 L309.8,110.8 L311.4,122.6 L313.0,118.0 L314.6,119.8 L316.2,125.2 L317.8,122.5 L319.4,118.0 L321.0,119.3 L322.6,125.8 L324.3,125.9 L325.9,126.2 L327.5,127.4 L329.1,131.1 L330.7,129.0 L332.3,127.7 L333.9,114.0 L335.5,115.0 L337.1,116.2 L338.7,117.5 L340.4,120.5 L342.0,125.0 L343.6,122.5 L345.2,120.9 L346.8,116.7 L348.4,116.1 L350.0,112.8 L351.6,112.2 L353.2,104.5 L354.8,103.9 L356.4,111.0 L358.1,110.4 L359.7,111.8 L361.3,112.1 L362.9,117.6 L364.5,117.5 L366.1,123.3 L367.7,121.8 L369.3,119.9 L370.9,117.4 L372.5,120.4 L374.2,111.6 L375.8,103.8 L377.4,132.8 L379.0,142.3 L380.6,142.1 L382.2,131.6 L383.8,129.9 L385.4,134.3 L387.0,137.3 L388.6,134.8 L390.2,127.4 L391.9,134.7 L393.5,135.8 L395.1,132.9 L396.7,132.3 L398.3,129.9 L399.9,131.9 L401.5,133.6 L403.1,127.8 L404.7,154.9 L406.3,155.2 L408.0,160.0 L409.6,153.0 L411.2,144.9 L412.8,144.3 L414.4,153.7 L416.0,158.8 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-CHRW)"/>
+    <path d="M12.0,119.9 L13.6,117.8 L15.2,114.0 L16.8,115.7 L18.4,111.8 L20.0,114.1 L21.7,112.1 L23.3,112.4 L24.9,114.0 L26.5,114.6 L28.1,119.3 L29.7,114.0 L31.3,109.1 L32.9,104.4 L34.5,100.7 L36.1,101.8 L37.8,99.4 L39.4,100.5 L41.0,100.7 L42.6,103.2 L44.2,104.6 L45.8,111.1 L47.4,112.6 L49.0,102.7 L50.6,100.3 L52.2,104.9 L53.8,104.0 L55.5,101.5 L57.1,99.7 L58.7,91.4 L60.3,88.9 L61.9,91.4 L63.5,92.1 L65.1,91.5 L66.7,92.0 L68.3,93.2 L69.9,96.6 L71.6,98.6 L73.2,93.6 L74.8,87.7 L76.4,86.9 L78.0,88.5 L79.6,89.7 L81.2,81.6 L82.8,78.6 L84.4,77.1 L86.0,79.0 L87.6,73.9 L89.3,73.1 L90.9,74.3 L92.5,67.0 L94.1,69.5 L95.7,71.6 L97.3,69.2 L98.9,65.2 L100.5,58.7 L102.1,42.7 L103.7,40.6 L105.4,34.5 L107.0,32.5 L108.6,34.1 L110.2,36.3 L111.8,31.0 L113.4,31.5 L115.0,37.8 L116.6,38.2 L118.2,86.7 L119.8,72.7 L121.5,70.4 L123.1,56.0 L124.7,57.1 L126.3,48.9 L127.9,70.7 L129.5,70.5 L131.1,72.9 L132.7,59.0 L134.3,57.0 L135.9,53.7 L137.5,43.3 L139.2,49.2 L140.8,57.8 L142.4,66.6 L144.0,62.7 L145.6,73.0 L147.2,73.1 L148.8,79.8 L150.4,84.0 L152.0,82.1 L153.6,80.0 L155.3,81.8 L156.9,74.8 L158.5,84.8 L160.1,88.3 L161.7,84.3 L163.3,83.4 L164.9,86.9 L166.5,97.2 L168.1,96.7 L169.7,89.6 L171.3,85.5 L173.0,86.6 L174.6,84.6 L176.2,89.6 L177.8,78.8 L179.4,82.6 L181.0,94.0 L182.6,91.6 L184.2,85.5 L185.8,86.2 L187.4,63.2 L189.1,62.1 L190.7,59.2 L192.3,59.8 L193.9,62.0 L195.5,59.6 L197.1,60.8 L198.7,51.7 L200.3,52.4 L201.9,55.0 L203.5,62.9 L205.1,70.5 L206.8,97.8 L208.4,87.8 L210.0,85.3 L211.6,80.6 L213.2,80.6 L214.8,83.0 L216.4,87.7 L218.0,94.4 L219.6,100.3 L221.2,93.8 L222.9,83.4 L224.5,77.8 L226.1,64.9 L227.7,69.1 L229.3,75.7 L230.9,69.5 L232.5,71.9 L234.1,73.7 L235.7,68.2 L237.3,66.1 L238.9,68.5 L240.6,64.7 L242.2,58.2 L243.8,59.0 L245.4,52.1 L247.0,46.2 L248.6,57.5 L250.2,47.1 L251.8,42.6 L253.4,48.5 L255.0,50.0 L256.7,57.1 L258.3,57.4 L259.9,53.9 L261.5,67.9 L263.1,70.6 L264.7,65.4 L266.3,67.1 L267.9,57.9 L269.5,51.8 L271.1,46.8 L272.7,49.2 L274.4,51.4 L276.0,47.4 L277.6,49.1 L279.2,44.3 L280.8,43.0 L282.4,37.9 L284.0,32.7 L285.6,36.2 L287.2,22.2 L288.8,17.6 L290.5,22.1 L292.1,16.0 L293.7,19.5 L295.3,22.6 L296.9,54.9 L298.5,75.4 L300.1,84.1 L301.7,76.6 L303.3,122.1 L304.9,120.7 L306.5,122.0 L308.2,108.8 L309.8,110.8 L311.4,122.6 L313.0,118.0 L314.6,119.8 L316.2,125.2 L317.8,122.5 L319.4,118.0 L321.0,119.3 L322.6,125.8 L324.3,125.9 L325.9,126.2 L327.5,127.4 L329.1,131.1 L330.7,129.0 L332.3,127.7 L333.9,114.0 L335.5,115.0 L337.1,116.2 L338.7,117.5 L340.4,120.5 L342.0,125.0 L343.6,122.5 L345.2,120.9 L346.8,116.7 L348.4,116.1 L350.0,112.8 L351.6,112.2 L353.2,104.5 L354.8,103.9 L356.4,111.0 L358.1,110.4 L359.7,111.8 L361.3,112.1 L362.9,117.6 L364.5,117.5 L366.1,123.3 L367.7,121.8 L369.3,119.9 L370.9,117.4 L372.5,120.4 L374.2,111.6 L375.8,103.8 L377.4,132.8 L379.0,142.3 L380.6,142.1 L382.2,131.6 L383.8,129.9 L385.4,134.3 L387.0,137.3 L388.6,134.8 L390.2,127.4 L391.9,134.7 L393.5,135.8 L395.1,132.9 L396.7,132.3 L398.3,129.9 L399.9,131.9 L401.5,133.6 L403.1,127.8 L404.7,154.9 L406.3,155.2 L408.0,160.0 L409.6,153.0 L411.2,144.9 L412.8,144.3 L414.4,153.7 L416.0,158.8" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="158.8" fill="#dc2626" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$125.33</text>
+    <text x="474" y="119.9" fill="#64748b" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$148.23</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+0.6%</strong></div><div class="perf-chip down"><span class="perf-label">1M</span><strong class="perf-value">−7.2%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−14.5%</strong></div><div class="perf-chip down"><span class="perf-label">6M</span><strong class="perf-value">−25.7%</strong></div><div class="perf-chip down"><span class="perf-label">YTD</span><strong class="perf-value">−22.0%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−15.4%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+17.8%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+33.6%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+82.5%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+2141%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$14.5B</strong></span><span>P/E: <strong>21.7</strong></span><span>Net Income: <strong>$669M</strong></span>
+    </div>
+
+    <p class="summary">C.H. Robinson (CHRW): $125.33 (−15.4% 1Y). Performance: 1W +0.6%, 1M −7.2%, 3M −14.5%, 6M −25.7%, YTD −22.0%, 1Y −15.4%, 5Y +33.6%. Market Cap: $14.5B, P/E: 21.7, Net Income: $669M. Explore interactive price graph and performance across 10 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/market-insights/#symbol=CHRW">Open CHRW in Market Insights</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/market-insights/#symbol=CHRW");</script>
+</body>
+</html>

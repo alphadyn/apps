@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f8fafc">
+  <title>BDX · Becton Dickinson — Market Insights</title>
+  <meta name="description" content="Becton Dickinson (BDX): $211.86 (+51.9% 1Y). Performance: 1W +7.1%, 1M +17.5%, 3M +19.6%, 6M +46.4%, YTD +38.9%, 1Y +51.9%, 5Y +13.3%. Market Cap: $57.7B, P/E: 61.3, Net Income: $941M. Explore interactive price graph and performance across 10 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/market-insights/s/BDX/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/market-insights/s/BDX/">
+  <meta property="og:title" content="BDX · Becton Dickinson — Market Insights">
+  <meta property="og:description" content="Becton Dickinson (BDX): $211.86 (+51.9% 1Y). Performance: 1W +7.1%, 1M +17.5%, 3M +19.6%, 6M +46.4%, YTD +38.9%, 1Y +51.9%, 5Y +13.3%. Market Cap: $57.7B, P/E: 61.3, Net Income: $941M. Explore interactive price graph and performance across 10 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/market-insights/s/BDX/preview.png?v=1">
+  <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/market-insights/s/BDX/preview.png?v=1">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="BDX · Becton Dickinson — Market Insights">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="BDX · Becton Dickinson — Market Insights">
+  <meta name="twitter:description" content="Becton Dickinson (BDX): $211.86 (+51.9% 1Y). Performance: 1W +7.1%, 1M +17.5%, 3M +19.6%, 6M +46.4%, YTD +38.9%, 1Y +51.9%, 5Y +13.3%. Market Cap: $57.7B, P/E: 61.3, Net Income: $941M. Explore interactive price graph and performance across 10 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/market-insights/s/BDX/preview.png?v=1">
+  <meta name="twitter:image:alt" content="BDX · Becton Dickinson — Market Insights">
+
+  <link rel="icon" href="https://alphadyn.github.io/apps/market-insights/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="https://alphadyn.github.io/apps/market-insights/apple-touch-icon.png">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #f8fafc;
+      color: #0f172a;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      color: #0369a1;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #059669; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #dc2626; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #ffffff;
+      text-align: center;
+    }
+    .perf-chip.up {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+    .perf-chip.down {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #64748b;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 0.88rem;
+      color: #64748b;
+    }
+    .stats-row strong { color: #0f172a; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #64748b;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #0284c7;
+      color: #ffffff;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #0369a1;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">BDX</span>
+    <h1>Becton Dickinson</h1>
+    <div class="quote-row">
+      <span class="price">$211.86</span>
+      <span class="change up">+51.9% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+51.9%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for BDX">
+    <defs>
+      <linearGradient id="chart-fill-BDX" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#059669" stop-opacity="0.22"/>
+        <stop offset="100%" stop-color="#059669" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="160.0" x2="416" y2="160.0" stroke="#cbd5e1" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,160.0 L13.6,159.3 L15.2,153.5 L16.8,142.2 L18.4,137.5 L20.0,136.1 L21.7,136.1 L23.3,139.2 L24.9,137.2 L26.5,138.9 L28.1,141.4 L29.7,136.6 L31.3,139.3 L32.9,132.3 L34.5,134.8 L36.1,134.6 L37.8,138.0 L39.4,140.0 L41.0,135.3 L42.6,135.0 L44.2,134.7 L45.8,141.5 L47.4,142.5 L49.0,127.9 L50.6,124.8 L52.2,124.1 L53.8,125.3 L55.5,131.0 L57.1,132.5 L58.7,133.6 L60.3,132.2 L61.9,130.4 L63.5,132.1 L65.1,131.4 L66.7,131.1 L68.3,132.8 L69.9,132.1 L71.6,134.5 L73.2,133.2 L74.8,127.0 L76.4,117.3 L78.0,121.3 L79.6,117.5 L81.2,121.3 L82.8,121.3 L84.4,123.1 L86.0,114.1 L87.6,112.7 L89.3,114.6 L90.9,120.3 L92.5,116.0 L94.1,116.2 L95.7,122.7 L97.3,120.2 L98.9,120.3 L100.5,122.5 L102.1,123.8 L103.7,120.1 L105.4,122.5 L107.0,115.5 L108.6,113.4 L110.2,115.5 L111.8,110.1 L113.4,114.2 L115.0,97.4 L116.6,80.0 L118.2,85.5 L119.8,89.2 L121.5,86.3 L123.1,76.0 L124.7,76.4 L126.3,70.7 L127.9,72.8 L129.5,76.4 L131.1,79.3 L132.7,87.7 L134.3,88.0 L135.9,87.9 L137.5,92.5 L139.2,97.7 L140.8,100.8 L142.4,106.2 L144.0,109.5 L145.6,112.5 L147.2,113.9 L148.8,120.8 L150.4,121.3 L152.0,119.6 L153.6,116.9 L155.3,123.8 L156.9,126.8 L158.5,131.5 L160.1,127.4 L161.7,128.0 L163.3,123.4 L164.9,125.2 L166.5,130.7 L168.1,130.4 L169.7,125.5 L171.3,127.2 L173.0,130.7 L174.6,129.2 L176.2,129.9 L177.8,125.7 L179.4,128.9 L181.0,131.3 L182.6,129.0 L184.2,128.4 L185.8,128.8 L187.4,130.1 L189.1,122.9 L190.7,122.7 L192.3,126.5 L193.9,128.5 L195.5,130.1 L197.1,135.4 L198.7,139.1 L200.3,140.4 L201.9,148.6 L203.5,141.4 L205.1,140.9 L206.8,146.7 L208.4,150.8 L210.0,149.7 L211.6,133.2 L213.2,140.6 L214.8,152.8 L216.4,144.4 L218.0,150.8 L219.6,150.3 L221.2,152.2 L222.9,154.4 L224.5,145.4 L226.1,145.4 L227.7,146.8 L229.3,144.1 L230.9,143.9 L232.5,144.9 L234.1,142.6 L235.7,145.1 L237.3,148.6 L238.9,150.3 L240.6,148.0 L242.2,140.4 L243.8,137.3 L245.4,139.5 L247.0,135.5 L248.6,143.8 L250.2,144.7 L251.8,146.8 L253.4,148.2 L255.0,148.9 L256.7,155.8 L258.3,151.2 L259.9,157.6 L261.5,151.3 L263.1,143.8 L264.7,136.8 L266.3,128.0 L267.9,129.4 L269.5,136.9 L271.1,133.9 L272.7,123.8 L274.4,128.7 L276.0,127.3 L277.6,138.4 L279.2,137.9 L280.8,135.7 L282.4,132.1 L284.0,138.2 L285.6,130.0 L287.2,120.2 L288.8,123.6 L290.5,130.8 L292.1,132.0 L293.7,133.4 L295.3,133.7 L296.9,127.2 L298.5,122.2 L300.1,107.8 L301.7,103.8 L303.3,109.5 L304.9,109.2 L306.5,100.2 L308.2,100.4 L309.8,99.4 L311.4,86.9 L313.0,87.3 L314.6,81.9 L316.2,78.5 L317.8,74.2 L319.4,77.4 L321.0,74.6 L322.6,77.1 L324.3,79.7 L325.9,66.4 L327.5,66.4 L329.1,57.9 L330.7,60.3 L332.3,62.2 L333.9,61.4 L335.5,65.4 L337.1,62.7 L338.7,65.4 L340.4,67.4 L342.0,66.6 L343.6,66.4 L345.2,72.0 L346.8,83.0 L348.4,81.6 L350.0,88.2 L351.6,85.4 L353.2,75.5 L354.8,69.7 L356.4,77.6 L358.1,78.5 L359.7,79.4 L361.3,79.8 L362.9,75.4 L364.5,76.3 L366.1,82.7 L367.7,73.8 L369.3,73.8 L370.9,77.4 L372.5,83.1 L374.2,85.0 L375.8,87.4 L377.4,79.9 L379.0,80.6 L380.6,80.9 L382.2,75.9 L383.8,73.9 L385.4,63.9 L387.0,66.9 L388.6,63.9 L390.2,54.5 L391.9,58.4 L393.5,60.3 L395.1,54.4 L396.7,53.3 L398.3,41.5 L399.9,44.5 L401.5,49.4 L403.1,52.0 L404.7,51.7 L406.3,45.6 L408.0,46.5 L409.6,45.1 L411.2,45.9 L412.8,24.5 L414.4,16.0 L416.0,19.3 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-BDX)"/>
+    <path d="M12.0,160.0 L13.6,159.3 L15.2,153.5 L16.8,142.2 L18.4,137.5 L20.0,136.1 L21.7,136.1 L23.3,139.2 L24.9,137.2 L26.5,138.9 L28.1,141.4 L29.7,136.6 L31.3,139.3 L32.9,132.3 L34.5,134.8 L36.1,134.6 L37.8,138.0 L39.4,140.0 L41.0,135.3 L42.6,135.0 L44.2,134.7 L45.8,141.5 L47.4,142.5 L49.0,127.9 L50.6,124.8 L52.2,124.1 L53.8,125.3 L55.5,131.0 L57.1,132.5 L58.7,133.6 L60.3,132.2 L61.9,130.4 L63.5,132.1 L65.1,131.4 L66.7,131.1 L68.3,132.8 L69.9,132.1 L71.6,134.5 L73.2,133.2 L74.8,127.0 L76.4,117.3 L78.0,121.3 L79.6,117.5 L81.2,121.3 L82.8,121.3 L84.4,123.1 L86.0,114.1 L87.6,112.7 L89.3,114.6 L90.9,120.3 L92.5,116.0 L94.1,116.2 L95.7,122.7 L97.3,120.2 L98.9,120.3 L100.5,122.5 L102.1,123.8 L103.7,120.1 L105.4,122.5 L107.0,115.5 L108.6,113.4 L110.2,115.5 L111.8,110.1 L113.4,114.2 L115.0,97.4 L116.6,80.0 L118.2,85.5 L119.8,89.2 L121.5,86.3 L123.1,76.0 L124.7,76.4 L126.3,70.7 L127.9,72.8 L129.5,76.4 L131.1,79.3 L132.7,87.7 L134.3,88.0 L135.9,87.9 L137.5,92.5 L139.2,97.7 L140.8,100.8 L142.4,106.2 L144.0,109.5 L145.6,112.5 L147.2,113.9 L148.8,120.8 L150.4,121.3 L152.0,119.6 L153.6,116.9 L155.3,123.8 L156.9,126.8 L158.5,131.5 L160.1,127.4 L161.7,128.0 L163.3,123.4 L164.9,125.2 L166.5,130.7 L168.1,130.4 L169.7,125.5 L171.3,127.2 L173.0,130.7 L174.6,129.2 L176.2,129.9 L177.8,125.7 L179.4,128.9 L181.0,131.3 L182.6,129.0 L184.2,128.4 L185.8,128.8 L187.4,130.1 L189.1,122.9 L190.7,122.7 L192.3,126.5 L193.9,128.5 L195.5,130.1 L197.1,135.4 L198.7,139.1 L200.3,140.4 L201.9,148.6 L203.5,141.4 L205.1,140.9 L206.8,146.7 L208.4,150.8 L210.0,149.7 L211.6,133.2 L213.2,140.6 L214.8,152.8 L216.4,144.4 L218.0,150.8 L219.6,150.3 L221.2,152.2 L222.9,154.4 L224.5,145.4 L226.1,145.4 L227.7,146.8 L229.3,144.1 L230.9,143.9 L232.5,144.9 L234.1,142.6 L235.7,145.1 L237.3,148.6 L238.9,150.3 L240.6,148.0 L242.2,140.4 L243.8,137.3 L245.4,139.5 L247.0,135.5 L248.6,143.8 L250.2,144.7 L251.8,146.8 L253.4,148.2 L255.0,148.9 L256.7,155.8 L258.3,151.2 L259.9,157.6 L261.5,151.3 L263.1,143.8 L264.7,136.8 L266.3,128.0 L267.9,129.4 L269.5,136.9 L271.1,133.9 L272.7,123.8 L274.4,128.7 L276.0,127.3 L277.6,138.4 L279.2,137.9 L280.8,135.7 L282.4,132.1 L284.0,138.2 L285.6,130.0 L287.2,120.2 L288.8,123.6 L290.5,130.8 L292.1,132.0 L293.7,133.4 L295.3,133.7 L296.9,127.2 L298.5,122.2 L300.1,107.8 L301.7,103.8 L303.3,109.5 L304.9,109.2 L306.5,100.2 L308.2,100.4 L309.8,99.4 L311.4,86.9 L313.0,87.3 L314.6,81.9 L316.2,78.5 L317.8,74.2 L319.4,77.4 L321.0,74.6 L322.6,77.1 L324.3,79.7 L325.9,66.4 L327.5,66.4 L329.1,57.9 L330.7,60.3 L332.3,62.2 L333.9,61.4 L335.5,65.4 L337.1,62.7 L338.7,65.4 L340.4,67.4 L342.0,66.6 L343.6,66.4 L345.2,72.0 L346.8,83.0 L348.4,81.6 L350.0,88.2 L351.6,85.4 L353.2,75.5 L354.8,69.7 L356.4,77.6 L358.1,78.5 L359.7,79.4 L361.3,79.8 L362.9,75.4 L364.5,76.3 L366.1,82.7 L367.7,73.8 L369.3,73.8 L370.9,77.4 L372.5,83.1 L374.2,85.0 L375.8,87.4 L377.4,79.9 L379.0,80.6 L380.6,80.9 L382.2,75.9 L383.8,73.9 L385.4,63.9 L387.0,66.9 L388.6,63.9 L390.2,54.5 L391.9,58.4 L393.5,60.3 L395.1,54.4 L396.7,53.3 L398.3,41.5 L399.9,44.5 L401.5,49.4 L403.1,52.0 L404.7,51.7 L406.3,45.6 L408.0,46.5 L409.6,45.1 L411.2,45.9 L412.8,24.5 L414.4,16.0 L416.0,19.3" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="19.3" fill="#059669" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$211.86</text>
+    <text x="474" y="160.0" fill="#64748b" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$139.46</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+7.1%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+17.5%</strong></div><div class="perf-chip up"><span class="perf-label">3M</span><strong class="perf-value">+19.6%</strong></div><div class="perf-chip up"><span class="perf-label">6M</span><strong class="perf-value">+46.4%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+38.9%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+51.9%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+12.3%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+13.3%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+57.9%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+11569%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$57.7B</strong></span><span>P/E: <strong>61.3</strong></span><span>Net Income: <strong>$941M</strong></span>
+    </div>
+
+    <p class="summary">Becton Dickinson (BDX): $211.86 (+51.9% 1Y). Performance: 1W +7.1%, 1M +17.5%, 3M +19.6%, 6M +46.4%, YTD +38.9%, 1Y +51.9%, 5Y +13.3%. Market Cap: $57.7B, P/E: 61.3, Net Income: $941M. Explore interactive price graph and performance across 10 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/market-insights/#symbol=BDX">Open BDX in Market Insights</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/market-insights/#symbol=BDX");</script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f8fafc">
+  <title>ECL · Ecolab — Market Insights</title>
+  <meta name="description" content="Ecolab (ECL): $300.66 (+18.8% 1Y). Performance: 1W −0.8%, 1M +7.1%, 3M +6.1%, 6M +14.1%, YTD +14.5%, 1Y +18.8%, 5Y +30.3%. Market Cap: $84.3B, P/E: 40.5, Net Income: $2.08B. Explore interactive price graph and performance across 10 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/market-insights/s/ECL/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/market-insights/s/ECL/">
+  <meta property="og:title" content="ECL · Ecolab — Market Insights">
+  <meta property="og:description" content="Ecolab (ECL): $300.66 (+18.8% 1Y). Performance: 1W −0.8%, 1M +7.1%, 3M +6.1%, 6M +14.1%, YTD +14.5%, 1Y +18.8%, 5Y +30.3%. Market Cap: $84.3B, P/E: 40.5, Net Income: $2.08B. Explore interactive price graph and performance across 10 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/market-insights/s/ECL/preview.png?v=1">
+  <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/market-insights/s/ECL/preview.png?v=1">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="ECL · Ecolab — Market Insights">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ECL · Ecolab — Market Insights">
+  <meta name="twitter:description" content="Ecolab (ECL): $300.66 (+18.8% 1Y). Performance: 1W −0.8%, 1M +7.1%, 3M +6.1%, 6M +14.1%, YTD +14.5%, 1Y +18.8%, 5Y +30.3%. Market Cap: $84.3B, P/E: 40.5, Net Income: $2.08B. Explore interactive price graph and performance across 10 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/market-insights/s/ECL/preview.png?v=1">
+  <meta name="twitter:image:alt" content="ECL · Ecolab — Market Insights">
+
+  <link rel="icon" href="https://alphadyn.github.io/apps/market-insights/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="https://alphadyn.github.io/apps/market-insights/apple-touch-icon.png">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #f8fafc;
+      color: #0f172a;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      color: #0369a1;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #059669; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #dc2626; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #ffffff;
+      text-align: center;
+    }
+    .perf-chip.up {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+    .perf-chip.down {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #64748b;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 0.88rem;
+      color: #64748b;
+    }
+    .stats-row strong { color: #0f172a; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #64748b;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #0284c7;
+      color: #ffffff;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #0369a1;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">ECL</span>
+    <h1>Ecolab</h1>
+    <div class="quote-row">
+      <span class="price">$300.66</span>
+      <span class="change up">+18.8% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+18.8%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for ECL">
+    <defs>
+      <linearGradient id="chart-fill-ECL" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#059669" stop-opacity="0.22"/>
+        <stop offset="100%" stop-color="#059669" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="144.8" x2="416" y2="144.8" stroke="#cbd5e1" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,144.8 L13.6,138.4 L15.2,133.3 L16.8,126.1 L18.4,128.1 L20.0,126.2 L21.7,133.3 L23.3,139.8 L24.9,139.3 L26.5,127.2 L28.1,126.7 L29.7,115.6 L31.3,112.0 L32.9,102.4 L34.5,99.2 L36.1,98.8 L37.8,103.6 L39.4,107.7 L41.0,121.3 L42.6,121.2 L44.2,131.0 L45.8,136.3 L47.4,144.3 L49.0,135.6 L50.6,127.6 L52.2,122.9 L53.8,128.0 L55.5,131.3 L57.1,126.4 L58.7,124.3 L60.3,122.9 L61.9,115.0 L63.5,120.5 L65.1,118.7 L66.7,118.4 L68.3,118.9 L69.9,121.0 L71.6,125.1 L73.2,124.9 L74.8,123.7 L76.4,106.4 L78.0,112.2 L79.6,105.9 L81.2,106.0 L82.8,107.5 L84.4,102.2 L86.0,97.8 L87.6,93.5 L89.3,94.9 L90.9,103.3 L92.5,89.1 L94.1,85.7 L95.7,84.8 L97.3,81.1 L98.9,80.3 L100.5,85.7 L102.1,82.9 L103.7,84.6 L105.4,81.2 L107.0,83.7 L108.6,71.8 L110.2,73.8 L111.8,67.3 L113.4,71.8 L115.0,48.0 L116.6,39.8 L118.2,45.8 L119.8,48.9 L121.5,39.3 L123.1,41.8 L124.7,45.1 L126.3,38.6 L127.9,35.4 L129.5,30.2 L131.1,33.6 L132.7,33.1 L134.3,29.8 L135.9,40.0 L137.5,50.4 L139.2,51.6 L140.8,74.4 L142.4,83.2 L144.0,84.9 L145.6,85.9 L147.2,95.0 L148.8,97.3 L150.4,100.9 L152.0,103.1 L153.6,104.2 L155.3,126.5 L156.9,133.0 L158.5,137.7 L160.1,128.0 L161.7,121.0 L163.3,112.6 L164.9,121.5 L166.5,127.5 L168.1,125.2 L169.7,117.8 L171.3,110.5 L173.0,121.4 L174.6,115.7 L176.2,125.6 L177.8,102.3 L179.4,104.4 L181.0,102.7 L182.6,98.7 L184.2,103.0 L185.8,108.8 L187.4,111.2 L189.1,99.6 L190.7,97.7 L192.3,107.8 L193.9,111.8 L195.5,106.5 L197.1,110.6 L198.7,114.0 L200.3,115.9 L201.9,137.4 L203.5,129.1 L205.1,131.4 L206.8,139.5 L208.4,135.2 L210.0,123.2 L211.6,137.5 L213.2,142.4 L214.8,148.8 L216.4,147.6 L218.0,151.9 L219.6,153.5 L221.2,156.1 L222.9,152.8 L224.5,160.0 L226.1,154.0 L227.7,150.8 L229.3,144.2 L230.9,142.3 L232.5,125.0 L234.1,129.8 L235.7,138.7 L237.3,150.1 L238.9,138.1 L240.6,139.3 L242.2,142.1 L243.8,134.6 L245.4,135.7 L247.0,121.1 L248.6,136.6 L250.2,122.8 L251.8,119.1 L253.4,112.5 L255.0,101.5 L256.7,111.5 L258.3,111.4 L259.9,110.9 L261.5,112.3 L263.1,96.5 L264.7,86.3 L266.3,81.2 L267.9,91.7 L269.5,91.7 L271.1,92.2 L272.7,81.8 L274.4,81.0 L276.0,82.4 L277.6,101.0 L279.2,103.3 L280.8,100.6 L282.4,105.7 L284.0,110.1 L285.6,109.0 L287.2,97.7 L288.8,103.7 L290.5,112.4 L292.1,121.6 L293.7,116.0 L295.3,123.8 L296.9,112.2 L298.5,106.7 L300.1,82.7 L301.7,81.1 L303.3,90.1 L304.9,93.7 L306.5,90.0 L308.2,82.2 L309.8,77.4 L311.4,81.6 L313.0,78.0 L314.6,79.6 L316.2,79.1 L317.8,92.0 L319.4,96.5 L321.0,96.9 L322.6,97.4 L324.3,88.8 L325.9,77.1 L327.5,85.7 L329.1,85.4 L330.7,74.3 L332.3,68.9 L333.9,66.7 L335.5,76.5 L337.1,74.7 L338.7,82.1 L340.4,88.2 L342.0,89.0 L343.6,90.9 L345.2,90.3 L346.8,92.7 L348.4,105.0 L350.0,106.2 L351.6,96.7 L353.2,98.1 L354.8,100.0 L356.4,101.1 L358.1,106.1 L359.7,110.7 L361.3,109.6 L362.9,96.6 L364.5,95.6 L366.1,98.4 L367.7,89.8 L369.3,88.3 L370.9,93.2 L372.5,100.0 L374.2,106.9 L375.8,101.9 L377.4,94.9 L379.0,87.1 L380.6,92.7 L382.2,85.3 L383.8,85.0 L385.4,79.8 L387.0,77.0 L388.6,72.7 L390.2,66.3 L391.9,70.3 L393.5,76.4 L395.1,71.8 L396.7,72.0 L398.3,63.2 L399.9,71.0 L401.5,70.3 L403.1,65.3 L404.7,63.0 L406.3,45.4 L408.0,41.0 L409.6,29.8 L411.2,37.5 L412.8,16.0 L414.4,35.1 L416.0,45.8 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-ECL)"/>
+    <path d="M12.0,144.8 L13.6,138.4 L15.2,133.3 L16.8,126.1 L18.4,128.1 L20.0,126.2 L21.7,133.3 L23.3,139.8 L24.9,139.3 L26.5,127.2 L28.1,126.7 L29.7,115.6 L31.3,112.0 L32.9,102.4 L34.5,99.2 L36.1,98.8 L37.8,103.6 L39.4,107.7 L41.0,121.3 L42.6,121.2 L44.2,131.0 L45.8,136.3 L47.4,144.3 L49.0,135.6 L50.6,127.6 L52.2,122.9 L53.8,128.0 L55.5,131.3 L57.1,126.4 L58.7,124.3 L60.3,122.9 L61.9,115.0 L63.5,120.5 L65.1,118.7 L66.7,118.4 L68.3,118.9 L69.9,121.0 L71.6,125.1 L73.2,124.9 L74.8,123.7 L76.4,106.4 L78.0,112.2 L79.6,105.9 L81.2,106.0 L82.8,107.5 L84.4,102.2 L86.0,97.8 L87.6,93.5 L89.3,94.9 L90.9,103.3 L92.5,89.1 L94.1,85.7 L95.7,84.8 L97.3,81.1 L98.9,80.3 L100.5,85.7 L102.1,82.9 L103.7,84.6 L105.4,81.2 L107.0,83.7 L108.6,71.8 L110.2,73.8 L111.8,67.3 L113.4,71.8 L115.0,48.0 L116.6,39.8 L118.2,45.8 L119.8,48.9 L121.5,39.3 L123.1,41.8 L124.7,45.1 L126.3,38.6 L127.9,35.4 L129.5,30.2 L131.1,33.6 L132.7,33.1 L134.3,29.8 L135.9,40.0 L137.5,50.4 L139.2,51.6 L140.8,74.4 L142.4,83.2 L144.0,84.9 L145.6,85.9 L147.2,95.0 L148.8,97.3 L150.4,100.9 L152.0,103.1 L153.6,104.2 L155.3,126.5 L156.9,133.0 L158.5,137.7 L160.1,128.0 L161.7,121.0 L163.3,112.6 L164.9,121.5 L166.5,127.5 L168.1,125.2 L169.7,117.8 L171.3,110.5 L173.0,121.4 L174.6,115.7 L176.2,125.6 L177.8,102.3 L179.4,104.4 L181.0,102.7 L182.6,98.7 L184.2,103.0 L185.8,108.8 L187.4,111.2 L189.1,99.6 L190.7,97.7 L192.3,107.8 L193.9,111.8 L195.5,106.5 L197.1,110.6 L198.7,114.0 L200.3,115.9 L201.9,137.4 L203.5,129.1 L205.1,131.4 L206.8,139.5 L208.4,135.2 L210.0,123.2 L211.6,137.5 L213.2,142.4 L214.8,148.8 L216.4,147.6 L218.0,151.9 L219.6,153.5 L221.2,156.1 L222.9,152.8 L224.5,160.0 L226.1,154.0 L227.7,150.8 L229.3,144.2 L230.9,142.3 L232.5,125.0 L234.1,129.8 L235.7,138.7 L237.3,150.1 L238.9,138.1 L240.6,139.3 L242.2,142.1 L243.8,134.6 L245.4,135.7 L247.0,121.1 L248.6,136.6 L250.2,122.8 L251.8,119.1 L253.4,112.5 L255.0,101.5 L256.7,111.5 L258.3,111.4 L259.9,110.9 L261.5,112.3 L263.1,96.5 L264.7,86.3 L266.3,81.2 L267.9,91.7 L269.5,91.7 L271.1,92.2 L272.7,81.8 L274.4,81.0 L276.0,82.4 L277.6,101.0 L279.2,103.3 L280.8,100.6 L282.4,105.7 L284.0,110.1 L285.6,109.0 L287.2,97.7 L288.8,103.7 L290.5,112.4 L292.1,121.6 L293.7,116.0 L295.3,123.8 L296.9,112.2 L298.5,106.7 L300.1,82.7 L301.7,81.1 L303.3,90.1 L304.9,93.7 L306.5,90.0 L308.2,82.2 L309.8,77.4 L311.4,81.6 L313.0,78.0 L314.6,79.6 L316.2,79.1 L317.8,92.0 L319.4,96.5 L321.0,96.9 L322.6,97.4 L324.3,88.8 L325.9,77.1 L327.5,85.7 L329.1,85.4 L330.7,74.3 L332.3,68.9 L333.9,66.7 L335.5,76.5 L337.1,74.7 L338.7,82.1 L340.4,88.2 L342.0,89.0 L343.6,90.9 L345.2,90.3 L346.8,92.7 L348.4,105.0 L350.0,106.2 L351.6,96.7 L353.2,98.1 L354.8,100.0 L356.4,101.1 L358.1,106.1 L359.7,110.7 L361.3,109.6 L362.9,96.6 L364.5,95.6 L366.1,98.4 L367.7,89.8 L369.3,88.3 L370.9,93.2 L372.5,100.0 L374.2,106.9 L375.8,101.9 L377.4,94.9 L379.0,87.1 L380.6,92.7 L382.2,85.3 L383.8,85.0 L385.4,79.8 L387.0,77.0 L388.6,72.7 L390.2,66.3 L391.9,70.3 L393.5,76.4 L395.1,71.8 L396.7,72.0 L398.3,63.2 L399.9,71.0 L401.5,70.3 L403.1,65.3 L404.7,63.0 L406.3,45.4 L408.0,41.0 L409.6,29.8 L411.2,37.5 L412.8,16.0 L414.4,35.1 L416.0,45.8" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="45.8" fill="#059669" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$300.66</text>
+    <text x="474" y="144.8" fill="#64748b" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$253.06</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip down"><span class="perf-label">1W</span><strong class="perf-value">−0.8%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+7.1%</strong></div><div class="perf-chip up"><span class="perf-label">3M</span><strong class="perf-value">+6.1%</strong></div><div class="perf-chip up"><span class="perf-label">6M</span><strong class="perf-value">+14.1%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+14.5%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+18.8%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+22.9%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+30.3%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+171.7%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+12040%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$84.3B</strong></span><span>P/E: <strong>40.5</strong></span><span>Net Income: <strong>$2.08B</strong></span>
+    </div>
+
+    <p class="summary">Ecolab (ECL): $300.66 (+18.8% 1Y). Performance: 1W −0.8%, 1M +7.1%, 3M +6.1%, 6M +14.1%, YTD +14.5%, 1Y +18.8%, 5Y +30.3%. Market Cap: $84.3B, P/E: 40.5, Net Income: $2.08B. Explore interactive price graph and performance across 10 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/market-insights/#symbol=ECL">Open ECL in Market Insights</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/market-insights/#symbol=ECL");</script>
+</body>
+</html>

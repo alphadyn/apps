@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f8fafc">
+  <title>SW · Smurfit Westrock — Market Insights</title>
+  <meta name="description" content="Smurfit Westrock (SW): $44.07 (+23.4% 1Y). Performance: 1W +2.3%, 1M +4.0%, 3M −6.1%, 6M +5.2%, YTD +14.0%, 1Y +23.4%, 5Y −18.4%. Market Cap: $23.1B, P/E: 48.9, Net Income: $473M. Explore interactive price graph and performance across 10 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/market-insights/s/SW/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/market-insights/s/SW/">
+  <meta property="og:title" content="SW · Smurfit Westrock — Market Insights">
+  <meta property="og:description" content="Smurfit Westrock (SW): $44.07 (+23.4% 1Y). Performance: 1W +2.3%, 1M +4.0%, 3M −6.1%, 6M +5.2%, YTD +14.0%, 1Y +23.4%, 5Y −18.4%. Market Cap: $23.1B, P/E: 48.9, Net Income: $473M. Explore interactive price graph and performance across 10 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/market-insights/s/SW/preview.png?v=1">
+  <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/market-insights/s/SW/preview.png?v=1">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="SW · Smurfit Westrock — Market Insights">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SW · Smurfit Westrock — Market Insights">
+  <meta name="twitter:description" content="Smurfit Westrock (SW): $44.07 (+23.4% 1Y). Performance: 1W +2.3%, 1M +4.0%, 3M −6.1%, 6M +5.2%, YTD +14.0%, 1Y +23.4%, 5Y −18.4%. Market Cap: $23.1B, P/E: 48.9, Net Income: $473M. Explore interactive price graph and performance across 10 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/market-insights/s/SW/preview.png?v=1">
+  <meta name="twitter:image:alt" content="SW · Smurfit Westrock — Market Insights">
+
+  <link rel="icon" href="https://alphadyn.github.io/apps/market-insights/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="https://alphadyn.github.io/apps/market-insights/apple-touch-icon.png">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #f8fafc;
+      color: #0f172a;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      color: #0369a1;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #059669; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #dc2626; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #ffffff;
+      text-align: center;
+    }
+    .perf-chip.up {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+    .perf-chip.down {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #64748b;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 0.88rem;
+      color: #64748b;
+    }
+    .stats-row strong { color: #0f172a; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #64748b;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #0284c7;
+      color: #ffffff;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #0369a1;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">SW</span>
+    <h1>Smurfit Westrock</h1>
+    <div class="quote-row">
+      <span class="price">$44.07</span>
+      <span class="change up">+23.4% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+23.4%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for SW">
+    <defs>
+      <linearGradient id="chart-fill-SW" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#059669" stop-opacity="0.22"/>
+        <stop offset="100%" stop-color="#059669" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="137.9" x2="416" y2="137.9" stroke="#cbd5e1" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,137.9 L13.6,137.2 L15.2,139.5 L16.8,136.9 L18.4,140.4 L20.0,142.7 L21.7,148.7 L23.3,151.5 L24.9,152.2 L26.5,153.3 L28.1,160.0 L29.7,152.5 L31.3,153.0 L32.9,143.6 L34.5,137.4 L36.1,138.1 L37.8,138.4 L39.4,147.5 L41.0,134.8 L42.6,132.3 L44.2,135.4 L45.8,135.3 L47.4,141.0 L49.0,126.9 L50.6,120.5 L52.2,126.7 L53.8,124.1 L55.5,123.0 L57.1,120.5 L58.7,115.9 L60.3,119.8 L61.9,119.9 L63.5,118.8 L65.1,119.6 L66.7,115.0 L68.3,115.5 L69.9,114.3 L71.6,115.6 L73.2,108.5 L74.8,105.0 L76.4,98.3 L78.0,108.2 L79.6,88.1 L81.2,83.0 L82.8,83.3 L84.4,85.2 L86.0,84.8 L87.6,80.3 L89.3,85.0 L90.9,98.3 L92.5,90.9 L94.1,92.0 L95.7,76.8 L97.3,79.9 L98.9,83.1 L100.5,87.3 L102.1,89.5 L103.7,93.2 L105.4,90.7 L107.0,98.7 L108.6,72.3 L110.2,81.5 L111.8,74.2 L113.4,74.9 L115.0,62.0 L116.6,27.8 L118.2,19.2 L119.8,18.1 L121.5,23.7 L123.1,16.0 L124.7,31.6 L126.3,39.4 L127.9,58.0 L129.5,60.9 L131.1,60.4 L132.7,56.6 L134.3,52.5 L135.9,53.9 L137.5,66.2 L139.2,66.3 L140.8,70.8 L142.4,84.0 L144.0,89.7 L145.6,84.8 L147.2,88.9 L148.8,107.7 L150.4,107.4 L152.0,109.9 L153.6,104.9 L155.3,116.2 L156.9,128.7 L158.5,134.1 L160.1,115.3 L161.7,106.6 L163.3,100.4 L164.9,102.2 L166.5,110.0 L168.1,118.7 L169.7,106.6 L171.3,104.5 L173.0,110.9 L174.6,104.7 L176.2,111.3 L177.8,88.3 L179.4,89.3 L181.0,89.9 L182.6,89.5 L184.2,89.6 L185.8,94.9 L187.4,96.4 L189.1,88.6 L190.7,85.1 L192.3,96.3 L193.9,107.8 L195.5,101.6 L197.1,105.8 L198.7,105.2 L200.3,101.3 L201.9,107.9 L203.5,117.7 L205.1,109.8 L206.8,120.8 L208.4,109.2 L210.0,91.2 L211.6,93.2 L213.2,93.8 L214.8,98.7 L216.4,101.1 L218.0,102.2 L219.6,105.3 L221.2,124.5 L222.9,125.5 L224.5,138.6 L226.1,127.2 L227.7,122.6 L229.3,120.2 L230.9,111.5 L232.5,106.4 L234.1,97.8 L235.7,96.8 L237.3,96.1 L238.9,88.6 L240.6,89.5 L242.2,88.3 L243.8,95.8 L245.4,101.7 L247.0,95.2 L248.6,113.4 L250.2,85.2 L251.8,80.4 L253.4,71.4 L255.0,74.9 L256.7,79.6 L258.3,73.8 L259.9,64.8 L261.5,72.5 L263.1,55.9 L264.7,53.8 L266.3,52.7 L267.9,58.9 L269.5,58.2 L271.1,59.5 L272.7,60.7 L274.4,62.9 L276.0,67.7 L277.6,89.8 L279.2,82.9 L280.8,73.5 L282.4,81.7 L284.0,83.5 L285.6,78.4 L287.2,69.4 L288.8,73.0 L290.5,81.8 L292.1,82.4 L293.7,71.4 L295.3,77.5 L296.9,40.8 L298.5,29.2 L300.1,23.9 L301.7,43.1 L303.3,48.7 L304.9,60.4 L306.5,53.5 L308.2,41.1 L309.8,41.5 L311.4,53.1 L313.0,42.9 L314.6,48.1 L316.2,32.8 L317.8,35.6 L319.4,29.8 L321.0,35.6 L322.6,46.5 L324.3,50.3 L325.9,39.7 L327.5,43.6 L329.1,34.5 L330.7,39.8 L332.3,34.2 L333.9,33.2 L335.5,40.3 L337.1,42.8 L338.7,53.3 L340.4,64.5 L342.0,65.0 L343.6,65.7 L345.2,61.4 L346.8,73.3 L348.4,88.9 L350.0,88.8 L351.6,81.2 L353.2,77.2 L354.8,77.5 L356.4,70.9 L358.1,64.1 L359.7,72.8 L361.3,64.6 L362.9,56.7 L364.5,56.4 L366.1,60.1 L367.7,57.0 L369.3,67.2 L370.9,72.4 L372.5,74.5 L374.2,82.5 L375.8,86.3 L377.4,87.3 L379.0,87.4 L380.6,95.7 L382.2,94.5 L383.8,95.7 L385.4,97.4 L387.0,94.5 L388.6,99.8 L390.2,96.1 L391.9,96.7 L393.5,99.1 L395.1,96.5 L396.7,94.5 L398.3,87.1 L399.9,91.5 L401.5,88.6 L403.1,86.3 L404.7,103.0 L406.3,86.4 L408.0,82.1 L409.6,79.8 L411.2,79.6 L412.8,66.3 L414.4,71.4 L416.0,74.7 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-SW)"/>
+    <path d="M12.0,137.9 L13.6,137.2 L15.2,139.5 L16.8,136.9 L18.4,140.4 L20.0,142.7 L21.7,148.7 L23.3,151.5 L24.9,152.2 L26.5,153.3 L28.1,160.0 L29.7,152.5 L31.3,153.0 L32.9,143.6 L34.5,137.4 L36.1,138.1 L37.8,138.4 L39.4,147.5 L41.0,134.8 L42.6,132.3 L44.2,135.4 L45.8,135.3 L47.4,141.0 L49.0,126.9 L50.6,120.5 L52.2,126.7 L53.8,124.1 L55.5,123.0 L57.1,120.5 L58.7,115.9 L60.3,119.8 L61.9,119.9 L63.5,118.8 L65.1,119.6 L66.7,115.0 L68.3,115.5 L69.9,114.3 L71.6,115.6 L73.2,108.5 L74.8,105.0 L76.4,98.3 L78.0,108.2 L79.6,88.1 L81.2,83.0 L82.8,83.3 L84.4,85.2 L86.0,84.8 L87.6,80.3 L89.3,85.0 L90.9,98.3 L92.5,90.9 L94.1,92.0 L95.7,76.8 L97.3,79.9 L98.9,83.1 L100.5,87.3 L102.1,89.5 L103.7,93.2 L105.4,90.7 L107.0,98.7 L108.6,72.3 L110.2,81.5 L111.8,74.2 L113.4,74.9 L115.0,62.0 L116.6,27.8 L118.2,19.2 L119.8,18.1 L121.5,23.7 L123.1,16.0 L124.7,31.6 L126.3,39.4 L127.9,58.0 L129.5,60.9 L131.1,60.4 L132.7,56.6 L134.3,52.5 L135.9,53.9 L137.5,66.2 L139.2,66.3 L140.8,70.8 L142.4,84.0 L144.0,89.7 L145.6,84.8 L147.2,88.9 L148.8,107.7 L150.4,107.4 L152.0,109.9 L153.6,104.9 L155.3,116.2 L156.9,128.7 L158.5,134.1 L160.1,115.3 L161.7,106.6 L163.3,100.4 L164.9,102.2 L166.5,110.0 L168.1,118.7 L169.7,106.6 L171.3,104.5 L173.0,110.9 L174.6,104.7 L176.2,111.3 L177.8,88.3 L179.4,89.3 L181.0,89.9 L182.6,89.5 L184.2,89.6 L185.8,94.9 L187.4,96.4 L189.1,88.6 L190.7,85.1 L192.3,96.3 L193.9,107.8 L195.5,101.6 L197.1,105.8 L198.7,105.2 L200.3,101.3 L201.9,107.9 L203.5,117.7 L205.1,109.8 L206.8,120.8 L208.4,109.2 L210.0,91.2 L211.6,93.2 L213.2,93.8 L214.8,98.7 L216.4,101.1 L218.0,102.2 L219.6,105.3 L221.2,124.5 L222.9,125.5 L224.5,138.6 L226.1,127.2 L227.7,122.6 L229.3,120.2 L230.9,111.5 L232.5,106.4 L234.1,97.8 L235.7,96.8 L237.3,96.1 L238.9,88.6 L240.6,89.5 L242.2,88.3 L243.8,95.8 L245.4,101.7 L247.0,95.2 L248.6,113.4 L250.2,85.2 L251.8,80.4 L253.4,71.4 L255.0,74.9 L256.7,79.6 L258.3,73.8 L259.9,64.8 L261.5,72.5 L263.1,55.9 L264.7,53.8 L266.3,52.7 L267.9,58.9 L269.5,58.2 L271.1,59.5 L272.7,60.7 L274.4,62.9 L276.0,67.7 L277.6,89.8 L279.2,82.9 L280.8,73.5 L282.4,81.7 L284.0,83.5 L285.6,78.4 L287.2,69.4 L288.8,73.0 L290.5,81.8 L292.1,82.4 L293.7,71.4 L295.3,77.5 L296.9,40.8 L298.5,29.2 L300.1,23.9 L301.7,43.1 L303.3,48.7 L304.9,60.4 L306.5,53.5 L308.2,41.1 L309.8,41.5 L311.4,53.1 L313.0,42.9 L314.6,48.1 L316.2,32.8 L317.8,35.6 L319.4,29.8 L321.0,35.6 L322.6,46.5 L324.3,50.3 L325.9,39.7 L327.5,43.6 L329.1,34.5 L330.7,39.8 L332.3,34.2 L333.9,33.2 L335.5,40.3 L337.1,42.8 L338.7,53.3 L340.4,64.5 L342.0,65.0 L343.6,65.7 L345.2,61.4 L346.8,73.3 L348.4,88.9 L350.0,88.8 L351.6,81.2 L353.2,77.2 L354.8,77.5 L356.4,70.9 L358.1,64.1 L359.7,72.8 L361.3,64.6 L362.9,56.7 L364.5,56.4 L366.1,60.1 L367.7,57.0 L369.3,67.2 L370.9,72.4 L372.5,74.5 L374.2,82.5 L375.8,86.3 L377.4,87.3 L379.0,87.4 L380.6,95.7 L382.2,94.5 L383.8,95.7 L385.4,97.4 L387.0,94.5 L388.6,99.8 L390.2,96.1 L391.9,96.7 L393.5,99.1 L395.1,96.5 L396.7,94.5 L398.3,87.1 L399.9,91.5 L401.5,88.6 L403.1,86.3 L404.7,103.0 L406.3,86.4 L408.0,82.1 L409.6,79.8 L411.2,79.6 L412.8,66.3 L414.4,71.4 L416.0,74.7" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="74.7" fill="#059669" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$44.07</text>
+    <text x="474" y="137.9" fill="#64748b" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$35.72</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+2.3%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+4.0%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−6.1%</strong></div><div class="perf-chip up"><span class="perf-label">6M</span><strong class="perf-value">+5.2%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+14.0%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+23.4%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−17.2%</strong></div><div class="perf-chip down"><span class="perf-label">5Y</span><strong class="perf-value">−18.4%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+101.1%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+440.7%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$23.1B</strong></span><span>P/E: <strong>48.9</strong></span><span>Net Income: <strong>$473M</strong></span>
+    </div>
+
+    <p class="summary">Smurfit Westrock (SW): $44.07 (+23.4% 1Y). Performance: 1W +2.3%, 1M +4.0%, 3M −6.1%, 6M +5.2%, YTD +14.0%, 1Y +23.4%, 5Y −18.4%. Market Cap: $23.1B, P/E: 48.9, Net Income: $473M. Explore interactive price graph and performance across 10 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/market-insights/#symbol=SW">Open SW in Market Insights</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/market-insights/#symbol=SW");</script>
+</body>
+</html>

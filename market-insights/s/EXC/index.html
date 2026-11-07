@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f8fafc">
+  <title>EXC · Exelon — Market Insights</title>
+  <meta name="description" content="Exelon (EXC): $45.62 (−0.2% 1Y). Performance: 1W −1.2%, 1M +9.5%, 3M +0.7%, 6M +1.3%, YTD +4.7%, 1Y −0.2%, 5Y +18.1%. Market Cap: $47.2B, P/E: 17.0, Net Income: $2.78B. Explore interactive price graph and performance across 10 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/market-insights/s/EXC/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/market-insights/s/EXC/">
+  <meta property="og:title" content="EXC · Exelon — Market Insights">
+  <meta property="og:description" content="Exelon (EXC): $45.62 (−0.2% 1Y). Performance: 1W −1.2%, 1M +9.5%, 3M +0.7%, 6M +1.3%, YTD +4.7%, 1Y −0.2%, 5Y +18.1%. Market Cap: $47.2B, P/E: 17.0, Net Income: $2.78B. Explore interactive price graph and performance across 10 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/market-insights/s/EXC/preview.png?v=1">
+  <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/market-insights/s/EXC/preview.png?v=1">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="EXC · Exelon — Market Insights">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="EXC · Exelon — Market Insights">
+  <meta name="twitter:description" content="Exelon (EXC): $45.62 (−0.2% 1Y). Performance: 1W −1.2%, 1M +9.5%, 3M +0.7%, 6M +1.3%, YTD +4.7%, 1Y −0.2%, 5Y +18.1%. Market Cap: $47.2B, P/E: 17.0, Net Income: $2.78B. Explore interactive price graph and performance across 10 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/market-insights/s/EXC/preview.png?v=1">
+  <meta name="twitter:image:alt" content="EXC · Exelon — Market Insights">
+
+  <link rel="icon" href="https://alphadyn.github.io/apps/market-insights/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="https://alphadyn.github.io/apps/market-insights/apple-touch-icon.png">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #f8fafc;
+      color: #0f172a;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      color: #0369a1;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #059669; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #dc2626; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #ffffff;
+      text-align: center;
+    }
+    .perf-chip.up {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+    .perf-chip.down {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #64748b;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 0.88rem;
+      color: #64748b;
+    }
+    .stats-row strong { color: #0f172a; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #64748b;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #0284c7;
+      color: #ffffff;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #0369a1;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">EXC</span>
+    <h1>Exelon</h1>
+    <div class="quote-row">
+      <span class="price">$45.62</span>
+      <span class="change down">−0.2% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−0.2%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for EXC">
+    <defs>
+      <linearGradient id="chart-fill-EXC" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#dc2626" stop-opacity="0.22"/>
+        <stop offset="100%" stop-color="#dc2626" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="81.4" x2="416" y2="81.4" stroke="#cbd5e1" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,81.4 L13.6,74.2 L15.2,84.9 L16.8,85.2 L18.4,78.2 L20.0,85.1 L21.7,78.1 L23.3,68.7 L24.9,71.8 L26.5,83.5 L28.1,85.6 L29.7,80.8 L31.3,73.9 L32.9,80.4 L34.5,69.1 L36.1,61.2 L37.8,81.6 L39.4,91.5 L41.0,98.1 L42.6,107.1 L44.2,108.5 L45.8,115.3 L47.4,109.2 L49.0,116.0 L50.6,118.8 L52.2,111.9 L53.8,107.6 L55.5,109.2 L57.1,102.6 L58.7,101.8 L60.3,110.6 L61.9,112.2 L63.5,113.5 L65.1,112.6 L66.7,112.0 L68.3,111.0 L69.9,106.9 L71.6,111.6 L73.2,106.9 L74.8,112.3 L76.4,108.1 L78.0,120.2 L79.6,113.6 L81.2,115.8 L82.8,121.5 L84.4,115.5 L86.0,111.5 L87.6,103.6 L89.3,95.3 L90.9,92.2 L92.5,91.5 L94.1,97.2 L95.7,104.9 L97.3,97.9 L98.9,93.9 L100.5,94.9 L102.1,99.9 L103.7,94.6 L105.4,107.1 L107.0,105.6 L108.6,113.9 L110.2,104.9 L111.8,101.1 L113.4,106.2 L115.0,96.6 L116.6,99.3 L118.2,55.1 L119.8,41.8 L121.5,48.1 L123.1,59.5 L124.7,57.8 L126.3,51.7 L127.9,45.8 L129.5,40.3 L131.1,38.7 L132.7,37.3 L134.3,27.7 L135.9,32.0 L137.5,35.0 L139.2,30.8 L140.8,37.7 L142.4,29.3 L144.0,32.4 L145.6,34.3 L147.2,36.7 L148.8,27.6 L150.4,22.7 L152.0,16.0 L153.6,19.6 L155.3,30.8 L156.9,48.5 L158.5,70.9 L160.1,60.5 L161.7,58.8 L163.3,53.4 L164.9,43.0 L166.5,44.1 L168.1,32.8 L169.7,34.1 L171.3,36.1 L173.0,29.7 L174.6,35.3 L176.2,33.7 L177.8,32.0 L179.4,28.1 L181.0,40.5 L182.6,46.5 L184.2,39.3 L185.8,50.4 L187.4,54.5 L189.1,62.7 L190.7,71.5 L192.3,73.4 L193.9,79.2 L195.5,66.5 L197.1,64.1 L198.7,68.8 L200.3,62.4 L201.9,62.7 L203.5,77.4 L205.1,70.1 L206.8,68.5 L208.4,74.7 L210.0,91.2 L211.6,99.9 L213.2,107.1 L214.8,103.1 L216.4,91.8 L218.0,101.9 L219.6,100.1 L221.2,114.6 L222.9,106.2 L224.5,96.9 L226.1,93.4 L227.7,86.5 L229.3,73.9 L230.9,76.8 L232.5,74.5 L234.1,83.2 L235.7,82.4 L237.3,95.6 L238.9,91.5 L240.6,90.4 L242.2,96.8 L243.8,80.8 L245.4,94.4 L247.0,86.8 L248.6,82.8 L250.2,84.2 L251.8,74.2 L253.4,74.7 L255.0,68.8 L256.7,83.5 L258.3,79.9 L259.9,78.1 L261.5,68.4 L263.1,64.4 L264.7,66.5 L266.3,57.2 L267.9,60.8 L269.5,68.4 L271.1,73.5 L272.7,50.4 L274.4,62.2 L276.0,54.8 L277.6,59.0 L279.2,71.8 L280.8,65.8 L282.4,61.7 L284.0,64.1 L285.6,80.9 L287.2,66.0 L288.8,73.5 L290.5,77.8 L292.1,78.8 L293.7,67.2 L295.3,59.0 L296.9,55.4 L298.5,60.8 L300.1,58.5 L301.7,62.5 L303.3,83.2 L304.9,79.8 L306.5,82.5 L308.2,79.5 L309.8,80.7 L311.4,86.9 L313.0,82.8 L314.6,98.6 L316.2,93.4 L317.8,88.4 L319.4,82.9 L321.0,79.2 L322.6,83.4 L324.3,87.1 L325.9,87.2 L327.5,90.6 L329.1,108.9 L330.7,100.9 L332.3,101.3 L333.9,99.5 L335.5,106.3 L337.1,106.8 L338.7,109.8 L340.4,108.2 L342.0,106.2 L343.6,98.2 L345.2,110.9 L346.8,106.5 L348.4,110.0 L350.0,114.5 L351.6,117.8 L353.2,124.0 L354.8,131.5 L356.4,128.0 L358.1,125.2 L359.7,133.3 L361.3,134.6 L362.9,137.2 L364.5,153.0 L366.1,160.0 L367.7,158.0 L369.3,158.3 L370.9,153.6 L372.5,157.1 L374.2,156.1 L375.8,152.4 L377.4,151.2 L379.0,138.9 L380.6,141.6 L382.2,138.2 L383.8,137.7 L385.4,132.6 L387.0,129.5 L388.6,125.7 L390.2,127.5 L391.9,112.9 L393.5,128.5 L395.1,119.6 L396.7,119.3 L398.3,93.6 L399.9,99.6 L401.5,98.1 L403.1,95.8 L404.7,94.8 L406.3,78.5 L408.0,74.9 L409.6,70.8 L411.2,84.4 L412.8,73.8 L414.4,69.7 L416.0,82.6 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-EXC)"/>
+    <path d="M12.0,81.4 L13.6,74.2 L15.2,84.9 L16.8,85.2 L18.4,78.2 L20.0,85.1 L21.7,78.1 L23.3,68.7 L24.9,71.8 L26.5,83.5 L28.1,85.6 L29.7,80.8 L31.3,73.9 L32.9,80.4 L34.5,69.1 L36.1,61.2 L37.8,81.6 L39.4,91.5 L41.0,98.1 L42.6,107.1 L44.2,108.5 L45.8,115.3 L47.4,109.2 L49.0,116.0 L50.6,118.8 L52.2,111.9 L53.8,107.6 L55.5,109.2 L57.1,102.6 L58.7,101.8 L60.3,110.6 L61.9,112.2 L63.5,113.5 L65.1,112.6 L66.7,112.0 L68.3,111.0 L69.9,106.9 L71.6,111.6 L73.2,106.9 L74.8,112.3 L76.4,108.1 L78.0,120.2 L79.6,113.6 L81.2,115.8 L82.8,121.5 L84.4,115.5 L86.0,111.5 L87.6,103.6 L89.3,95.3 L90.9,92.2 L92.5,91.5 L94.1,97.2 L95.7,104.9 L97.3,97.9 L98.9,93.9 L100.5,94.9 L102.1,99.9 L103.7,94.6 L105.4,107.1 L107.0,105.6 L108.6,113.9 L110.2,104.9 L111.8,101.1 L113.4,106.2 L115.0,96.6 L116.6,99.3 L118.2,55.1 L119.8,41.8 L121.5,48.1 L123.1,59.5 L124.7,57.8 L126.3,51.7 L127.9,45.8 L129.5,40.3 L131.1,38.7 L132.7,37.3 L134.3,27.7 L135.9,32.0 L137.5,35.0 L139.2,30.8 L140.8,37.7 L142.4,29.3 L144.0,32.4 L145.6,34.3 L147.2,36.7 L148.8,27.6 L150.4,22.7 L152.0,16.0 L153.6,19.6 L155.3,30.8 L156.9,48.5 L158.5,70.9 L160.1,60.5 L161.7,58.8 L163.3,53.4 L164.9,43.0 L166.5,44.1 L168.1,32.8 L169.7,34.1 L171.3,36.1 L173.0,29.7 L174.6,35.3 L176.2,33.7 L177.8,32.0 L179.4,28.1 L181.0,40.5 L182.6,46.5 L184.2,39.3 L185.8,50.4 L187.4,54.5 L189.1,62.7 L190.7,71.5 L192.3,73.4 L193.9,79.2 L195.5,66.5 L197.1,64.1 L198.7,68.8 L200.3,62.4 L201.9,62.7 L203.5,77.4 L205.1,70.1 L206.8,68.5 L208.4,74.7 L210.0,91.2 L211.6,99.9 L213.2,107.1 L214.8,103.1 L216.4,91.8 L218.0,101.9 L219.6,100.1 L221.2,114.6 L222.9,106.2 L224.5,96.9 L226.1,93.4 L227.7,86.5 L229.3,73.9 L230.9,76.8 L232.5,74.5 L234.1,83.2 L235.7,82.4 L237.3,95.6 L238.9,91.5 L240.6,90.4 L242.2,96.8 L243.8,80.8 L245.4,94.4 L247.0,86.8 L248.6,82.8 L250.2,84.2 L251.8,74.2 L253.4,74.7 L255.0,68.8 L256.7,83.5 L258.3,79.9 L259.9,78.1 L261.5,68.4 L263.1,64.4 L264.7,66.5 L266.3,57.2 L267.9,60.8 L269.5,68.4 L271.1,73.5 L272.7,50.4 L274.4,62.2 L276.0,54.8 L277.6,59.0 L279.2,71.8 L280.8,65.8 L282.4,61.7 L284.0,64.1 L285.6,80.9 L287.2,66.0 L288.8,73.5 L290.5,77.8 L292.1,78.8 L293.7,67.2 L295.3,59.0 L296.9,55.4 L298.5,60.8 L300.1,58.5 L301.7,62.5 L303.3,83.2 L304.9,79.8 L306.5,82.5 L308.2,79.5 L309.8,80.7 L311.4,86.9 L313.0,82.8 L314.6,98.6 L316.2,93.4 L317.8,88.4 L319.4,82.9 L321.0,79.2 L322.6,83.4 L324.3,87.1 L325.9,87.2 L327.5,90.6 L329.1,108.9 L330.7,100.9 L332.3,101.3 L333.9,99.5 L335.5,106.3 L337.1,106.8 L338.7,109.8 L340.4,108.2 L342.0,106.2 L343.6,98.2 L345.2,110.9 L346.8,106.5 L348.4,110.0 L350.0,114.5 L351.6,117.8 L353.2,124.0 L354.8,131.5 L356.4,128.0 L358.1,125.2 L359.7,133.3 L361.3,134.6 L362.9,137.2 L364.5,153.0 L366.1,160.0 L367.7,158.0 L369.3,158.3 L370.9,153.6 L372.5,157.1 L374.2,156.1 L375.8,152.4 L377.4,151.2 L379.0,138.9 L380.6,141.6 L382.2,138.2 L383.8,137.7 L385.4,132.6 L387.0,129.5 L388.6,125.7 L390.2,127.5 L391.9,112.9 L393.5,128.5 L395.1,119.6 L396.7,119.3 L398.3,93.6 L399.9,99.6 L401.5,98.1 L403.1,95.8 L404.7,94.8 L406.3,78.5 L408.0,74.9 L409.6,70.8 L411.2,84.4 L412.8,73.8 L414.4,69.7 L416.0,82.6" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="82.6" fill="#dc2626" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$45.62</text>
+    <text x="474" y="81.4" fill="#64748b" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$45.71</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip down"><span class="perf-label">1W</span><strong class="perf-value">−1.2%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+9.5%</strong></div><div class="perf-chip up"><span class="perf-label">3M</span><strong class="perf-value">+0.7%</strong></div><div class="perf-chip up"><span class="perf-label">6M</span><strong class="perf-value">+1.3%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+4.7%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−0.2%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+19.1%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+18.1%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+95.7%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+468.5%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$47.2B</strong></span><span>P/E: <strong>17.0</strong></span><span>Net Income: <strong>$2.78B</strong></span>
+    </div>
+
+    <p class="summary">Exelon (EXC): $45.62 (−0.2% 1Y). Performance: 1W −1.2%, 1M +9.5%, 3M +0.7%, 6M +1.3%, YTD +4.7%, 1Y −0.2%, 5Y +18.1%. Market Cap: $47.2B, P/E: 17.0, Net Income: $2.78B. Explore interactive price graph and performance across 10 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/market-insights/#symbol=EXC">Open EXC in Market Insights</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/market-insights/#symbol=EXC");</script>
+</body>
+</html>

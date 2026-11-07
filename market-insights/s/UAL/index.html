@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f8fafc">
+  <title>UAL · United Airlines Holdings — Market Insights</title>
+  <meta name="description" content="United Airlines Holdings (UAL): $112.74 (+17.8% 1Y). Performance: 1W +8.2%, 1M +0.8%, 3M −12.7%, 6M +12.7%, YTD +0.8%, 1Y +17.8%, 5Y +113.9%. Market Cap: $36.6B, P/E: 10.2, Net Income: $3.58B. Explore interactive price graph and performance across 10 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/market-insights/s/UAL/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/market-insights/s/UAL/">
+  <meta property="og:title" content="UAL · United Airlines Holdings — Market Insights">
+  <meta property="og:description" content="United Airlines Holdings (UAL): $112.74 (+17.8% 1Y). Performance: 1W +8.2%, 1M +0.8%, 3M −12.7%, 6M +12.7%, YTD +0.8%, 1Y +17.8%, 5Y +113.9%. Market Cap: $36.6B, P/E: 10.2, Net Income: $3.58B. Explore interactive price graph and performance across 10 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/market-insights/s/UAL/preview.png?v=1">
+  <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/market-insights/s/UAL/preview.png?v=1">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="UAL · United Airlines Holdings — Market Insights">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="UAL · United Airlines Holdings — Market Insights">
+  <meta name="twitter:description" content="United Airlines Holdings (UAL): $112.74 (+17.8% 1Y). Performance: 1W +8.2%, 1M +0.8%, 3M −12.7%, 6M +12.7%, YTD +0.8%, 1Y +17.8%, 5Y +113.9%. Market Cap: $36.6B, P/E: 10.2, Net Income: $3.58B. Explore interactive price graph and performance across 10 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/market-insights/s/UAL/preview.png?v=1">
+  <meta name="twitter:image:alt" content="UAL · United Airlines Holdings — Market Insights">
+
+  <link rel="icon" href="https://alphadyn.github.io/apps/market-insights/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="https://alphadyn.github.io/apps/market-insights/apple-touch-icon.png">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #f8fafc;
+      color: #0f172a;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      color: #0369a1;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #059669; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #dc2626; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #ffffff;
+      text-align: center;
+    }
+    .perf-chip.up {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+    .perf-chip.down {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #64748b;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 0.88rem;
+      color: #64748b;
+    }
+    .stats-row strong { color: #0f172a; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #64748b;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #0284c7;
+      color: #ffffff;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #0369a1;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">UAL</span>
+    <h1>United Airlines Holdings</h1>
+    <div class="quote-row">
+      <span class="price">$112.74</span>
+      <span class="change up">+17.8% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+17.8%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for UAL">
+    <defs>
+      <linearGradient id="chart-fill-UAL" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#059669" stop-opacity="0.22"/>
+        <stop offset="100%" stop-color="#059669" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="130.3" x2="416" y2="130.3" stroke="#cbd5e1" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,130.3 L13.6,125.4 L15.2,129.1 L16.8,132.4 L18.4,118.2 L20.0,126.2 L21.7,132.2 L23.3,146.6 L24.9,141.0 L26.5,142.7 L28.1,146.3 L29.7,140.2 L31.3,130.5 L32.9,121.2 L34.5,113.7 L36.1,112.6 L37.8,115.0 L39.4,105.8 L41.0,94.2 L42.6,104.8 L44.2,104.2 L45.8,105.4 L47.4,102.0 L49.0,96.3 L50.6,94.4 L52.2,98.8 L53.8,96.4 L55.5,82.9 L57.1,89.1 L58.7,81.8 L60.3,78.6 L61.9,72.8 L63.5,79.9 L65.1,76.3 L66.7,78.4 L68.3,85.8 L69.9,85.6 L71.6,84.7 L73.2,81.4 L74.8,76.0 L76.4,68.6 L78.0,71.2 L79.6,74.4 L81.2,69.2 L82.8,74.9 L84.4,77.4 L86.0,87.7 L87.6,72.8 L89.3,80.0 L90.9,93.9 L92.5,87.2 L94.1,88.7 L95.7,96.3 L97.3,96.2 L98.9,106.7 L100.5,104.3 L102.1,107.0 L103.7,111.6 L105.4,97.4 L107.0,87.4 L108.6,91.3 L110.2,100.9 L111.8,73.1 L113.4,72.3 L115.0,71.9 L116.6,78.7 L118.2,91.8 L119.8,91.9 L121.5,78.5 L123.1,70.3 L124.7,89.7 L126.3,81.3 L127.9,97.9 L129.5,82.5 L131.1,81.7 L132.7,71.7 L134.3,100.3 L135.9,109.1 L137.5,111.0 L139.2,116.8 L140.8,131.1 L142.4,140.6 L144.0,133.7 L145.6,143.3 L147.2,144.5 L148.8,156.3 L150.4,156.1 L152.0,145.7 L153.6,137.4 L155.3,139.3 L156.9,134.7 L158.5,146.6 L160.1,135.2 L161.7,136.4 L163.3,138.1 L164.9,138.8 L166.5,150.9 L168.1,160.0 L169.7,140.6 L171.3,132.1 L173.0,140.2 L174.6,143.7 L176.2,148.5 L177.8,128.6 L179.4,124.7 L181.0,128.3 L182.6,131.7 L184.2,126.1 L185.8,134.4 L187.4,132.2 L189.1,113.1 L190.7,121.2 L192.3,126.3 L193.9,141.6 L195.5,142.9 L197.1,138.0 L198.7,141.1 L200.3,145.3 L201.9,150.4 L203.5,146.4 L205.1,139.3 L206.8,146.3 L208.4,136.1 L210.0,118.0 L211.6,119.0 L213.2,119.3 L214.8,127.7 L216.4,129.9 L218.0,130.3 L219.6,129.4 L221.2,138.4 L222.9,139.2 L224.5,148.9 L226.1,123.8 L227.7,119.2 L229.3,118.3 L230.9,101.4 L232.5,82.5 L234.1,75.6 L235.7,76.3 L237.3,84.9 L238.9,93.2 L240.6,103.6 L242.2,104.2 L243.8,101.9 L245.4,103.1 L247.0,90.9 L248.6,110.3 L250.2,82.5 L251.8,74.3 L253.4,61.7 L255.0,65.8 L256.7,73.4 L258.3,66.3 L259.9,65.3 L261.5,57.2 L263.1,31.8 L264.7,20.2 L266.3,16.0 L267.9,18.6 L269.5,16.3 L271.1,18.8 L272.7,23.9 L274.4,26.2 L276.0,38.1 L277.6,44.0 L279.2,36.0 L280.8,44.6 L282.4,58.3 L284.0,60.6 L285.6,58.8 L287.2,64.9 L288.8,74.6 L290.5,68.6 L292.1,68.1 L293.7,69.3 L295.3,74.7 L296.9,66.5 L298.5,60.0 L300.1,50.9 L301.7,63.2 L303.3,51.5 L304.9,57.8 L306.5,37.8 L308.2,25.9 L309.8,25.5 L311.4,35.8 L313.0,34.5 L314.6,50.9 L316.2,43.7 L317.8,47.1 L319.4,43.6 L321.0,46.5 L322.6,55.2 L324.3,65.2 L325.9,73.5 L327.5,85.0 L329.1,80.9 L330.7,79.8 L332.3,68.9 L333.9,76.2 L335.5,83.1 L337.1,88.2 L338.7,95.6 L340.4,105.1 L342.0,94.5 L343.6,93.7 L345.2,86.0 L346.8,94.8 L348.4,98.0 L350.0,99.8 L351.6,90.4 L353.2,92.8 L354.8,98.6 L356.4,100.3 L358.1,96.5 L359.7,93.5 L361.3,77.4 L362.9,75.1 L364.5,87.8 L366.1,86.5 L367.7,78.6 L369.3,85.6 L370.9,82.4 L372.5,87.2 L374.2,84.8 L375.8,82.8 L377.4,89.9 L379.0,84.6 L380.6,89.4 L382.2,97.1 L383.8,97.1 L385.4,105.6 L387.0,109.0 L388.6,121.1 L390.2,114.5 L391.9,129.2 L393.5,130.6 L395.1,124.5 L396.7,113.4 L398.3,112.5 L399.9,124.0 L401.5,116.2 L403.1,104.8 L404.7,108.5 L406.3,103.4 L408.0,106.2 L409.6,92.0 L411.2,97.8 L412.8,73.6 L414.4,88.5 L416.0,82.1 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-UAL)"/>
+    <path d="M12.0,130.3 L13.6,125.4 L15.2,129.1 L16.8,132.4 L18.4,118.2 L20.0,126.2 L21.7,132.2 L23.3,146.6 L24.9,141.0 L26.5,142.7 L28.1,146.3 L29.7,140.2 L31.3,130.5 L32.9,121.2 L34.5,113.7 L36.1,112.6 L37.8,115.0 L39.4,105.8 L41.0,94.2 L42.6,104.8 L44.2,104.2 L45.8,105.4 L47.4,102.0 L49.0,96.3 L50.6,94.4 L52.2,98.8 L53.8,96.4 L55.5,82.9 L57.1,89.1 L58.7,81.8 L60.3,78.6 L61.9,72.8 L63.5,79.9 L65.1,76.3 L66.7,78.4 L68.3,85.8 L69.9,85.6 L71.6,84.7 L73.2,81.4 L74.8,76.0 L76.4,68.6 L78.0,71.2 L79.6,74.4 L81.2,69.2 L82.8,74.9 L84.4,77.4 L86.0,87.7 L87.6,72.8 L89.3,80.0 L90.9,93.9 L92.5,87.2 L94.1,88.7 L95.7,96.3 L97.3,96.2 L98.9,106.7 L100.5,104.3 L102.1,107.0 L103.7,111.6 L105.4,97.4 L107.0,87.4 L108.6,91.3 L110.2,100.9 L111.8,73.1 L113.4,72.3 L115.0,71.9 L116.6,78.7 L118.2,91.8 L119.8,91.9 L121.5,78.5 L123.1,70.3 L124.7,89.7 L126.3,81.3 L127.9,97.9 L129.5,82.5 L131.1,81.7 L132.7,71.7 L134.3,100.3 L135.9,109.1 L137.5,111.0 L139.2,116.8 L140.8,131.1 L142.4,140.6 L144.0,133.7 L145.6,143.3 L147.2,144.5 L148.8,156.3 L150.4,156.1 L152.0,145.7 L153.6,137.4 L155.3,139.3 L156.9,134.7 L158.5,146.6 L160.1,135.2 L161.7,136.4 L163.3,138.1 L164.9,138.8 L166.5,150.9 L168.1,160.0 L169.7,140.6 L171.3,132.1 L173.0,140.2 L174.6,143.7 L176.2,148.5 L177.8,128.6 L179.4,124.7 L181.0,128.3 L182.6,131.7 L184.2,126.1 L185.8,134.4 L187.4,132.2 L189.1,113.1 L190.7,121.2 L192.3,126.3 L193.9,141.6 L195.5,142.9 L197.1,138.0 L198.7,141.1 L200.3,145.3 L201.9,150.4 L203.5,146.4 L205.1,139.3 L206.8,146.3 L208.4,136.1 L210.0,118.0 L211.6,119.0 L213.2,119.3 L214.8,127.7 L216.4,129.9 L218.0,130.3 L219.6,129.4 L221.2,138.4 L222.9,139.2 L224.5,148.9 L226.1,123.8 L227.7,119.2 L229.3,118.3 L230.9,101.4 L232.5,82.5 L234.1,75.6 L235.7,76.3 L237.3,84.9 L238.9,93.2 L240.6,103.6 L242.2,104.2 L243.8,101.9 L245.4,103.1 L247.0,90.9 L248.6,110.3 L250.2,82.5 L251.8,74.3 L253.4,61.7 L255.0,65.8 L256.7,73.4 L258.3,66.3 L259.9,65.3 L261.5,57.2 L263.1,31.8 L264.7,20.2 L266.3,16.0 L267.9,18.6 L269.5,16.3 L271.1,18.8 L272.7,23.9 L274.4,26.2 L276.0,38.1 L277.6,44.0 L279.2,36.0 L280.8,44.6 L282.4,58.3 L284.0,60.6 L285.6,58.8 L287.2,64.9 L288.8,74.6 L290.5,68.6 L292.1,68.1 L293.7,69.3 L295.3,74.7 L296.9,66.5 L298.5,60.0 L300.1,50.9 L301.7,63.2 L303.3,51.5 L304.9,57.8 L306.5,37.8 L308.2,25.9 L309.8,25.5 L311.4,35.8 L313.0,34.5 L314.6,50.9 L316.2,43.7 L317.8,47.1 L319.4,43.6 L321.0,46.5 L322.6,55.2 L324.3,65.2 L325.9,73.5 L327.5,85.0 L329.1,80.9 L330.7,79.8 L332.3,68.9 L333.9,76.2 L335.5,83.1 L337.1,88.2 L338.7,95.6 L340.4,105.1 L342.0,94.5 L343.6,93.7 L345.2,86.0 L346.8,94.8 L348.4,98.0 L350.0,99.8 L351.6,90.4 L353.2,92.8 L354.8,98.6 L356.4,100.3 L358.1,96.5 L359.7,93.5 L361.3,77.4 L362.9,75.1 L364.5,87.8 L366.1,86.5 L367.7,78.6 L369.3,85.6 L370.9,82.4 L372.5,87.2 L374.2,84.8 L375.8,82.8 L377.4,89.9 L379.0,84.6 L380.6,89.4 L382.2,97.1 L383.8,97.1 L385.4,105.6 L387.0,109.0 L388.6,121.1 L390.2,114.5 L391.9,129.2 L393.5,130.6 L395.1,124.5 L396.7,113.4 L398.3,112.5 L399.9,124.0 L401.5,116.2 L403.1,104.8 L404.7,108.5 L406.3,103.4 L408.0,106.2 L409.6,92.0 L411.2,97.8 L412.8,73.6 L414.4,88.5 L416.0,82.1" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="82.1" fill="#059669" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$112.74</text>
+    <text x="474" y="130.3" fill="#64748b" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$95.72</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip up"><span class="perf-label">1W</span><strong class="perf-value">+8.2%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+0.8%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−12.7%</strong></div><div class="perf-chip up"><span class="perf-label">6M</span><strong class="perf-value">+12.7%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+0.8%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+17.8%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+28.7%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+113.9%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+97.0%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+229.3%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$36.6B</strong></span><span>P/E: <strong>10.2</strong></span><span>Net Income: <strong>$3.58B</strong></span>
+    </div>
+
+    <p class="summary">United Airlines Holdings (UAL): $112.74 (+17.8% 1Y). Performance: 1W +8.2%, 1M +0.8%, 3M −12.7%, 6M +12.7%, YTD +0.8%, 1Y +17.8%, 5Y +113.9%. Market Cap: $36.6B, P/E: 10.2, Net Income: $3.58B. Explore interactive price graph and performance across 10 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/market-insights/#symbol=UAL">Open UAL in Market Insights</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/market-insights/#symbol=UAL");</script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f8fafc">
+  <title>IT · Gartner — Market Insights</title>
+  <meta name="description" content="Gartner (IT): $190.04 (−16.1% 1Y). Performance: 1W −16.9%, 1M +2.8%, 3M +2.8%, 6M +25.8%, YTD −24.7%, 1Y −16.1%, 5Y −42.7%. Market Cap: $12.0B, P/E: 12.6, Net Income: $954M. Explore interactive price graph and performance across 10 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/market-insights/s/IT/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/market-insights/s/IT/">
+  <meta property="og:title" content="IT · Gartner — Market Insights">
+  <meta property="og:description" content="Gartner (IT): $190.04 (−16.1% 1Y). Performance: 1W −16.9%, 1M +2.8%, 3M +2.8%, 6M +25.8%, YTD −24.7%, 1Y −16.1%, 5Y −42.7%. Market Cap: $12.0B, P/E: 12.6, Net Income: $954M. Explore interactive price graph and performance across 10 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/market-insights/s/IT/preview.png?v=1">
+  <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/market-insights/s/IT/preview.png?v=1">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="IT · Gartner — Market Insights">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="IT · Gartner — Market Insights">
+  <meta name="twitter:description" content="Gartner (IT): $190.04 (−16.1% 1Y). Performance: 1W −16.9%, 1M +2.8%, 3M +2.8%, 6M +25.8%, YTD −24.7%, 1Y −16.1%, 5Y −42.7%. Market Cap: $12.0B, P/E: 12.6, Net Income: $954M. Explore interactive price graph and performance across 10 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/market-insights/s/IT/preview.png?v=1">
+  <meta name="twitter:image:alt" content="IT · Gartner — Market Insights">
+
+  <link rel="icon" href="https://alphadyn.github.io/apps/market-insights/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="https://alphadyn.github.io/apps/market-insights/apple-touch-icon.png">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #f8fafc;
+      color: #0f172a;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      color: #0369a1;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #059669; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #dc2626; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #ffffff;
+      text-align: center;
+    }
+    .perf-chip.up {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+    .perf-chip.down {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #64748b;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 0.88rem;
+      color: #64748b;
+    }
+    .stats-row strong { color: #0f172a; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #64748b;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #0284c7;
+      color: #ffffff;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #0369a1;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">IT</span>
+    <h1>Gartner</h1>
+    <div class="quote-row">
+      <span class="price">$190.04</span>
+      <span class="change down">−16.1% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change down">−16.1%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for IT">
+    <defs>
+      <linearGradient id="chart-fill-IT" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#dc2626" stop-opacity="0.22"/>
+        <stop offset="100%" stop-color="#dc2626" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="47.5" x2="416" y2="47.5" stroke="#cbd5e1" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,47.5 L13.6,42.8 L15.2,45.0 L16.8,41.8 L18.4,43.3 L20.0,43.3 L21.7,42.3 L23.3,47.0 L24.9,47.6 L26.5,48.1 L28.1,50.0 L29.7,38.8 L31.3,43.2 L32.9,37.5 L34.5,42.1 L36.1,40.4 L37.8,42.6 L39.4,45.0 L41.0,41.3 L42.6,41.1 L44.2,43.7 L45.8,46.5 L47.4,44.2 L49.0,42.5 L50.6,40.5 L52.2,39.1 L53.8,25.2 L55.5,24.1 L57.1,19.7 L58.7,21.6 L60.3,20.3 L61.9,20.6 L63.5,20.7 L65.1,19.8 L66.7,18.2 L68.3,16.9 L69.9,16.0 L71.6,18.6 L73.2,35.6 L74.8,33.0 L76.4,27.0 L78.0,26.0 L79.6,24.7 L81.2,23.3 L82.8,29.7 L84.4,37.0 L86.0,33.5 L87.6,43.1 L89.3,42.7 L90.9,52.6 L92.5,40.8 L94.1,35.5 L95.7,41.5 L97.3,36.1 L98.9,41.2 L100.5,48.0 L102.1,62.8 L103.7,66.3 L105.4,74.3 L107.0,121.5 L108.6,124.1 L110.2,130.6 L111.8,125.8 L113.4,122.0 L115.0,121.8 L116.6,120.0 L118.2,128.8 L119.8,123.3 L121.5,125.8 L123.1,120.3 L124.7,125.1 L126.3,128.7 L127.9,138.5 L129.5,135.9 L131.1,133.6 L132.7,126.4 L134.3,124.8 L135.9,122.5 L137.5,116.4 L139.2,114.0 L140.8,109.4 L142.4,111.6 L144.0,114.6 L145.6,122.8 L147.2,121.3 L148.8,121.0 L150.4,114.2 L152.0,121.4 L153.6,119.5 L155.3,123.8 L156.9,122.5 L158.5,120.1 L160.1,118.8 L161.7,131.3 L163.3,132.6 L164.9,125.5 L166.5,126.8 L168.1,122.7 L169.7,123.6 L171.3,127.5 L173.0,124.1 L174.6,126.4 L176.2,134.4 L177.8,133.5 L179.4,135.1 L181.0,139.9 L182.6,128.2 L184.2,133.9 L185.8,130.2 L187.4,126.7 L189.1,127.7 L190.7,125.9 L192.3,122.9 L193.9,125.0 L195.5,134.4 L197.1,132.3 L198.7,134.2 L200.3,132.7 L201.9,132.6 L203.5,134.6 L205.1,136.9 L206.8,135.4 L208.4,133.4 L210.0,131.7 L211.6,124.2 L213.2,123.2 L214.8,128.6 L216.4,129.6 L218.0,139.1 L219.6,143.3 L221.2,137.1 L222.9,126.8 L224.5,128.3 L226.1,123.4 L227.7,124.8 L229.3,121.7 L230.9,124.1 L232.5,121.7 L234.1,120.4 L235.7,119.2 L237.3,99.8 L238.9,109.8 L240.6,116.4 L242.2,116.3 L243.8,117.2 L245.4,121.3 L247.0,124.6 L248.6,127.4 L250.2,134.2 L251.8,134.9 L253.4,141.0 L255.0,141.6 L256.7,151.2 L258.3,158.0 L259.9,160.0 L261.5,156.1 L263.1,154.7 L264.7,159.0 L266.3,149.7 L267.9,152.1 L269.5,155.7 L271.1,151.0 L272.7,148.2 L274.4,149.5 L276.0,143.2 L277.6,150.0 L279.2,152.2 L280.8,151.6 L282.4,142.6 L284.0,151.9 L285.6,151.0 L287.2,140.8 L288.8,143.8 L290.5,142.9 L292.1,149.9 L293.7,152.9 L295.3,151.1 L296.9,143.5 L298.5,135.7 L300.1,126.4 L301.7,115.4 L303.3,129.6 L304.9,131.7 L306.5,131.2 L308.2,92.9 L309.8,92.2 L311.4,94.0 L313.0,93.1 L314.6,84.6 L316.2,91.2 L317.8,100.0 L319.4,95.7 L321.0,98.1 L322.6,100.3 L324.3,97.0 L325.9,85.0 L327.5,84.1 L329.1,81.6 L330.7,73.9 L332.3,81.7 L333.9,84.9 L335.5,80.8 L337.1,78.8 L338.7,79.1 L340.4,88.3 L342.0,91.8 L343.6,82.1 L345.2,92.2 L346.8,107.6 L348.4,110.9 L350.0,109.8 L351.6,99.8 L353.2,80.3 L354.8,81.9 L356.4,86.4 L358.1,90.6 L359.7,92.9 L361.3,95.6 L362.9,100.8 L364.5,101.0 L366.1,100.1 L367.7,90.5 L369.3,93.0 L370.9,92.8 L372.5,92.0 L374.2,85.0 L375.8,94.0 L377.4,90.7 L379.0,93.9 L380.6,92.9 L382.2,82.1 L383.8,86.9 L385.4,83.6 L387.0,80.4 L388.6,81.7 L390.2,68.8 L391.9,71.0 L393.5,68.4 L395.1,55.1 L396.7,55.1 L398.3,38.5 L399.9,43.2 L401.5,42.3 L403.1,53.6 L404.7,55.6 L406.3,49.0 L408.0,44.8 L409.6,37.6 L411.2,72.3 L412.8,69.0 L414.4,79.2 L416.0,88.1 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-IT)"/>
+    <path d="M12.0,47.5 L13.6,42.8 L15.2,45.0 L16.8,41.8 L18.4,43.3 L20.0,43.3 L21.7,42.3 L23.3,47.0 L24.9,47.6 L26.5,48.1 L28.1,50.0 L29.7,38.8 L31.3,43.2 L32.9,37.5 L34.5,42.1 L36.1,40.4 L37.8,42.6 L39.4,45.0 L41.0,41.3 L42.6,41.1 L44.2,43.7 L45.8,46.5 L47.4,44.2 L49.0,42.5 L50.6,40.5 L52.2,39.1 L53.8,25.2 L55.5,24.1 L57.1,19.7 L58.7,21.6 L60.3,20.3 L61.9,20.6 L63.5,20.7 L65.1,19.8 L66.7,18.2 L68.3,16.9 L69.9,16.0 L71.6,18.6 L73.2,35.6 L74.8,33.0 L76.4,27.0 L78.0,26.0 L79.6,24.7 L81.2,23.3 L82.8,29.7 L84.4,37.0 L86.0,33.5 L87.6,43.1 L89.3,42.7 L90.9,52.6 L92.5,40.8 L94.1,35.5 L95.7,41.5 L97.3,36.1 L98.9,41.2 L100.5,48.0 L102.1,62.8 L103.7,66.3 L105.4,74.3 L107.0,121.5 L108.6,124.1 L110.2,130.6 L111.8,125.8 L113.4,122.0 L115.0,121.8 L116.6,120.0 L118.2,128.8 L119.8,123.3 L121.5,125.8 L123.1,120.3 L124.7,125.1 L126.3,128.7 L127.9,138.5 L129.5,135.9 L131.1,133.6 L132.7,126.4 L134.3,124.8 L135.9,122.5 L137.5,116.4 L139.2,114.0 L140.8,109.4 L142.4,111.6 L144.0,114.6 L145.6,122.8 L147.2,121.3 L148.8,121.0 L150.4,114.2 L152.0,121.4 L153.6,119.5 L155.3,123.8 L156.9,122.5 L158.5,120.1 L160.1,118.8 L161.7,131.3 L163.3,132.6 L164.9,125.5 L166.5,126.8 L168.1,122.7 L169.7,123.6 L171.3,127.5 L173.0,124.1 L174.6,126.4 L176.2,134.4 L177.8,133.5 L179.4,135.1 L181.0,139.9 L182.6,128.2 L184.2,133.9 L185.8,130.2 L187.4,126.7 L189.1,127.7 L190.7,125.9 L192.3,122.9 L193.9,125.0 L195.5,134.4 L197.1,132.3 L198.7,134.2 L200.3,132.7 L201.9,132.6 L203.5,134.6 L205.1,136.9 L206.8,135.4 L208.4,133.4 L210.0,131.7 L211.6,124.2 L213.2,123.2 L214.8,128.6 L216.4,129.6 L218.0,139.1 L219.6,143.3 L221.2,137.1 L222.9,126.8 L224.5,128.3 L226.1,123.4 L227.7,124.8 L229.3,121.7 L230.9,124.1 L232.5,121.7 L234.1,120.4 L235.7,119.2 L237.3,99.8 L238.9,109.8 L240.6,116.4 L242.2,116.3 L243.8,117.2 L245.4,121.3 L247.0,124.6 L248.6,127.4 L250.2,134.2 L251.8,134.9 L253.4,141.0 L255.0,141.6 L256.7,151.2 L258.3,158.0 L259.9,160.0 L261.5,156.1 L263.1,154.7 L264.7,159.0 L266.3,149.7 L267.9,152.1 L269.5,155.7 L271.1,151.0 L272.7,148.2 L274.4,149.5 L276.0,143.2 L277.6,150.0 L279.2,152.2 L280.8,151.6 L282.4,142.6 L284.0,151.9 L285.6,151.0 L287.2,140.8 L288.8,143.8 L290.5,142.9 L292.1,149.9 L293.7,152.9 L295.3,151.1 L296.9,143.5 L298.5,135.7 L300.1,126.4 L301.7,115.4 L303.3,129.6 L304.9,131.7 L306.5,131.2 L308.2,92.9 L309.8,92.2 L311.4,94.0 L313.0,93.1 L314.6,84.6 L316.2,91.2 L317.8,100.0 L319.4,95.7 L321.0,98.1 L322.6,100.3 L324.3,97.0 L325.9,85.0 L327.5,84.1 L329.1,81.6 L330.7,73.9 L332.3,81.7 L333.9,84.9 L335.5,80.8 L337.1,78.8 L338.7,79.1 L340.4,88.3 L342.0,91.8 L343.6,82.1 L345.2,92.2 L346.8,107.6 L348.4,110.9 L350.0,109.8 L351.6,99.8 L353.2,80.3 L354.8,81.9 L356.4,86.4 L358.1,90.6 L359.7,92.9 L361.3,95.6 L362.9,100.8 L364.5,101.0 L366.1,100.1 L367.7,90.5 L369.3,93.0 L370.9,92.8 L372.5,92.0 L374.2,85.0 L375.8,94.0 L377.4,90.7 L379.0,93.9 L380.6,92.9 L382.2,82.1 L383.8,86.9 L385.4,83.6 L387.0,80.4 L388.6,81.7 L390.2,68.8 L391.9,71.0 L393.5,68.4 L395.1,55.1 L396.7,55.1 L398.3,38.5 L399.9,43.2 L401.5,42.3 L403.1,53.6 L404.7,55.6 L406.3,49.0 L408.0,44.8 L409.6,37.6 L411.2,72.3 L412.8,69.0 L414.4,79.2 L416.0,88.1" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="88.1" fill="#dc2626" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$190.04</text>
+    <text x="474" y="47.5" fill="#64748b" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$226.44</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip down"><span class="perf-label">1W</span><strong class="perf-value">−16.9%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+2.8%</strong></div><div class="perf-chip up"><span class="perf-label">3M</span><strong class="perf-value">+2.8%</strong></div><div class="perf-chip up"><span class="perf-label">6M</span><strong class="perf-value">+25.8%</strong></div><div class="perf-chip down"><span class="perf-label">YTD</span><strong class="perf-value">−24.7%</strong></div><div class="perf-chip down"><span class="perf-label">1Y</span><strong class="perf-value">−16.1%</strong></div><div class="perf-chip down"><span class="perf-label">2Y</span><strong class="perf-value">−64.6%</strong></div><div class="perf-chip down"><span class="perf-label">5Y</span><strong class="perf-value">−42.7%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+103.5%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+5862%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$12.0B</strong></span><span>P/E: <strong>12.6</strong></span><span>Net Income: <strong>$954M</strong></span>
+    </div>
+
+    <p class="summary">Gartner (IT): $190.04 (−16.1% 1Y). Performance: 1W −16.9%, 1M +2.8%, 3M +2.8%, 6M +25.8%, YTD −24.7%, 1Y −16.1%, 5Y −42.7%. Market Cap: $12.0B, P/E: 12.6, Net Income: $954M. Explore interactive price graph and performance across 10 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/market-insights/#symbol=IT">Open IT in Market Insights</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/market-insights/#symbol=IT");</script>
+</body>
+</html>

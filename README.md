@@ -10,7 +10,7 @@ Deployment configuration and host-specific setup are documented in [DEPLOYMENT.m
 
 The landing page's Top apps section highlights these projects:
 
-1. [S&P Insights](sp-insights/) — Screen S&P 500 securities by valuation, earnings, and nine performance periods, with sortable results and price-history charts
+1. [Market Insights](market-insights/) — Screen S&P 500 stocks and selected funds by valuation, earnings, and ten performance periods, with sortable results and price-history charts
 2. [Signal](signal/) — Explore Google News headlines, filter by ranked trends, manage shared removed keywords, and export captures as JSON
 3. [Pulse](pulse/) — Share tagged posts and media, vote, and join threaded discussions with public profiles and moderation
 4. [Northstar EHR](northstar-ehr/) — Responsive electronic health record demo for patient care workflows
@@ -26,13 +26,13 @@ Projects are listed alphabetically, matching the catalog on the landing page.
 - [Fractals](fractals/) ([Open app](https://alphadyn.github.io/apps/fractals/)) — Interactive fractal visualizer.
 - [Lexhaven Legal Docketing](lexhaven-legal-docketing/) ([Open app](https://alphadyn.github.io/apps/lexhaven-legal-docketing/)) — Matter and deadline tracking app.
 - [Market Curve Lab](market-curve-lab/) ([Open app](https://alphadyn.github.io/apps/market-curve-lab/)) — Rank all 500 S&P 500 companies by market cap, search stocks, and inspect selected-ticker all-time performance, trendlines, and concavity.
+- [Market Insights](market-insights/) ([Open app](https://alphadyn.github.io/apps/market-insights/)) — Screen S&P 500 stocks and selected funds with valuation and earnings bounds, ten performance periods, sortable results, and interactive price-history charts.
 - [Market Lens](market-lens/) ([Open app](https://alphadyn.github.io/apps/market-lens/)) — Dashboard for screening and reviewing large-cap equities.
 - [Meetings](meetings/) ([Open app](https://alphadyn.github.io/apps/meetings/)) — Encrypted WebRTC meetings with chat, file sharing, fullscreen mode, and responsive mobile controls.
 - [Nexus](nexus/) ([Open app](https://alphadyn.github.io/apps/nexus/)) — Media workspace with browser UI, sample media, filtering, metadata editing, and optional Supabase persistence.
 - [Northstar EHR](northstar-ehr/) ([Open app](https://alphadyn.github.io/apps/northstar-ehr/)) — Responsive electronic health record demo for patient care workflows and encounter documentation.
 - [Photo Gallery](photo-gallery/) ([Open app](https://alphadyn.github.io/apps/photo-gallery/)) — Responsive gallery app.
 - [Pulse](pulse/) ([Open app](https://alphadyn.github.io/apps/pulse/)) — Supabase-backed social news with tagged posts, media attachments, voting, threaded comments, public profiles, and Admin moderation.
-- [S&P Insights](sp-insights/) ([Open app](https://alphadyn.github.io/apps/sp-insights/)) — S&P 500 screener with valuation and earnings bounds, nine performance periods, sortable filtered results, and interactive price-history charts.
 - [Signal](signal/) ([Open app](https://alphadyn.github.io/apps/signal/)) — Google News snapshot reader with ranked trending names and phrases, shared removed-keyword preferences, search, and JSON export.
 - [Vault](vault/) ([Open app](https://alphadyn.github.io/apps/vault/)) — Browser-based file and folder encryption; all processing stays on-device.
 
@@ -91,17 +91,17 @@ Open <http://127.0.0.1:5001>, type a ticker or company name, and choose a matchi
 - [Pulse](pulse/README.md) uses Supabase Auth, namespaced tables, RLS policies, and optional attachment Storage. Follow its setup guide before using a new project; the initial schema is destructive on rerun, so existing installations should use the documented migrations.
 - [Signal](signal/README.md) loads a generated RSS snapshot. Run `python3 signal/build_data.py` before a local preview. Its shared removed-keyword list uses a public-edit Supabase table configured separately from the snapshot; the local Flask capture is a separate interface.
 
-### S&P Insights
+### Market Insights
 
-[S&P Insights](sp-insights/) is a static page backed by a generated `data.json` snapshot plus per-security `history/*.json` files (gitignored, built at deploy time). Filter by valuation, earnings, and performance, then sort the matching securities. Install build dependencies and generate the data before serving:
+[Market Insights](market-insights/) is a static page backed by a generated `data.json` snapshot plus per-security `history/*.json` files (gitignored, built at deploy time). Filter by valuation, earnings, and performance, then sort the matching securities. Install build dependencies and generate the data before serving:
 
 ```bash
-python3 -m pip install -r sp-insights/requirements-build.txt
-python3 sp-insights/build_data.py
-cd sp-insights && python3 -m http.server 8000
+python3 -m pip install -r market-insights/requirements-build.txt
+python3 market-insights/build_data.py
+cd market-insights && python3 -m http.server 8000
 ```
 
-See [sp-insights/README.md](sp-insights/README.md) for data sources and methodology.
+See [market-insights/README.md](market-insights/README.md) for data sources and methodology.
 
 ### Python utilities
 
@@ -132,14 +132,14 @@ A convenience wrapper is also included:
 
 The pytest configuration is defined in [pytest.ini](pytest.ini).
 
-Signal, Pulse, and S&P Insights also have focused regression tests (JavaScript tests require Node.js 18 or newer):
+Signal, Pulse, and Market Insights also have focused regression tests (JavaScript tests require Node.js 18 or newer):
 
 ```bash
 python3 -m unittest discover -s signal -p test_build_data.py
 python3 -m unittest discover -s pulse -p 'test_*.py'
-python3 -m unittest discover -s sp-insights -p test_build_data.py
-python3 -m unittest discover -s sp-insights -p test_build_share_pages.py
-node --test signal/app.test.js sp-insights/ranking.test.js sp-insights/history.test.js
+python3 -m unittest discover -s market-insights -p test_build_data.py
+python3 -m unittest discover -s market-insights -p test_build_share_pages.py
+node --test signal/app.test.js market-insights/ranking.test.js market-insights/history.test.js
 ```
 
 ## GitHub Pages updates

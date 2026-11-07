@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f8fafc">
+  <title>LYV · Live Nation Entertainment — Market Insights</title>
+  <meta name="description" content="Live Nation Entertainment (LYV): $175.10 (+27.1% 1Y). Performance: 1W −1.6%, 1M +1.9%, 3M −3.7%, 6M +4.3%, YTD +22.9%, 1Y +27.1%, 5Y +41.4%. Market Cap: $41.3B, P/E: 273.1, Net Income: $151M. Explore interactive price graph and performance across 10 periods.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/market-insights/s/LYV/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alphadyn Apps">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/market-insights/s/LYV/">
+  <meta property="og:title" content="LYV · Live Nation Entertainment — Market Insights">
+  <meta property="og:description" content="Live Nation Entertainment (LYV): $175.10 (+27.1% 1Y). Performance: 1W −1.6%, 1M +1.9%, 3M −3.7%, 6M +4.3%, YTD +22.9%, 1Y +27.1%, 5Y +41.4%. Market Cap: $41.3B, P/E: 273.1, Net Income: $151M. Explore interactive price graph and performance across 10 periods.">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/market-insights/s/LYV/preview.png?v=1">
+  <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/market-insights/s/LYV/preview.png?v=1">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="LYV · Live Nation Entertainment — Market Insights">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="LYV · Live Nation Entertainment — Market Insights">
+  <meta name="twitter:description" content="Live Nation Entertainment (LYV): $175.10 (+27.1% 1Y). Performance: 1W −1.6%, 1M +1.9%, 3M −3.7%, 6M +4.3%, YTD +22.9%, 1Y +27.1%, 5Y +41.4%. Market Cap: $41.3B, P/E: 273.1, Net Income: $151M. Explore interactive price graph and performance across 10 periods.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/market-insights/s/LYV/preview.png?v=1">
+  <meta name="twitter:image:alt" content="LYV · Live Nation Entertainment — Market Insights">
+
+  <link rel="icon" href="https://alphadyn.github.io/apps/market-insights/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="https://alphadyn.github.io/apps/market-insights/apple-touch-icon.png">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px 16px;
+      box-sizing: border-box;
+      background: #f8fafc;
+      color: #0f172a;
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: min(100%, 560px);
+      padding: 28px;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      color: #0369a1;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      margin: 12px 0 4px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .quote-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+      margin: 8px 0 16px;
+    }
+    .price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .change {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .change.up, .perf-chip.up .perf-value, .chart-change.up { color: #059669; }
+    .change.down, .perf-chip.down .perf-value, .chart-change.down { color: #dc2626; }
+
+    .chart-box {
+      margin: 16px 0;
+      padding: 12px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+    .chart-change { font-weight: 700; }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+      gap: 6px;
+      margin: 16px 0;
+    }
+    .perf-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 4px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #ffffff;
+      text-align: center;
+    }
+    .perf-chip.up {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+    .perf-chip.down {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+    .perf-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #64748b;
+    }
+    .perf-value {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 14px 0 20px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 0.88rem;
+      color: #64748b;
+    }
+    .stats-row strong { color: #0f172a; }
+
+    p.summary {
+      margin: 0 0 22px;
+      color: #64748b;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    a.btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: #0284c7;
+      color: #ffffff;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    a.btn:hover {
+      background: #0369a1;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">LYV</span>
+    <h1>Live Nation Entertainment</h1>
+    <div class="quote-row">
+      <span class="price">$175.10</span>
+      <span class="change up">+27.1% 1Y</span>
+    </div>
+
+    <div class="chart-box">
+  <div class="chart-header">
+    <span class="chart-label">1-Year Price Trend</span>
+    <span class="chart-change up">+27.1%</span>
+  </div>
+  <svg viewBox="0 0 480 180" width="100%" height="180" class="preview-chart-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-year price chart for LYV">
+    <defs>
+      <linearGradient id="chart-fill-LYV" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#059669" stop-opacity="0.22"/>
+        <stop offset="100%" stop-color="#059669" stop-opacity="0.0"/>
+      </linearGradient>
+    </defs>
+    <line x1="12" y1="132.1" x2="416" y2="132.1" stroke="#cbd5e1" stroke-dasharray="4 4" stroke-width="1"/>
+    <path d="M12.0,132.1 L13.6,125.9 L15.2,119.4 L16.8,122.8 L18.4,125.9 L20.0,134.3 L21.7,136.5 L23.3,144.4 L24.9,146.9 L26.5,149.9 L28.1,152.2 L29.7,148.5 L31.3,160.0 L32.9,150.9 L34.5,147.5 L36.1,146.6 L37.8,147.4 L39.4,153.3 L41.0,136.2 L42.6,127.8 L44.2,128.6 L45.8,131.4 L47.4,129.2 L49.0,129.7 L50.6,122.7 L52.2,119.8 L53.8,123.2 L55.5,131.4 L57.1,135.3 L58.7,129.6 L60.3,124.5 L61.9,123.0 L63.5,117.6 L65.1,114.9 L66.7,113.7 L68.3,116.6 L69.9,117.7 L71.6,121.3 L73.2,114.9 L74.8,114.9 L76.4,114.4 L78.0,118.0 L79.6,110.4 L81.2,113.1 L82.8,106.8 L84.4,113.2 L86.0,111.5 L87.6,113.9 L89.3,116.9 L90.9,125.5 L92.5,127.7 L94.1,131.3 L95.7,111.1 L97.3,109.2 L98.9,111.5 L100.5,109.8 L102.1,109.2 L103.7,114.5 L105.4,118.0 L107.0,124.0 L108.6,121.4 L110.2,131.0 L111.8,125.1 L113.4,108.9 L115.0,105.7 L116.6,101.6 L118.2,93.0 L119.8,85.2 L121.5,86.9 L123.1,90.9 L124.7,87.0 L126.3,75.1 L127.9,85.1 L129.5,85.8 L131.1,92.2 L132.7,86.0 L134.3,76.3 L135.9,77.1 L137.5,76.5 L139.2,84.3 L140.8,81.7 L142.4,90.1 L144.0,67.9 L145.6,68.5 L147.2,67.8 L148.8,80.5 L150.4,95.0 L152.0,87.9 L153.6,90.8 L155.3,89.3 L156.9,94.5 L158.5,106.8 L160.1,99.9 L161.7,97.9 L163.3,92.8 L164.9,104.0 L166.5,113.9 L168.1,107.1 L169.7,98.4 L171.3,98.1 L173.0,90.9 L174.6,80.9 L176.2,85.1 L177.8,73.1 L179.4,72.8 L181.0,79.9 L182.6,68.1 L184.2,66.8 L185.8,90.8 L187.4,79.9 L189.1,89.1 L190.7,90.2 L192.3,96.4 L193.9,93.5 L195.5,96.8 L197.1,88.9 L198.7,89.2 L200.3,93.2 L201.9,96.9 L203.5,85.9 L205.1,85.2 L206.8,86.8 L208.4,87.5 L210.0,63.3 L211.6,68.0 L213.2,73.7 L214.8,74.3 L216.4,68.2 L218.0,61.8 L219.6,58.3 L221.2,60.9 L222.9,64.0 L224.5,74.3 L226.1,71.0 L227.7,67.5 L229.3,68.5 L230.9,66.3 L232.5,66.2 L234.1,65.1 L235.7,61.9 L237.3,57.3 L238.9,63.7 L240.6,71.5 L242.2,78.9 L243.8,81.0 L245.4,82.3 L247.0,75.1 L248.6,64.0 L250.2,53.0 L251.8,52.5 L253.4,44.9 L255.0,48.9 L256.7,54.8 L258.3,55.5 L259.9,57.0 L261.5,61.5 L263.1,54.9 L264.7,46.6 L266.3,36.6 L267.9,29.5 L269.5,28.3 L271.1,26.3 L272.7,20.3 L274.4,27.8 L276.0,26.4 L277.6,30.5 L279.2,29.5 L280.8,35.9 L282.4,27.9 L284.0,31.8 L285.6,39.0 L287.2,35.7 L288.8,34.9 L290.5,33.4 L292.1,40.4 L293.7,40.1 L295.3,44.4 L296.9,41.7 L298.5,36.8 L300.1,33.4 L301.7,25.2 L303.3,27.2 L304.9,48.8 L306.5,31.5 L308.2,26.9 L309.8,27.3 L311.4,31.3 L313.0,33.9 L314.6,24.8 L316.2,27.8 L317.8,23.2 L319.4,21.5 L321.0,16.0 L322.6,25.2 L324.3,35.7 L325.9,25.8 L327.5,30.8 L329.1,31.2 L330.7,24.9 L332.3,19.9 L333.9,29.3 L335.5,33.9 L337.1,31.6 L338.7,35.6 L340.4,41.8 L342.0,36.3 L343.6,41.1 L345.2,50.3 L346.8,57.3 L348.4,58.3 L350.0,58.1 L351.6,58.0 L353.2,54.9 L354.8,57.7 L356.4,55.7 L358.1,62.1 L359.7,64.9 L361.3,60.2 L362.9,58.7 L364.5,60.5 L366.1,55.9 L367.7,56.3 L369.3,54.0 L370.9,55.8 L372.5,59.9 L374.2,65.5 L375.8,61.1 L377.4,56.8 L379.0,54.2 L380.6,56.4 L382.2,55.2 L383.8,57.5 L385.4,59.1 L387.0,55.3 L388.6,61.0 L390.2,52.5 L391.9,57.1 L393.5,56.5 L395.1,47.3 L396.7,48.4 L398.3,48.0 L399.9,50.4 L401.5,52.4 L403.1,53.8 L404.7,52.6 L406.3,40.4 L408.0,40.2 L409.6,41.9 L411.2,38.0 L412.8,28.1 L414.4,32.5 L416.0,46.6 L416.0,160.0 L12.0,160.0 Z" fill="url(#chart-fill-LYV)"/>
+    <path d="M12.0,132.1 L13.6,125.9 L15.2,119.4 L16.8,122.8 L18.4,125.9 L20.0,134.3 L21.7,136.5 L23.3,144.4 L24.9,146.9 L26.5,149.9 L28.1,152.2 L29.7,148.5 L31.3,160.0 L32.9,150.9 L34.5,147.5 L36.1,146.6 L37.8,147.4 L39.4,153.3 L41.0,136.2 L42.6,127.8 L44.2,128.6 L45.8,131.4 L47.4,129.2 L49.0,129.7 L50.6,122.7 L52.2,119.8 L53.8,123.2 L55.5,131.4 L57.1,135.3 L58.7,129.6 L60.3,124.5 L61.9,123.0 L63.5,117.6 L65.1,114.9 L66.7,113.7 L68.3,116.6 L69.9,117.7 L71.6,121.3 L73.2,114.9 L74.8,114.9 L76.4,114.4 L78.0,118.0 L79.6,110.4 L81.2,113.1 L82.8,106.8 L84.4,113.2 L86.0,111.5 L87.6,113.9 L89.3,116.9 L90.9,125.5 L92.5,127.7 L94.1,131.3 L95.7,111.1 L97.3,109.2 L98.9,111.5 L100.5,109.8 L102.1,109.2 L103.7,114.5 L105.4,118.0 L107.0,124.0 L108.6,121.4 L110.2,131.0 L111.8,125.1 L113.4,108.9 L115.0,105.7 L116.6,101.6 L118.2,93.0 L119.8,85.2 L121.5,86.9 L123.1,90.9 L124.7,87.0 L126.3,75.1 L127.9,85.1 L129.5,85.8 L131.1,92.2 L132.7,86.0 L134.3,76.3 L135.9,77.1 L137.5,76.5 L139.2,84.3 L140.8,81.7 L142.4,90.1 L144.0,67.9 L145.6,68.5 L147.2,67.8 L148.8,80.5 L150.4,95.0 L152.0,87.9 L153.6,90.8 L155.3,89.3 L156.9,94.5 L158.5,106.8 L160.1,99.9 L161.7,97.9 L163.3,92.8 L164.9,104.0 L166.5,113.9 L168.1,107.1 L169.7,98.4 L171.3,98.1 L173.0,90.9 L174.6,80.9 L176.2,85.1 L177.8,73.1 L179.4,72.8 L181.0,79.9 L182.6,68.1 L184.2,66.8 L185.8,90.8 L187.4,79.9 L189.1,89.1 L190.7,90.2 L192.3,96.4 L193.9,93.5 L195.5,96.8 L197.1,88.9 L198.7,89.2 L200.3,93.2 L201.9,96.9 L203.5,85.9 L205.1,85.2 L206.8,86.8 L208.4,87.5 L210.0,63.3 L211.6,68.0 L213.2,73.7 L214.8,74.3 L216.4,68.2 L218.0,61.8 L219.6,58.3 L221.2,60.9 L222.9,64.0 L224.5,74.3 L226.1,71.0 L227.7,67.5 L229.3,68.5 L230.9,66.3 L232.5,66.2 L234.1,65.1 L235.7,61.9 L237.3,57.3 L238.9,63.7 L240.6,71.5 L242.2,78.9 L243.8,81.0 L245.4,82.3 L247.0,75.1 L248.6,64.0 L250.2,53.0 L251.8,52.5 L253.4,44.9 L255.0,48.9 L256.7,54.8 L258.3,55.5 L259.9,57.0 L261.5,61.5 L263.1,54.9 L264.7,46.6 L266.3,36.6 L267.9,29.5 L269.5,28.3 L271.1,26.3 L272.7,20.3 L274.4,27.8 L276.0,26.4 L277.6,30.5 L279.2,29.5 L280.8,35.9 L282.4,27.9 L284.0,31.8 L285.6,39.0 L287.2,35.7 L288.8,34.9 L290.5,33.4 L292.1,40.4 L293.7,40.1 L295.3,44.4 L296.9,41.7 L298.5,36.8 L300.1,33.4 L301.7,25.2 L303.3,27.2 L304.9,48.8 L306.5,31.5 L308.2,26.9 L309.8,27.3 L311.4,31.3 L313.0,33.9 L314.6,24.8 L316.2,27.8 L317.8,23.2 L319.4,21.5 L321.0,16.0 L322.6,25.2 L324.3,35.7 L325.9,25.8 L327.5,30.8 L329.1,31.2 L330.7,24.9 L332.3,19.9 L333.9,29.3 L335.5,33.9 L337.1,31.6 L338.7,35.6 L340.4,41.8 L342.0,36.3 L343.6,41.1 L345.2,50.3 L346.8,57.3 L348.4,58.3 L350.0,58.1 L351.6,58.0 L353.2,54.9 L354.8,57.7 L356.4,55.7 L358.1,62.1 L359.7,64.9 L361.3,60.2 L362.9,58.7 L364.5,60.5 L366.1,55.9 L367.7,56.3 L369.3,54.0 L370.9,55.8 L372.5,59.9 L374.2,65.5 L375.8,61.1 L377.4,56.8 L379.0,54.2 L380.6,56.4 L382.2,55.2 L383.8,57.5 L385.4,59.1 L387.0,55.3 L388.6,61.0 L390.2,52.5 L391.9,57.1 L393.5,56.5 L395.1,47.3 L396.7,48.4 L398.3,48.0 L399.9,50.4 L401.5,52.4 L403.1,53.8 L404.7,52.6 L406.3,40.4 L408.0,40.2 L409.6,41.9 L411.2,38.0 L412.8,28.1 L414.4,32.5 L416.0,46.6" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="474" y="46.6" fill="#059669" font-size="11" font-weight="700" text-anchor="end" dy="0.35em">$175.10</text>
+    <text x="474" y="132.1" fill="#64748b" font-size="10" font-weight="600" text-anchor="end" dy="0.35em">$137.77</text>
+  </svg>
+</div>
+
+    <div class="perf-grid">
+      <div class="perf-chip down"><span class="perf-label">1W</span><strong class="perf-value">−1.6%</strong></div><div class="perf-chip up"><span class="perf-label">1M</span><strong class="perf-value">+1.9%</strong></div><div class="perf-chip down"><span class="perf-label">3M</span><strong class="perf-value">−3.7%</strong></div><div class="perf-chip up"><span class="perf-label">6M</span><strong class="perf-value">+4.3%</strong></div><div class="perf-chip up"><span class="perf-label">YTD</span><strong class="perf-value">+22.9%</strong></div><div class="perf-chip up"><span class="perf-label">1Y</span><strong class="perf-value">+27.1%</strong></div><div class="perf-chip up"><span class="perf-label">2Y</span><strong class="perf-value">+39.0%</strong></div><div class="perf-chip up"><span class="perf-label">5Y</span><strong class="perf-value">+41.4%</strong></div><div class="perf-chip up"><span class="perf-label">10Y</span><strong class="perf-value">+553.1%</strong></div><div class="perf-chip up"><span class="perf-label">All</span><strong class="perf-value">+1365%</strong></div>
+    </div>
+
+    <div class="stats-row">
+      <span>Market Cap: <strong>$41.3B</strong></span><span>P/E: <strong>273.1</strong></span><span>Net Income: <strong>$151M</strong></span>
+    </div>
+
+    <p class="summary">Live Nation Entertainment (LYV): $175.10 (+27.1% 1Y). Performance: 1W −1.6%, 1M +1.9%, 3M −3.7%, 6M +4.3%, YTD +22.9%, 1Y +27.1%, 5Y +41.4%. Market Cap: $41.3B, P/E: 273.1, Net Income: $151M. Explore interactive price graph and performance across 10 periods.</p>
+    <a class="btn" href="https://alphadyn.github.io/apps/market-insights/#symbol=LYV">Open LYV in Market Insights</a>
+  </main>
+  <script>location.replace("https://alphadyn.github.io/apps/market-insights/#symbol=LYV");</script>
+</body>
+</html>

@@ -232,7 +232,7 @@ test('selected columns lead in sort order, then the rest in default order', () =
   assert.equal(columnOrder([{ key: 'bogus', direction: 'desc' }]).length, 7);
 });
 
-test('filterSecurities filters by market cap, P/E, price, and performance periods', () => {
+test('filterSecurities filters by market cap, P/E, price, implied upside, and performance periods', () => {
   const testSecurities = [
     {
       symbol: 'AAPL', name: 'Apple Inc.', sector: 'Information Technology',
@@ -271,6 +271,15 @@ test('filterSecurities filters by market cap, P/E, price, and performance period
   // Price filter
   const affordable = filterSecurities(testSecurities, { priceMax: 180 });
   assert.deepEqual(affordable.map((s) => s.symbol), ['JNJ', 'LOSS']);
+
+  // Implied upside filters use the DCF calculation and exclude securities without a valid estimate.
+  const upsideSecurities = [
+    { symbol: 'UPSIDE', net_income: 100, market_cap: 1_000, price: 10 },
+    { symbol: 'DOWNSIDE', net_income: 100, market_cap: 2_000, price: 10 },
+    { symbol: 'MISSING', net_income: -1, market_cap: 1_000, price: 10 },
+  ];
+  assert.deepEqual(filterSecurities(upsideSecurities, { upsideMin: 0 }).map((s) => s.symbol), ['UPSIDE']);
+  assert.deepEqual(filterSecurities(upsideSecurities, { upsideMax: 0 }).map((s) => s.symbol), ['DOWNSIDE']);
 
   // Performance filters across different time periods
   const weeklyWinners = filterSecurities(testSecurities, { performance: { '1w': { min: 0 } } });

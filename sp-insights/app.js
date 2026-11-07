@@ -94,6 +94,8 @@ const elements = {
   filterPePositive: document.getElementById('filter-pe-positive'),
   filterPriceMin: document.getElementById('filter-price-min'),
   filterPriceMax: document.getElementById('filter-price-max'),
+  filterUpsideMin: document.getElementById('filter-upside-min'),
+  filterUpsideMax: document.getElementById('filter-upside-max'),
 
   // Net Income controls
   filterNiMin: document.getElementById('filter-ni-min'),
@@ -137,6 +139,8 @@ const state = {
     pePositiveOnly: false,
     priceMin: null,
     priceMax: null,
+    upsideMin: null,
+    upsideMax: null,
     netIncome: {},
     performance: {},
   },
@@ -272,6 +276,7 @@ function countActiveFilters() {
   if (state.filters.marketCapMin !== null || state.filters.marketCapMax !== null) count++;
   if (state.filters.peMin !== null || state.filters.peMax !== null || state.filters.pePositiveOnly) count++;
   if (state.filters.priceMin !== null || state.filters.priceMax !== null) count++;
+  if (state.filters.upsideMin !== null || state.filters.upsideMax !== null) count++;
   for (const period of ['ttm', 'yoy', 'prior']) {
     const f = state.filters.netIncome[period];
     if (f && (f.min !== null || f.max !== null)) count++;
@@ -310,6 +315,15 @@ function getActiveFilterDescriptors() {
     else if (min) label = `Price ≥ ${min}`;
     else label = `Price ≤ ${max}`;
     items.push({ key: 'price', label, title: 'Remove Price filter' });
+  }
+  if (state.filters.upsideMin !== null || state.filters.upsideMax !== null) {
+    const min = state.filters.upsideMin !== null ? formatPercent(state.filters.upsideMin) : null;
+    const max = state.filters.upsideMax !== null ? formatPercent(state.filters.upsideMax) : null;
+    let label = 'Implied upside';
+    if (min && max) label = `Implied upside: ${min}–${max}`;
+    else if (min) label = `Implied upside ≥ ${min}`;
+    else label = `Implied upside ≤ ${max}`;
+    items.push({ key: 'upside', label, title: 'Remove implied upside filter' });
   }
   for (const [pKey, labelName] of [['ttm', 'Net Inc (TTM)'], ['yoy', 'Net Inc YoY'], ['prior', 'Prior Net Inc']]) {
     const f = state.filters.netIncome[pKey];
@@ -461,6 +475,11 @@ function renderFilterControls() {
     const min = chip.dataset.min ? Number(chip.dataset.min) : null;
     const max = chip.dataset.max ? Number(chip.dataset.max) : null;
     chip.classList.toggle('active', state.filters.priceMin === min && state.filters.priceMax === max);
+  });
+  document.querySelectorAll('.preset-chip[data-preset="upside"]').forEach((chip) => {
+    const min = parsePercentInput(chip.dataset.min);
+    const max = parsePercentInput(chip.dataset.max);
+    chip.classList.toggle('active', state.filters.upsideMin === min && state.filters.upsideMax === max);
   });
   document.querySelectorAll('.preset-chip[data-preset="perf"]').forEach((chip) => {
     const min = parsePercentInput(chip.dataset.min);
@@ -788,6 +807,20 @@ function handlePresetClick(btn) {
       elements.filterPriceMin.value = min || '';
       elements.filterPriceMax.value = max || '';
     }
+  } else if (preset === 'upside') {
+    const minVal = parsePercentInput(min);
+    const maxVal = parsePercentInput(max);
+    if (state.filters.upsideMin === minVal && state.filters.upsideMax === maxVal) {
+      state.filters.upsideMin = null;
+      state.filters.upsideMax = null;
+      elements.filterUpsideMin.value = '';
+      elements.filterUpsideMax.value = '';
+    } else {
+      state.filters.upsideMin = minVal;
+      state.filters.upsideMax = maxVal;
+      elements.filterUpsideMin.value = min || '';
+      elements.filterUpsideMax.value = max || '';
+    }
   } else if (preset === 'perf') {
     const minVal = parsePercentInput(min);
     const maxVal = parsePercentInput(max);
@@ -838,6 +871,11 @@ function removeFilterByKey(key) {
     state.filters.priceMax = null;
     elements.filterPriceMin.value = '';
     elements.filterPriceMax.value = '';
+  } else if (key === 'upside') {
+    state.filters.upsideMin = null;
+    state.filters.upsideMax = null;
+    elements.filterUpsideMin.value = '';
+    elements.filterUpsideMax.value = '';
   } else if (key.startsWith('ni_')) {
     const period = key.replace('ni_', '');
     delete state.filters.netIncome[period];
@@ -865,6 +903,8 @@ function resetFilters() {
     pePositiveOnly: false,
     priceMin: null,
     priceMax: null,
+    upsideMin: null,
+    upsideMax: null,
     netIncome: {},
     performance: {},
   };
@@ -875,6 +915,8 @@ function resetFilters() {
   elements.filterPePositive.checked = false;
   elements.filterPriceMin.value = '';
   elements.filterPriceMax.value = '';
+  elements.filterUpsideMin.value = '';
+  elements.filterUpsideMax.value = '';
   elements.filterNiMin.value = '';
   elements.filterNiMax.value = '';
   elements.filterPerfMin.value = '';
@@ -893,6 +935,8 @@ function syncInputsFromState() {
   elements.filterPePositive.checked = Boolean(state.filters.pePositiveOnly);
   elements.filterPriceMin.value = state.filters.priceMin !== null ? String(state.filters.priceMin) : '';
   elements.filterPriceMax.value = state.filters.priceMax !== null ? String(state.filters.priceMax) : '';
+  elements.filterUpsideMin.value = formatPerfForInput(state.filters.upsideMin);
+  elements.filterUpsideMax.value = formatPerfForInput(state.filters.upsideMax);
 
   const ni = state.filters.netIncome[state.activeNiPeriod];
   elements.filterNiMin.value = formatNiForInput(ni?.min ?? null, state.activeNiPeriod);
@@ -968,6 +1012,22 @@ function bindEvents() {
     const v = elements.filterPriceMax.value.trim();
     state.filters.priceMax = v === '' ? null : Number(v);
     onFiltersChanged();
+  });
+
+  // Implied upside/downside
+  elements.filterUpsideMin.addEventListener('input', () => {
+    state.filters.upsideMin = parsePercentInput(elements.filterUpsideMin.value);
+    onFiltersChanged();
+  });
+  elements.filterUpsideMax.addEventListener('input', () => {
+    state.filters.upsideMax = parsePercentInput(elements.filterUpsideMax.value);
+    onFiltersChanged();
+  });
+  elements.filterUpsideMin.addEventListener('blur', () => {
+    elements.filterUpsideMin.value = formatPerfForInput(state.filters.upsideMin);
+  });
+  elements.filterUpsideMax.addEventListener('blur', () => {
+    elements.filterUpsideMax.value = formatPerfForInput(state.filters.upsideMax);
   });
 
   // Net Income period selector

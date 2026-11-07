@@ -161,6 +161,29 @@
             </div>
           </div>
 
+          <!-- Implied Upside Card -->
+          <div class="filter-card">
+            <div class="filter-card-head">
+              <span class="label">Implied upside/downside</span>
+            </div>
+            <div class="filter-range-inputs">
+              <label class="input-wrap">
+                <span class="input-label">Min %</span>
+                <input type="text" id="filter-upside-min" placeholder="e.g. 10%" aria-label="Minimum implied upside or downside">
+              </label>
+              <span class="range-sep" aria-hidden="true">–</span>
+              <label class="input-wrap">
+                <span class="input-label">Max %</span>
+                <input type="text" id="filter-upside-max" placeholder="e.g. 50%" aria-label="Maximum implied upside or downside">
+              </label>
+            </div>
+            <div class="filter-presets" role="group" aria-label="Implied Upside Presets">
+              <button type="button" class="preset-chip" data-preset="upside" data-min="0%" data-max="">&gt; 0% (Upside)</button>
+              <button type="button" class="preset-chip" data-preset="upside" data-min="25%" data-max="">&gt; 25%</button>
+              <button type="button" class="preset-chip" data-preset="upside" data-min="50%" data-max="">&gt; 50%</button>
+            </div>
+          </div>
+
           <!-- Net Income Card -->
           <div class="filter-card filter-card-ni">
             <div class="filter-card-head">

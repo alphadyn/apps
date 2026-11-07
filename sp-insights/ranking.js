@@ -184,6 +184,8 @@ export function filterSecurities(securities, filters = {}) {
     pePositiveOnly = false,
     priceMin = null,
     priceMax = null,
+    upsideMin = null,
+    upsideMax = null,
     performance = {},
   } = filters;
 
@@ -268,6 +270,16 @@ export function filterSecurities(securities, filters = {}) {
     }
     if (priceMax !== null && priceMax !== undefined) {
       if (security.price === null || security.price === undefined || security.price > priceMax) {
+        return false;
+      }
+    }
+
+    if ((upsideMin !== null && upsideMin !== undefined) || (upsideMax !== null && upsideMax !== undefined)) {
+      const upside = discountedCashFlowUpside(security);
+      if (upsideMin !== null && upsideMin !== undefined && (upside === null || upside < upsideMin)) {
+        return false;
+      }
+      if (upsideMax !== null && upsideMax !== undefined && (upside === null || upside > upsideMax)) {
         return false;
       }
     }

@@ -54,7 +54,7 @@ test('sliceRange uses the close on or before the start as base', () => {
 
   assert.equal(sliceRange(history, 'ytd').base.close, 60);
   assert.equal(sliceRange(history, '3m').change, 0.25);
-  assert.equal(sliceRange(history, '6m').change, 3 / 7);
+  assert.ok(Math.abs(sliceRange(history, '6m').change - 3 / 7) < 1e-12);
   assert.equal(sliceRange(history, '1w').base.close, 96);
   assert.equal(sliceRange(history, 'all').change, 9);
   assert.equal(sliceRange([], '1y'), null);

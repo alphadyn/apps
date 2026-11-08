@@ -1,5 +1,5 @@
 import {
-  FILTER_RANGES, discountedCashFlowDifference, discountedCashFlowUpside, discountedCashFlowValue,
+  FILTER_RANGES, discountedCashFlowUpside, discountedCashFlowValue,
   filterSecurities, formatMoney, formatPE, formatPercent, formatPrice, formatSecuritySummary, formatValue, getSecurityPE,
   getSecurityPerformance, marketSummary, parseMoneyInput, parsePercentInput,
   parseState, rankFilteredSecurities, serializeState,
@@ -58,7 +58,6 @@ const FILTER_COLUMNS = [
   { key: 'pe', label: 'P/E', defaultDir: 'asc' },
   { key: 'price', label: 'Price', defaultDir: 'desc' },
   { key: 'fair_value', label: 'DCF fair value', defaultDir: 'desc', title: 'Discounted cash flow estimate; assumptions are in Methodology & data sources' },
-  { key: 'fair_value_difference', label: 'DCF − price', defaultDir: 'desc', title: 'DCF fair value minus current price; positive means estimated value is above price' },
   { key: 'fair_value_upside', label: 'Implied upside/downside', defaultDir: 'desc', title: 'DCF fair value minus current price, divided by current price' },
   { key: 'net_income', label: 'Net inc', defaultDir: 'desc' },
   { key: 'net_income_change_1y', label: 'Net inc YoY', defaultDir: 'desc' },
@@ -547,11 +546,6 @@ function renderFilterTable() {
     const priceCell = `<td class="num${sortKey === 'price' ? ' active' : ''}">${escapeHtml(formatMoney(security.price))}</td>`;
     const fairValue = discountedCashFlowValue(security);
     const fairValueCell = `<td class="num${sortKey === 'fair_value' ? ' active' : ''}" title="DCF estimate using net income as an equity-cash-flow proxy">${escapeHtml(formatPrice(fairValue))}</td>`;
-    const fairValueDifference = discountedCashFlowDifference(security);
-    const fairValueDifferenceText = Number.isFinite(fairValueDifference)
-      ? `${fairValueDifference > 0 ? '+' : ''}${formatPrice(fairValueDifference)}`
-      : formatPrice(fairValueDifference);
-    const fairValueDifferenceCell = `<td class="num ${toneClass('percent', fairValueDifference)}${sortKey === 'fair_value_difference' ? ' active' : ''}" title="DCF fair value minus current price">${escapeHtml(fairValueDifferenceText)}</td>`;
     const fairValueUpside = discountedCashFlowUpside(security);
     const fairValueUpsideText = formatPercent(fairValueUpside);
     const fairValueUpsideContent = Number.isFinite(fairValueUpside)
@@ -593,7 +587,6 @@ function renderFilterTable() {
       ${peCell}
       ${priceCell}
       ${fairValueCell}
-      ${fairValueDifferenceCell}
       ${fairValueUpsideCell}
       ${niCell}
       ${niGrowthCell}

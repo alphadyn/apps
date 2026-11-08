@@ -280,7 +280,6 @@
                 <th scope="col" class="num"><button type="button" data-fcol="pe" title="Sort by P/E ratio">P/E<span class="sort-icon" aria-hidden="true">↕</span></button></th>
                 <th scope="col" class="num"><button type="button" data-fcol="price" title="Sort by Price">Price<span class="sort-icon" aria-hidden="true">↕</span></button></th>
                 <th scope="col" class="num"><button type="button" data-fcol="fair_value" title="Discounted cash flow estimate; assumptions are in Methodology &amp; data sources">DCF fair value<span class="sort-icon" aria-hidden="true">↕</span></button></th>
-                <th scope="col" class="num"><button type="button" data-fcol="fair_value_difference" title="DCF fair value minus current price; positive means estimated value is above price">DCF − price<span class="sort-icon" aria-hidden="true">↕</span></button></th>
                 <th scope="col" class="num"><button type="button" data-fcol="fair_value_upside" title="DCF fair value minus current price, divided by current price">Implied upside/downside<span class="sort-icon" aria-hidden="true">↕</span></button></th>
                 <th scope="col" class="num"><button type="button" data-fcol="net_income" title="Sort by Trailing Net Income">Net inc<span class="sort-icon" aria-hidden="true">↕</span></button></th>
                 <th scope="col" class="num"><button type="button" data-fcol="net_income_change_1y" title="Sort by 1-Year YoY Net Income Growth">Net inc YoY<span class="sort-icon" aria-hidden="true">↕</span></button></th>
@@ -298,7 +297,7 @@
               </tr>
             </thead>
             <tbody id="filter-table-body">
-              <tr><td colspan="21" class="status">Loading…</td></tr>
+              <tr><td colspan="20" class="status">Loading…</td></tr>
             </tbody>
           </table>
         </div>
@@ -314,7 +313,6 @@
         <li><strong>Market cap</strong> is Nasdaq's issuer-level figure re-based to the latest close. <strong>YoY market cap growth</strong> combines 1-year price growth with the change in split-restated weighted diluted shares from SEC filings.</li>
         <li><strong>Net income</strong> is trailing twelve months attributable to the company, built from SEC 10-Q/10-K filings (fiscal year when quarterly data is incomplete). Growth against a negative base is measured relative to its absolute value.</li>
         <li><strong>DCF fair value</strong> discounts five years of projected TTM net income (used as an equity-cash-flow proxy) at 10%, then adds a terminal value growing at 2.5%. Forecast earnings growth uses the latest YoY net-income growth, capped at ±5%; missing growth is assumed flat. Per-share value divides by estimated shares (market cap ÷ price). It does not use recent price performance or valuation multiples. This simplified estimate is not a full free-cash-flow forecast, and is unavailable when net income, market cap, or price is missing or net income is non-positive.</li>
-        <li><strong>DCF − price</strong> is the DCF fair value per share minus the current price. Positive values mean estimated fair value is above price; negative values mean it is below price.</li>
         <li><strong>Implied upside/downside</strong> is (DCF fair value − current price) ÷ current price, expressed as a percentage.</li>
         <li><strong>Price history</strong> uses daily closes for the last two years and weekly closes before that.</li>
         <li>Missing values (shown as —) always rank last. Summary figures reflect the selected security type and sector.</li>

@@ -75,6 +75,8 @@ Then open http://localhost:8000 in your browser.
 - `street-map.js` — Web Mercator tile selection, spherical projection, and tile loading/disposal
 - `location-search.js` — submitted geocoding searches, result selection, and error reporting
 - `styles.css` — layout and visual styling
+- `social-preview.png` — 1200 × 630 sharing card used by Open Graph and Twitter metadata
+- `generate_social_preview.py` — regenerate the sharing card with `python3 earth-explorer/generate_social_preview.py` from the repository root (requires Pillow)
 
 ## Notes
 - Search queries are sent to the public Nominatim service only on submission, not while

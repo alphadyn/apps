@@ -16,23 +16,32 @@
     <meta name="twitter:title" content="Earth Explorer">
     <meta name="twitter:description" content="Explore an interactive 3D globe, inspect locations, and measure distances around the Earth.">
     <meta name="twitter:image" content="https://alphadyn.github.io/apps/earth-explorer/app-icon.svg">
-    <link rel="stylesheet" href="styles.css?v=9" />
+    <meta name="theme-color" content="#101419" />
+    <link rel="icon" href="app-icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css?v=10" />
   </head>
   <body>
     <div class="app-shell">
       <header class="topbar">
-        <div>
-          <p class="eyebrow">Interactive Globe</p>
-          <h1>Earth Explorer</h1>
+        <div class="brand">
+          <img class="brand-icon" src="app-icon.svg" alt="" width="44" height="44" />
+          <div>
+            <p class="eyebrow">The interactive atlas</p>
+            <h1>Earth Explorer</h1>
+          </div>
         </div>
         <div class="mode-toggle" role="group" aria-label="Interaction mode">
-          <button id="inspectModeBtn" class="mode-btn active" type="button">Inspect Point</button>
-          <button id="measureModeBtn" class="mode-btn" type="button">Measure Distance</button>
+          <button id="inspectModeBtn" class="mode-btn active" type="button" aria-pressed="true">Inspect Point</button>
+          <button id="measureModeBtn" class="mode-btn" type="button" aria-pressed="false">Measure Distance</button>
         </div>
       </header>
 
       <main class="app-grid">
         <section class="globe-panel">
+          <div class="workspace-heading">
+            <div><p class="eyebrow">Explore the world</p><h2>Globe workspace</h2></div>
+            <span class="workspace-badge">3D atlas</span>
+          </div>
           <div id="globeContainer">
             <div id="streetMapCredit" class="street-map-credit hidden">&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a></div>
             <button id="fullscreenBtn" class="fullscreen-btn" type="button" aria-label="Enter fullscreen" title="Enter fullscreen" aria-pressed="false">
@@ -47,9 +56,13 @@
               <button id="resetViewBtn" type="button" aria-label="Reset view" title="Reset view">&#8634;</button>
             </div>
           </div>
-          <p class="hint">Drag in any direction to rotate &middot; scroll, pinch, or double-click to zoom &middot; enable Streets for mapped locations and roads &middot; click the surface to interact</p>
+          <div class="globe-guide" aria-label="Globe interaction guide">
+            <span><strong>Drag</strong> to rotate</span>
+            <span><strong>Scroll / pinch</strong> to zoom</span>
+            <span><strong>Double-click</strong> to center</span>
+          </div>
           <div class="map-layers" role="group" aria-label="Map layers">
-            <span class="layer-heading">Map details</span>
+            <span class="layer-heading">Layers</span>
             <label><input id="bordersLayer" type="checkbox" checked /> National borders</label>
             <label><input id="gridLayer" type="checkbox" checked /> Coordinate grid</label>
             <label><input id="streetsLayer" type="checkbox" /> Streets</label>
@@ -59,19 +72,25 @@
 
         <aside class="side-panel">
           <section class="panel" aria-labelledby="locationSearchHeading">
+            <p class="eyebrow">Discover</p>
             <h2 id="locationSearchHeading">Find a Location</h2>
             <form id="locationSearchForm" class="location-search" role="search">
               <label for="locationSearchInput">City, address, or landmark</label>
               <input id="locationSearchInput" type="search" maxlength="200" placeholder="e.g. Kyoto, Japan" autocomplete="off" required />
-              <button id="locationSearchSubmit" class="secondary-btn" type="submit">Search</button>
+              <button id="locationSearchSubmit" class="secondary-btn primary-btn" type="submit">Search locations</button>
             </form>
             <p id="locationSearchStatus" class="hint" role="status"></p>
             <ul id="locationSearchResults" class="location-results" aria-label="Location search results"></ul>
             <p class="hint">Search by <a href="https://nominatim.openstreetmap.org/" target="_blank" rel="noopener noreferrer">Nominatim</a>, &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors.</p>
           </section>
           <div id="inspectPanel" class="panel">
+            <p class="eyebrow">Location intelligence</p>
             <h2>Point Details</h2>
-            <p id="inspectEmpty" class="empty-state">Click anywhere on the globe to inspect that location.</p>
+            <div id="inspectEmpty" class="empty-state">
+              <svg class="empty-icon" viewBox="0 0 40 40" fill="none" aria-hidden="true"><circle cx="20" cy="20" r="11" /><circle cx="20" cy="20" r="3" /><path d="M20 4v8m0 16v8M4 20h8m16 0h8" /></svg>
+              <strong>Your next destination</strong>
+              <p>Click the globe or choose a search result to explore a location's coordinates and country.</p>
+            </div>
             <dl id="inspectDetails" class="details-list hidden">
               <dt>Latitude</dt>
               <dd id="detailLat">&mdash;</dd>
@@ -86,6 +105,7 @@
           </div>
 
           <div id="measurePanel" class="panel hidden">
+            <p class="eyebrow">Distance tools</p>
             <h2>Measure Distance</h2>
             <p class="hint">Click two points on the globe to measure the great-circle distance between them.</p>
             <ol class="point-list">
@@ -106,6 +126,7 @@
           </div>
         </aside>
       </main>
+      <footer class="app-footer"><span>Earth Explorer</span><span>Explore. Locate. Measure.</span></footer>
     </div>
 
     <script type="importmap">
@@ -116,6 +137,6 @@
         }
       }
     </script>
-    <script type="module" src="app.js?v=14"></script>
+    <script type="module" src="app.js?v=15"></script>
   </body>
 </html>

@@ -698,6 +698,8 @@ function setMode(nextMode) {
   const isInspect = mode === "inspect";
   inspectModeBtn.classList.toggle("active", isInspect);
   measureModeBtn.classList.toggle("active", !isInspect);
+  inspectModeBtn.setAttribute("aria-pressed", String(isInspect));
+  measureModeBtn.setAttribute("aria-pressed", String(!isInspect));
   inspectPanel.classList.toggle("hidden", !isInspect);
   measurePanel.classList.toggle("hidden", isInspect);
 }

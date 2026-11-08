@@ -9,6 +9,8 @@ latitude/longitude of any point on its surface, and measure the great-circle (su
 distance between any two points you click.
 
 ## Features
+- **Refined dark atlas interface** with a framed globe workspace, coordinated layer
+  controls, responsive search and detail cards, and visible keyboard focus indicators.
 - **Location search** for cities, addresses, and landmarks using OpenStreetMap's
   Nominatim service. Submit a search and choose a result to smoothly center the globe,
   zoom to the location's extent, and show its coordinates in Inspect Point mode.

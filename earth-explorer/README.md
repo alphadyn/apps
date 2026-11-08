@@ -26,12 +26,9 @@ distance between any two points you click.
   and progressively increase in detail as you zoom closer, without a separate flat map.
   Tiles load on demand with up to six concurrent requests and a bounded cache.
   Attribution remains visible, including in fullscreen, and tile failures are reported.
-- **Progressive map details**: optional 30° grid and major-city markers at a distance;
-  zooming in reveals 15°, 5°, and 2° grid lines, then adds increasingly local cities and towns.
-  Additional city markers appear at a camera distance of 3.1 and town markers at 2.55;
-  their names appear below 2.9 and 2.4, respectively. Locations are curated, not an exhaustive gazetteer.
-  A further local-place tier appears at 2.3, with names below 2.2 for the closest views.
-  Labels avoid overlaps and markers on the far side of the globe are hidden
+- **Progressive coordinate grid**: optional 30° grid at a distance;
+  zooming in reveals 15°, 5°, and 2° grid lines.
+  City and town names come from the **Streets** tiles, not a separate curated marker layer.
 - **Inspect Point mode**: click anywhere on the globe to drop a marker and see its latitude,
   longitude, hemisphere, and the country it falls within (with a flag and a link to that
   country's Wikipedia article, opened in a new tab)
@@ -63,7 +60,7 @@ Then open http://localhost:8000 in your browser.
 3. Use **Reset Points** to clear the current measurement.
 4. Use **+**, **−**, or the scroll wheel/pinch gesture to zoom. The circular arrow resets
   the zoom and globe orientation. Use the checkboxes below the globe to show or hide
-  national borders, coordinate grid, cities, or streets. More grid lines and city names appear as you zoom in.
+  national borders, coordinate grid, or streets. More grid lines and mapped place names appear as you zoom in.
 5. Double-click a location to rotate it into the center and zoom in without selecting a point. Use the fullscreen button
   in the upper-right corner of the globe to expand it; click again or press Esc to exit.
 6. Enter a city, address, or landmark in **Find a Location**, then press Enter or **Search**.

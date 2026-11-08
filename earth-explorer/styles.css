@@ -125,46 +125,6 @@ h1 {
   background: var(--bg);
 }
 
-.map-labels {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.map-labels[hidden],
-.city-label[hidden] {
-  display: none;
-}
-
-.city-label {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  transform: translate(0, -50%);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 600;
-  text-shadow: 0 1px 4px #05070d, 0 -1px 4px #05070d;
-  white-space: nowrap;
-}
-
-.city-label::before {
-  content: "";
-  flex: none;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #ffd166;
-  box-shadow: 0 0 0 2px #05070d;
-}
-
-.city-label:not(.show-name) .city-name {
-  display: none;
-}
-
 .zoom-controls,
 .fullscreen-btn {
   position: absolute;

@@ -20,8 +20,9 @@ distance between any two points you click.
 - **Zoom controls** with 16 surface-relative zoom-in steps from the default view to
   the closest level, plus a reset button to restore the original view. The closest camera distance is
   about 2.000061 for a globe radius of 2, allowing street-level detail; wheel and pinch zoom use reduced sensitivity.
-- **Shareable views**: copy a link containing the current camera-facing latitude,
-  longitude, and zoom level. Opening the link restores that globe view.
+- **Shareable views**: share a link containing the current camera-facing latitude,
+  longitude, and zoom level, with the current globe image attached where the browser's
+  native share sheet supports image sharing. Opening the link restores that globe view.
 - **Double-click zoom** smoothly rotates the view to center the clicked location while
   zooming in, keeping the globe's center fixed; a fullscreen toggle is also available (press Esc to exit)
 - **Optional national borders** overlaid on the globe surface, loaded from a public GeoJSON dataset

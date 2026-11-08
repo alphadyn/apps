@@ -102,7 +102,7 @@ if (sharedView) {
   camera.position.set(0, 0, INITIAL_CAMERA_DISTANCE);
 }
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
 container.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -174,6 +174,15 @@ function zoomToPoint(factor, point) {
 
 zoomInBtn.addEventListener("click", () => zoomBy(1 / ZOOM_STEP));
 zoomOutBtn.addEventListener("click", () => zoomBy(ZOOM_STEP));
+function captureMapImage() {
+  return new Promise((resolve, reject) => {
+    renderer.domElement.toBlob((blob) => {
+      if (blob) resolve(new File([blob], "earth-explorer-view.png", { type: "image/png" }));
+      else reject(new Error("The current map image could not be captured."));
+    }, "image/png");
+  });
+}
+
 shareViewBtn.addEventListener("click", async () => {
   const { lat, lon } = pointToLatLon(camera.position);
   const distance = camera.position.distanceTo(controls.target);
@@ -184,15 +193,36 @@ shareViewBtn.addEventListener("click", async () => {
   shareUrl.searchParams.set("zoom", zoom.toFixed(4));
   window.history.replaceState(null, "", shareUrl);
 
-  const shareData = {
+  const linkShareData = {
     title: document.querySelector('meta[property="og:title"]').content,
     text: document.querySelector('meta[property="og:description"]').content,
     url: shareUrl.toString(),
   };
-  if (navigator.share && (!navigator.canShare || navigator.canShare(shareData))) {
+  let shareData = linkShareData;
+  let includedMapImage = false;
+
+  if (navigator.share) {
+    try {
+      const mapImage = await captureMapImage();
+      const imageShareData = { ...linkShareData, files: [mapImage] };
+      if (!navigator.canShare || navigator.canShare(imageShareData)) {
+        shareData = imageShareData;
+        includedMapImage = true;
+      }
+    } catch (error) {
+      console.warn("Unable to capture the map image:", error);
+    }
+
+    if (navigator.canShare && !navigator.canShare(shareData)) {
+      shareStatus.textContent = "Your browser cannot share this view.";
+      return;
+    }
+
     try {
       await navigator.share(shareData);
-      shareStatus.textContent = "View shared.";
+      shareStatus.textContent = includedMapImage
+        ? "View and map image shared."
+        : "View shared; your browser could not attach the map image.";
       return;
     } catch (error) {
       if (error.name === "AbortError") {
@@ -205,7 +235,7 @@ shareViewBtn.addEventListener("click", async () => {
 
   try {
     await navigator.clipboard.writeText(shareUrl.toString());
-    shareStatus.textContent = "View link copied to clipboard.";
+    shareStatus.textContent = "View link copied; the map image is not included in the copied link.";
   } catch (error) {
     console.warn("Unable to copy the view link:", error);
     shareStatus.textContent = "View link is in the address bar; copy it to share.";

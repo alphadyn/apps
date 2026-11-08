@@ -90,6 +90,27 @@ function setup(fetch, storage = new Map(), options = {}) {
   };
 }
 
+test('loads the latest snapshot automatically on page startup', async () => {
+  let releaseSnapshot;
+  let snapshotRequested;
+  const requested = new Promise((resolve) => { snapshotRequested = resolve; });
+  const app = setup(async (url) => {
+    assert.equal(url, './news.json');
+    snapshotRequested();
+    return new Promise((resolve) => {
+      releaseSnapshot = () => resolve({ ok: true, json: async () => snapshot });
+    });
+  });
+
+  await requested;
+  assert.equal(app.nodes.get('capture-button').disabled, true);
+  assert.equal(app.nodes.get('status-panel').dataset.state, 'running');
+  releaseSnapshot();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(app.nodes.get('story-list').children.length, 1);
+  assert.equal(app.nodes.get('capture-button').disabled, false);
+});
+
 test('loads same-origin snapshot and downloads original timestamp and metadata', async () => {
   const app = setup(async (url, options) => {
     assert.equal(url, './news.json');

@@ -4,7 +4,7 @@
 
 > Google News headlines with ranked trends, search, and JSON export. See the [repository catalog](../README.md) for shared setup and deployment context.
 
-The GitHub Pages app loads a periodically generated Google News RSS snapshot; **Capture today's headlines** loads that snapshot rather than scraping Google News in the browser. Search headlines, select trending terms to filter stories, and download the original capture timestamp and metadata as JSON.
+The GitHub Pages app automatically loads a periodically generated Google News RSS snapshot when the page opens; **Capture today's headlines** can also be selected to refresh it. The app loads that snapshot rather than scraping Google News in the browser. Search headlines, select trending terms to filter stories, and download the original capture timestamp and metadata as JSON.
 
 A separate local Flask app opens Google News in headless Chromium, scrolls the feed, and extracts headlines, links, and related reads. It also saves a copy as `google_news.json`. Both interfaces share the trend extractor, but the Pages app's shared removed-keyword management is not part of the Flask UI.
 

@@ -467,4 +467,4 @@ function bindEvents() {
 bindEvents();
 const removedTrendsReady = syncRemovedTrendsFromDatabase();
 renderStories([]);
-setStatus('idle', 'Ready when you are', 'Your captured headlines will appear here.', 'NO CAPTURE YET');
+void fetchGoogleNews();

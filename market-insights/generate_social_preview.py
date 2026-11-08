@@ -35,15 +35,27 @@ def font(name, size):
     return ImageFont.load_default()
 
 
-def brand_mark(draw, x, y, size):
-    scale = size / 64
-    draw.rounded_rectangle((x, y, x + size, y + size), radius=14 * scale, fill=BRAND_BG)
-    for bx, by, color in ((12, 34, ACCENT_2), (27, 22, ACCENT), (42, 12, ACCENT_2)):
-        draw.rounded_rectangle(
-            (x + bx * scale, y + by * scale, x + (bx + 10) * scale, y + 52 * scale),
-            radius=2 * scale,
-            fill=color,
-        )
+def brand_mark(image, x, y, size, rounded=True):
+    resolution = size * 4
+    scale = resolution / 64
+    mark = Image.new("RGBA", (resolution, resolution), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(mark)
+    if rounded:
+        draw.rounded_rectangle((0, 0, resolution, resolution), radius=16 * scale, fill=BRAND_BG)
+    else:
+        draw.rectangle((0, 0, resolution, resolution), fill=BRAND_BG)
+    points = [(12, 44), (12, 23), (25, 34), (34, 25), (40, 31), (52, 18)]
+    points = [(px * scale, py * scale) for px, py in points]
+    line_color = (244, 249, 250)
+    draw.line(points, fill=line_color, width=round(5 * scale), joint="curve")
+    for px, py in points:
+        radius = 2.5 * scale
+        draw.ellipse((px - radius, py - radius, px + radius, py + radius), fill=line_color)
+    px, py = points[-1]
+    radius = 3.5 * scale
+    draw.ellipse((px - radius, py - radius, px + radius, py + radius), fill=(110, 231, 210))
+    mark = mark.resize((size, size), Image.Resampling.LANCZOS)
+    image.paste(mark, (x, y), mark)
 
 
 def glow(image, center, radius, color, alpha):
@@ -71,7 +83,7 @@ def social_preview():
     bold = lambda s: font("Arial Bold.ttf", s)
     regular = lambda s: font("Arial.ttf", s)
 
-    brand_mark(draw, 64, 60, 56)
+    brand_mark(image, 64, 60, 56)
     draw.text((136, 88), "Market Insights", font=bold(28), fill=TEXT, anchor="lm")
 
     draw.text((64, 174), "EQUITY SCREENER", font=bold(20), fill=ACCENT)
@@ -160,12 +172,7 @@ def social_preview():
 def touch_icon():
     size = 180
     image = Image.new("RGB", (size, size), BRAND_BG)
-    draw = ImageDraw.Draw(image)
-    scale = size / 64
-    for bx, by, color in ((12, 34, ACCENT_2), (27, 22, ACCENT), (42, 12, ACCENT_2)):
-        draw.rounded_rectangle(
-            (bx * scale, by * scale, (bx + 10) * scale, 52 * scale), radius=2 * scale, fill=color
-        )
+    brand_mark(image, 0, 0, size, rounded=False)
     image.save(HERE / "apple-touch-icon.png", optimize=True)
 
 

@@ -1,5 +1,7 @@
 # Market Insights
 
+<img src="apple-touch-icon.png" alt="Market Insights logo: a chart-inspired M with a teal endpoint" width="72" height="72">
+
 **Deployed application:** [Open the app](https://alphadyn.github.io/apps/market-insights/)
 
 The app and its security share pages have moved to `/apps/market-insights/`. Existing `/apps/sp-insights/` links are not redirected; use the new links when sharing.
@@ -43,7 +45,7 @@ Shared links unfurl in iMessage, SMS/RCS, WhatsApp, Slack, and similar apps.
 - **Constituent-specific previews**: When a specific security is displayed in the app, the live document metadata (`<title>`, `<meta name="description">`, `og:title`, `og:description`, `og:url`, `twitter:title`, `twitter:description`, `canonical`) dynamically highlights that security's details: current price, 1Y price return, market capitalization, P/E ratio, and net income.
 - **Dedicated crawler pages**: For message crawlers that do not execute client-side JavaScript, static preview pages are generated under `s/<symbol>/` (e.g. `s/NVDA/`, `s/AAPL/`) with that company's exact metrics. When a user taps or clicks the link, the page seamlessly opens the constituent's interactive detail view in the screener.
 - **Messages / SMS preview mockup**: Open [share-preview.html](share-preview.html) to interactively preview what text message and SMS unfurls look like both for the general screener and for any specific constituent.
-- **Social preview artwork**: Previews feature `social-preview.png` (1200×630). To regenerate the social preview artwork (requires Pillow):
+- **Social preview artwork**: The overview link uses `social-preview.png` (1200×630), which features the Market Insights logo. The same mark appears in `favicon.svg` and `apple-touch-icon.png`. To regenerate the social preview and home-screen icon after updating the mark (requires Pillow):
 
 ```bash
 python3 generate_social_preview.py

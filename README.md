@@ -10,7 +10,7 @@ Deployment configuration and host-specific setup are documented in [DEPLOYMENT.m
 
 The landing page's Top apps section highlights these projects:
 
-1. [Market Insights](market-insights/) — Screen S&P 500 stocks and selected funds by valuation, earnings, and ten performance periods, with sortable results and price-history charts
+1. <img src="market-insights/apple-touch-icon.png" alt="" width="24" height="24"> [Market Insights](market-insights/) — Screen S&P 500 stocks and selected funds by valuation, earnings, and ten performance periods, with sortable results and price-history charts
 2. [Signal](signal/) — Explore Google News headlines, filter by ranked trends, manage shared removed keywords, and export captures as JSON
 3. [Pulse](pulse/) — Share tagged posts and media, vote, and join threaded discussions with public profiles and moderation
 4. [Northstar EHR](northstar-ehr/) — Responsive electronic health record demo for patient care workflows

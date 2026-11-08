@@ -24,7 +24,7 @@ except ImportError:
 ROOT = Path(__file__).resolve().parent
 APP_URL = "https://alphadyn.github.io/apps/market-insights/"
 SHARE_URL = APP_URL + "s/"
-IMAGE_URL = APP_URL + "social-preview.png?v=3"
+IMAGE_URL = APP_URL + "social-preview.png?v=4"
 DEFAULT_DATA = ROOT / "data.json"
 OUTPUT_DIR = ROOT / "s"
 
@@ -472,8 +472,8 @@ def render_page(security: dict) -> str:
   <meta name="twitter:image" content="{preview_img_url}">
   <meta name="twitter:image:alt" content="{escaped_title}">
 
-  <link rel="icon" href="{APP_URL}favicon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="{APP_URL}apple-touch-icon.png">
+  <link rel="icon" href="{APP_URL}favicon.svg?v=2" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="{APP_URL}apple-touch-icon.png?v=2">
 
   <style>
     body {{

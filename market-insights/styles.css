@@ -1,6 +1,6 @@
 :root {
   color-scheme: light;
-  --bg: #f4f7fb;
+  --bg: #f3f6fa;
   --surface: #ffffff;
   --surface-2: #f7f9fc;
   --surface-3: #eaf0f7;
@@ -9,7 +9,7 @@
   --text: #172333;
   --text-2: #45556a;
   --muted: #68788d;
-  --accent: #087f8c;
+  --accent: #087783;
   --accent-ink: #ffffff;
   --accent-soft: rgb(8 127 140 / .09);
   --accent-2: #3566d6;
@@ -20,7 +20,7 @@
   --radius: 14px;
   --radius-sm: 9px;
   --rank-w: 54px;
-  --shadow: 0 1px 0 rgb(255 255 255 / .8) inset, 0 12px 32px -18px rgb(35 55 80 / .2);
+  --shadow: 0 1px 0 rgb(255 255 255 / .9) inset, 0 10px 28px -22px rgb(35 55 80 / .28);
   --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
@@ -39,7 +39,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-main { width: min(1440px, calc(100% - 40px)); margin: 0 auto; padding: 8px 0 40px; }
+main { width: min(1440px, calc(100% - 48px)); margin: 0 auto; padding: 16px 0 48px; }
 
 button, input, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
@@ -57,10 +57,10 @@ button:disabled { cursor: default; opacity: .35; }
   backdrop-filter: saturate(160%) blur(14px);
   -webkit-backdrop-filter: saturate(160%) blur(14px);
 }
-.appbar-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: min(1440px, calc(100% - 40px)); height: 58px; margin: 0 auto; }
+.appbar-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: min(1440px, calc(100% - 48px)); height: 62px; margin: 0 auto; }
 .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); font-weight: 600; letter-spacing: -.01em; text-decoration: none; }
 .brand b { font-weight: 800; }
-.brand-mark { width: 28px; height: 28px; border-radius: 8px; box-shadow: 0 0 0 1px var(--border-strong); }
+.brand-mark { width: 32px; height: 32px; border-radius: 8px; box-shadow: 0 2px 6px rgb(19 27 48 / .15); }
 .appbar-nav { display: flex; align-items: center; gap: 18px; }
 .data-status {
   display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 5px 12px;
@@ -75,20 +75,23 @@ button:disabled { cursor: default; opacity: .35; }
 @keyframes pulse { 0% { transform: scale(.5); opacity: .7; } 100% { transform: scale(1.4); opacity: 0; } }
 
 /* --- Hero & KPIs --- */
-.hero { padding: 36px 0 22px; }
+.hero { padding: 34px 0 22px; }
 .eyebrow { margin: 0 0 8px; color: var(--accent); font-size: .74rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
-h1 { margin: 0; font-size: clamp(1.9rem, 3.6vw, 2.75rem); font-weight: 800; letter-spacing: -.035em; line-height: 1.08; }
-.lede { max-width: 720px; margin: 12px 0 0; color: var(--text-2); font-size: 1rem; }
+h1 { margin: 0; font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; letter-spacing: -.04em; line-height: 1.06; }
+.lede { max-width: 720px; margin: 12px 0 0; color: var(--text-2); font-size: 1rem; line-height: 1.65; }
 
-.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px; }
 .kpi {
+  position: relative;
   display: grid; gap: 2px; padding: 16px 18px; min-width: 0;
-  border: 1px solid var(--border); border-radius: var(--radius);
-  background: linear-gradient(180deg, var(--surface-2), var(--surface)); box-shadow: var(--shadow);
+  overflow: hidden;
+  border: 1px solid var(--border); border-radius: 12px;
+  background: var(--surface); box-shadow: var(--shadow);
 }
-.kpi-label { color: var(--muted); font-size: .76rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
-.kpi-value { font-size: 1.6rem; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
-.kpi-note { overflow: hidden; color: var(--muted); font-size: .8rem; text-overflow: ellipsis; white-space: nowrap; }
+.kpi::before { position: absolute; inset: 0 0 auto; height: 2px; background: linear-gradient(90deg, var(--accent), rgb(53 102 214 / .3)); content: ""; }
+.kpi-label { min-height: 2em; color: var(--muted); font-size: .7rem; font-weight: 700; letter-spacing: .075em; line-height: 1.4; text-transform: uppercase; }
+.kpi-value { margin-top: 3px; font-size: clamp(1.35rem, 2.2vw, 1.7rem); font-weight: 700; letter-spacing: -.035em; font-variant-numeric: tabular-nums; }
+.kpi-note { color: var(--muted); font-size: .8rem; line-height: 1.35; }
 
 /* --- Filter Screener --- */
 .filter-screener {
@@ -113,6 +116,10 @@ h1 { margin: 0; font-size: clamp(1.9rem, 3.6vw, 2.75rem); font-weight: 800; lett
 .filter-panel {
   padding: 20px;
   margin-bottom: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
 }
 .filter-panel-head {
   display: flex;
@@ -258,8 +265,8 @@ h1 { margin: 0; font-size: clamp(1.9rem, 3.6vw, 2.75rem); font-weight: 800; lett
   min-width: 0;
   padding: 16px;
   border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--surface);
+  border-radius: 10px;
+  background: var(--surface-2);
 }
 .filter-card-head {
   display: flex;
@@ -323,7 +330,7 @@ h1 { margin: 0; font-size: clamp(1.9rem, 3.6vw, 2.75rem); font-weight: 800; lett
   padding: 4px 9px;
   border: 1px solid var(--border);
   border-radius: 7px;
-  background: var(--surface-2);
+  background: var(--surface);
   color: var(--text-2);
   font-size: .75rem;
   font-weight: 500;
@@ -404,10 +411,11 @@ h1 { margin: 0; font-size: clamp(1.9rem, 3.6vw, 2.75rem); font-weight: 800; lett
 /* --- Table --- */
 .table-panel {
   border-radius: var(--radius);
+  border: 1px solid var(--border);
   background: var(--surface);
   box-shadow: var(--shadow);
 }
-.table-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--border); }
+.table-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--border); }
 .search { position: relative; display: flex; flex: 0 1 300px; }
 .search svg { position: absolute; top: 50%; left: 11px; width: 15px; height: 15px; transform: translateY(-50%); fill: none; stroke: var(--muted); stroke-width: 1.8; stroke-linecap: round; pointer-events: none; }
 .search input, .table-toolbar select { height: 36px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); font-size: .88rem; transition: border-color .15s; }
@@ -448,9 +456,9 @@ td.num.down { color: var(--down); }
 td.up .delta { background: var(--up-soft); }
 td.down .delta { background: var(--down-soft); }
 
-tbody tr { transition: background .1s; }
+tbody tr { transition: background .14s ease; }
 tbody tr[data-symbol] { cursor: pointer; }
-tbody tr:hover > *, tbody tr:focus-within > * { background-color: var(--surface-3); }
+tbody tr:hover > *, tbody tr:focus-within > * { background-color: #edf4f6; }
 
 .rank-col {
   position: sticky;
@@ -497,7 +505,7 @@ tbody tr:hover button.symbol, button.symbol:focus-visible { color: var(--accent)
 .status { padding: 40px; color: var(--muted); text-align: center; }
 
 /* --- Methodology & footer --- */
-.notes { margin-top: 16px; padding: 0 20px; color: var(--text-2); font-size: .87rem; }
+.notes { margin-top: 18px; padding: 0 20px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text-2); font-size: .87rem; box-shadow: var(--shadow); }
 .notes summary { display: flex; align-items: baseline; gap: 12px; padding: 16px 0; cursor: pointer; list-style: none; }
 .notes summary::-webkit-details-marker { display: none; }
 .notes summary::before { content: "›"; color: var(--muted); font-size: 1.1rem; transition: transform .15s; }
@@ -657,13 +665,15 @@ body.detail-open { overflow: hidden; }
 
 /* --- Responsive --- */
 @media (max-width: 1024px) {
-  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 800px) {
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 760px) {
   :root { --rank-w: 46px; }
   .filter-grid { grid-template-columns: 1fr; }
-  main, .appbar-inner { width: calc(100% - 24px); }
+  main, .appbar-inner { width: calc(100% - 28px); }
   .appbar-inner { gap: 8px; }
   .hero { padding: 24px 0 16px; }
   .lede { font-size: .93rem; }

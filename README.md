@@ -1,6 +1,6 @@
 # Alphadyn AI Apps and Experiments
 
-This repository is a portfolio-style collection of 16 active, independent projects: interactive demos, data visualizations, browser apps, and Python utilities. Each project is designed to be opened, adapted, or expanded on its own. The collection is intentionally mixed: some apps are static browser experiences, while others use Supabase, Flask, or Vercel APIs.
+This repository is a portfolio-style collection of 15 active, independent projects: interactive demos, data visualizations, browser apps, and Python utilities. Each project is designed to be opened, adapted, or expanded on its own. The collection is intentionally mixed: some apps are static browser experiences, while others use Supabase, Flask, or Vercel APIs.
 
 The root landing page in [index.html](index.html) links directly to the deployed apps and gives a quick overview of the portfolio. It includes a Top apps section and a full catalog of all available apps and experiments.
 
@@ -19,7 +19,7 @@ The landing page's Top apps section highlights these projects:
 
 Projects are listed alphabetically, matching the catalog on the landing page.
 
-- [3D Earth Explorer](earth-3d-explorer/) ([Open app](https://alphadyn.github.io/apps/earth-3d-explorer/)) — Three.js globe with overlays and inspection interactions.
+- [Earth Explorer](earth-explorer/) ([Open app](https://alphadyn.github.io/apps/earth-explorer/)) — Three.js globe with overlays and inspection interactions.
 - [Atlas Store](atlas-store/) ([Open app](https://alphadyn.github.io/apps/atlas-store/)) — Storefront mockup with catalog, cart, and checkout flow.
 - [Contact Card Generator](contact-card-generator/) ([Open app](https://alphadyn.github.io/apps/contact-card-generator/)) — Create vCard contact files and QR codes with optional profile photos.
 - [Experiences](experiences/) ([Open app](https://alphadyn.github.io/apps/experiences/)) — Supabase-backed journal with trips, shareable Experience collections, Event maps, precise location picking, and media carousels.
@@ -27,7 +27,6 @@ Projects are listed alphabetically, matching the catalog on the landing page.
 - [Lexhaven Legal Docketing](lexhaven-legal-docketing/) ([Open app](https://alphadyn.github.io/apps/lexhaven-legal-docketing/)) — Matter and deadline tracking app.
 - [Market Curve Lab](market-curve-lab/) ([Open app](https://alphadyn.github.io/apps/market-curve-lab/)) — Rank all 500 S&P 500 companies by market cap, search stocks, and inspect selected-ticker all-time performance, trendlines, and concavity.
 - [Market Insights](market-insights/) ([Open app](https://alphadyn.github.io/apps/market-insights/)) — Screen S&P 500 stocks and selected funds with valuation and earnings bounds, ten performance periods, sortable results, and interactive price-history charts.
-- [Market Lens](market-lens/) ([Open app](https://alphadyn.github.io/apps/market-lens/)) — Dashboard for screening and reviewing large-cap equities.
 - [Meetings](meetings/) ([Open app](https://alphadyn.github.io/apps/meetings/)) — Encrypted WebRTC meetings with chat, file sharing, fullscreen mode, and responsive mobile controls.
 - [Nexus](nexus/) ([Open app](https://alphadyn.github.io/apps/nexus/)) — Media workspace with browser UI, sample media, filtering, metadata editing, and optional Supabase persistence.
 - [Northstar EHR](northstar-ehr/) ([Open app](https://alphadyn.github.io/apps/northstar-ehr/)) — Responsive electronic health record demo for patient care workflows and encounter documentation.
@@ -50,7 +49,7 @@ Then visit http://localhost:8000.
 Examples:
 
 ```bash
-cd earth-3d-explorer
+cd earth-explorer
 python3 -m http.server 8000
 
 cd experiences
@@ -59,8 +58,6 @@ python3 -m http.server 8000
 cd atlas-store
 python3 -m http.server 8000
 
-cd market-lens
-python3 -m http.server 8000
 ```
 
 ### Nexus

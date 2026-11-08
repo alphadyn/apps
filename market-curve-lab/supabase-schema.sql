@@ -9,8 +9,7 @@
 -- every time. The refresh button overwrites these rows with fresh data.
 --
 -- Run this whole file once in the Supabase SQL editor for your project.
--- This project reuses the same Supabase project as market-lens; only a
--- new table is needed here.
+-- Run this schema in the Supabase project configured for Market Curve Lab.
 
 drop table if exists public.market_curve_lab_cache;
 

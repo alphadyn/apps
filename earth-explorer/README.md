@@ -1,6 +1,6 @@
-# 3D Earth Explorer
+# Earth Explorer
 
-**Deployed application:** [Open the app](https://alphadyn.github.io/apps/earth-3d-explorer/)
+**Deployed application:** [Open the app](https://alphadyn.github.io/apps/earth-explorer/)
 
 > Standalone Three.js browser visualization. See the [repository catalog](../README.md) for shared setup and deployment context.
 
@@ -32,7 +32,7 @@ required. Because it uses ES modules, open it through a local server rather than
 protocol:
 
 ```bash
-cd earth-3d-explorer
+cd earth-explorer
 python3 -m http.server 8000
 ```
 

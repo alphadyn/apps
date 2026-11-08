@@ -57,6 +57,9 @@ controls.maxDistance = 10;
 // Disable translation so right-drag and two-finger gestures cannot move the
 // orbit target away from the Earth; zooming also stays centered on the globe.
 controls.enablePan = false;
+let zoomTargetDistance = camera.position.distanceTo(controls.target);
+let lastCameraDistance = zoomTargetDistance;
+let applyingZoom = false;
 
 // OrbitControls rotates by an angle per screen pixel, independent of zoom.
 // At the center of a perspective-projected globe, a surface point moves by
@@ -73,18 +76,30 @@ updateRotateSpeed();
 controls.addEventListener("change", updateRotateSpeed);
 
 function updateZoomButtons() {
-  const distance = camera.position.distanceTo(controls.target);
-  zoomInBtn.disabled = distance <= controls.minDistance + 0.001;
-  zoomOutBtn.disabled = distance >= controls.maxDistance - 0.001;
+  zoomInBtn.disabled = zoomTargetDistance <= controls.minDistance + 0.001;
+  zoomOutBtn.disabled = zoomTargetDistance >= controls.maxDistance - 0.001;
 }
 
+function setCameraDistance(distance) {
+  const offset = camera.position.clone().sub(controls.target).setLength(distance);
+  camera.position.copy(controls.target).add(offset);
+}
+
+function captureDirectZoom() {
+  const distance = camera.position.distanceTo(controls.target);
+  if (!applyingZoom && Math.abs(distance - lastCameraDistance) > 0.001) {
+    zoomTargetDistance = THREE.MathUtils.clamp(distance, controls.minDistance, controls.maxDistance);
+    setCameraDistance(lastCameraDistance);
+  }
+  updateZoomButtons();
+}
+
+controls.addEventListener("change", captureDirectZoom);
+
 function zoomBy(factor) {
-  const offset = camera.position.clone().sub(controls.target);
-  const distance = THREE.MathUtils.clamp(
-    offset.length() * factor, controls.minDistance, controls.maxDistance
+  zoomTargetDistance = THREE.MathUtils.clamp(
+    zoomTargetDistance * factor, controls.minDistance, controls.maxDistance
   );
-  camera.position.copy(controls.target).add(offset.setLength(distance));
-  controls.update();
   updateZoomButtons();
 }
 
@@ -400,9 +415,27 @@ function updateMarkerSizes() {
   for (const marker of measureMarkers) scaleMarker(marker);
 }
 
+const clock = new THREE.Clock();
+
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
+  const delta = Math.min(clock.getDelta(), 0.05);
+  const distance = camera.position.distanceTo(controls.target);
+  const nextDistance = THREE.MathUtils.damp(distance, zoomTargetDistance, 12, delta);
+  if (Math.abs(nextDistance - zoomTargetDistance) > 0.001) {
+    applyingZoom = true;
+    setCameraDistance(nextDistance);
+    controls.update();
+    applyingZoom = false;
+  } else if (distance !== zoomTargetDistance) {
+    applyingZoom = true;
+    setCameraDistance(zoomTargetDistance);
+    controls.update();
+    applyingZoom = false;
+  }
+  lastCameraDistance = camera.position.distanceTo(controls.target);
+  updateZoomButtons();
   updateMarkerSizes();
   updateCityLabels();
   renderer.render(scene, camera);

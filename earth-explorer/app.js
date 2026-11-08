@@ -1,9 +1,10 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { createStreetMap } from "./street-map.js?v=1";
 
 const EARTH_RADIUS_KM = 6371;
 const GLOBE_RADIUS = 2;
-const ZOOM_STEP = 1.42;
+const ZOOM_STEP = 2;
 const MARKER_RADIUS = 0.035;
 const MARKER_DIAMETER_PX = 7;
 
@@ -27,6 +28,9 @@ const detailLon = document.getElementById("detailLon");
 const detailHemisphere = document.getElementById("detailHemisphere");
 const detailCountry = document.getElementById("detailCountry");
 const wikipediaLink = document.getElementById("wikipediaLink");
+const streetsLayer = document.getElementById("streetsLayer");
+const streetMapStatus = document.getElementById("streetMapStatus");
+const streetMapCredit = document.getElementById("streetMapCredit");
 const pointAEl = document.getElementById("pointA");
 const pointBEl = document.getElementById("pointB");
 const distanceValueEl = document.getElementById("distanceValue");
@@ -43,7 +47,7 @@ let countryFeatures = []; // GeoJSON features used for both the border overlay a
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x05070d);
 
-const camera = new THREE.PerspectiveCamera(45, 1, 0.005, 100);
+const camera = new THREE.PerspectiveCamera(45, 1, 0.00001, 100);
 camera.position.set(0, 0, 6);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -52,7 +56,7 @@ container.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
-controls.minDistance = 2.06;
+controls.minDistance = 2.001;
 controls.maxDistance = 10;
 controls.zoomSpeed = 0.5;
 // Let horizontal and vertical drags orbit freely around the globe's center.
@@ -91,7 +95,8 @@ function setCameraDistance(distance) {
 
 function captureDirectZoom() {
   const distance = camera.position.distanceTo(controls.target);
-  if (!applyingZoom && Math.abs(distance - lastCameraDistance) > 0.001) {
+  const tolerance = Math.max(0.0000001, (lastCameraDistance - GLOBE_RADIUS) * 0.001);
+  if (!applyingZoom && Math.abs(distance - lastCameraDistance) > tolerance) {
     zoomTargetDistance = THREE.MathUtils.clamp(distance, controls.minDistance, controls.maxDistance);
     setCameraDistance(lastCameraDistance);
   }
@@ -184,7 +189,13 @@ const earthMaterial = new THREE.MeshPhongMaterial({
   shininess: 8,
 });
 const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
+earthMesh.renderOrder = -2;
 scene.add(earthMesh);
+const streetMap = createStreetMap(scene, camera, renderer, GLOBE_RADIUS, streetMapStatus);
+streetsLayer.addEventListener("change", () => {
+  streetMap.setEnabled(streetsLayer.checked);
+  streetMapCredit.classList.toggle("hidden", !streetsLayer.checked);
+});
 
 // Thin atmosphere glow shell
 const atmosphereMesh = new THREE.Mesh(
@@ -423,12 +434,17 @@ function updateMarkerSizes() {
   camera.getWorldDirection(cameraForward);
   const pixelsToWorld = (MARKER_DIAMETER_PX * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) /
     (MARKER_RADIUS * renderer.domElement.clientHeight);
+  const elevation = Math.min(0.02, (camera.position.length() - GLOBE_RADIUS) * 0.1);
   function scaleMarker(marker) {
+    marker.position.normalize().multiplyScalar(GLOBE_RADIUS + elevation);
     const depth = markerOffset.subVectors(marker.position, camera.position).dot(cameraForward);
     marker.scale.setScalar(depth * pixelsToWorld);
   }
   if (inspectMarker) scaleMarker(inspectMarker);
   for (const marker of measureMarkers) scaleMarker(marker);
+  if (measureLine) {
+    measureLine.scale.setScalar((GLOBE_RADIUS + elevation) / (GLOBE_RADIUS * 1.01));
+  }
 }
 
 const clock = new THREE.Clock();
@@ -452,7 +468,7 @@ function animate() {
       }
       camera.position.copy(controls.target).addScaledVector(direction, distance);
     }
-    setCameraDistance(Math.abs(nextDistance - zoomTargetDistance) > 0.001
+    setCameraDistance(Math.abs(nextDistance - zoomTargetDistance) > Math.max(0.0000001, (zoomTargetDistance - GLOBE_RADIUS) * 0.001)
       ? nextDistance : zoomTargetDistance);
     controls.update();
     applyingZoom = false;
@@ -461,6 +477,7 @@ function animate() {
   updateZoomButtons();
   updateMarkerSizes();
   updateCityLabels();
+  streetMap.update(performance.now());
   renderer.render(scene, camera);
 }
 
@@ -862,7 +879,7 @@ function buildArcLine(pointA, pointB) {
   const start = pointA.clone().normalize().multiplyScalar(GLOBE_RADIUS * raised);
   const end = pointB.clone().normalize().multiplyScalar(GLOBE_RADIUS * raised);
   const angle = start.angleTo(end);
-  const segments = 64;
+  const segments = Math.max(64, Math.ceil(angle / 0.01));
   const positions = [];
   const sinAngle = Math.sin(angle);
   for (let i = 0; i <= segments; i++) {
@@ -886,6 +903,7 @@ function buildArcLine(pointA, pointB) {
 
 // --- Interaction ------------------------------------------------------------
 const raycaster = new THREE.Raycaster();
+const earthSurface = new THREE.Sphere(new THREE.Vector3(), GLOBE_RADIUS);
 const pointerNdc = new THREE.Vector2();
 let pointerDownPos = null;
 let pendingSelection = null;
@@ -930,8 +948,7 @@ function pointAt(clientX, clientY) {
   pointerNdc.y = -((clientY - rect.top) / rect.height) * 2 + 1;
 
   raycaster.setFromCamera(pointerNdc, camera);
-  const hits = raycaster.intersectObject(earthMesh);
-  return hits[0]?.point ?? null;
+  return raycaster.ray.intersectSphere(earthSurface, new THREE.Vector3());
 }
 
 renderer.domElement.addEventListener("pointerdown", onPointerDown);

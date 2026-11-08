@@ -323,6 +323,22 @@ h1 {
   display: none !important;
 }
 
+.street-map-credit {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  z-index: 3;
+  padding: 4px 6px;
+  border-radius: 4px;
+  background: rgba(15, 20, 32, 0.92);
+  color: var(--text-primary);
+  font-size: 10px;
+}
+
+.street-map-credit a {
+  color: var(--accent);
+}
+
 .point-list {
   list-style: none;
   margin: 0 0 14px;

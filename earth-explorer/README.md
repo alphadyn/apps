@@ -14,10 +14,15 @@ distance between any two points you click.
   and scroll/pinch-to-zoom via `OrbitControls`
 - **Zoom controls** with 12 surface-relative zoom-in steps from the default view to
   the closest level, plus a reset button to restore the original view. The closest camera distance is
-  2.06 for a globe radius of 2 (previously 2.15); wheel and pinch zoom use reduced sensitivity.
+  2.001 for a globe radius of 2, allowing street-level detail; wheel and pinch zoom use reduced sensitivity.
 - **Double-click zoom** smoothly rotates the view to center the clicked location while
   zooming in, keeping the globe's center fixed; a fullscreen toggle is also available (press Esc to exit)
 - **Optional national borders** overlaid on the globe surface, loaded from a public GeoJSON dataset
+- **Street map on the globe**: enable **Streets** to project CARTO light basemap tiles
+  based on OpenStreetMap onto the Earth's curved surface. Tiles follow globe rotation
+  and progressively increase in detail as you zoom closer, without a separate flat map.
+  Tiles load on demand with up to six concurrent requests and a bounded cache.
+  Attribution remains visible, including in fullscreen, and tile failures are reported.
 - **Progressive map details**: optional 30° grid and major-city markers at a distance;
   zooming in reveals 15°, 5°, and 2° grid lines, then adds increasingly local cities and towns.
   Additional city markers appear at a camera distance of 3.1 and town markers at 2.55;
@@ -55,7 +60,7 @@ Then open http://localhost:8000 in your browser.
 3. Use **Reset Points** to clear the current measurement.
 4. Use **+**, **−**, or the scroll wheel/pinch gesture to zoom. The circular arrow resets
   the zoom and globe orientation. Use the checkboxes below the globe to show or hide
-  national borders, coordinate grid, or cities. More grid lines and city names appear as you zoom in.
+  national borders, coordinate grid, cities, or streets. More grid lines and city names appear as you zoom in.
 5. Double-click a location to rotate it into the center and zoom in without selecting a point. Use the fullscreen button
   in the upper-right corner of the globe to expand it; click again or press Esc to exit.
 
@@ -63,9 +68,16 @@ Then open http://localhost:8000 in your browser.
 - `index.html` — page structure, mode toggle, and side panels
 - `app.js` — Three.js scene/globe setup, raycasting for click detection, lat/lon conversion,
   and great-circle distance calculation
+- `street-map.js` — Web Mercator tile selection, spherical projection, and tile loading/disposal
 - `styles.css` — layout and visual styling
 
 ## Notes
+- Street maps require internet access to CARTO's tile servers; Leaflet is not needed.
+  Tile requests use the same browser-facing CARTO basemap key as Experiences.
+  CARTO and OpenStreetMap usage terms apply; review provider limits before a high-traffic deployment.
+  Web Mercator tiles stop at about 85.05° latitude, so the poles retain Earth imagery.
+  Tile levels are selected from the current field of view (up to provider level 19);
+  the request budget can lower the level for wide views. No geocoding requests are needed.
 - Latitude/longitude are derived from the clicked point's position on the sphere; no external
   geocoding service is used.
 - Distance uses the standard great-circle formula (angular separation between two unit vectors

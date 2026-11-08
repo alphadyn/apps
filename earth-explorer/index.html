@@ -16,7 +16,7 @@
     <meta name="twitter:title" content="Earth Explorer">
     <meta name="twitter:description" content="Explore an interactive 3D globe, inspect locations, and measure distances around the Earth.">
     <meta name="twitter:image" content="https://alphadyn.github.io/apps/earth-explorer/app-icon.svg">
-    <link rel="stylesheet" href="styles.css?v=5" />
+    <link rel="stylesheet" href="styles.css?v=7" />
   </head>
   <body>
     <div class="app-shell">
@@ -35,6 +35,7 @@
         <section class="globe-panel">
           <div id="globeContainer">
             <div id="mapLabels" class="map-labels" aria-hidden="true"></div>
+            <div id="streetMapCredit" class="street-map-credit hidden">&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a></div>
             <button id="fullscreenBtn" class="fullscreen-btn" type="button" aria-label="Enter fullscreen" title="Enter fullscreen" aria-pressed="false">
               <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <path class="fullscreen-enter-icon" d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
@@ -53,7 +54,9 @@
             <label><input id="bordersLayer" type="checkbox" checked /> National borders</label>
             <label><input id="gridLayer" type="checkbox" checked /> Coordinate grid</label>
             <label><input id="citiesLayer" type="checkbox" checked /> Cities</label>
+            <label><input id="streetsLayer" type="checkbox" /> Streets</label>
           </div>
+          <p id="streetMapStatus" class="hint" role="status"></p>
         </section>
 
         <aside class="side-panel">
@@ -104,6 +107,6 @@
         }
       }
     </script>
-    <script type="module" src="app.js?v=10"></script>
+    <script type="module" src="app.js?v=12"></script>
   </body>
 </html>

@@ -51,7 +51,7 @@ container.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
-controls.minDistance = 2.6;
+controls.minDistance = 2.15;
 controls.maxDistance = 10;
 // Let horizontal and vertical drags orbit freely around the globe's center.
 // Disable translation so right-drag and two-finger gestures cannot move the
@@ -189,13 +189,13 @@ function makeCoordinateGrid(step, opacity) {
     positions.push(a.x, a.y, a.z, b.x, b.y, b.z);
   }
   for (let lat = -90 + step; lat < 90; lat += step) {
-    if (step < 30 && lat % (step === 5 ? 15 : 30) === 0) continue;
+    if (step < 30 && lat % (step === 2 ? 10 : step === 5 ? 15 : 30) === 0) continue;
     for (let lon = -180; lon < 180; lon += 2) {
       addSegment(lat, lon, lat, lon + 2);
     }
   }
   for (let lon = -180; lon < 180; lon += step) {
-    if (step < 30 && lon % (step === 5 ? 15 : 30) === 0) continue;
+    if (step < 30 && lon % (step === 2 ? 10 : step === 5 ? 15 : 30) === 0) continue;
     for (let lat = -90; lat < 90; lat += 2) {
       addSegment(lat, lon, lat + 2, lon);
     }
@@ -213,7 +213,8 @@ function makeCoordinateGrid(step, opacity) {
 coordinateGrids.push(
   { maxDistance: Infinity, mesh: makeCoordinateGrid(30, 0.22) },
   { maxDistance: 4.8, mesh: makeCoordinateGrid(15, 0.16) },
-  { maxDistance: 3.5, mesh: makeCoordinateGrid(5, 0.12) }
+  { maxDistance: 3.5, mesh: makeCoordinateGrid(5, 0.12) },
+  { maxDistance: 2.8, mesh: makeCoordinateGrid(2, 0.08) }
 );
 
 function updateCoordinateGrids() {
@@ -479,6 +480,86 @@ const CITY_TIERS = [
     ["Ho Chi Minh City", 10.82, 106.63], ["Kuala Lumpur", 3.14, 101.69],
     ["Taipei", 25.03, 121.56], ["Guangzhou", 23.13, 113.26],
     ["Kyoto", 35.01, 135.77], ["Canberra", -35.28, 149.13],
+  ] },
+  // Additional nearby cities appear only when zoomed in closely.
+  { maxDistance: 2.9, nameDistance: 2.65, cities: [
+    ["Sacramento", 38.58, -121.49], ["San Jose", 37.34, -121.89],
+    ["Oakland", 37.80, -122.27], ["Boise", 43.62, -116.20],
+    ["Salt Lake City", 40.76, -111.89], ["Denver", 39.74, -104.99],
+    ["Albuquerque", 35.08, -106.65], ["Oklahoma City", 35.47, -97.52],
+    ["Kansas City", 39.10, -94.58], ["St. Louis", 38.63, -90.20],
+    ["Nashville", 36.16, -86.78], ["Atlanta", 33.75, -84.39],
+    ["Charlotte", 35.23, -80.84], ["Philadelphia", 39.95, -75.16],
+    ["Pittsburgh", 40.44, -80.00], ["Detroit", 42.33, -83.05],
+    ["Cleveland", 41.50, -81.69], ["Ottawa", 45.42, -75.70],
+    ["Québec City", 46.81, -71.21], ["San José", 9.93, -84.08],
+    ["Quito", -0.18, -78.47], ["La Paz", -16.49, -68.12],
+    ["Montevideo", -34.90, -56.19], ["Cordoba", -31.42, -64.19],
+    ["Edinburgh", 55.95, -3.19], ["Copenhagen", 55.68, 12.57],
+    ["Stockholm", 59.33, 18.07], ["Oslo", 59.91, 10.75],
+    ["Warsaw", 52.23, 21.01], ["Prague", 50.08, 14.44],
+    ["Vienna", 48.21, 16.37], ["Zurich", 47.38, 8.54],
+    ["Budapest", 47.50, 19.04], ["Bucharest", 44.43, 26.10],
+    ["Beirut", 33.89, 35.50], ["Amman", 31.95, 35.93],
+    ["Tehran", 35.69, 51.39], ["Lahore", 31.52, 74.36],
+    ["Hyderabad", 17.39, 78.49], ["Pune", 18.52, 73.86],
+    ["Dhaka", 23.81, 90.41], ["Colombo", 6.93, 79.86],
+    ["Phnom Penh", 11.56, 104.93], ["Manila", 14.60, 120.98],
+    ["Hiroshima", 34.39, 132.46], ["Sapporo", 43.06, 141.35],
+    ["Brisbane", -27.47, 153.03], ["Perth", -31.95, 115.86],
+  ] },
+  // Smaller regional hubs appear as users zoom closer.
+  { maxDistance: 4.1, nameDistance: 3.8, cities: [
+    ["Eugene", 44.05, -123.09], ["Reno", 39.53, -119.81],
+    ["Fresno", 36.74, -119.79], ["Tucson", 32.22, -110.97],
+    ["El Paso", 31.76, -106.49], ["San Antonio", 29.42, -98.49],
+    ["Austin", 30.27, -97.74], ["Fort Worth", 32.76, -97.33],
+    ["Memphis", 35.15, -90.05], ["New Orleans", 29.95, -90.07],
+    ["Richmond", 37.54, -77.44], ["Baltimore", 39.29, -76.61],
+    ["Buffalo", 42.89, -78.88], ["Halifax", 44.65, -63.57],
+    ["Winnipeg", 49.90, -97.14], ["Calgary", 51.05, -114.07],
+    ["Edmonton", 53.55, -113.49], ["Guadalajara", 20.66, -103.35],
+    ["Monterrey", 25.69, -100.32], ["Havana", 23.11, -82.37],
+    ["Kingston", 17.97, -76.79], ["Panama City", 8.98, -79.52],
+    ["Guatemala City", 14.63, -90.51], ["Belize City", 17.50, -88.20],
+    ["San Salvador", 13.69, -89.19], ["Tegucigalpa", 14.07, -87.19],
+    ["Managua", 12.11, -86.24], ["San Pedro Sula", 15.50, -88.03],
+    ["Liberia", 10.63, -85.44], ["San Miguel", 13.48, -88.18],
+    ["Mérida", 20.97, -89.62], ["Campeche", 19.83, -90.53],
+    ["Chetumal", 18.50, -88.30], ["Oaxaca", 17.07, -96.73],
+    ["Tuxtla Gutiérrez", 16.75, -93.12], ["Veracruz", 19.17, -96.13],
+    ["Santiago de Cuba", 20.02, -75.83], ["Port-au-Prince", 18.54, -72.34],
+    ["Santo Domingo", 18.49, -69.93], ["Nassau", 25.04, -77.35],
+    ["Cayenne", 4.93, -52.33], ["Paramaribo", 5.85, -55.17],
+    ["Georgetown", 6.80, -58.16], ["Belém", -1.46, -48.50],
+    ["Manaus", -3.12, -60.02], ["Fortaleza", -3.73, -38.52],
+    ["Guayaquil", -2.17, -79.92], ["Arequipa", -16.41, -71.54],
+    ["Rosario", -32.95, -60.66], ["Mendoza", -32.89, -68.85],
+    ["Salvador", -12.98, -38.50], ["Recife", -8.05, -34.88],
+    ["Curitiba", -25.43, -49.27], ["Belo Horizonte", -19.92, -43.94],
+    ["Birmingham", 52.49, -1.90], ["Glasgow", 55.86, -4.25],
+    ["Lyon", 45.76, 4.84], ["Marseille", 43.30, 5.37],
+    ["Hamburg", 53.55, 9.99], ["Frankfurt", 50.11, 8.68],
+    ["Barcelona", 41.39, 2.17], ["Valencia", 39.47, -0.38],
+    ["Naples", 40.85, 14.27], ["Turin", 45.07, 7.69],
+    ["Belgrade", 44.79, 20.45], ["Sofia", 42.70, 23.32],
+    ["Kyiv", 50.45, 30.52], ["Tbilisi", 41.72, 44.79],
+    ["Baku", 40.41, 49.87], ["Muscat", 23.59, 58.41],
+    ["Jeddah", 21.49, 39.19], ["Kabul", 34.56, 69.21],
+    ["Jaipur", 26.91, 75.79], ["Ahmedabad", 23.02, 72.57],
+    ["Chittagong", 22.36, 91.80], ["Kathmandu", 27.72, 85.32],
+    ["Yangon", 16.87, 96.20], ["Da Nang", 16.05, 108.20],
+    ["Surabaya", -7.25, 112.75], ["Bandung", -6.92, 107.62],
+    ["Cebu City", 10.32, 123.89], ["Fukuoka", 33.59, 130.40],
+    ["Nagoya", 35.18, 136.91], ["Sendai", 38.27, 140.87],
+    ["Adelaide", -34.93, 138.60], ["Wellington", -41.29, 174.78],
+    ["Darwin", -12.46, 130.84], ["Christchurch", -43.53, 172.63],
+    ["Dakar", 14.72, -17.47], ["Abidjan", 5.36, -4.01],
+    ["Kampala", 0.35, 32.58], ["Kigali", -1.94, 29.87],
+    ["Dar es Salaam", -6.79, 39.21], ["Maputo", -25.97, 32.58],
+    ["Lusaka", -15.39, 28.32], ["Harare", -17.83, 31.05],
+    ["Durban", -29.86, 31.02], ["Tunis", 36.81, 10.18],
+    ["Algiers", 36.75, 3.06], ["Tripoli", 32.89, 13.19],
   ] },
 ];
 

@@ -16,7 +16,7 @@ distance between any two points you click.
 - **Double-click zoom** on the globe and a fullscreen toggle (press Esc to exit fullscreen)
 - **Optional national borders** overlaid on the globe surface, loaded from a public GeoJSON dataset
 - **Progressive map details**: optional 30° grid and major-city markers at a distance;
-  zooming in reveals 15° and 5° grid lines, regional and local cities, and more names.
+  zooming in reveals 15°, 5°, and 2° grid lines, then adds increasingly local locations and city names.
   Labels avoid overlaps and markers on the far side of the globe are hidden
 - **Inspect Point mode**: click anywhere on the globe to drop a marker and see its latitude,
   longitude, hemisphere, and the country it falls within (with a flag and a link to that

@@ -17,15 +17,17 @@ distance between any two points you click.
 - **3D rotating globe** built with [Three.js](https://threejs.org/), textured with a real
   earth image, drag in any direction to orbit around the globe's fixed center,
   and scroll/pinch-to-zoom via `OrbitControls`
-- **Zoom controls** with 12 surface-relative zoom-in steps from the default view to
+- **Zoom controls** with 16 surface-relative zoom-in steps from the default view to
   the closest level, plus a reset button to restore the original view. The closest camera distance is
-  2.001 for a globe radius of 2, allowing street-level detail; wheel and pinch zoom use reduced sensitivity.
+  about 2.000061 for a globe radius of 2, allowing street-level detail; wheel and pinch zoom use reduced sensitivity.
 - **Double-click zoom** smoothly rotates the view to center the clicked location while
   zooming in, keeping the globe's center fixed; a fullscreen toggle is also available (press Esc to exit)
 - **Optional national borders** overlaid on the globe surface, loaded from a public GeoJSON dataset
 - **Street map on the globe**: enable **Streets** to project CARTO light basemap tiles
   based on OpenStreetMap onto the Earth's curved surface. Tiles follow globe rotation
   and progressively increase in detail as you zoom closer, without a separate flat map.
+  Streets default to off for the first four zoom-in levels and on at deeper levels;
+  the checkbox remains manually adjustable until the zoom level changes.
   Tiles load on demand with up to six concurrent requests and a bounded cache.
   Attribution remains visible, including in fullscreen, and tile failures are reported.
 - **Progressive coordinate grid**: optional 30° grid at a distance;

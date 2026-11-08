@@ -5,7 +5,10 @@ import { setupLocationSearch } from "./location-search.js?v=1";
 
 const EARTH_RADIUS_KM = 6371;
 const GLOBE_RADIUS = 2;
+const INITIAL_CAMERA_DISTANCE = 6;
 const ZOOM_STEP = 2;
+const MAX_ZOOM_LEVELS = 16;
+const FIRST_STREET_ZOOM_LEVEL = 5;
 const MARKER_RADIUS = 0.035;
 const MARKER_DIAMETER_PX = 7;
 
@@ -47,7 +50,7 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x05070d);
 
 const camera = new THREE.PerspectiveCamera(45, 1, 0.00001, 100);
-camera.position.set(0, 0, 6);
+camera.position.set(0, 0, INITIAL_CAMERA_DISTANCE);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 container.appendChild(renderer.domElement);
@@ -55,7 +58,8 @@ container.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
-controls.minDistance = 2.001;
+controls.minDistance = GLOBE_RADIUS +
+  (INITIAL_CAMERA_DISTANCE - GLOBE_RADIUS) / ZOOM_STEP ** MAX_ZOOM_LEVELS;
 controls.maxDistance = 10;
 controls.zoomSpeed = 0.5;
 // Let horizontal and vertical drags orbit freely around the globe's center.
@@ -191,10 +195,30 @@ const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
 earthMesh.renderOrder = -2;
 scene.add(earthMesh);
 const streetMap = createStreetMap(scene, camera, renderer, GLOBE_RADIUS, streetMapStatus);
+let lastAutomaticStreetZoomLevel = -1;
+
+function setStreetLayerEnabled(enabled) {
+  streetMap.setEnabled(enabled);
+  streetMapCredit.classList.toggle("hidden", !enabled);
+}
+
 streetsLayer.addEventListener("change", () => {
-  streetMap.setEnabled(streetsLayer.checked);
-  streetMapCredit.classList.toggle("hidden", !streetsLayer.checked);
+  setStreetLayerEnabled(streetsLayer.checked);
 });
+
+function updateStreetLayerDefault() {
+  const altitude = camera.position.distanceTo(controls.target) - GLOBE_RADIUS;
+  const initialAltitude = INITIAL_CAMERA_DISTANCE - GLOBE_RADIUS;
+  const zoomLevel = Math.max(0, Math.floor(Math.log2(initialAltitude / altitude)));
+  if (zoomLevel === lastAutomaticStreetZoomLevel) return;
+
+  lastAutomaticStreetZoomLevel = zoomLevel;
+  const shouldEnable = zoomLevel >= FIRST_STREET_ZOOM_LEVEL;
+  if (streetsLayer.checked !== shouldEnable) {
+    streetsLayer.checked = shouldEnable;
+    setStreetLayerEnabled(shouldEnable);
+  }
+}
 
 // Thin atmosphere glow shell
 const atmosphereMesh = new THREE.Mesh(
@@ -475,6 +499,7 @@ function animate() {
   lastCameraDistance = camera.position.distanceTo(controls.target);
   updateZoomButtons();
   updateMarkerSizes();
+  updateStreetLayerDefault();
   streetMap.update(performance.now());
   renderer.render(scene, camera);
 }

@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { createStreetMap } from "./street-map.js?v=1";
+import { setupLocationSearch } from "./location-search.js?v=1";
 
 const EARTH_RADIUS_KM = 6371;
 const GLOBE_RADIUS = 2;
@@ -1045,3 +1046,19 @@ function setMode(nextMode) {
 
 inspectModeBtn.addEventListener("click", () => setMode("inspect"));
 measureModeBtn.addEventListener("click", () => setMode("measure"));
+
+setupLocationSearch(({ lat, lon, bounds }) => {
+  clearTimeout(pendingSelection);
+  pendingSelection = null;
+  setMode("inspect");
+  const point = latLonToVector3(lat, lon, GLOBE_RADIUS);
+  handleInspectClick(point);
+  const latSpan = bounds ? bounds.north - bounds.south : 0;
+  const lonSpan = bounds ? (bounds.east - bounds.west) * Math.cos(THREE.MathUtils.degToRad(lat)) : 0;
+  const halfSpan = THREE.MathUtils.degToRad(Math.max(latSpan, lonSpan) / 2);
+  const halfFov = Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * Math.min(1, camera.aspect));
+  const altitude = Math.max(0.003, GLOBE_RADIUS * halfSpan / Math.tan(halfFov) * 1.3);
+  zoomFocusDirection = point.normalize();
+  zoomTargetDistance = THREE.MathUtils.clamp(GLOBE_RADIUS + altitude, controls.minDistance, controls.maxDistance);
+  updateZoomButtons();
+});

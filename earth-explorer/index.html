@@ -16,7 +16,7 @@
     <meta name="twitter:title" content="Earth Explorer">
     <meta name="twitter:description" content="Explore an interactive 3D globe, inspect locations, and measure distances around the Earth.">
     <meta name="twitter:image" content="https://alphadyn.github.io/apps/earth-explorer/app-icon.svg">
-    <link rel="stylesheet" href="styles.css?v=7" />
+    <link rel="stylesheet" href="styles.css?v=8" />
   </head>
   <body>
     <div class="app-shell">
@@ -60,6 +60,17 @@
         </section>
 
         <aside class="side-panel">
+          <section class="panel" aria-labelledby="locationSearchHeading">
+            <h2 id="locationSearchHeading">Find a Location</h2>
+            <form id="locationSearchForm" class="location-search" role="search">
+              <label for="locationSearchInput">City, address, or landmark</label>
+              <input id="locationSearchInput" type="search" maxlength="200" placeholder="e.g. Kyoto, Japan" autocomplete="off" required />
+              <button id="locationSearchSubmit" class="secondary-btn" type="submit">Search</button>
+            </form>
+            <p id="locationSearchStatus" class="hint" role="status"></p>
+            <ul id="locationSearchResults" class="location-results" aria-label="Location search results"></ul>
+            <p class="hint">Search by <a href="https://nominatim.openstreetmap.org/" target="_blank" rel="noopener noreferrer">Nominatim</a>, &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors.</p>
+          </section>
           <div id="inspectPanel" class="panel">
             <h2>Point Details</h2>
             <p id="inspectEmpty" class="empty-state">Click anywhere on the globe to inspect that location.</p>
@@ -107,6 +118,6 @@
         }
       }
     </script>
-    <script type="module" src="app.js?v=12"></script>
+    <script type="module" src="app.js?v=13"></script>
   </body>
 </html>

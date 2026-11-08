@@ -9,6 +9,9 @@ latitude/longitude of any point on its surface, and measure the great-circle (su
 distance between any two points you click.
 
 ## Features
+- **Location search** for cities, addresses, and landmarks using OpenStreetMap's
+  Nominatim service. Submit a search and choose a result to smoothly center the globe,
+  zoom to the location's extent, and show its coordinates in Inspect Point mode.
 - **3D rotating globe** built with [Three.js](https://threejs.org/), textured with a real
   earth image, drag in any direction to orbit around the globe's fixed center,
   and scroll/pinch-to-zoom via `OrbitControls`
@@ -63,15 +66,23 @@ Then open http://localhost:8000 in your browser.
   national borders, coordinate grid, cities, or streets. More grid lines and city names appear as you zoom in.
 5. Double-click a location to rotate it into the center and zoom in without selecting a point. Use the fullscreen button
   in the upper-right corner of the globe to expand it; click again or press Esc to exit.
+6. Enter a city, address, or landmark in **Find a Location**, then press Enter or **Search**.
+   Choose a result to center and zoom the globe. Enable **Streets** for mapped roads and labels.
 
 ## Main files
 - `index.html` — page structure, mode toggle, and side panels
 - `app.js` — Three.js scene/globe setup, raycasting for click detection, lat/lon conversion,
   and great-circle distance calculation
 - `street-map.js` — Web Mercator tile selection, spherical projection, and tile loading/disposal
+- `location-search.js` — submitted geocoding searches, result selection, and error reporting
 - `styles.css` — layout and visual styling
 
 ## Notes
+- Search queries are sent to the public Nominatim service only on submission, not while
+  typing. Requests are spaced at least 1.1 seconds apart per page and recent queries are
+  cached in memory. Attribution is visible below the results. Public-service usage limits
+  apply across all users; use a dedicated geocoding provider before a high-traffic deployment.
+  Search requires internet access and reports empty results and network/provider failures.
 - Street maps require internet access to CARTO's tile servers; Leaflet is not needed.
   Tile requests use the same browser-facing CARTO basemap key as Experiences.
   CARTO and OpenStreetMap usage terms apply; review provider limits before a high-traffic deployment.

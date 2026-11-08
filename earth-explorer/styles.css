@@ -260,9 +260,70 @@ h1 {
 }
 
 .side-panel {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.location-search {
+  display: grid;
+  gap: 8px;
+}
+
+.location-search label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.location-search input {
+  width: 100%;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.location-results {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.location-result {
+  width: 100%;
+  padding: 10px;
+  text-align: left;
+  overflow-wrap: anywhere;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--text-primary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8rem;
+}
+
+.location-result:hover,
+.location-result:focus-visible,
+.location-search input:focus-visible {
+  border-color: var(--accent);
+}
+
+.location-search button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.side-panel .hint a {
+  color: var(--accent);
 }
 
 .panel {
@@ -407,6 +468,6 @@ h1 {
 
 @media (max-width: 860px) {
   .app-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }

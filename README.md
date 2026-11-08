@@ -19,9 +19,9 @@ The landing page's Top apps section highlights these projects:
 
 Projects are listed alphabetically, matching the catalog on the landing page.
 
-- [Earth Explorer](earth-explorer/) ([Open app](https://alphadyn.github.io/apps/earth-explorer/)) — Three.js globe with overlays and inspection interactions.
 - [Atlas Store](atlas-store/) ([Open app](https://alphadyn.github.io/apps/atlas-store/)) — Storefront mockup with catalog, cart, and checkout flow.
 - [Contact Card Generator](contact-card-generator/) ([Open app](https://alphadyn.github.io/apps/contact-card-generator/)) — Create vCard contact files and QR codes with optional profile photos.
+- [Earth Explorer](earth-explorer/) ([Open app](https://alphadyn.github.io/apps/earth-explorer/)) — Three.js globe with overlays and inspection interactions.
 - [Experiences](experiences/) ([Open app](https://alphadyn.github.io/apps/experiences/)) — Supabase-backed journal with trips, shareable Experience collections, Event maps, precise location picking, and media carousels.
 - [Fractals](fractals/) ([Open app](https://alphadyn.github.io/apps/fractals/)) — Interactive fractal visualizer.
 - [Lexhaven Legal Docketing](lexhaven-legal-docketing/) ([Open app](https://alphadyn.github.io/apps/lexhaven-legal-docketing/)) — Matter and deadline tracking app.

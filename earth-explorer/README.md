@@ -20,6 +20,8 @@ distance between any two points you click.
 - **Zoom controls** with 16 surface-relative zoom-in steps from the default view to
   the closest level, plus a reset button to restore the original view. The closest camera distance is
   about 2.000061 for a globe radius of 2, allowing street-level detail; wheel and pinch zoom use reduced sensitivity.
+- **Shareable views**: copy a link containing the current camera-facing latitude,
+  longitude, and zoom level. Opening the link restores that globe view.
 - **Double-click zoom** smoothly rotates the view to center the clicked location while
   zooming in, keeping the globe's center fixed; a fullscreen toggle is also available (press Esc to exit)
 - **Optional national borders** overlaid on the globe surface, loaded from a public GeoJSON dataset
@@ -69,6 +71,7 @@ Then open http://localhost:8000 in your browser.
   in the upper-right corner of the globe to expand it; click again or press Esc to exit.
 6. Enter a city, address, or landmark in **Find a Location**, then press Enter or **Search**.
    Choose a result to center and zoom the globe. Enable **Streets** for mapped roads and labels.
+7. Select the share button in the globe controls to copy a link to the current view.
 
 ## Main files
 - `index.html` — page structure, mode toggle, and side panels

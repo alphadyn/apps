@@ -6,6 +6,7 @@ import { setupLocationSearch } from "./location-search.js?v=1";
 const EARTH_RADIUS_KM = 6371;
 const GLOBE_RADIUS = 2;
 const INITIAL_CAMERA_DISTANCE = 6;
+const MAX_CAMERA_DISTANCE = 10;
 const ZOOM_STEP = 2;
 const MAX_ZOOM_LEVELS = 16;
 const FIRST_STREET_ZOOM_LEVEL = 5;
@@ -16,6 +17,8 @@ const container = document.getElementById("globeContainer");
 const zoomInBtn = document.getElementById("zoomInBtn");
 const zoomOutBtn = document.getElementById("zoomOutBtn");
 const resetViewBtn = document.getElementById("resetViewBtn");
+const shareViewBtn = document.getElementById("shareViewBtn");
+const shareStatus = document.getElementById("shareStatus");
 const fullscreenBtn = document.getElementById("fullscreenBtn");
 const bordersLayer = document.getElementById("bordersLayer");
 const gridLayer = document.getElementById("gridLayer");
@@ -45,12 +48,59 @@ let measureLine = null;
 let inspectMarker = null;
 let countryFeatures = []; // GeoJSON features used for both the border overlay and name lookup
 
+function readSharedViewFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const latValue = params.get("lat");
+  const lonValue = params.get("lon");
+  const zoomValue = params.get("zoom");
+  if (
+    latValue === null ||
+    lonValue === null ||
+    zoomValue === null ||
+    !latValue.trim() ||
+    !lonValue.trim() ||
+    !zoomValue.trim()
+  ) {
+    return null;
+  }
+  const lat = Number(latValue);
+  const lon = Number(lonValue);
+  const zoom = Number(zoomValue);
+  if (
+    !Number.isFinite(lat) ||
+    !Number.isFinite(lon) ||
+    !Number.isFinite(zoom) ||
+    lat < -90 ||
+    lat > 90 ||
+    lon < -180 ||
+    lon > 180
+  ) {
+    return null;
+  }
+  return { lat, lon, zoom };
+}
+
+function distanceForZoomLevel(zoom) {
+  const minZoom = Math.log2(
+    (INITIAL_CAMERA_DISTANCE - GLOBE_RADIUS) / (MAX_CAMERA_DISTANCE - GLOBE_RADIUS)
+  );
+  const clampedZoom = THREE.MathUtils.clamp(zoom, minZoom, MAX_ZOOM_LEVELS);
+  return GLOBE_RADIUS + (INITIAL_CAMERA_DISTANCE - GLOBE_RADIUS) / 2 ** clampedZoom;
+}
+
+const sharedView = readSharedViewFromUrl();
+
 // --- Scene setup ---------------------------------------------------------
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x05070d);
 
 const camera = new THREE.PerspectiveCamera(45, 1, 0.00001, 100);
-camera.position.set(0, 0, INITIAL_CAMERA_DISTANCE);
+const initialCameraDistance = sharedView ? distanceForZoomLevel(sharedView.zoom) : INITIAL_CAMERA_DISTANCE;
+if (sharedView) {
+  camera.position.copy(latLonToVector3(sharedView.lat, sharedView.lon, initialCameraDistance));
+} else {
+  camera.position.set(0, 0, INITIAL_CAMERA_DISTANCE);
+}
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 container.appendChild(renderer.domElement);
@@ -60,7 +110,7 @@ controls.enableDamping = true;
 controls.dampingFactor = 0.08;
 controls.minDistance = GLOBE_RADIUS +
   (INITIAL_CAMERA_DISTANCE - GLOBE_RADIUS) / ZOOM_STEP ** MAX_ZOOM_LEVELS;
-controls.maxDistance = 10;
+controls.maxDistance = MAX_CAMERA_DISTANCE;
 controls.zoomSpeed = 0.5;
 // Let horizontal and vertical drags orbit freely around the globe's center.
 // Disable translation so right-drag and two-finger gestures cannot move the
@@ -124,6 +174,43 @@ function zoomToPoint(factor, point) {
 
 zoomInBtn.addEventListener("click", () => zoomBy(1 / ZOOM_STEP));
 zoomOutBtn.addEventListener("click", () => zoomBy(ZOOM_STEP));
+shareViewBtn.addEventListener("click", async () => {
+  const { lat, lon } = pointToLatLon(camera.position);
+  const distance = camera.position.distanceTo(controls.target);
+  const zoom = Math.log2((INITIAL_CAMERA_DISTANCE - GLOBE_RADIUS) / (distance - GLOBE_RADIUS));
+  const shareUrl = new URL(window.location.href);
+  shareUrl.searchParams.set("lat", lat.toFixed(6));
+  shareUrl.searchParams.set("lon", lon.toFixed(6));
+  shareUrl.searchParams.set("zoom", zoom.toFixed(4));
+  window.history.replaceState(null, "", shareUrl);
+
+  const shareData = {
+    title: document.querySelector('meta[property="og:title"]').content,
+    text: document.querySelector('meta[property="og:description"]').content,
+    url: shareUrl.toString(),
+  };
+  if (navigator.share && (!navigator.canShare || navigator.canShare(shareData))) {
+    try {
+      await navigator.share(shareData);
+      shareStatus.textContent = "View shared.";
+      return;
+    } catch (error) {
+      if (error.name === "AbortError") {
+        shareStatus.textContent = "Sharing cancelled.";
+        return;
+      }
+      console.warn("Unable to share the view:", error);
+    }
+  }
+
+  try {
+    await navigator.clipboard.writeText(shareUrl.toString());
+    shareStatus.textContent = "View link copied to clipboard.";
+  } catch (error) {
+    console.warn("Unable to copy the view link:", error);
+    shareStatus.textContent = "View link is in the address bar; copy it to share.";
+  }
+});
 resetViewBtn.addEventListener("click", () => {
   zoomFocusDirection = null;
   applyingZoom = true;

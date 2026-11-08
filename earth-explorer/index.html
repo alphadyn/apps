@@ -5,12 +5,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Earth Explorer</title>
-    <meta name="description" content="Explore a 3D atlas with street maps, search cities and landmarks, inspect coordinates, and measure distances around the Earth.">
+    <meta name="description" content="Share a location and zoom level with a link, then explore it on an interactive 3D atlas with street maps, search, and measurement tools.">
     <link rel="canonical" href="https://alphadyn.github.io/apps/earth-explorer/">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Alphadyn Apps">
-    <meta property="og:title" content="Earth Explorer">
-    <meta property="og:description" content="Explore a 3D atlas with street maps, search cities and landmarks, inspect coordinates, and measure distances around the Earth.">
+    <meta property="og:title" content="Earth Explorer — Share a 3D Globe View">
+    <meta property="og:description" content="Share a location and zoom level with a link, then explore it on an interactive 3D atlas with street maps, search, and measurement tools.">
     <meta property="og:url" content="https://alphadyn.github.io/apps/earth-explorer/">
     <meta property="og:image" content="https://alphadyn.github.io/apps/earth-explorer/social-preview.png">
     <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/earth-explorer/social-preview.png">
@@ -19,13 +19,13 @@
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="Earth Explorer dark atlas card with a globe and compass, featuring 3D exploration, street maps, and search.">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Earth Explorer">
-    <meta name="twitter:description" content="Explore a 3D atlas with street maps, search cities and landmarks, inspect coordinates, and measure distances around the Earth.">
+    <meta name="twitter:title" content="Earth Explorer — Share a 3D Globe View">
+    <meta name="twitter:description" content="Share a location and zoom level with a link, then explore it on an interactive 3D atlas with street maps, search, and measurement tools.">
     <meta name="twitter:image" content="https://alphadyn.github.io/apps/earth-explorer/social-preview.png">
     <meta name="twitter:image:alt" content="Earth Explorer dark atlas card with a globe and compass, featuring 3D exploration, street maps, and search.">
     <meta name="theme-color" content="#101419" />
     <link rel="icon" href="app-icon.svg?v=2" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=10" />
+    <link rel="stylesheet" href="styles.css?v=11" />
   </head>
   <body>
     <div class="app-shell">
@@ -61,6 +61,11 @@
               <button id="zoomInBtn" type="button" aria-label="Zoom in" title="Zoom in">+</button>
               <button id="zoomOutBtn" type="button" aria-label="Zoom out" title="Zoom out">&minus;</button>
               <button id="resetViewBtn" type="button" aria-label="Reset view" title="Reset view">&#8634;</button>
+              <button id="shareViewBtn" class="share-view-btn" type="button" aria-label="Share current view" title="Share current view">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42 9.3-9.29H14V3zM5 5h6v2H7v10h10v-4h2v6H5V5z" />
+                </svg>
+              </button>
             </div>
           </div>
           <div class="globe-guide" aria-label="Globe interaction guide">
@@ -68,6 +73,7 @@
             <span><strong>Scroll / pinch</strong> to zoom</span>
             <span><strong>Double-click</strong> to center</span>
           </div>
+          <p id="shareStatus" class="hint" role="status" aria-live="polite"></p>
           <div class="map-layers" role="group" aria-label="Map layers">
             <span class="layer-heading">Layers</span>
             <label><input id="bordersLayer" type="checkbox" checked /> National borders</label>
@@ -144,6 +150,6 @@
         }
       }
     </script>
-    <script type="module" src="app.js?v=15"></script>
+    <script type="module" src="app.js?v=17"></script>
   </body>
 </html>

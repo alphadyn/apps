@@ -207,7 +207,8 @@ h1 {
 }
 
 .zoom-controls button,
-.fullscreen-btn {
+.fullscreen-btn,
+.share-view-btn {
   width: 44px;
   height: 44px;
   border: 1px solid #4c5867;
@@ -223,15 +224,29 @@ h1 {
 .zoom-controls button:hover:not(:disabled),
 .zoom-controls button:focus-visible,
 .fullscreen-btn:hover:not(:disabled),
-.fullscreen-btn:focus-visible {
+.fullscreen-btn:focus-visible,
+.share-view-btn:hover:not(:disabled),
+.share-view-btn:focus-visible {
   border-color: var(--accent);
   background: #19314b;
 }
 
 .zoom-controls button:disabled,
-.fullscreen-btn:disabled {
+.fullscreen-btn:disabled,
+.share-view-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.share-view-btn {
+  display: grid;
+  place-items: center;
+}
+
+.share-view-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
 }
 
 .map-layers {

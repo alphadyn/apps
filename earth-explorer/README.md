@@ -13,7 +13,8 @@ distance between any two points you click.
   earth image, drag in any direction to orbit around the globe's fixed center,
   and scroll/pinch-to-zoom via `OrbitControls`
 - **Zoom controls** for zooming in and out, plus a reset button to restore the original view
-- **Double-click zoom** on the globe and a fullscreen toggle (press Esc to exit fullscreen)
+- **Double-click zoom** smoothly rotates the view to center the clicked location while
+  zooming in, keeping the globe's center fixed; a fullscreen toggle is also available (press Esc to exit)
 - **Optional national borders** overlaid on the globe surface, loaded from a public GeoJSON dataset
 - **Progressive map details**: optional 30° grid and major-city markers at a distance;
   zooming in reveals 15°, 5°, and 2° grid lines, then adds increasingly local locations and city names.
@@ -50,7 +51,7 @@ Then open http://localhost:8000 in your browser.
 4. Use **+**, **−**, or the scroll wheel/pinch gesture to zoom. The circular arrow resets
   the zoom and globe orientation. Use the checkboxes below the globe to show or hide
   national borders, coordinate grid, or cities. More grid lines and city names appear as you zoom in.
-5. Double-click the globe to zoom in without selecting a point. Use the fullscreen button
+5. Double-click a location to rotate it into the center and zoom in without selecting a point. Use the fullscreen button
   in the upper-right corner of the globe to expand it; click again or press Esc to exit.
 
 ## Main files

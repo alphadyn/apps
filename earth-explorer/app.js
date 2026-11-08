@@ -60,6 +60,8 @@ controls.enablePan = false;
 let zoomTargetDistance = camera.position.distanceTo(controls.target);
 let lastCameraDistance = zoomTargetDistance;
 let applyingZoom = false;
+let zoomFocusDirection = null;
+controls.addEventListener("start", () => { zoomFocusDirection = null; });
 
 // OrbitControls rotates by an angle per screen pixel, independent of zoom.
 // At the center of a perspective-projected globe, a surface point moves by
@@ -103,10 +105,20 @@ function zoomBy(factor) {
   updateZoomButtons();
 }
 
+function zoomToPoint(factor, point) {
+  zoomFocusDirection = point.clone().sub(controls.target).normalize();
+  zoomBy(factor);
+}
+
 zoomInBtn.addEventListener("click", () => zoomBy(1 / 1.3));
 zoomOutBtn.addEventListener("click", () => zoomBy(1.3));
 resetViewBtn.addEventListener("click", () => {
+  zoomFocusDirection = null;
+  applyingZoom = true;
   controls.reset();
+  applyingZoom = false;
+  zoomTargetDistance = camera.position.distanceTo(controls.target);
+  lastCameraDistance = zoomTargetDistance;
   updateZoomButtons();
 });
 controls.addEventListener("change", updateZoomButtons);
@@ -423,14 +435,21 @@ function animate() {
   const delta = Math.min(clock.getDelta(), 0.05);
   const distance = camera.position.distanceTo(controls.target);
   const nextDistance = THREE.MathUtils.damp(distance, zoomTargetDistance, 12, delta);
-  if (Math.abs(nextDistance - zoomTargetDistance) > 0.001) {
+  if (zoomFocusDirection || distance !== zoomTargetDistance) {
     applyingZoom = true;
-    setCameraDistance(nextDistance);
-    controls.update();
-    applyingZoom = false;
-  } else if (distance !== zoomTargetDistance) {
-    applyingZoom = true;
-    setCameraDistance(zoomTargetDistance);
+    if (zoomFocusDirection) {
+      const direction = camera.position.clone().sub(controls.target).normalize();
+      const rotation = new THREE.Quaternion().setFromUnitVectors(direction, zoomFocusDirection);
+      rotation.slerp(new THREE.Quaternion(), Math.exp(-12 * delta));
+      direction.applyQuaternion(rotation);
+      if (direction.angleTo(zoomFocusDirection) < 0.0001) {
+        direction.copy(zoomFocusDirection);
+        zoomFocusDirection = null;
+      }
+      camera.position.copy(controls.target).addScaledVector(direction, distance);
+    }
+    setCameraDistance(Math.abs(nextDistance - zoomTargetDistance) > 0.001
+      ? nextDistance : zoomTargetDistance);
     controls.update();
     applyingZoom = false;
   }
@@ -737,20 +756,24 @@ function onPointerUp(event) {
 }
 
 function selectPoint(clientX, clientY) {
+  const point = pointAt(clientX, clientY);
+  if (!point) return;
+
+  if (mode === "inspect") {
+    handleInspectClick(point);
+  } else {
+    handleMeasureClick(point);
+  }
+}
+
+function pointAt(clientX, clientY) {
   const rect = renderer.domElement.getBoundingClientRect();
   pointerNdc.x = ((clientX - rect.left) / rect.width) * 2 - 1;
   pointerNdc.y = -((clientY - rect.top) / rect.height) * 2 + 1;
 
   raycaster.setFromCamera(pointerNdc, camera);
   const hits = raycaster.intersectObject(earthMesh);
-  if (hits.length === 0) return;
-
-  const point = hits[0].point;
-  if (mode === "inspect") {
-    handleInspectClick(point);
-  } else {
-    handleMeasureClick(point);
-  }
+  return hits[0]?.point ?? null;
 }
 
 renderer.domElement.addEventListener("pointerdown", onPointerDown);
@@ -760,7 +783,9 @@ renderer.domElement.addEventListener("dblclick", (event) => {
   event.preventDefault();
   clearTimeout(pendingSelection);
   pendingSelection = null;
-  zoomBy(1 / 1.3);
+  const point = pointAt(event.clientX, event.clientY);
+  if (point) zoomToPoint(1 / 1.3, point);
+  else zoomBy(1 / 1.3);
 });
 
 function handleInspectClick(point) {

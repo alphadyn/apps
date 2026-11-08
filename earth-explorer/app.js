@@ -3,6 +3,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 const EARTH_RADIUS_KM = 6371;
 const GLOBE_RADIUS = 2;
+const ZOOM_STEP = 1.42;
 const MARKER_RADIUS = 0.035;
 const MARKER_DIAMETER_PX = 7;
 
@@ -42,7 +43,7 @@ let countryFeatures = []; // GeoJSON features used for both the border overlay a
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x05070d);
 
-const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+const camera = new THREE.PerspectiveCamera(45, 1, 0.005, 100);
 camera.position.set(0, 0, 6);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -51,8 +52,9 @@ container.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
-controls.minDistance = 2.15;
+controls.minDistance = 2.06;
 controls.maxDistance = 10;
+controls.zoomSpeed = 0.5;
 // Let horizontal and vertical drags orbit freely around the globe's center.
 // Disable translation so right-drag and two-finger gestures cannot move the
 // orbit target away from the Earth; zooming also stays centered on the globe.
@@ -78,8 +80,8 @@ updateRotateSpeed();
 controls.addEventListener("change", updateRotateSpeed);
 
 function updateZoomButtons() {
-  zoomInBtn.disabled = zoomTargetDistance <= controls.minDistance + 0.001;
-  zoomOutBtn.disabled = zoomTargetDistance >= controls.maxDistance - 0.001;
+  zoomInBtn.disabled = zoomTargetDistance <= controls.minDistance + 0.00001;
+  zoomOutBtn.disabled = zoomTargetDistance >= controls.maxDistance - 0.00001;
 }
 
 function setCameraDistance(distance) {
@@ -100,7 +102,9 @@ controls.addEventListener("change", captureDirectZoom);
 
 function zoomBy(factor) {
   zoomTargetDistance = THREE.MathUtils.clamp(
-    zoomTargetDistance * factor, controls.minDistance, controls.maxDistance
+    GLOBE_RADIUS + (zoomTargetDistance - GLOBE_RADIUS) * factor,
+    controls.minDistance,
+    controls.maxDistance
   );
   updateZoomButtons();
 }
@@ -110,8 +114,8 @@ function zoomToPoint(factor, point) {
   zoomBy(factor);
 }
 
-zoomInBtn.addEventListener("click", () => zoomBy(1 / 1.3));
-zoomOutBtn.addEventListener("click", () => zoomBy(1.3));
+zoomInBtn.addEventListener("click", () => zoomBy(1 / ZOOM_STEP));
+zoomOutBtn.addEventListener("click", () => zoomBy(ZOOM_STEP));
 resetViewBtn.addEventListener("click", () => {
   zoomFocusDirection = null;
   applyingZoom = true;
@@ -174,7 +178,7 @@ const textureLoader = new THREE.TextureLoader();
 const earthTexture = textureLoader.load(
   "https://unpkg.com/three-globe@2.31.1/example/img/earth-blue-marble.jpg"
 );
-const earthGeometry = new THREE.SphereGeometry(GLOBE_RADIUS, 64, 64);
+const earthGeometry = new THREE.SphereGeometry(GLOBE_RADIUS, 128, 128);
 const earthMaterial = new THREE.MeshPhongMaterial({
   map: earthTexture,
   shininess: 8,
@@ -613,6 +617,160 @@ const CITY_TIERS = [
     ["Durban", -29.86, 31.02], ["Tunis", 36.81, 10.18],
     ["Algiers", 36.75, 3.06], ["Tripoli", 32.89, 13.19],
   ] },
+  { maxDistance: 3.1, nameDistance: 2.9, cities: [
+    ["Santa Barbara", 34.42, -119.70], ["Santa Cruz", 36.97, -122.03],
+    ["Monterey", 36.60, -121.89], ["Santa Rosa", 38.44, -122.71],
+    ["Bakersfield", 35.37, -119.02], ["Flagstaff", 35.20, -111.65],
+    ["Santa Fe", 35.69, -105.94], ["Boulder", 40.02, -105.27],
+    ["Colorado Springs", 38.83, -104.82], ["Spokane", 47.66, -117.43],
+    ["Tacoma", 47.25, -122.44], ["Bellingham", 48.75, -122.48],
+    ["Victoria", 48.43, -123.37], ["Kelowna", 49.89, -119.50],
+    ["Kamloops", 50.67, -120.33], ["Saskatoon", 52.13, -106.67],
+    ["Regina", 50.45, -104.62], ["Charlottetown", 46.24, -63.13],
+    ["Charleston", 32.78, -79.93], ["Savannah", 32.08, -81.09],
+    ["Asheville", 35.60, -82.55], ["Raleigh", 35.78, -78.64],
+    ["Durham", 35.99, -78.90], ["Burlington", 44.48, -73.21],
+    ["Providence", 41.82, -71.41], ["Albany", 42.65, -73.75],
+    ["Antigua Guatemala", 14.56, -90.73], ["Quetzaltenango", 14.83, -91.52],
+    ["Granada", 11.93, -85.96], ["Cartago", 9.86, -83.92],
+    ["David", 8.43, -82.43], ["Cartagena", 10.39, -75.48],
+    ["Santa Marta", 11.24, -74.21], ["Cusco", -13.53, -71.97],
+    ["Cuenca", -2.90, -79.00], ["Valparaíso", -33.05, -71.62],
+    ["Bath", 51.38, -2.36], ["Oxford", 51.75, -1.26],
+    ["Cambridge", 52.21, 0.12], ["York", 53.96, -1.08],
+    ["Inverness", 57.48, -4.22], ["Galway", 53.27, -9.05],
+    ["Cork", 51.90, -8.47], ["Bergen", 60.39, 5.32],
+    ["Uppsala", 59.86, 17.64], ["Aarhus", 56.16, 10.20],
+    ["Bruges", 51.21, 3.22], ["Ghent", 51.05, 3.72],
+    ["Heidelberg", 49.40, 8.67], ["Freiburg", 48.00, 7.85],
+    ["Salzburg", 47.80, 13.04], ["Innsbruck", 47.27, 11.40],
+    ["Lucerne", 47.05, 8.31], ["Lausanne", 46.52, 6.63],
+    ["Verona", 45.44, 10.99], ["Siena", 43.32, 11.33],
+    ["Coimbra", 40.21, -8.43], ["Granada, Spain", 37.18, -3.60],
+    ["Marrakesh", 31.63, -8.00], ["Fes", 34.03, -5.00],
+    ["Mombasa", -4.04, 39.67], ["Arusha", -3.37, 36.68],
+    ["Kumasi", 6.69, -1.62], ["Ibadan", 7.38, 3.95],
+    ["Enugu", 6.46, 7.55], ["Benin City", 6.34, 5.62],
+    ["Udaipur", 24.59, 73.71], ["Jodhpur", 26.24, 73.02],
+    ["Mysuru", 12.30, 76.64], ["Kochi", 9.93, 76.27],
+    ["Kandy", 7.29, 80.64], ["Galle", 6.03, 80.22],
+    ["Chiang Mai", 18.79, 98.99], ["Luang Prabang", 19.89, 102.14],
+    ["Siem Reap", 13.36, 103.86], ["Hoi An", 15.88, 108.33],
+    ["Hue", 16.46, 107.59], ["Yogyakarta", -7.80, 110.37],
+    ["Nara", 34.69, 135.80], ["Kanazawa", 36.56, 136.66],
+    ["Matsumoto", 36.24, 137.97], ["Hakodate", 41.77, 140.73],
+    ["Dunedin", -45.87, 170.50], ["Queenstown", -45.03, 168.66],
+    ["Nelson", -41.27, 173.28], ["Cairns", -16.92, 145.77],
+    ["Hobart", -42.88, 147.33], ["Alice Springs", -23.70, 133.88],
+  ] },
+  { maxDistance: 2.55, nameDistance: 2.4, cities: [
+    ["Ojai", 34.45, -119.24], ["Solvang", 34.60, -120.14],
+    ["Carmel-by-the-Sea", 36.56, -121.92], ["Half Moon Bay", 37.46, -122.43],
+    ["Sausalito", 37.86, -122.49], ["Sonoma", 38.29, -122.46],
+    ["Healdsburg", 38.61, -122.87], ["Mendocino", 39.31, -123.80],
+    ["Truckee", 39.33, -120.18], ["South Lake Tahoe", 38.94, -119.98],
+    ["Sedona", 34.87, -111.76], ["Taos", 36.41, -105.57],
+    ["Moab", 38.57, -109.55], ["Telluride", 37.94, -107.81],
+    ["Estes Park", 40.38, -105.52], ["Leavenworth", 47.60, -120.66],
+    ["Friday Harbor", 48.53, -123.02], ["Tofino", 49.15, -125.91],
+    ["Whistler", 50.12, -122.96], ["Banff", 51.18, -115.57],
+    ["Jasper", 52.87, -118.08], ["Niagara-on-the-Lake", 43.25, -79.07],
+    ["Stowe", 44.47, -72.69], ["Bar Harbor", 44.39, -68.20],
+    ["Woodstock, Vermont", 43.62, -72.52], ["Beaufort", 32.43, -80.67],
+    ["Flores", 16.93, -89.89], ["Copán Ruinas", 14.84, -89.16],
+    ["Suchitoto", 13.94, -89.03], ["León, Nicaragua", 12.44, -86.88],
+    ["La Fortuna", 10.47, -84.65], ["Monteverde", 10.30, -84.82],
+    ["Boquete", 8.78, -82.43], ["Bocas del Toro", 9.34, -82.24],
+    ["Villa de Leyva", 5.63, -73.52], ["Salento", 4.64, -75.57],
+    ["Ollantaytambo", -13.26, -72.26], ["Pisac", -13.42, -71.85],
+    ["San Pedro de Atacama", -22.91, -68.20], ["Pucón", -39.28, -71.98],
+    ["St Ives", 50.21, -5.48], ["Whitby", 54.49, -0.61],
+    ["Ambleside", 54.43, -2.96], ["Fort William", 56.82, -5.11],
+    ["Dingle", 52.14, -10.27], ["Kinsale", 51.71, -8.53],
+    ["Hallstatt", 47.56, 13.65], ["Rothenburg ob der Tauber", 49.38, 10.18],
+    ["Zermatt", 46.02, 7.75], ["Grindelwald", 46.62, 8.04],
+    ["Lauterbrunnen", 46.59, 7.91], ["Chamonix", 45.92, 6.87],
+    ["Annecy", 45.90, 6.13], ["Colmar", 48.08, 7.36],
+    ["San Gimignano", 43.47, 11.04], ["Assisi", 43.07, 12.62],
+    ["Ronda", 36.74, -5.17], ["Sintra", 38.80, -9.38],
+    ["Chefchaouen", 35.17, -5.27], ["Essaouira", 31.51, -9.77],
+    ["Naivasha", -0.72, 36.43], ["Moshi", -3.34, 37.34],
+    ["Stellenbosch", -33.93, 18.86], ["Franschhoek", -33.91, 19.12],
+    ["Pushkar", 26.49, 74.55], ["Darjeeling", 27.04, 88.26],
+    ["Munnar", 10.09, 77.06], ["Ella", 6.87, 81.05],
+    ["Pai", 19.36, 98.44], ["Vang Vieng", 18.93, 102.45],
+    ["Ubud", -8.51, 115.26], ["Takayama", 36.15, 137.25],
+    ["Nikko", 36.75, 139.60], ["Kamakura", 35.32, 139.55],
+    ["Wanaka", -44.70, 169.14], ["Te Anau", -45.42, 167.72],
+    ["Kaikoura", -42.40, 173.68], ["Port Douglas", -16.48, 145.46],
+    ["Byron Bay", -28.65, 153.61], ["Margaret River", -33.95, 115.07],
+  ] },
+  { maxDistance: 2.3, nameDistance: 2.2, cities: [
+    ["Ventura", 34.28, -119.29], ["Carpinteria", 34.40, -119.52],
+    ["Goleta", 34.44, -119.83], ["Pismo Beach", 35.14, -120.64],
+    ["Morro Bay", 35.37, -120.85], ["Cambria", 35.56, -121.08],
+    ["Paso Robles", 35.63, -120.69], ["San Luis Obispo", 35.28, -120.66],
+    ["Pacific Grove", 36.62, -121.92], ["Salinas", 36.68, -121.66],
+    ["Watsonville", 36.91, -121.76], ["Capitola", 36.98, -121.95],
+    ["Pescadero", 37.26, -122.38], ["Pacifica", 37.61, -122.49],
+    ["Mill Valley", 37.91, -122.55], ["San Rafael", 37.97, -122.53],
+    ["Petaluma", 38.23, -122.64], ["Napa", 38.30, -122.29],
+    ["Calistoga", 38.58, -122.58], ["Sebastopol", 38.40, -122.82],
+    ["Grass Valley", 39.22, -121.06], ["Nevada City", 39.26, -121.02],
+    ["Auburn", 38.90, -121.08], ["Placerville", 38.73, -120.80],
+    ["Bishop", 37.36, -118.40], ["Lone Pine", 36.61, -118.06],
+    ["Durango", 37.28, -107.88], ["Ouray", 38.02, -107.67],
+    ["Silverton", 37.81, -107.66], ["Salida", 38.53, -106.00],
+    ["Port Townsend", 48.12, -122.76], ["Sequim", 48.08, -123.10],
+    ["Langley", 48.04, -122.41], ["Coupeville", 48.22, -122.69],
+    ["Sidney", 48.65, -123.40], ["Parksville", 49.32, -124.31],
+    ["Ucluelet", 48.94, -125.55], ["Fernie", 49.50, -115.06],
+    ["Revelstoke", 51.00, -118.20], ["Canmore", 51.09, -115.35],
+    ["Antigonish", 45.62, -62.00], ["Lunenburg", 44.38, -64.32],
+    ["Mahone Bay", 44.45, -64.38], ["Wolfville", 45.09, -64.37],
+    ["San Juan del Sur", 11.25, -85.87], ["San Juan La Laguna", 14.69, -91.29],
+    ["Panajachel", 14.74, -91.16], ["Ataco", 13.87, -89.85],
+    ["Juayúa", 13.84, -89.75], ["Santa Elena, Costa Rica", 10.32, -84.83],
+    ["Tamarindo", 10.30, -85.84], ["Puerto Viejo", 9.66, -82.75],
+    ["El Valle de Antón", 8.60, -80.13], ["Santa Fe, Panama", 8.51, -81.08],
+    ["Guatapé", 6.23, -75.16], ["Jardín", 5.60, -75.82],
+    ["Barichara", 6.64, -73.22], ["Mompox", 9.24, -74.43],
+    ["Chinchero", -13.39, -72.05], ["Urubamba", -13.30, -72.12],
+    ["Keswick", 54.60, -3.14], ["Grasmere", 54.46, -3.02],
+    ["Hawkshead", 54.37, -3.00], ["Bakewell", 53.21, -1.67],
+    ["Bourton-on-the-Water", 51.89, -1.76], ["Stow-on-the-Wold", 51.93, -1.72],
+    ["Broadway, England", 52.04, -1.86], ["Chipping Campden", 52.05, -1.78],
+    ["Pitlochry", 56.70, -3.73], ["Dunkeld", 56.56, -3.58],
+    ["Portree", 57.41, -6.19], ["Oban", 56.42, -5.47],
+    ["Kenmare", 51.88, -9.58], ["Westport", 53.80, -9.52],
+    ["Clifden", 53.49, -10.02], ["Adare", 52.56, -8.79],
+    ["Bacharach", 50.06, 7.77], ["Cochem", 50.15, 7.17],
+    ["Dinkelsbühl", 49.07, 10.32], ["Mittenwald", 47.44, 11.26],
+    ["Alpbach", 47.40, 11.94], ["St Wolfgang", 47.74, 13.45],
+    ["Wengen", 46.61, 7.92], ["Mürren", 46.56, 7.89],
+    ["Bergün", 46.63, 9.75], ["Guarda", 46.78, 10.15],
+    ["Eguisheim", 48.04, 7.31], ["Riquewihr", 48.17, 7.30],
+    ["Gordes", 43.91, 5.20], ["Roussillon", 43.90, 5.29],
+    ["Pienza", 43.08, 11.68], ["Montepulciano", 43.09, 11.78],
+    ["Volterra", 43.40, 10.86], ["Orvieto", 42.72, 12.11],
+    ["Nerja", 36.75, -3.88], ["Frigiliana", 36.79, -3.90],
+    ["Óbidos", 39.36, -9.16], ["Monsaraz", 38.44, -7.38],
+    ["Ifrane", 33.53, -5.11], ["Aït Benhaddou", 31.05, -7.13],
+    ["Dullstroom", -25.42, 30.10], ["Clarens", -28.52, 28.42],
+    ["Hermanus", -34.42, 19.23], ["Swellendam", -34.02, 20.44],
+    ["Bundi", 25.44, 75.64], ["Orchha", 25.35, 78.64],
+    ["Kalimpong", 27.06, 88.47], ["Kurseong", 26.88, 88.28],
+    ["Haputale", 6.77, 80.96], ["Nuwara Eliya", 6.97, 80.77],
+    ["Mae Hong Son", 19.30, 97.97], ["Chiang Dao", 19.37, 98.96],
+    ["Nong Khiaw", 20.57, 102.62], ["Muang Ngoi", 20.71, 102.68],
+    ["Sidemen", -8.47, 115.45], ["Munduk", -8.26, 115.06],
+    ["Tsumago", 35.58, 137.60], ["Magome", 35.53, 137.57],
+    ["Shirakawa-go", 36.26, 136.91], ["Gujo Hachiman", 35.75, 136.96],
+    ["Arrowtown", -44.94, 168.84], ["Cromwell", -45.04, 169.20],
+    ["Akaroa", -43.81, 172.97], ["Hanmer Springs", -42.52, 172.83],
+    ["Hahndorf", -35.03, 138.81], ["Maleny", -26.76, 152.85],
+    ["Montville", -26.69, 152.89], ["Yungaburra", -17.27, 145.58],
+  ] },
 ];
 
 const cityLabels = CITY_TIERS.flatMap(({ maxDistance, nameDistance, cities }) => cities.map(([name, lat, lon]) => {
@@ -784,8 +942,8 @@ renderer.domElement.addEventListener("dblclick", (event) => {
   clearTimeout(pendingSelection);
   pendingSelection = null;
   const point = pointAt(event.clientX, event.clientY);
-  if (point) zoomToPoint(1 / 1.3, point);
-  else zoomBy(1 / 1.3);
+  if (point) zoomToPoint(1 / ZOOM_STEP, point);
+  else zoomBy(1 / ZOOM_STEP);
 });
 
 function handleInspectClick(point) {

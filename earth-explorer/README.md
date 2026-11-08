@@ -12,12 +12,17 @@ distance between any two points you click.
 - **3D rotating globe** built with [Three.js](https://threejs.org/), textured with a real
   earth image, drag in any direction to orbit around the globe's fixed center,
   and scroll/pinch-to-zoom via `OrbitControls`
-- **Zoom controls** for zooming in and out, plus a reset button to restore the original view
+- **Zoom controls** with 12 surface-relative zoom-in steps from the default view to
+  the closest level, plus a reset button to restore the original view. The closest camera distance is
+  2.06 for a globe radius of 2 (previously 2.15); wheel and pinch zoom use reduced sensitivity.
 - **Double-click zoom** smoothly rotates the view to center the clicked location while
   zooming in, keeping the globe's center fixed; a fullscreen toggle is also available (press Esc to exit)
 - **Optional national borders** overlaid on the globe surface, loaded from a public GeoJSON dataset
 - **Progressive map details**: optional 30° grid and major-city markers at a distance;
-  zooming in reveals 15°, 5°, and 2° grid lines, then adds increasingly local locations and city names.
+  zooming in reveals 15°, 5°, and 2° grid lines, then adds increasingly local cities and towns.
+  Additional city markers appear at a camera distance of 3.1 and town markers at 2.55;
+  their names appear below 2.9 and 2.4, respectively. Locations are curated, not an exhaustive gazetteer.
+  A further local-place tier appears at 2.3, with names below 2.2 for the closest views.
   Labels avoid overlaps and markers on the far side of the globe are hidden
 - **Inspect Point mode**: click anywhere on the globe to drop a marker and see its latitude,
   longitude, hemisphere, and the country it falls within (with a flag and a link to that

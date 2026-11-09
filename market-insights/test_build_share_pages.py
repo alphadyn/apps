@@ -15,9 +15,9 @@ class BuildSharePagesTests(unittest.TestCase):
         self.assertIn(f'<link rel="canonical" href="{build_share_pages.APP_URL}">', overview)
         self.assertIn(f'<meta property="og:image" content="{build_share_pages.IMAGE_URL}">', overview)
         self.assertIn(f'<meta name="twitter:image" content="{build_share_pages.IMAGE_URL}">', overview)
-        self.assertIn('href="favicon.svg?v=2"', overview)
-        self.assertIn('href="apple-touch-icon.png?v=2"', overview)
-        self.assertIn('src="social-preview.png?v=4"', preview)
+        self.assertIn('href="favicon.svg?v=3"', overview)
+        self.assertIn('href="apple-touch-icon.png?v=3"', overview)
+        self.assertIn('src="social-preview.png?v=5"', preview)
         self.assertIn("Market <b>Insights</b>", overview)
         self.assertIn("Market Insights (Overview)", preview)
         self.assertIn(build_share_pages.APP_URL, preview)
@@ -71,8 +71,8 @@ class BuildSharePagesTests(unittest.TestCase):
         self.assertIn("Open TEST in Market Insights", html_content)
         self.assertIn('property="og:url" content="https://alphadyn.github.io/apps/market-insights/s/TEST/"', html_content)
         self.assertIn('property="og:image" content="https://alphadyn.github.io/apps/market-insights/s/TEST/preview.png?v=1"', html_content)
-        self.assertIn(f'href="{build_share_pages.APP_URL}favicon.svg?v=2"', html_content)
-        self.assertIn(f'href="{build_share_pages.APP_URL}apple-touch-icon.png?v=2"', html_content)
+        self.assertIn(f'href="{build_share_pages.APP_URL}favicon.svg?v=3"', html_content)
+        self.assertIn(f'href="{build_share_pages.APP_URL}apple-touch-icon.png?v=3"', html_content)
         self.assertIn('location.replace("https://alphadyn.github.io/apps/market-insights/#symbol=TEST")', html_content)
 
     def test_fund_share_page_marks_type_and_omits_stock_valuations(self):

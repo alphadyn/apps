@@ -25,7 +25,7 @@ ACCENT = (8, 127, 140)
 ACCENT_2 = (53, 102, 214)
 UP = (22, 134, 91)
 DOWN = (196, 61, 88)
-BRAND_BG = (19, 27, 48)
+BRAND_BG = (27, 42, 64)
 
 
 def font(name, size):
@@ -41,19 +41,37 @@ def brand_mark(image, x, y, size, rounded=True):
     mark = Image.new("RGBA", (resolution, resolution), (0, 0, 0, 0))
     draw = ImageDraw.Draw(mark)
     if rounded:
-        draw.rounded_rectangle((0, 0, resolution, resolution), radius=16 * scale, fill=BRAND_BG)
+        draw.rounded_rectangle(
+            (scale, scale, resolution - scale, resolution - scale),
+            radius=17 * scale,
+            fill=BRAND_BG,
+            outline=(255, 255, 255, 26),
+            width=max(1, round(scale)),
+        )
     else:
         draw.rectangle((0, 0, resolution, resolution), fill=BRAND_BG)
-    points = [(12, 44), (12, 23), (25, 34), (34, 25), (40, 31), (52, 18)]
-    points = [(px * scale, py * scale) for px, py in points]
-    line_color = (244, 249, 250)
-    draw.line(points, fill=line_color, width=round(5 * scale), joint="curve")
-    for px, py in points:
-        radius = 2.5 * scale
-        draw.ellipse((px - radius, py - radius, px + radius, py + radius), fill=line_color)
-    px, py = points[-1]
-    radius = 3.5 * scale
-    draw.ellipse((px - radius, py - radius, px + radius, py + radius), fill=(110, 231, 210))
+
+    def coords(points):
+        return [(px * scale, py * scale) for px, py in points]
+
+    draw.line(coords([(12, 51.5), (52, 51.5)]), fill=(145, 168, 196, 61), width=round(2 * scale))
+    for left, top, right in ((15, 39, 22), (28, 32, 35), (41, 24, 48)):
+        draw.rounded_rectangle(
+            (left * scale, top * scale, right * scale, 50 * scale),
+            radius=1.5 * scale,
+            fill=(145, 168, 196, 102),
+        )
+    trend = coords([(11, 42), (22, 34), (31, 38), (48, 19)])
+    draw.line(trend, fill=(104, 224, 199), width=round(4 * scale), joint="curve")
+    draw.line(coords([(43, 19), (49, 19), (49, 25)]), fill=(145, 240, 207), width=round(4 * scale))
+    px, py = trend[-1]
+    radius = 3 * scale
+    draw.ellipse(
+        (px - radius, py - radius, px + radius, py + radius),
+        fill=(198, 255, 220),
+        outline=(25, 49, 74),
+        width=max(1, round(1.5 * scale)),
+    )
     mark = mark.resize((size, size), Image.Resampling.LANCZOS)
     image.paste(mark, (x, y), mark)
 

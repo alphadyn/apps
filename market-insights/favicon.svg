@@ -1,5 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="16" fill="#131b30"/>
-  <path d="M12 44V23L25 34L34 25L40 31L52 18" fill="none" stroke="#f4f9fa" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="52" cy="18" r="3.5" fill="#6ee7d2"/>
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#243651"/>
+      <stop offset="1" stop-color="#111b2e"/>
+    </linearGradient>
+    <linearGradient id="trend" x1="11" y1="43" x2="49" y2="18" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#58d8c5"/>
+      <stop offset="1" stop-color="#91f0cf"/>
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="62" height="62" rx="17" fill="url(#tile)" stroke="#ffffff" stroke-opacity=".1"/>
+  <path d="M12 51.5h40" stroke="#91a8c4" stroke-opacity=".24" stroke-width="2" stroke-linecap="round"/>
+  <path d="M15 39h7v11h-7zM28 32h7v18h-7zM41 24h7v26h-7z" fill="#91a8c4" fill-opacity=".4"/>
+  <path d="m11 42 11-8 9 4 17-19" fill="none" stroke="url(#trend)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M43 19h6v6" fill="none" stroke="#91f0cf" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="48" cy="19" r="3" fill="#c6ffdc" stroke="#19314a" stroke-width="1.5"/>
 </svg>

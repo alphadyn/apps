@@ -88,7 +88,7 @@ Missing values display as — and always rank last.
 
 The GitHub Pages workflow runs the tests and rebuilds the snapshot on every deployment. In the repository's **Settings → Pages → Build and deployment**, **Source must be GitHub Actions**, not **Deploy from a branch**. Branch publishing does not generate the gitignored history files and can cancel the custom build, leaving every security's chart unavailable. The custom workflow publishes on pushes to `main`, hourly, or when run manually.
 
-Each page load fetches `data.json` without using a cached copy, so it displays the latest snapshot published by that workflow. This is a periodically updated snapshot, not a live market feed.
+Each page load fetches `data.json` without using a cached copy, so it displays the latest snapshot published by that workflow. Returning to the app through the browser's back/forward cache also refreshes the snapshot and any open security history. History files are fetched without using a cached copy when opened or refreshed. This is a periodically updated snapshot, not a live market feed.
 
 If an upstream source fails, the committed `data.json` stays in place. In that case no history files are produced, and the detail view reports that history is unavailable.
 

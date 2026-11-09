@@ -1145,18 +1145,19 @@ function bindEvents() {
   });
 }
 
-async function init() {
-  Object.assign(state, parseState(location.hash));
-  syncInputsFromState();
-  bindEvents();
-  render({ updateHash: false });
+let marketDataLoadId = 0;
+
+async function loadMarketData() {
+  const currentLoadId = ++marketDataLoadId;
   try {
     const response = await fetch(`data.json?_=${Date.now()}`, { cache: 'no-store' });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
+    if (currentLoadId !== marketDataLoadId) return;
     state.securities = data.securities || [];
     const sectors = [...new Set(state.securities.map((security) => security.sector).filter(Boolean))].sort();
     const sectorOptions = sectors.map((sector) => `<option>${escapeHtml(sector)}</option>`).join('');
+    elements.filterSector.innerHTML = '<option value="">All sectors and funds</option>';
     elements.filterSector.insertAdjacentHTML('beforeend', sectorOptions);
     if (state.sector) {
       elements.filterSector.value = state.sector;
@@ -1168,9 +1169,23 @@ async function init() {
     render({ updateHash: false });
     syncDetail();
   } catch (error) {
+    if (currentLoadId !== marketDataLoadId) return;
     elements.meta.innerHTML = '<span class="pulse offline" aria-hidden="true"></span>Market data unavailable';
     elements.filterBody.innerHTML = `<tr><td colspan="${FILTER_COLUMNS.length + 2}" class="status">Could not load data.json (${escapeHtml(error.message)}).</td></tr>`;
   }
+}
+
+function init() {
+  Object.assign(state, parseState(location.hash));
+  syncInputsFromState();
+  bindEvents();
+  render({ updateHash: false });
+  loadMarketData();
+  window.addEventListener('pageshow', (event) => {
+    if (!event.persisted) return;
+    loadMarketData();
+    detail.refresh();
+  });
 }
 
 init();

@@ -9,7 +9,7 @@ const historyCache = new Map();
 
 export function loadHistory(symbol) {
   if (!historyCache.has(symbol)) {
-    const request = fetch(`history/${historyFileFor(symbol)}`, { cache: 'no-cache' })
+    const request = fetch(`history/${historyFileFor(symbol)}`, { cache: 'no-store' })
       .then((response) => {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return response.json();
@@ -60,6 +60,7 @@ export function createDetailView({ onRequestClose, onNavigate, onRangeChange, on
     detailPerfBody: $('detail-perf-body'), note: $('detail-note'),
   };
   const view = { security: null, range: null, points: null, slice: null, status: 'idle', geometry: null, active: null };
+  let loadId = 0;
 
   function rangeMeta(key) {
     return RANGES.find((range) => range.key === key);
@@ -282,16 +283,17 @@ export function createDetailView({ onRequestClose, onNavigate, onRangeChange, on
   }
 
   async function load(security) {
+    const currentLoadId = ++loadId;
     view.points = null;
     view.status = 'loading';
     renderAll();
     try {
       const points = await loadHistory(security.symbol);
-      if (view.security !== security) return;
+      if (currentLoadId !== loadId || view.security !== security) return;
       view.points = points;
       view.status = points.length ? 'ready' : 'error';
     } catch {
-      if (view.security !== security) return;
+      if (currentLoadId !== loadId || view.security !== security) return;
       view.status = 'error';
     }
     renderAll();
@@ -377,6 +379,11 @@ export function createDetailView({ onRequestClose, onNavigate, onRangeChange, on
       el.dialog.querySelector('.detail-inner').scrollTop = 0;
       if (changedSecurity) load(security);
       else renderAll();
+    },
+    refresh() {
+      if (!view.security) return;
+      historyCache.delete(view.security.symbol);
+      load(view.security);
     },
     close() {
       if (!el.dialog.open) return;

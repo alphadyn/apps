@@ -23,6 +23,8 @@ Set the `ai-orcin-eta-15` Vercel project's Root Directory to the repository root
 
 Market Insights also uses this root project for `/api/market-quotes`, a public Yahoo Finance batch-quote proxy with no API-key requirement. Deploy the API and updated frontend once to enable it. Thereafter the frontend checks quotes every 60 seconds while visible, independently of Pages builds. Successful batches are CDN-cached for up to 60 seconds; upstream failures return explicit errors rather than stale success responses. Quotes may be delayed or rate-limited. Constituents, earnings, historical returns, and chart histories still use the Pages-built snapshot.
 
+The same endpoint supports `?marketCaps=1` to recover stock valuations directly from the complete Nasdaq screener, cached for up to one hour. Runtime failures remain explicit; quote updates retain their last valuation basis. During Pages builds, Nasdaq outages can use dated, visibly flagged market caps from the existing snapshot instead of erasing valuations. If market-cap coverage is still below 80% of stocks, the build fails before deployment.
+
 ## Local validation
 
 Before changing deployment settings, run the repository tests and verify the workflow YAML parses:

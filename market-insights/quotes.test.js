@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { applyQuotes, createQuotePoller, fetchQuotes, QUOTE_REFRESH_MS, quoteApiUrl } from './quotes.js';
-import { discountedCashFlowValue, discountedCashFlowUpside } from './ranking.js';
+import { applyQuotes, createQuotePoller, fetchMarketData, fetchQuotes, QUOTE_REFRESH_MS, quoteApiUrl } from './quotes.js';
+import { discountedCashFlowValue, discountedCashFlowUpside, marketCapDescription } from './ranking.js';
 
 const timestamp = '2026-11-10T20:00:00.000Z';
 const quote = (symbol, price = 120) => ({ symbol, price, timestamp });
@@ -46,6 +46,103 @@ test('missing and older quotes preserve last values', () => {
   assert.equal(applyQuotes([current], [])[0], current);
   assert.equal(applyQuotes([current], [{ ...quote('ABC'), timestamp: '2026-11-09T20:00:00Z' }])[0], current);
   assert.equal(applyQuotes([stock], [{ ...quote('ABC'), timestamp: '2026-11-08T20:00:00Z' }])[0], stock);
+});
+
+test('runtime market caps recover missing stock valuations and DCF upside', () => {
+  const missing = { ...stock, symbol: 'BRK.B', market_cap: null, pe: null };
+  const caps = [{ symbol: 'BRK-B', market_cap: 2000, price: 100 }];
+  const [recovered] = applyQuotes([missing], [quote('BRK-B', 120)], caps, 'Last price as of Nov 9, 2026');
+  assert.equal(recovered.market_cap, 2400);
+  assert.equal(recovered.pe, 24);
+  assert.ok(Number.isFinite(discountedCashFlowValue(recovered)));
+  assert.ok(Number.isFinite(discountedCashFlowUpside(recovered)));
+  assert.equal(recovered.market_cap_as_of, 'Last price as of Nov 9, 2026');
+  const [next] = applyQuotes([recovered], [quote('BRK-B', 110)]);
+  assert.equal(next.market_cap, 2200);
+  assert.equal(next.pe, 22);
+  assert.equal(discountedCashFlowValue(next), discountedCashFlowValue(recovered));
+});
+
+test('new valuation bases update without compounding and survive a later cap outage', () => {
+  const [first] = applyQuotes([stock], [quote('ABC', 120)], [{ symbol: 'ABC', market_cap: 2000, price: 100 }]);
+  const [second] = applyQuotes([first], [quote('ABC', 120)], [{ symbol: 'ABC', market_cap: 3300, price: 110 }]);
+  const [third] = applyQuotes([second], [quote('ABC', 130)]);
+  assert.equal(first.market_cap, 2400);
+  assert.equal(second.market_cap, 3600);
+  assert.equal(third.market_cap, 3900);
+  assert.equal(third.pe, 39);
+});
+
+test('market caps recover even when quotes fail, but funds and nonpositive earnings are not valued', () => {
+  const caps = [{ symbol: 'ABC', market_cap: 2000, price: 100 }];
+  const [capOnly] = applyQuotes([{ ...stock, market_cap: null, pe: null }], [], caps);
+  assert.equal(capOnly.market_cap, 2000);
+  assert.equal(capOnly.pe, 20);
+  for (const net_income of [null, 0, -100]) {
+    const [result] = applyQuotes([{ ...stock, market_cap: null, pe: null, net_income }], [quote('ABC')], caps);
+    assert.equal(result.market_cap, 2400);
+    assert.equal(result.pe, null);
+    assert.equal(discountedCashFlowUpside(result), null);
+  }
+  const [fund] = applyQuotes([{ symbol: 'ABC', asset_type: 'fund', price: 100 }], [quote('ABC')], caps);
+  assert.equal(fund.market_cap, null);
+  assert.equal(fund.pe, null);
+});
+
+test('fresh runtime valuations replace retained estimates and clear their warning without changing earnings', () => {
+  const retained = { ...stock, market_cap_stale: true, market_cap_as_of: '2026-11-01' };
+  const [quoted] = applyQuotes([retained], [quote('ABC')]);
+  assert.equal(quoted.market_cap_stale, true);
+  assert.equal(quoted.market_cap_as_of, '2026-11-01');
+  const [fresh] = applyQuotes([quoted], [quote('ABC')], [{ symbol: 'ABC', market_cap: 2000, price: 100 }], 'Nov 10');
+  assert.equal(fresh.market_cap_stale, false);
+  assert.equal(fresh.market_cap_as_of, 'Nov 10');
+  assert.equal(fresh.market_cap, 2400);
+  assert.equal(fresh.net_income, 100);
+  assert.match(marketCapDescription(quoted), /Retained last-known market cap: 2026-11-01/);
+  assert.match(marketCapDescription(fresh), /Nasdaq market cap: Nov 10/);
+  assert.equal(marketCapDescription({ asset_type: 'fund' }), 'Not applicable to funds');
+  assert.match(marketCapDescription({ market_cap: null }), /unavailable/);
+});
+
+test('market data fetches valuations once alongside quote batches', async () => {
+  let capsCalls = 0;
+  const result = await fetchMarketData(['ABC'], {
+    url: 'https://example.test/quotes',
+    fetcher: async (url) => ({
+      ok: true,
+      json: async () => {
+        if (url.endsWith('?marketCaps=1')) {
+          capsCalls += 1;
+          return { marketCaps: [{ symbol: 'ABC', market_cap: 2000, price: 100 }], as_of: 'Nov 9' };
+        }
+        return { quotes: [quote('ABC')] };
+      },
+    }),
+  });
+  assert.equal(capsCalls, 1);
+  assert.equal(result.marketCaps.length, 1);
+  assert.equal(result.quotes.length, 1);
+  assert.equal(result.marketCapAsOf, 'Nov 9');
+  assert.deepEqual(result.errors, []);
+});
+
+test('valuation failures keep quotes usable and expose errors instead of claiming complete success', async () => {
+  for (const response of [
+    { ok: false, status: 502 },
+    { ok: true, json: async () => ({ marketCaps: [] }) },
+    { ok: true, json: async () => ({ marketCaps: [{ symbol: 'ABC', market_cap: 0, price: 100 }] }) },
+    { ok: true, json: async () => ({ marketCaps: [null] }) },
+  ]) {
+    const result = await fetchMarketData(['ABC'], {
+      url: '/quotes',
+      fetcher: async (url) => url.endsWith('?marketCaps=1') ? response
+        : { ok: true, json: async () => ({ quotes: [quote('ABC')] }) },
+    });
+    assert.deepEqual(result.marketCaps, []);
+    assert.equal(result.quotes.length, 1);
+    assert.match(result.errors[0], /Market valuations unavailable/);
+  }
 });
 
 test('quote API follows the repository hosting configuration', () => {

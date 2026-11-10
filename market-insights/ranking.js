@@ -120,6 +120,16 @@ export function getSecurityPE(security) {
   return null;
 }
 
+export function marketCapDescription(security) {
+  if (security.asset_type === 'fund') return 'Not applicable to funds';
+  if (!Number.isFinite(security.market_cap)) return 'Market cap unavailable from the data provider';
+  if (security.market_cap_as_of) {
+    const source = security.market_cap_stale ? 'Retained last-known market cap' : 'Nasdaq market cap';
+    return `${source}: ${security.market_cap_as_of}; scaled to displayed price assuming unchanged shares`;
+  }
+  return 'Snapshot market cap scaled to displayed price';
+}
+
 const DCF_YEARS = 5;
 const DCF_DISCOUNT_RATE = 0.10;
 const DCF_TERMINAL_GROWTH = 0.025;

@@ -39,24 +39,61 @@ export async function fetchQuotes(symbols, { url, signal, fetcher = fetch }) {
   return { quotes, errors };
 }
 
-export function applyQuotes(securities, quotes) {
+export async function fetchMarketData(symbols, { url, signal, fetcher = fetch }) {
+  const capsRequest = (async () => {
+    try {
+      const response = await fetcher(`${url}?marketCaps=1`, {
+        cache: 'no-store',
+        signal: AbortSignal.any([...(signal ? [signal] : []), AbortSignal.timeout(15_000)]),
+      });
+      if (!response.ok) throw new Error(`Valuation service returned HTTP ${response.status}`);
+      const payload = await response.json();
+      if (!Array.isArray(payload.marketCaps) || !payload.marketCaps.length
+        || payload.marketCaps.some((entry) => typeof entry?.symbol !== 'string'
+          || !Number.isFinite(entry.market_cap) || entry.market_cap <= 0
+          || !Number.isFinite(entry.price) || entry.price <= 0)) throw new Error('Invalid market-cap response');
+      return { marketCaps: payload.marketCaps, marketCapAsOf: payload.as_of, errors: [] };
+    } catch (error) {
+      if (signal?.aborted) throw error;
+      return { marketCaps: [], errors: [`Market valuations unavailable: ${error.message}`] };
+    }
+  })();
+  const [quotes, caps] = await Promise.all([fetchQuotes(symbols, { url, signal, fetcher }), capsRequest]);
+  return { ...quotes, ...caps, errors: [...quotes.errors, ...caps.errors] };
+}
+
+export function applyQuotes(securities, quotes, marketCaps = [], marketCapAsOf = null) {
   const bySymbol = new Map(quotes.map((quote) => [quote.symbol, quote]));
+  const capsBySymbol = new Map(marketCaps.map((entry) => [entry.symbol, entry]));
   return securities.map((security) => {
-    const quote = bySymbol.get(security.symbol.replace(/\./g, '-'));
-    if (!quote || (security.quote_at && Date.parse(quote.timestamp) < Date.parse(security.quote_at))
-      || (!security.quote_at && security.price_date && quote.timestamp.slice(0, 10) < security.price_date)) return security;
+    const symbol = security.symbol.replace(/\./g, '-');
+    const received = bySymbol.get(symbol);
+    const quote = received && !(security.quote_at && Date.parse(received.timestamp) < Date.parse(security.quote_at))
+      && !(!security.quote_at && security.price_date && received.timestamp.slice(0, 10) < security.price_date)
+      ? received : null;
+    const cap = security.asset_type === 'fund' ? null : capsBySymbol.get(symbol);
+    if (!quote && !cap) return security;
     const basePrice = security.snapshot_price ?? security.price;
     const baseCap = security.snapshot_market_cap ?? security.market_cap;
     const basePE = security.snapshot_pe ?? security.pe;
-    const ratio = Number.isFinite(basePrice) && basePrice > 0 ? quote.price / basePrice : null;
-    const marketCap = Number.isFinite(baseCap) && ratio !== null ? baseCap * ratio : null;
+    const price = quote?.price ?? security.price;
+    const capBase = cap?.market_cap ?? security.valuation_market_cap ?? baseCap;
+    const capPrice = cap?.price ?? security.valuation_price ?? basePrice;
+    const ratio = Number.isFinite(basePrice) && basePrice > 0 ? price / basePrice : null;
+    const marketCap = security.asset_type !== 'fund' && Number.isFinite(price) && price > 0
+      && Number.isFinite(capBase) && capBase > 0 && Number.isFinite(capPrice) && capPrice > 0
+      ? capBase * price / capPrice : null;
     return {
       ...security,
       snapshot_price: basePrice,
       snapshot_market_cap: baseCap,
       snapshot_pe: basePE,
-      price: quote.price,
-      quote_at: quote.timestamp,
+      price,
+      quote_at: quote?.timestamp ?? security.quote_at,
+      valuation_market_cap: capBase,
+      valuation_price: capPrice,
+      market_cap_as_of: cap ? marketCapAsOf : security.market_cap_as_of,
+      market_cap_stale: cap ? false : security.market_cap_stale,
       market_cap: marketCap,
       pe: marketCap > 0 && security.net_income > 0 ? marketCap / security.net_income
         : Number.isFinite(basePE) && ratio !== null ? basePE * ratio : null,

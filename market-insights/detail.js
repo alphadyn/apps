@@ -2,7 +2,7 @@ import {
   RANGES, formatAxisDate, formatLongDate, historyFileFor, logTicks, nearestIndex, niceTicks, parseHistory,
   rangeSummaries, sliceRange,
 } from './history.js';
-import { CRITERIA, formatPE, formatPercent, formatPrice, formatValue, getSecurityPE } from './ranking.js';
+import { CRITERIA, formatPE, formatPercent, formatPrice, formatValue, getSecurityPE, marketCapDescription } from './ranking.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const historyCache = new Map();
@@ -151,13 +151,15 @@ export function createDetailView({ onRequestClose, onNavigate, onRangeChange, on
       : '<div><dt>Period</dt><dd>—</dd></div>';
 
     const pe = getSecurityPE(security);
+    const capDescription = marketCapDescription(security);
     const metricCards = [
       ...CRITERIA.map(({ key, label, format }) => {
         const value = security[key];
         const toneClass = format === 'percent' || (format === 'money' && value < 0) ? tone(value) : '';
-        return `<div><dt>${escapeHtml(label)}</dt><dd class="${toneClass}">${formatValue(format, value)}</dd></div>`;
+        const title = key === 'market_cap' ? ` title="${escapeHtml(capDescription)}"` : '';
+        return `<div${title}><dt>${escapeHtml(label)}</dt><dd class="${toneClass}">${formatValue(format, value)}</dd></div>`;
       }),
-      `<div><dt>P/E ratio (TTM)</dt><dd>${formatPE(pe)}</dd></div>`,
+      `<div title="${escapeHtml(Number.isFinite(pe) ? capDescription : 'P/E requires market cap and positive TTM earnings; not applicable to funds')}"><dt>P/E ratio (TTM)</dt><dd>${formatPE(pe)}</dd></div>`,
     ];
     el.metricStats.innerHTML = metricCards.join('');
   }

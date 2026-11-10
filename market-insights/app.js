@@ -1,12 +1,12 @@
 import {
   FILTER_RANGES, discountedCashFlowUpside, discountedCashFlowValue,
   filterSecurities, formatMoney, formatPE, formatPercent, formatPrice, formatSecuritySummary, formatValue, getSecurityPE,
-  getSecurityPerformance, marketSummary, parseMoneyInput, parsePercentInput,
+  getSecurityPerformance, marketCapDescription, marketSummary, parseMoneyInput, parsePercentInput,
   parseState, rankFilteredSecurities, serializeState,
 } from './ranking.js';
 import { createDetailView } from './detail.js';
 import { DEFAULT_RANGE } from './history.js';
-import { applyQuotes, createQuotePoller, fetchQuotes, quoteApiUrl } from './quotes.js';
+import { applyQuotes, createQuotePoller, fetchMarketData, quoteApiUrl } from './quotes.js';
 
 const SECTOR_HUES = {
   'Communication Services': 280, 'Consumer Discretionary': 330, 'Consumer Staples': 35, Energy: 15,
@@ -542,20 +542,31 @@ function renderFilterTable() {
   const sortKey = state.filterSort.key;
   elements.filterBody.innerHTML = ranked.map(({ security, rank }) => {
     const pe = getSecurityPE(security);
-    const mcapCell = `<td class="num${sortKey === 'market_cap' ? ' active' : ''}">${escapeHtml(formatMoney(security.market_cap))}</td>`;
-    const peCell = `<td class="num${sortKey === 'pe' ? ' active' : ''}">${escapeHtml(formatPE(pe))}</td>`;
+    const mcapTitle = marketCapDescription(security);
+    const mcapCell = `<td class="num${sortKey === 'market_cap' ? ' active' : ''}" title="${escapeHtml(mcapTitle)}">${escapeHtml(formatMoney(security.market_cap))}</td>`;
+    const earningsReason = security.asset_type === 'fund' ? 'Not applicable to funds'
+      : !Number.isFinite(security.net_income) ? 'TTM net income is unavailable'
+        : security.net_income <= 0 ? 'Requires positive TTM net income'
+          : !Number.isFinite(security.market_cap) ? 'Market cap is unavailable'
+            : 'Price is unavailable';
+    const peTitle = Number.isFinite(pe) ? `Market cap divided by TTM net income. ${mcapTitle}` : earningsReason;
+    const peCell = `<td class="num${sortKey === 'pe' ? ' active' : ''}" title="${escapeHtml(peTitle)}">${escapeHtml(formatPE(pe))}</td>`;
     const priceTitle = security.quote_at
       ? `Yahoo quote as of ${new Date(security.quote_at).toLocaleString()} · may be delayed`
       : `Snapshot close on ${security.price_date || 'unknown date'}; no automatic quote received`;
     const priceCell = `<td class="num${sortKey === 'price' ? ' active' : ''}" title="${escapeHtml(priceTitle)}">${escapeHtml(formatMoney(security.price))}</td>`;
     const fairValue = discountedCashFlowValue(security);
-    const fairValueCell = `<td class="num${sortKey === 'fair_value' ? ' active' : ''}" title="DCF estimate using net income as an equity-cash-flow proxy">${escapeHtml(formatPrice(fairValue))}</td>`;
+    const fairValueTitle = Number.isFinite(fairValue)
+      ? `DCF estimate using net income as an equity-cash-flow proxy. ${mcapTitle}` : earningsReason;
+    const fairValueCell = `<td class="num${sortKey === 'fair_value' ? ' active' : ''}" title="${escapeHtml(fairValueTitle)}">${escapeHtml(formatPrice(fairValue))}</td>`;
     const fairValueUpside = discountedCashFlowUpside(security);
     const fairValueUpsideText = formatPercent(fairValueUpside);
     const fairValueUpsideContent = Number.isFinite(fairValueUpside)
       ? `<span class="delta">${fairValueUpsideText}</span>`
       : fairValueUpsideText;
-    const fairValueUpsideCell = `<td class="num ${toneClass('percent', fairValueUpside)}${sortKey === 'fair_value_upside' ? ' active' : ''}" title="(DCF fair value − current price) ÷ current price">${fairValueUpsideContent}</td>`;
+    const upsideTitle = Number.isFinite(fairValueUpside)
+      ? `(DCF fair value − current price) ÷ current price. ${mcapTitle}` : earningsReason;
+    const fairValueUpsideCell = `<td class="num ${toneClass('percent', fairValueUpside)}${sortKey === 'fair_value_upside' ? ' active' : ''}" title="${escapeHtml(upsideTitle)}">${fairValueUpsideContent}</td>`;
 
     const niTone = toneClass('money', security.net_income);
     const niCell = `<td class="num ${niTone}${sortKey === 'net_income' ? ' active' : ''}" title="${escapeHtml(cellTitle(security, 'net_income'))}">${escapeHtml(formatMoney(security.net_income))}</td>`;
@@ -1156,19 +1167,25 @@ function showQuoteStatus(message, warning = false) {
   elements.meta.innerHTML = `<span class="pulse${warning ? ' offline' : ''}" aria-hidden="true"></span>${escapeHtml(message)}`;
 }
 
+function retainedValuationWarning() {
+  const count = state.securities.filter((security) => security.market_cap_stale).length;
+  return count ? ` · ${count} retained valuation estimates` : '';
+}
+
 const quotePoller = createQuotePoller({
-  load: (signal) => fetchQuotes(state.securities.map((security) => security.symbol.replace(/\./g, '-')), {
+  load: (signal) => fetchMarketData(state.securities.map((security) => security.symbol.replace(/\./g, '-')), {
     url: quoteApiUrl(location.hostname), signal,
   }),
-  onUpdate: ({ quotes, errors }) => {
-    state.securities = applyQuotes(state.securities, quotes);
+  onUpdate: ({ quotes, marketCaps, marketCapAsOf, errors }) => {
+    state.securities = applyQuotes(state.securities, quotes, marketCaps, marketCapAsOf);
     const quoted = state.securities.filter((security) => security.quote_at).length;
     const now = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+    const retainedWarning = retainedValuationWarning();
     showQuoteStatus(errors.length
-      ? `Quote refresh incomplete · ${quotes.length}/${state.securities.length} received · retrying in 60s`
-      : `Quotes checked ${now} · refreshes every 60s · may be delayed`, errors.length > 0);
+      ? `Market refresh incomplete · ${quotes.length}/${state.securities.length} quotes received${retainedWarning} · retrying in 60s`
+      : `Quotes checked ${now} · refreshes every 60s · may be delayed${retainedWarning}`, errors.length > 0 || Boolean(retainedWarning));
     elements.meta.title = `${snapshotMetaTitle} · ${quoted} securities have quote timestamps. ${errors.join('; ')}`;
-    if (!quotes.length) return;
+    if (!quotes.length && !marketCaps.length) return;
     const focusedSymbol = elements.filterBody.contains(document.activeElement)
       ? document.activeElement.closest('tr[data-symbol]')?.dataset.symbol : null;
     renderKpis();
@@ -1179,7 +1196,7 @@ const quotePoller = createQuotePoller({
     syncDetail();
   },
   onError: (error) => {
-    showQuoteStatus('Quote service unavailable · retaining last values · retrying in 60s', true);
+    showQuoteStatus(`Quote service unavailable · retaining last values${retainedValuationWarning()} · retrying in 60s`, true);
     elements.meta.title = `${snapshotMetaTitle} · ${error.message}`;
   },
 });
@@ -1208,7 +1225,7 @@ async function loadMarketData() {
     render({ updateHash: false });
     syncDetail();
     if (!document.hidden) {
-      showQuoteStatus('Snapshot loaded · checking latest quotes…');
+      showQuoteStatus(`Snapshot loaded${retainedValuationWarning()} · checking latest quotes…`, Boolean(retainedValuationWarning()));
       quotePoller.start();
     }
   } catch (error) {

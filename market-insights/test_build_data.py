@@ -4,6 +4,7 @@ from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import patch
+from urllib.parse import parse_qs, urlparse
 
 import build_data
 
@@ -89,6 +90,54 @@ class FundamentalsTests(unittest.TestCase):
         self.assertEqual(result["net_income"], (8, 4, date(2026, 12, 31), "ttm"))
         self.assertEqual(result["share_ratio"], (0.9, date(2026, 9, 30)))
         self.assertIn((99, "NetIncomeLoss"), calls)
+
+
+class MarketCapTests(unittest.TestCase):
+    def test_retained_market_caps_keep_original_dates_and_exclude_funds_and_invalid_values(self):
+        snapshot = {"securities": [
+            {"symbol": "ABC", "market_cap": 1000, "price": 100, "price_date": "2026-11-09"},
+            {"symbol": "BRK.B", "market_cap": 3000, "price": 200, "price_date": "2026-11-09",
+             "market_cap_as_of": "2026-11-01", "market_cap_stale": True},
+            {"symbol": "FUND", "asset_type": "fund", "market_cap": 1000, "price": 100, "price_date": "2026-11-09"},
+            {"symbol": "INVALID", "market_cap": None, "price": 100, "price_date": "2026-11-09"},
+        ]}
+        with tempfile.TemporaryDirectory() as folder:
+            output = Path(folder) / "data.json"
+            with patch.object(build_data, "OUTPUT", output):
+                self.assertEqual(build_data.previous_market_caps(), {})
+                output.write_text(json.dumps(snapshot))
+                self.assertEqual(build_data.previous_market_caps(), {
+                    "ABC": (1000.0, 100.0, "2026-11-09"),
+                    "BRK-B": (3000.0, 200.0, "2026-11-01"),
+                })
+
+    def test_screener_loads_complete_universe_once_and_normalizes_class_symbols(self):
+        payload = {
+            "status": {"rCode": 200},
+            "data": {"totalrecords": 3, "table": {"rows": [
+                {"symbol": "BRK/B", "marketCap": "1,000", "lastsale": "$100"},
+                {"symbol": "ABC", "marketCap": "N/A", "lastsale": "$25"},
+                {"symbol": "OTHER", "marketCap": "500", "lastsale": "$5"},
+            ]}},
+        }
+        with patch.object(build_data, "http_get", return_value=json.dumps(payload).encode()) as get:
+            self.assertEqual(build_data.fetch_market_caps(["BRK.B", "ABC"]), {"BRK-B": (1000.0, 100.0)})
+        get.assert_called_once()
+        self.assertEqual(parse_qs(urlparse(get.call_args[0][0]).query)["limit"], ["10000"])
+
+    def test_invalid_empty_or_truncated_screener_responses_fail_explicitly(self):
+        for payload in [
+            {}, {"status": {"rCode": 400}, "data": None},
+            {"status": {"rCode": 200}, "data": {"totalrecords": 2, "table": {"rows": [{"symbol": "ABC"}]}}},
+        ]:
+            with self.subTest(payload=payload), \
+                    patch.object(build_data, "http_get", return_value=json.dumps(payload).encode()):
+                with self.assertRaisesRegex(ValueError, "market-cap response"):
+                    build_data.fetch_market_caps(["ABC"])
+
+    def test_nonfinite_or_nonpositive_market_values_are_not_used(self):
+        for value in ["NaN", "Infinity", "-Infinity", "0", "-1", None, "N/A"]:
+            self.assertIsNone(build_data.parse_money(value))
 
 
 class PriceAndRecordTests(unittest.TestCase):
@@ -220,7 +269,9 @@ class SnapshotTests(unittest.TestCase):
             }
 
         with patch.object(build_data, "http_get", return_value=("\n".join(rows) + "\n").encode()), \
-                patch.object(build_data, "fetch_market_caps", return_value={}), \
+                patch.object(build_data, "fetch_market_caps", return_value={
+                    f"CO{i:03d}": (1000.0, 100.0) for i in range(490)
+                }), \
                 patch.object(build_data, "fetch_prices", side_effect=prices), \
                 patch.object(build_data, "fetch_fundamentals", return_value=None):
             snapshot, histories = build_data.build_snapshot(log=lambda _: None)
@@ -233,6 +284,79 @@ class SnapshotTests(unittest.TestCase):
         self.assertTrue(all(not requested_total_return[security["symbol"]] for security in stocks))
         self.assertEqual(len(histories), 490 + len(build_data.FUNDS))
         self.assertTrue(all(security["market_cap"] is None for security in funds))
+        self.assertTrue(all(security["market_cap"] == 1000 for security in stocks))
+
+    def test_insufficient_market_cap_coverage_blocks_snapshot_before_prices_are_fetched(self):
+        rows = ["Symbol,Security,GICS Sector,GICS Sub-Industry,CIK"]
+        rows.extend(f"CO{i:03d},Company {i},Industrials,Services,{i + 1}" for i in range(490))
+        for count in (0, 391):
+            with self.subTest(count=count), \
+                    patch.object(build_data, "http_get", return_value=("\n".join(rows) + "\n").encode()), \
+                    patch.object(build_data, "fetch_market_caps", return_value={
+                        f"CO{i:03d}": (1000.0, 100.0) for i in range(count)
+                    }), \
+                    patch.object(build_data, "fetch_prices") as prices:
+                with self.assertRaisesRegex(RuntimeError, f"only {count} of 490 stocks"):
+                    build_data.build_snapshot(log=lambda _: None)
+                prices.assert_not_called()
+
+    def test_upstream_market_cap_failure_without_retained_values_blocks_build(self):
+        rows = ["Symbol,Security,GICS Sector,GICS Sub-Industry,CIK"]
+        rows.extend(f"CO{i:03d},Company {i},Industrials,Services,{i + 1}" for i in range(490))
+        with patch.object(build_data, "http_get", return_value=("\n".join(rows) + "\n").encode()), \
+                patch.object(build_data, "fetch_market_caps", side_effect=TimeoutError("Nasdaq timed out")), \
+                patch.object(build_data, "previous_market_caps", return_value={}):
+            logs = []
+            with self.assertRaisesRegex(RuntimeError, "only 0 of 490"):
+                build_data.build_snapshot(log=logs.append)
+            self.assertTrue(any("Nasdaq timed out" in message for message in logs))
+
+    def test_quality_gate_checks_assembled_caps_not_just_independent_source_coverage(self):
+        rows = ["Symbol,Security,GICS Sector,GICS Sub-Industry,CIK"]
+        rows.extend(f"CO{i:03d},Company {i},Industrials,Services,{i + 1}" for i in range(490))
+
+        def prices(symbol, total_return=False):
+            if symbol.startswith("CO") and int(symbol[2:]) < 98:
+                return None
+            return {
+                "metrics": {"price": 120.0, "last_close": 120.0, "price_date": "2026-11-10"},
+                "history": [(date(2026, 11, 10), 120.0)],
+            }
+
+        with patch.object(build_data, "http_get", return_value=("\n".join(rows) + "\n").encode()), \
+                patch.object(build_data, "fetch_market_caps", return_value={
+                    f"CO{i:03d}": (1000.0, 100.0) for i in range(392)
+                }), \
+                patch.object(build_data, "previous_market_caps", return_value={}), \
+                patch.object(build_data, "fetch_prices", side_effect=prices), \
+                patch.object(build_data, "fetch_fundamentals", return_value=None):
+            with self.assertRaisesRegex(RuntimeError, "Usable market caps were available for only 294 of 490"):
+                build_data.build_snapshot(log=lambda _: None)
+
+    def test_retained_caps_recover_outage_with_warning_and_exact_coverage_threshold(self):
+        rows = ["Symbol,Security,GICS Sector,GICS Sub-Industry,CIK"]
+        rows.extend(f"CO{i:03d},Company {i},Industrials,Services,{i + 1}" for i in range(490))
+        with patch.object(build_data, "http_get", return_value=("\n".join(rows) + "\n").encode()), \
+                patch.object(build_data, "fetch_market_caps", side_effect=TimeoutError("Nasdaq timed out")), \
+                patch.object(build_data, "previous_market_caps", return_value={
+                    f"CO{i:03d}": (1000.0, 100.0, "2026-11-01") for i in range(392)
+                }), \
+                patch.object(build_data, "fetch_prices", return_value={
+                    "metrics": {"price": 120.0, "last_close": 120.0, "price_date": "2026-11-10"},
+                    "history": [(date(2026, 11, 10), 120.0)],
+                }), \
+                patch.object(build_data, "fetch_fundamentals", return_value={
+                    "net_income": (100.0, 90.0, date(2026, 9, 30), "ttm"),
+                }):
+            logs = []
+            snapshot, _ = build_data.build_snapshot(log=logs.append)
+        stocks = [security for security in snapshot["securities"] if security["asset_type"] == "stock"]
+        retained = [security for security in stocks if security.get("market_cap_stale")]
+        self.assertEqual(len(retained), 392)
+        self.assertTrue(all(security["market_cap"] == 1200 for security in retained))
+        self.assertTrue(all(security["pe"] == 12 for security in retained))
+        self.assertTrue(all(security["market_cap_as_of"] == "2026-11-01" for security in retained))
+        self.assertTrue(any("retaining 392 last-known market caps" in message for message in logs))
 
 
 if __name__ == "__main__":

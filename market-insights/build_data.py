@@ -17,6 +17,7 @@ import csv
 import gzip
 import io
 import json
+import math
 import sys
 import threading
 import time
@@ -154,30 +155,42 @@ def parse_money(value):
         number = float(str(value).replace("$", "").replace(",", "").strip())
     except ValueError:
         return None
-    return number if number > 0 else None
+    return number if math.isfinite(number) and number > 0 else None
 
 
 def fetch_market_caps(symbols):
     """Return {normalized symbol: (market cap, last sale price)} from the Nasdaq screener."""
     wanted = {normalize_symbol(symbol) for symbol in symbols}
     caps = {}
-    offset, limit, total = 0, 1000, None
     headers = {"Accept": "application/json", "User-Agent": BROWSER_UA, "Referer": "https://www.nasdaq.com/"}
-    while total is None or offset < total:
-        query = urlencode({"tableonly": "true", "limit": limit, "offset": offset, "exchange": "all",
-                           "sortColumn": "marketCap", "sortOrder": "DESC"})
-        payload = json.loads(http_get(f"{SCREENER_URL}?{query}", headers) or b"{}")
-        data = payload.get("data") or {}
-        rows = (data.get("table") or {}).get("rows") or []
-        total = int(data.get("totalrecords") or 0)
-        for row in rows:
-            symbol = normalize_symbol(str(row.get("symbol") or ""))
-            cap, price = parse_money(row.get("marketCap")), parse_money(row.get("lastsale"))
-            if symbol in wanted and cap and price:
-                caps[symbol] = (cap, price)
-        if not rows or wanted <= caps.keys():
-            break
-        offset += limit
+    query = urlencode({"tableonly": "true", "limit": 10000, "offset": 0, "exchange": "all",
+                       "sortColumn": "marketCap", "sortOrder": "DESC"})
+    payload = json.loads(http_get(f"{SCREENER_URL}?{query}", headers) or b"{}")
+    data = payload.get("data") or {}
+    rows = (data.get("table") or {}).get("rows") or []
+    total = int(data.get("totalrecords") or 0)
+    if (payload.get("status") or {}).get("rCode") != 200 or not rows or total < 1 or len(rows) < total:
+        raise ValueError("Nasdaq returned an invalid or incomplete market-cap response.")
+    for row in rows:
+        symbol = normalize_symbol(str(row.get("symbol") or ""))
+        cap, price = parse_money(row.get("marketCap")), parse_money(row.get("lastsale"))
+        if symbol in wanted and cap and price:
+            caps[symbol] = (cap, price)
+    return caps
+
+
+def previous_market_caps():
+    if not OUTPUT.exists():
+        return {}
+    snapshot = json.loads(OUTPUT.read_text(encoding="utf-8"))
+    caps = {}
+    for security in snapshot.get("securities", []):
+        if security.get("asset_type") == "fund":
+            continue
+        cap, price = parse_money(security.get("market_cap")), parse_money(security.get("price"))
+        as_of = security.get("market_cap_as_of") or security.get("price_date")
+        if cap and price and as_of:
+            caps[normalize_symbol(security["symbol"])] = (cap, price, as_of)
     return caps
 
 
@@ -564,9 +577,18 @@ def build_snapshot(log=print):
     try:
         caps = fetch_market_caps([company["symbol"] for company in companies if company["asset_type"] == "stock"])
     except (HTTPError, URLError, TimeoutError, ValueError) as error:
-        log(f"Warning: Nasdaq market caps unavailable ({error})")
+        log(f"Warning: Nasdaq market caps unavailable ({error}); checking last-known valuations")
         caps = {}
     log(f"Market caps found for {len(caps)} securities")
+    retained = {
+        symbol: value for symbol, value in previous_market_caps().items()
+        if symbol in stock_symbols and symbol not in caps
+    }
+    if retained:
+        log(f"Warning: retaining {len(retained)} last-known market caps, scaled to current prices; original dates preserved")
+        caps.update({symbol: (cap, price) for symbol, (cap, price, _) in retained.items()})
+    if len(caps) < len(stock_symbols) * 0.8:
+        raise RuntimeError(f"Market caps were available for only {len(caps)} of {len(stock_symbols)} stocks.")
 
     def safe(function, *args):
         try:
@@ -611,6 +633,14 @@ def build_snapshot(log=print):
         )
         for company, price in zip(companies, prices)
     ]
+    for security in securities:
+        previous = retained.get(normalize_symbol(security["symbol"]))
+        if previous and security["market_cap"] is not None:
+            security["market_cap_as_of"] = previous[2]
+            security["market_cap_stale"] = True
+    valued = sum(1 for security in securities if security["asset_type"] == "stock" and security["market_cap"] is not None)
+    if valued < len(stock_symbols) * 0.8:
+        raise RuntimeError(f"Usable market caps were available for only {valued} of {len(stock_symbols)} stocks.")
     price_dates = sorted(item["price_date"] for item in securities if item["price_date"])
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),

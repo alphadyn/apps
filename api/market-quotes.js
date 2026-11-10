@@ -39,6 +39,28 @@ export function parseQuotes(payload, symbols) {
   };
 }
 
+export function parseMarketCaps(payload) {
+  const data = payload?.data;
+  const rows = data?.table?.rows;
+  if (payload?.status?.rCode !== 200 || !Array.isArray(rows) || !rows.length
+    || !Number.isInteger(Number(data.totalrecords)) || Number(data.totalrecords) < 1
+    || rows.length < Number(data.totalrecords)) {
+    throw new Error('Nasdaq returned an invalid or incomplete market-cap response.');
+  }
+  const positiveNumber = (value) => {
+    const number = Number(String(value ?? '').replace(/[$,]/g, '').trim());
+    return Number.isFinite(number) && number > 0 ? number : null;
+  };
+  const marketCaps = rows.flatMap((row) => {
+    const symbol = String(row.symbol || '').trim().toUpperCase().replace(/[./]/g, '-');
+    const marketCap = positiveNumber(row.marketCap);
+    const price = positiveNumber(row.lastsale);
+    return symbol && marketCap && price ? [{ symbol, market_cap: marketCap, price }] : [];
+  });
+  if (!marketCaps.length) throw new Error('Nasdaq returned no usable market caps.');
+  return { marketCaps, as_of: data.asof || null };
+}
+
 export default async function handler(request, response) {
   const origin = request.headers.origin;
   response.setHeader('Vary', 'Origin');
@@ -51,6 +73,32 @@ export default async function handler(request, response) {
   if (request.method !== 'GET') {
     response.setHeader('Allow', 'GET, OPTIONS');
     return response.status(405).json({ error: 'Method not allowed' });
+  }
+
+  if (request.query.marketCaps === '1') {
+    try {
+      const url = new URL('https://api.nasdaq.com/api/screener/stocks');
+      url.search = new URLSearchParams({
+        tableonly: 'true', limit: '10000', offset: '0', exchange: 'all',
+        sortColumn: 'marketCap', sortOrder: 'DESC',
+      }).toString();
+      const upstream = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; MarketInsights/1.0)',
+          Accept: 'application/json',
+          Referer: 'https://www.nasdaq.com/',
+        },
+        signal: AbortSignal.timeout(10_000),
+      });
+      if (!upstream.ok) throw new Error(`Nasdaq returned HTTP ${upstream.status}.`);
+      const result = parseMarketCaps(await upstream.json());
+      response.setHeader('Cache-Control', 'public, max-age=0, s-maxage=3600');
+      return response.status(200).json({ ...result, fetched_at: new Date().toISOString() });
+    } catch (error) {
+      return response.status(502).json({
+        error: error instanceof Error ? error.message : 'Could not load market valuations.',
+      });
+    }
   }
 
   let symbols;

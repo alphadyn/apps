@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import handler, { parseQuotes, parseSymbols } from '../api/market-quotes.js';
+import handler, { parseMarketCaps, parseQuotes, parseSymbols } from '../api/market-quotes.js';
 
 const payload = {
   spark: {
@@ -9,6 +9,19 @@ const payload = {
       { symbol: 'MISSING', response: [] },
     ],
     error: null,
+  },
+};
+
+const capPayload = {
+  status: { rCode: 200 },
+  data: {
+    totalrecords: 4, asof: 'Last price as of Nov 9, 2026',
+    table: { rows: [
+      { symbol: 'ABC', marketCap: '2,000', lastsale: '$100.00' },
+      { symbol: 'BRK/B', marketCap: '3,000', lastsale: '$500.00' },
+      { symbol: 'BF/B', marketCap: 'NA', lastsale: '$30.00' },
+      { symbol: 'INVALID', marketCap: 'Infinity', lastsale: '$30.00' },
+    ] },
   },
 };
 
@@ -89,4 +102,55 @@ test('upstream failures return explicit non-cacheable errors', async (t) => {
   assert.equal(response.statusCode, 502);
   assert.match(response.body.error, /429/);
   assert.equal(response.headers['Cache-Control'], 'no-store');
+});
+
+test('market-cap parsing uses actual finite provider values and normalizes class shares', () => {
+  assert.deepEqual(parseMarketCaps(capPayload), {
+    marketCaps: [
+      { symbol: 'ABC', market_cap: 2000, price: 100 },
+      { symbol: 'BRK-B', market_cap: 3000, price: 500 },
+    ],
+    as_of: capPayload.data.asof,
+  });
+  for (const invalid of [{}, { data: null, status: { rCode: 400 } },
+    { ...capPayload, data: { ...capPayload.data, totalrecords: 5 } },
+    { ...capPayload, data: { ...capPayload.data, totalrecords: 0 } },
+    { ...capPayload, data: { totalrecords: 1, table: { rows: [{ symbol: 'ABC', marketCap: 'NA' }] } } },
+  ]) {
+    assert.throws(() => parseMarketCaps(invalid));
+  }
+});
+
+test('market-cap mode fetches the complete screener once and caches valuations separately', async (t) => {
+  let calls = 0;
+  t.mock.method(globalThis, 'fetch', async (url, options) => {
+    calls += 1;
+    assert.equal(url.hostname, 'api.nasdaq.com');
+    assert.equal(url.searchParams.get('limit'), '10000');
+    assert.equal(url.searchParams.get('offset'), '0');
+    assert.ok(options.signal);
+    return { ok: true, json: async () => capPayload };
+  });
+  const response = responseMock();
+  await handler({ method: 'GET', headers: {}, query: { marketCaps: '1' } }, response);
+  assert.equal(calls, 1);
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.body.marketCaps.length, 2);
+  assert.match(response.headers['Cache-Control'], /s-maxage=3600/);
+});
+
+test('market-cap provider failures are explicit and never cached as successful valuations', async (t) => {
+  const upstream = t.mock.method(globalThis, 'fetch');
+  for (const failure of [
+    { ok: false, status: 403 },
+    { ok: true, json: async () => ({ data: null }) },
+    { ok: true, json: async () => ({ ...capPayload, data: { ...capPayload.data, totalrecords: 5000 } }) },
+  ]) {
+    upstream.mock.mockImplementation(async () => failure);
+    const response = responseMock();
+    await handler({ method: 'GET', headers: {}, query: { marketCaps: '1' } }, response);
+    assert.equal(response.statusCode, 502);
+    assert.match(response.body.error, /Nasdaq/);
+    assert.equal(response.headers['Cache-Control'], 'no-store');
+  }
 });

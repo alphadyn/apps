@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f3ed">
+  <title>The Daily Brief — News in context</title>
+  <meta name="description" content="A concise daily news briefing, bringing together headlines from Google News, Reuters, CNN, BBC, Bloomberg, and CNBC.">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/daily-brief/">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./app.js"></script>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar">
+      <a class="wordmark" href="../" aria-label="Alphadyn Apps home">
+        <span class="wordmark-icon" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>THE DAILY<span class="wordmark-dot">.</span></span>
+      </a>
+      <div class="topbar-meta"><span class="live-dot" aria-hidden="true"></span><span>YOUR NEWS, IN CONTEXT</span></div>
+    </header>
+
+    <main>
+      <section class="masthead" aria-labelledby="page-title">
+        <div class="masthead-copy">
+          <p class="eyebrow"><span class="eyebrow-rule" aria-hidden="true"></span> A DAILY BRIEFING, BUILT FROM THE HEADLINES</p>
+          <h1 id="page-title">Today,<br><em>in context.</em></h1>
+          <p class="dek">The stories shaping the day, gathered across the world’s newsrooms and distilled into a few minutes of reading.</p>
+        </div>
+        <div class="edition">
+          <span class="edition-label">YOUR EDITION</span>
+          <time id="edition-date"></time>
+          <span class="edition-caption">Updated as you arrive</span>
+          <button class="refresh-button" id="refresh-button" type="button">
+            <span class="refresh-icon" aria-hidden="true">↻</span>
+            <span id="refresh-label">Refresh briefing</span>
+          </button>
+        </div>
+      </section>
+
+      <div class="rule"></div>
+
+      <section class="brief-grid" aria-label="Today's news briefing">
+        <article class="brief-card" aria-labelledby="brief-title">
+          <div class="section-topline">
+            <span class="section-index">THE BRIEF <span> / 01</span></span>
+            <span class="live-status" id="brief-status"><span class="status-dot" aria-hidden="true"></span> <span id="status-label">CONNECTING TO NEWSROOMS</span></span>
+          </div>
+          <div class="brief-content" id="brief-content" aria-live="polite" aria-busy="true">
+            <div class="loading-state">
+              <span class="loading-mark" aria-hidden="true"></span>
+              <strong>Scanning today’s headlines</strong>
+              <span>Gathering reporting from across the newsrooms.</span>
+            </div>
+          </div>
+          <p class="brief-note">A headline-based overview of developing coverage, not a substitute for reading the reporting.</p>
+        </article>
+
+        <aside class="sources-card" aria-labelledby="sources-title">
+          <div class="section-topline">
+            <span class="section-index">THE SOURCES <span> / 02</span></span>
+            <span class="source-total" id="source-total">—</span>
+          </div>
+          <h2 id="sources-title">Across the newsrooms.</h2>
+          <p class="sources-intro">A wider lens on what’s leading the day.</p>
+          <ul class="source-list" id="source-list" aria-live="polite">
+            <li class="source-placeholder"><span class="source-pulse"></span>Checking available feeds</li>
+          </ul>
+          <p class="source-footnote" id="source-footnote">Sources are checked each time this page opens.</p>
+        </aside>
+      </section>
+
+      <section class="coverage-section" aria-labelledby="coverage-title">
+        <div class="coverage-heading">
+          <div>
+            <p class="eyebrow"><span class="eyebrow-rule" aria-hidden="true"></span> FOLLOW THE REPORTING</p>
+            <h2 id="coverage-title">Latest coverage<span class="title-period">.</span></h2>
+          </div>
+          <p class="coverage-count" id="coverage-count">Loading headlines…</p>
+        </div>
+        <div class="story-list" id="story-list" aria-live="polite">
+          <div class="story-placeholder"></div>
+          <div class="story-placeholder"></div>
+          <div class="story-placeholder"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>THE DAILY BRIEF</span>
+      <span>Headlines gathered from public RSS feeds. Follow each link for the full story.</span>
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # Alphadyn AI Apps and Experiments
 
-This repository is a portfolio-style collection of 15 active, independent projects: interactive demos, data visualizations, browser apps, and Python utilities. Each project is designed to be opened, adapted, or expanded on its own. The collection is intentionally mixed: some apps are static browser experiences, while others use Supabase, Flask, or Vercel APIs.
+This repository is a portfolio-style collection of 16 active, independent projects: interactive demos, data visualizations, browser apps, and Python utilities. Each project is designed to be opened, adapted, or expanded on its own. The collection is intentionally mixed: some apps are static browser experiences, while others use Supabase, Flask, or Vercel APIs.
 
 The root landing page in [index.html](index.html) links directly to the deployed apps and gives a quick overview of the portfolio. It includes a Top apps section and a full catalog of all available apps and experiments.
 
@@ -21,6 +21,7 @@ Projects are listed alphabetically, matching the catalog on the landing page.
 
 - [Atlas Store](atlas-store/) ([Open app](https://alphadyn.github.io/apps/atlas-store/)) — Storefront mockup with catalog, cart, and checkout flow.
 - [Contact Card Generator](contact-card-generator/) ([Open app](https://alphadyn.github.io/apps/contact-card-generator/)) — Create vCard contact files and QR codes with optional profile photos.
+- [The Daily Brief](daily-brief/) ([Open app](https://alphadyn.github.io/apps/daily-brief/)) — A concise daily overview that groups headlines from Google News, Reuters, CNN, BBC, Bloomberg, and CNBC.
 - [Earth Explorer](earth-explorer/) ([Open app](https://alphadyn.github.io/apps/earth-explorer/)) — Refined dark 3D atlas with CARTO/OpenStreetMap street tiles, city and landmark search, coordinate inspection, country overlays, and great-circle distance measurement.
 - [Experiences](experiences/) ([Open app](https://alphadyn.github.io/apps/experiences/)) — Supabase-backed journal with trips, shareable Experience collections, Event maps, precise location picking, and media carousels.
 - [Fractals](fractals/) ([Open app](https://alphadyn.github.io/apps/fractals/)) — Interactive fractal visualizer.
@@ -82,11 +83,12 @@ python3 app.py
 
 Open <http://127.0.0.1:5001>, type a ticker or company name, and choose a matching stock. The complete S&P 500 is listed in market-cap order; ranking data is cached for six hours, and selected-ticker histories for one hour. The dashboard shows the closest-fitting model by R² and classifies recent performance curvature as concave up or down.
 
-### Contact Card Generator, Pulse, and Signal
+### Contact Card Generator, Pulse, Signal, and The Daily Brief
 
 - [Contact Card Generator](contact-card-generator/README.md) is a static utility with browser-side contact generation and a CDN-hosted QR library. Serve `contact-card-generator/`; no account or database is needed.
 - [Pulse](pulse/README.md) uses Supabase Auth, namespaced tables, RLS policies, and optional attachment Storage. Follow its setup guide before using a new project; the initial schema is destructive on rerun, so existing installations should use the documented migrations.
 - [Signal](signal/README.md) loads a generated RSS snapshot. Run `python3 signal/build_data.py` before a local preview. Its shared removed-keyword list uses a public-edit Supabase table configured separately from the snapshot; the local Flask capture is a separate interface.
+- [The Daily Brief](daily-brief/README.md) reads live feeds through the repository-root Vercel API and generates a short overview from headlines. The summary does not use article text or a generative AI service.
 
 ### Market Insights
 
@@ -129,7 +131,7 @@ A convenience wrapper is also included:
 
 The pytest configuration is defined in [pytest.ini](pytest.ini).
 
-Signal, Pulse, and Market Insights also have focused regression tests (JavaScript tests require Node.js 18 or newer):
+Signal, Pulse, The Daily Brief, and Market Insights also have focused regression tests (JavaScript tests require Node.js 18 or newer):
 
 ```bash
 python3 -m unittest discover -s signal -p test_build_data.py
@@ -137,6 +139,7 @@ python3 -m unittest discover -s pulse -p 'test_*.py'
 python3 -m unittest discover -s market-insights -p test_build_data.py
 python3 -m unittest discover -s market-insights -p test_build_share_pages.py
 node --test signal/app.test.js market-insights/ranking.test.js market-insights/history.test.js
+node --test daily-brief/api.test.js
 ```
 
 ## GitHub Pages updates

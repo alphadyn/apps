@@ -72,13 +72,18 @@ export function createDetailView({ onRequestClose, onNavigate, onRangeChange, on
     el.name.textContent = security.name;
     el.sector.textContent = [security.sector, security.industry].filter(Boolean).join(' · ');
     el.price.textContent = formatPrice(security.price);
+    el.price.title = security.quote_at
+      ? `Yahoo quote as of ${new Date(security.quote_at).toLocaleString()}; may be delayed`
+      : `Snapshot close on ${security.price_date || 'unknown date'}`;
     el.note.textContent = security.asset_type === 'fund'
-      ? 'Adjusted closing prices include reinvested distributions. Daily closes cover the last two years and weekly closes cover earlier periods.'
-      : 'Split-adjusted closing prices; dividends are excluded. Daily closes cover the last two years and weekly closes cover earlier periods.';
+      ? 'Snapshot history and returns use adjusted closes including reinvested distributions, not the auto-updating quote above. Daily closes cover the last two years and weekly closes cover earlier periods.'
+      : 'Snapshot history and returns use split-adjusted closes excluding dividends, not the auto-updating quote above. Daily closes cover the last two years and weekly closes cover earlier periods.';
     if (!slice) {
       el.change.textContent = '';
       el.change.className = '';
-      el.period.textContent = security.price_date ? `Close on ${formatLongDate(Date.parse(security.price_date) / 86_400_000)}` : '';
+      el.period.textContent = security.quote_at
+        ? `Quote as of ${new Date(security.quote_at).toLocaleString()} · may be delayed`
+        : security.price_date ? `Close on ${formatLongDate(Date.parse(security.price_date) / 86_400_000)}` : '';
       return;
     }
     el.change.textContent = `${formatSignedMoney(slice.changeAmount)} (${formatPercent(slice.change)})`;
@@ -289,11 +294,11 @@ export function createDetailView({ onRequestClose, onNavigate, onRangeChange, on
     renderAll();
     try {
       const points = await loadHistory(security.symbol);
-      if (currentLoadId !== loadId || view.security !== security) return;
+      if (currentLoadId !== loadId || view.security?.symbol !== security.symbol) return;
       view.points = points;
       view.status = points.length ? 'ready' : 'error';
     } catch {
-      if (currentLoadId !== loadId || view.security !== security) return;
+      if (currentLoadId !== loadId || view.security?.symbol !== security.symbol) return;
       view.status = 'error';
     }
     renderAll();
@@ -369,6 +374,7 @@ export function createDetailView({ onRequestClose, onNavigate, onRangeChange, on
   return {
     open(security, range) {
       const changedSecurity = view.security?.symbol !== security.symbol;
+      const changedRange = view.range !== range;
       view.security = security;
       view.range = range;
       if (!el.dialog.open) {
@@ -376,9 +382,13 @@ export function createDetailView({ onRequestClose, onNavigate, onRangeChange, on
         document.body.classList.add('detail-open');
         el.back.focus();
       }
-      el.dialog.querySelector('.detail-inner').scrollTop = 0;
+      if (changedSecurity) el.dialog.querySelector('.detail-inner').scrollTop = 0;
       if (changedSecurity) load(security);
-      else renderAll();
+      else if (changedRange) renderAll();
+      else {
+        renderHeader();
+        renderStats();
+      }
     },
     refresh() {
       if (!view.security) return;

@@ -24,6 +24,20 @@ def quarters(year, values, prefix=""):
     ]
 
 
+class BuildMainTests(unittest.TestCase):
+    def test_failed_snapshot_does_not_replace_existing_files_or_report_success(self):
+        with tempfile.TemporaryDirectory() as folder:
+            output = Path(folder) / "data.json"
+            output.write_text('{"generated_at":"previous"}')
+            with patch.object(build_data, "OUTPUT", output), \
+                    patch.object(build_data, "build_snapshot", side_effect=RuntimeError("upstream unavailable")), \
+                    patch.object(build_data, "write_histories") as write_histories:
+                with self.assertRaisesRegex(RuntimeError, "upstream unavailable"):
+                    build_data.main()
+            self.assertEqual(output.read_text(), '{"generated_at":"previous"}')
+            write_histories.assert_not_called()
+
+
 class FundamentalsTests(unittest.TestCase):
     def test_ttm_derives_fourth_quarter_and_compares_year_earlier(self):
         facts = quarters(2024, (1, 2, 3, 4)) + quarters(2025, (5, 6, 7, 8)) + [fact("2026-01-01", "2026-03-31", 10)]

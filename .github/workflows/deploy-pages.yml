@@ -39,7 +39,7 @@ jobs:
         run: |
           python3 -m pip install --disable-pip-version-check -r market-insights/requirements-build.txt
           python3 -m unittest discover -s market-insights -p 'test_build*.py'
-          node --test market-insights/ranking.test.js market-insights/history.test.js
+          node --test market-insights/*.test.js
           python3 market-insights/build_data.py
 
       - name: Test and build Signal news snapshot

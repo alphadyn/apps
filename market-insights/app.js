@@ -6,6 +6,7 @@ import {
 } from './ranking.js';
 import { createDetailView } from './detail.js';
 import { DEFAULT_RANGE } from './history.js';
+import { applyQuotes, createQuotePoller, fetchQuotes, quoteApiUrl } from './quotes.js';
 
 const SECTOR_HUES = {
   'Communication Services': 280, 'Consumer Discretionary': 330, 'Consumer Staples': 35, Energy: 15,
@@ -133,7 +134,7 @@ const state = {
   filterSort: { key: 'market_cap', direction: 'desc' },
   activePerfPeriod: '1y',
   activeNiPeriod: 'ttm',
-  filtersVisible: true,
+  filtersVisible: false,
   filters: {
     marketCapMin: null,
     marketCapMax: null,
@@ -543,7 +544,10 @@ function renderFilterTable() {
     const pe = getSecurityPE(security);
     const mcapCell = `<td class="num${sortKey === 'market_cap' ? ' active' : ''}">${escapeHtml(formatMoney(security.market_cap))}</td>`;
     const peCell = `<td class="num${sortKey === 'pe' ? ' active' : ''}">${escapeHtml(formatPE(pe))}</td>`;
-    const priceCell = `<td class="num${sortKey === 'price' ? ' active' : ''}">${escapeHtml(formatMoney(security.price))}</td>`;
+    const priceTitle = security.quote_at
+      ? `Yahoo quote as of ${new Date(security.quote_at).toLocaleString()} · may be delayed`
+      : `Snapshot close on ${security.price_date || 'unknown date'}; no automatic quote received`;
+    const priceCell = `<td class="num${sortKey === 'price' ? ' active' : ''}" title="${escapeHtml(priceTitle)}">${escapeHtml(formatMoney(security.price))}</td>`;
     const fairValue = discountedCashFlowValue(security);
     const fairValueCell = `<td class="num${sortKey === 'fair_value' ? ' active' : ''}" title="DCF estimate using net income as an equity-cash-flow proxy">${escapeHtml(formatPrice(fairValue))}</td>`;
     const fairValueUpside = discountedCashFlowUpside(security);
@@ -1146,9 +1150,43 @@ function bindEvents() {
 }
 
 let marketDataLoadId = 0;
+let snapshotMetaTitle = '';
+
+function showQuoteStatus(message, warning = false) {
+  elements.meta.innerHTML = `<span class="pulse${warning ? ' offline' : ''}" aria-hidden="true"></span>${escapeHtml(message)}`;
+}
+
+const quotePoller = createQuotePoller({
+  load: (signal) => fetchQuotes(state.securities.map((security) => security.symbol.replace(/\./g, '-')), {
+    url: quoteApiUrl(location.hostname), signal,
+  }),
+  onUpdate: ({ quotes, errors }) => {
+    state.securities = applyQuotes(state.securities, quotes);
+    const quoted = state.securities.filter((security) => security.quote_at).length;
+    const now = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+    showQuoteStatus(errors.length
+      ? `Quote refresh incomplete · ${quotes.length}/${state.securities.length} received · retrying in 60s`
+      : `Quotes checked ${now} · refreshes every 60s · may be delayed`, errors.length > 0);
+    elements.meta.title = `${snapshotMetaTitle} · ${quoted} securities have quote timestamps. ${errors.join('; ')}`;
+    if (!quotes.length) return;
+    const focusedSymbol = elements.filterBody.contains(document.activeElement)
+      ? document.activeElement.closest('tr[data-symbol]')?.dataset.symbol : null;
+    renderKpis();
+    renderFilterTable();
+    if (focusedSymbol) {
+      elements.filterBody.querySelector(`tr[data-symbol="${CSS.escape(focusedSymbol)}"] button.symbol`)?.focus({ preventScroll: true });
+    }
+    syncDetail();
+  },
+  onError: (error) => {
+    showQuoteStatus('Quote service unavailable · retaining last values · retrying in 60s', true);
+    elements.meta.title = `${snapshotMetaTitle} · ${error.message}`;
+  },
+});
 
 async function loadMarketData() {
   const currentLoadId = ++marketDataLoadId;
+  quotePoller.stop();
   try {
     const response = await fetch(`data.json?_=${Date.now()}`, { cache: 'no-store' });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -1164,10 +1202,15 @@ async function loadMarketData() {
     }
     const updated = data.generated_at ? new Date(data.generated_at).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) : 'unknown';
     elements.meta.innerHTML = `<span class="pulse" aria-hidden="true"></span>Prices as of <strong>${escapeHtml(formatDate(data.price_as_of))}</strong>`;
-    elements.meta.title = `${state.securities.length} stocks and funds · snapshot built ${updated}`;
+    snapshotMetaTitle = `${state.securities.length} stocks and funds · earnings, returns and history snapshot built ${updated}`;
+    elements.meta.title = snapshotMetaTitle;
     renderKpis();
     render({ updateHash: false });
     syncDetail();
+    if (!document.hidden) {
+      showQuoteStatus('Snapshot loaded · checking latest quotes…');
+      quotePoller.start();
+    }
   } catch (error) {
     if (currentLoadId !== marketDataLoadId) return;
     elements.meta.innerHTML = '<span class="pulse offline" aria-hidden="true"></span>Market data unavailable';
@@ -1185,6 +1228,11 @@ function init() {
     if (!event.persisted) return;
     loadMarketData();
     detail.refresh();
+  });
+  window.addEventListener('pagehide', () => quotePoller.stop());
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) quotePoller.stop();
+    else if (state.securities.length) quotePoller.start();
   });
 }
 

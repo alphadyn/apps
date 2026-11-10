@@ -7,8 +7,8 @@ Sources:
   * Daily closing prices: Yahoo Finance chart API
   * Net income and diluted share counts: SEC EDGAR XBRL company concepts
 
-If the constituent list or prices cannot be loaded, the existing snapshot is kept
-so a transient upstream outage does not break the Pages deployment.
+If the constituent list or prices cannot be loaded, the build fails so the
+previously published Pages deployment remains available.
 """
 
 from __future__ import annotations
@@ -638,13 +638,7 @@ def write_histories(histories, directory=HISTORY_DIR):
 
 
 def main():
-    try:
-        snapshot, histories = build_snapshot()
-    except Exception as error:
-        if OUTPUT.exists():
-            print(f"Warning: snapshot build failed ({error}); keeping existing {OUTPUT.name}", file=sys.stderr)
-            return 0
-        raise
+    snapshot, histories = build_snapshot()
     OUTPUT.write_text(json.dumps(snapshot, separators=(",", ":")), encoding="utf-8")
     write_histories(histories)
     try:

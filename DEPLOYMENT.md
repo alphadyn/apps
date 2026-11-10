@@ -17,9 +17,11 @@ Vercel projects can remain separate when an app needs its own frontend or runtim
 | App | Vercel Root Directory | Configuration |
 | --- | --- | --- |
 | Market Curve Lab | `market-curve-lab` | [vercel.json](market-curve-lab/vercel.json), `api/` functions |
-| Alphadyn AI site and APIs | repository root (`.`) | [package.json](package.json), [api/events.js](api/events.js), [api/daily-brief.js](api/daily-brief.js) |
+| Alphadyn AI site and APIs | repository root (`.`) | [package.json](package.json), [api/events.js](api/events.js), [api/daily-brief.js](api/daily-brief.js), [api/market-quotes.js](api/market-quotes.js) |
 
 Set the `ai-orcin-eta-15` Vercel project's Root Directory to the repository root (`.`) so `/api/events`, `/api/daily-brief`, and `/api/market-curve-lab/*` are discovered. The daily-brief endpoint aggregates public RSS feeds for the GitHub Pages app. The catch-all routes Market Curve Lab endpoints, and the Vercel site's root page is the repository catalog; Contact Card Generator remains available at `/contact-card-generator/`. Market Curve Lab can also be deployed separately, rooted at `market-curve-lab`, when its share-preview routes are needed.
+
+Market Insights also uses this root project for `/api/market-quotes`, a public Yahoo Finance batch-quote proxy with no API-key requirement. Deploy the API and updated frontend once to enable it. Thereafter the frontend checks quotes every 60 seconds while visible, independently of Pages builds. Successful batches are CDN-cached for up to 60 seconds; upstream failures return explicit errors rather than stale success responses. Quotes may be delayed or rate-limited. Constituents, earnings, historical returns, and chart histories still use the Pages-built snapshot.
 
 ## Local validation
 

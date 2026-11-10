@@ -8,7 +8,7 @@ The app and its security share pages have moved to `/apps/market-insights/`. Exi
 
 > Stock and fund ranking and price-history dashboard. See the [repository catalog](../README.md) for shared setup and deployment context.
 
-A static screener for S&P 500 stocks and a curated selection of index mutual funds and ETFs, backed by generated market and price-history snapshots. Filter the table by:
+A screener for S&P 500 stocks and a curated selection of index mutual funds and ETFs, with automatically refreshed Yahoo quotes and generated fundamentals and price-history snapshots. Filter the table by:
 
 - Market capitalization, including shorthand amounts such as `1B`
 - P/E ratio, with a profitable-only option
@@ -18,7 +18,7 @@ A static screener for S&P 500 stocks and a curated selection of index mutual fun
 - Security type (**Stocks** or **Funds**)
 - Company name or ticker, and GICS sector
 
-Use minimum/maximum inputs or presets. Net-income and performance bounds can be applied across multiple periods at once. Active criteria appear as removable chips with the matching-security count. **Hide criteria** keeps the table in focus without clearing filters; **Clear all filters** resets the screen.
+Criteria are hidden on page load; select **Show criteria** to expand them. Use minimum/maximum inputs or presets. Net-income and performance bounds can be applied across multiple periods at once. Active criteria appear as removable chips with the matching-security count. **Hide criteria** keeps the table in focus without clearing filters; **Clear all filters** resets the screen.
 
 ## Sorting and market summary
 
@@ -64,6 +64,7 @@ python3 build_share_pages.py
 | [index.html](index.html), [styles.css](styles.css), [app.js](app.js) | Page, styles, and DOM wiring |
 | [ranking.js](ranking.js) | Pure ranking, URL-state, and formatting logic |
 | [history.js](history.js), [detail.js](detail.js) | Range math and chart helpers; the security detail view |
+| [quotes.js](quotes.js), [../api/market-quotes.js](../api/market-quotes.js) | Automatic quote polling, valuation updates, and the Vercel Yahoo Finance proxy |
 | [share-preview.html](share-preview.html) | Mobile Messages / SMS link preview mockup |
 | [build_share_pages.py](build_share_pages.py), [test_build_share_pages.py](test_build_share_pages.py) | Builds static crawler-readable preview pages for the current constituent list |
 | [generate_social_preview.py](generate_social_preview.py) | Renders `social-preview.png` and `apple-touch-icon.png` |
@@ -88,9 +89,15 @@ Missing values display as — and always rank last.
 
 The GitHub Pages workflow runs the tests and rebuilds the snapshot on every deployment. In the repository's **Settings → Pages → Build and deployment**, **Source must be GitHub Actions**, not **Deploy from a branch**. Branch publishing does not generate the gitignored history files and can cancel the custom build, leaving every security's chart unavailable. The custom workflow publishes on pushes to `main`, hourly, or when run manually.
 
-Each page load fetches `data.json` without using a cached copy, so it displays the latest snapshot published by that workflow. Returning to the app through the browser's back/forward cache also refreshes the snapshot and any open security history. History files are fetched without using a cached copy when opened or refreshed. This is a periodically updated snapshot, not a live market feed.
+Each page load fetches `data.json` without using a cached copy, then requests the latest Yahoo Finance regular-session quotes through the repository-root Vercel endpoint `/api/market-quotes`. Quotes refresh every 60 seconds after the previous refresh finishes while the page is visible; returning to a hidden page refreshes immediately. Requests are batched at 20 tickers, with at most three batches in flight. The endpoint caches successful batches for up to 60 seconds. No API key is required.
 
-If an upstream source fails, the committed `data.json` stays in place. In that case no history files are produced, and the detail view reports that history is unavailable.
+Prices, estimated market caps (assuming unchanged shares), P/E, and price-dependent DCF upside follow these quotes without rebuilding or deploying the site. Hover a price for the provider's quote timestamp. Quotes may be delayed or rate-limited, regular-session prices do not include extended-hours trades, and mutual funds generally price only once daily. This is automatic polling, not a licensed real-time streaming feed.
+
+Constituents, earnings, historical returns, and chart history remain deployment-built snapshots; quote polling does not recalculate historical return windows or fetch SEC filings. The status tooltip identifies the snapshot build time. Failed or partial quote refreshes show a warning, preserve last available values, and retry automatically. Returning through the browser's back/forward cache also refreshes the snapshot and any open security history.
+
+**Initial setup:** Deploy the repository-root Vercel project to install `api/market-quotes.js`, and publish the updated page once. Subsequent quote updates need no deployments. GitHub Pages and localhost use `https://ai-orcin-eta-15.vercel.app/api/market-quotes`; Vercel-hosted pages use the same-origin endpoint. See the [deployment guide](../DEPLOYMENT.md). A static server alone cannot run the API.
+
+If an upstream failure prevents the snapshot from being built, the workflow fails before deploying. The previously published site, including its snapshot and history files, remains available; check the failed workflow run for the error. This also delays unrelated site updates until a subsequent build succeeds.
 
 ## Run locally
 
@@ -107,7 +114,7 @@ python3 -m http.server 8000    # then open http://localhost:8000
 ```bash
 python3 -m unittest discover -s . -p test_build_data.py
 python3 -m unittest discover -s . -p test_build_share_pages.py
-node --test ranking.test.js history.test.js
+node --test *.test.js
 ```
 
 ## Limitations

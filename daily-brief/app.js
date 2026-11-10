@@ -14,15 +14,12 @@ const elements = {
   sourceTotal: document.getElementById('source-total'),
   sourceList: document.getElementById('source-list'),
   sourceFootnote: document.getElementById('source-footnote'),
-  coverageCount: document.getElementById('coverage-count'),
-  storyList: document.getElementById('story-list'),
 };
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
-  weekday: 'long',
-  month: 'long',
+  weekday: 'short',
+  month: 'short',
   day: 'numeric',
-  year: 'numeric',
 });
 
 elements.editionDate.dateTime = new Date().toISOString();
@@ -138,44 +135,6 @@ function renderDigest(digest, generatedAt) {
   elements.statusLabel.textContent = `UPDATED ${new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(new Date(generatedAt))}`;
 }
 
-function renderStories(stories) {
-  elements.coverageCount.textContent = `${stories.length} recent ${stories.length === 1 ? 'headline' : 'headlines'}`;
-  if (!stories.length) {
-    const empty = document.createElement('p');
-    empty.className = 'empty-coverage';
-    empty.textContent = 'No recent stories were returned. Refresh to check the feeds again.';
-    elements.storyList.replaceChildren(empty);
-    return;
-  }
-
-  elements.storyList.replaceChildren(...stories.slice(0, 12).map((story) => {
-    const card = document.createElement('a');
-    card.className = 'story-card';
-    card.href = story.url;
-    card.target = '_blank';
-    card.rel = 'noopener noreferrer';
-    const source = document.createElement('span');
-    source.className = 'story-source';
-    source.textContent = story.source;
-    const title = document.createElement('h3');
-    title.className = 'story-title';
-    title.textContent = story.title;
-    const meta = document.createElement('span');
-    meta.className = 'story-meta';
-    const time = document.createElement('span');
-    time.textContent = story.publishedAt
-      ? new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(new Date(story.publishedAt))
-      : 'Recent';
-    const arrow = document.createElement('span');
-    arrow.className = 'story-arrow';
-    arrow.setAttribute('aria-hidden', 'true');
-    arrow.textContent = '↗';
-    meta.append(time, arrow);
-    card.append(source, title, meta);
-    return card;
-  }));
-}
-
 async function loadBriefing() {
   setLoading(true);
   try {
@@ -185,12 +144,11 @@ async function loadBriefing() {
     }
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || `The news service returned ${response.status}.`);
-    if (!Array.isArray(data.sources) || !Array.isArray(data.digest) || !Array.isArray(data.stories)) {
+    if (!Array.isArray(data.sources) || !Array.isArray(data.digest)) {
       throw new Error('The news service returned an unexpected response.');
     }
     renderSources(data.sources);
     renderDigest(data.digest, data.generatedAt);
-    renderStories(data.stories);
   } catch (error) {
     setError(error instanceof Error ? error.message : 'An unexpected error occurred.');
   } finally {

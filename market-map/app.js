@@ -171,6 +171,9 @@ $('search').addEventListener('input', search);
 $('map').addEventListener('pointerleave', () => {
   if (!$('map').contains(document.activeElement)) clearInspection();
 });
+document.addEventListener('click', (event) => {
+  if (!$('map').contains(event.target)) clearInspection();
+});
 $('search').addEventListener('keydown', (event) => {
   if (event.key === 'Enter') {
     event.preventDefault();

@@ -49,7 +49,7 @@ function upsideColorComponents(upside) {
   return {
     hue: upside > 0 ? 140 : 5,
     saturation: 40 + 45 * strength,
-    lightness: 62 - 32 * strength,
+    lightness: 62 - 42 * strength,
   };
 }
 

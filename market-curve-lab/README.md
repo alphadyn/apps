@@ -8,6 +8,8 @@ A web app that loads all 500 members of the current S&P 500 index, ranks them by
 
 For the selected company, the app plots split- and dividend-adjusted total performance from a $100 starting value, overlays linear and quadratic least-squares trendlines, compares model fit using R², and reports recent concavity based on a quadratic fit to the latest 24 monthly observations. The full S&P 500 is ranked when the app loads; historical prices and curve analysis are fetched only for the selected ticker.
 
+Select the header wordmark to reload the entry page. This clears a selected ticker from the URL and returns to the default ranking.
+
 ## Shared results cache
 
 Page loads read the S&P 500 ranking and each ticker's analysis from a shared Supabase table ([`supabase-schema.sql`](supabase-schema.sql)) instead of recomputing them, so visiting the page doesn't re-rank the index or re-fetch price history every time. A newly searched ticker that isn't cached yet is fetched once and saved for later visitors. The "Refresh data" button next to the ticker card bypasses the cache and recomputes the current ranking and selected ticker, overwriting the saved rows. The loading panel shows progress through these steps (checking saved results, loading rankings/history, fitting trendlines).

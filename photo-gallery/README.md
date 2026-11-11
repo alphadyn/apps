@@ -6,6 +6,8 @@
 
 A browser-based web app that fetches 10 new random photos from the web on every page load/refresh and displays them in an auto-rotating carousel.
 
+Photo Gallery has no clickable app icon or brand link. Reload the page to fetch a new set of photos and restart the carousel.
+
 ## Features
 
 - 10 photos fetched live from Picsum Photos on every page load, so a new set appears each time you refresh

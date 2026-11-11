@@ -12,7 +12,7 @@ python3 -m http.server 8000
 
 Open <http://localhost:8000/market-map/>. No new dependencies or API keys are required. If the snapshot is missing, generate it using the [Market Insights setup](../market-insights/README.md). The existing hourly Pages workflow generates and publishes that shared data.
 
-Click the app icon to reload Market Map, or use Refresh to reload the published snapshot without leaving the current page; neither action fetches live prices. The app displays the snapshot price date and warns when it is over four days old. Failed requests show an explicit error and allow retry; a failed in-page refresh retains the previous map with a warning.
+Click the app icon to reload the entry page and published Market Map snapshot, or use **Refresh** to reload the snapshot without leaving the current page; neither action fetches live prices. The app displays the snapshot price date and warns when it is over four days old. Failed requests show an explicit error and allow retry; a failed in-page refresh retains the previous map with a warning.
 
 ## Explore
 

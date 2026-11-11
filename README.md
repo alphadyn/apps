@@ -4,6 +4,8 @@ This repository is a portfolio-style collection of 17 active, independent projec
 
 The root landing page in [index.html](index.html) links directly to the deployed apps and gives a quick overview of the portfolio. It includes a Top apps section and a full catalog of all available apps and experiments.
 
+App header brand and icon controls are app-specific: some reload or return to an entry page, some reset a view, and some are decorative. Each application README documents its behavior.
+
 Deployment configuration and host-specific setup are documented in [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Featured projects
@@ -17,7 +19,7 @@ The landing page's Top apps section highlights these projects:
 
 ## App catalog
 
-Projects are listed alphabetically, matching the catalog on the landing page.
+Projects are listed alphabetically, matching the catalog on the landing page. See each project's README for the behavior of its header brand or app icon.
 
 - [Atlas Store](atlas-store/) ([Open app](https://alphadyn.github.io/apps/atlas-store/)) — Storefront mockup with catalog, cart, and checkout flow.
 - [Contact Card Generator](contact-card-generator/) ([Open app](https://alphadyn.github.io/apps/contact-card-generator/)) — Create vCard contact files and QR codes with optional profile photos.

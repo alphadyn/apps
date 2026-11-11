@@ -6,6 +6,10 @@
 
 A browser-based web app that generates and displays 10 popular fractal patterns on an HTML canvas.
 
+## App icon
+
+Fractals has no clickable app icon or brand link. Use **Reset View** to restore the current fractal's default framing, or reload the page to restart the app.
+
 ## Features
 
 - Interactive fractal renderer using vanilla JavaScript and HTML5 canvas

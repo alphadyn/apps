@@ -6,6 +6,8 @@
 
 Vault is a static web app for encrypting and decrypting files and folders in your browser. It is designed to be hosted on GitHub Pages: there is no server, account, upload, or build step. Folder contents are archived as TAR, compressed with gzip, and then encrypted; the archive preserves relative paths. The web app files are `index.html`, `styles.css`, `app.js`, and `archive.js`.
 
+Select the Vault brand in the header to reload the app's entry page. The current file selection and operation state are cleared.
+
 ## Use it
 
 Open the app over HTTPS (for example, from GitHub Pages), choose **Encrypt** or **Decrypt**, select a file or folder, enter a password, and run the operation. Individual files are encrypted as-is. Folders are TAR archived with gzip compression before encryption. When decrypting a folder, use **Choose folder** to restore its directory tree (supported browsers), or download the `.tar.gz` archive and extract it. The app processes data locally in the browser.

@@ -6,6 +6,10 @@
 
 A branded static storefront with a front-facing shopping page, grouped product/service menu, cart, checkout flow, advertising placements, encrypted browser cart storage, and payment-provider hooks for Apple Pay and credit cards.
 
+## Header brand
+
+Select the Atlas & Co. brand in the header to reload the app's entry page and return to the storefront home screen.
+
 ## Features
 
 - Branded storefront for Atlas & Co. with featured products and partner advertising placements

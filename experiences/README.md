@@ -6,6 +6,8 @@
 
 A browser-based app for recording trips, Experiences, and named Events with maps, locations, and media. The logged-out home page introduces the app through a welcome screen; sign-in is required before creating or exploring private content.
 
+Select the Experiences logo in the header to reload the app's entry page. The app then shows its welcome screen or signed-in workspace according to the current session.
+
 ## Features
 - **Check in** by typing a known place name (city, address, landmark); it's geocoded into coordinates
   and dropped as a pin on an interactive map — no browser location permission required

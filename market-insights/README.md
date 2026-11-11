@@ -8,6 +8,8 @@ The app and its security share pages have moved to `/apps/market-insights/`. Exi
 
 > Stock and fund ranking and price-history dashboard. See the [repository catalog](../README.md) for shared setup and deployment context.
 
+Select the header brand to reload the app's entry page and return to the rankings, clearing any selected security from the URL.
+
 A screener for S&P 500 stocks and a curated selection of index mutual funds and ETFs, with automatically refreshed Yahoo quotes and generated fundamentals and price-history snapshots. Filter the table by:
 
 - Market capitalization, including shorthand amounts such as `1B`

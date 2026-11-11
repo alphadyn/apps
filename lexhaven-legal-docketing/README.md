@@ -6,6 +6,10 @@
 
 This folder contains a fully functional, browser-based legal docketing application designed for law firms and legal teams that need to manage matters, deadlines, and tasks in one place.
 
+## Header logo
+
+The header logo is decorative and does not navigate. Reload the page to restart the workspace; matters and tasks are retained in browser storage.
+
 ## Features
 - Dashboard summary cards for matters, pending tasks, and upcoming deadlines
 - Matter management with case title, client, status, court, hearing date, and attorney details

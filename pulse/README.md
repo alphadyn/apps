@@ -19,6 +19,8 @@ database policies; hiding a button alone does not enforce authorization. This al
 Pulse can be hosted anywhere that serves static files, including GitHub
 Pages.
 
+Select the Pulse brand in the header to return to the app entry page and feed. Opening it from a post or profile clears that selected view.
+
 ## Features
 
 ### Accounts & roles

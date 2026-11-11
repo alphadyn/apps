@@ -6,6 +6,8 @@
 
 A responsive electronic health record demonstration covering patient charts, emergency and inpatient encounter flow, clinical notes, orders, referrals, follow-up, appointments, and billing context.
 
+Select the Northstar brand in the login panel or sidebar to reload the app's entry page. Demo data remains in browser storage.
+
 ## Features
 
 - Data exchange: export the selected patient or all patients as Northstar JSON, an Epic-compatible HL7 FHIR R4 or R5 Bundle (Patient, Condition, AllergyIntolerance, MedicationRequest, Observation, DiagnosticReport, Appointment, DocumentReference), or a CSV roster; import any of these (auto-detected) and upsert by MRN. Import requires the `data:import` permission (Provider, Midlevel, Admin). File-based only: no live Epic connection or OAuth.

@@ -57,7 +57,7 @@ python3 -m http.server 8000
 Then open http://localhost:8000 in your browser.
 
 ## How to use
-Click the app icon in the header to return to the default view.
+Click the app icon in the header to reload the entry page and return the globe to its default view. The **Earth Explorer** title link returns to the repository landing page.
 1. **Inspect Point** (default mode): click anywhere on the globe. A marker appears and the side
    panel shows the latitude, longitude, hemisphere, and country (with its flag, if the point
    falls on land) for that point, along with a link to open that country's Wikipedia article in

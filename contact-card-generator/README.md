@@ -6,6 +6,10 @@
 
 A static browser utility for creating downloadable vCard (.vcf) contact files and scannable QR codes. The app lives in `contact-card-generator/`; it needs no account or application server.
 
+## Header logo
+
+Select the header logo to reload the app's entry page. The current form and generated contact are not retained across the reload.
+
 ## Features
 
 - Enter first, middle, and last name, organization, job title, phone numbers (mobile and work), email, website, address, birthday, and notes

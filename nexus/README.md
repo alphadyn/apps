@@ -6,6 +6,8 @@
 
 A modern, full-featured media workspace for uploading, displaying, playing, searching, ordering, editing, and managing all kinds of digital media and documents (text, code, audio, video, images, PDFs, archives, and custom binary formats) with persistent Supabase storage.
 
+The Nexus header mark is decorative rather than a link. Reload the page to restart the workspace; media records remain in Supabase.
+
 ![Nexus](https://img.shields.io/badge/Status-Complete-brightgreen)
 ![Supabase](https://img.shields.io/badge/Storage-Supabase-3ECF8E)
 ![Zero Dependencies](https://img.shields.io/badge/Dependencies-Python%20Standard%20Library-orange)

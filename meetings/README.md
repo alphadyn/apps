@@ -8,6 +8,8 @@ A browser-based video conferencing app. Enter a name and a meeting code to join 
 participants can talk, video chat, message each other, and share files — all peer-to-peer, with
 no application server required, and all strongly encrypted end-to-end.
 
+The Meetings wordmark on the join screen is decorative, not a navigation control. Reload the page to return to the join screen; doing so leaves any active meeting.
+
 ## Features
 - **Audio & video** calling between all participants using WebRTC, with mic/camera mute toggles
   and a camera preview before joining

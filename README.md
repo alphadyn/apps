@@ -12,10 +12,10 @@ Deployment configuration and host-specific setup are documented in [DEPLOYMENT.m
 
 The landing page's Top apps section highlights these projects:
 
-1. [Market Insights](market-insights/) — Screen S&P 500 stocks and selected funds by valuation, earnings, and ten performance periods, with sortable results and price-history charts
-2. [Market Map](market-map/) — See the S&P 500 in one market-cap-weighted treemap, colored by implied DCF upside and downside
-3. [Signal](signal/) — Explore Google News headlines, filter by ranked trends, manage shared removed keywords, and export captures as JSON
-4. [Pulse](pulse/) — Share tagged posts and media, vote, and join threaded discussions with public profiles and moderation
+1. [Market Map](market-map/) — See the S&P 500 in one market-cap-weighted treemap, colored by implied DCF upside and downside
+2. [Signal](signal/) — Explore Google News headlines, filter by ranked trends, manage shared removed keywords, and export captures as JSON
+3. [Pulse](pulse/) — Share tagged posts and media, vote, and join threaded discussions with public profiles and moderation
+4. [Nexus](nexus/) — Media workspace with browser UI, sample media, filtering, metadata editing, and optional Supabase persistence
 
 ## App catalog
 

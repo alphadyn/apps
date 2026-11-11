@@ -44,13 +44,51 @@ export function prepareMarket(payload) {
   };
 }
 
+function upsideColorComponents(upside) {
+  const strength = Math.abs(upside) / (Math.abs(upside) + 0.35);
+  return {
+    hue: upside > 0 ? 140 : 5,
+    saturation: 40 + 45 * strength,
+    lightness: 62 - 32 * strength,
+  };
+}
+
+function hslToRgb({ hue, saturation, lightness }) {
+  const h = hue / 60;
+  const s = saturation / 100;
+  const l = lightness / 100;
+  const chroma = (1 - Math.abs(2 * l - 1)) * s;
+  const x = chroma * (1 - Math.abs(h % 2 - 1));
+  const [red, green, blue] = h < 1 ? [chroma, x, 0]
+    : h < 2 ? [x, chroma, 0]
+      : h < 3 ? [0, chroma, x]
+        : h < 4 ? [0, x, chroma]
+          : h < 5 ? [x, 0, chroma]
+            : [chroma, 0, x];
+  const match = l - chroma / 2;
+  return [red + match, green + match, blue + match];
+}
+
+function relativeLuminance(rgb) {
+  const linear = rgb.map((channel) => channel <= 0.04045
+    ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+}
+
 export function upsideColor(upside) {
   if (!Number.isFinite(upside)) return '#454d5c';
-  if (upside === 0) return '#727985';
-  // An asymptotic scale stays strictly darker as magnitude grows, without clipping outliers.
-  const strength = Math.abs(upside) / (Math.abs(upside) + 0.35);
-  const lightness = 66 - 48 * strength;
-  return `hsl(${upside > 0 ? 151 : 3} 54% ${lightness}%)`;
+  if (upside === 0) return '#8a8a8a';
+  const { hue, saturation, lightness } = upsideColorComponents(upside);
+  return `hsl(${hue} ${saturation}% ${lightness}%)`;
+}
+
+export function upsideTextColor(upside) {
+  if (!Number.isFinite(upside)) return '#ffffff';
+  const background = relativeLuminance(hslToRgb(upsideColorComponents(upside)));
+  const darkText = 0;
+  const whiteContrast = 1.05 / (background + 0.05);
+  const darkContrast = (background + 0.05) / (darkText + 0.05);
+  return whiteContrast >= darkContrast ? '#ffffff' : '#000000';
 }
 
 export function matches(company, query) {

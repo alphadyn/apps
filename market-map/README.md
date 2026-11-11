@@ -1,6 +1,6 @@
 # Market Map
 
-A viewport-filling S&P 500 treemap. Rectangle area is proportional to company market capitalization. Positive implied DCF upside is green, negative upside is red, and larger magnitudes are progressively darker on a continuous, unclipped scale. Gray means unavailable valuation; zero is neutral.
+A viewport-filling S&P 500 treemap. Rectangle area is proportional to company market capitalization. Positive implied DCF upside is green, negative upside is red, and larger magnitudes are progressively darker and more saturated on a continuous, unclipped scale. Gray means unavailable valuation; zero is neutral.
 
 ## Run
 

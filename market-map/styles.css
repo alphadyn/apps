@@ -30,7 +30,7 @@ input::placeholder { color: #8d9bac; }
 #tiles { position: absolute; inset: 0; overflow: hidden; }
 #message { position: absolute; inset: 0; display: grid; align-content: center; justify-items: center; gap: 16px; padding: 20px; text-align: center; color: #a4b0bf; font-size: 14px; }
 #message[hidden] { display: none; }
-.tile { position: absolute; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px; padding: 0; border: 0; border-radius: 0; outline-offset: -2px; box-shadow: inset 0 0 0 .5px #0c1118; overflow: hidden; color: #091510; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.tile { position: absolute; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px; padding: 0; border: 0; border-radius: 0; outline-offset: -2px; box-shadow: inset 0 0 0 .5px #0c1118; overflow: hidden; color: #000; line-height: 1.15; font-variant-numeric: tabular-nums; }
 .tile.dark { color: #fff; }
 .tile:hover, .tile:focus-visible, .tile.selected { box-shadow: inset 0 0 0 2px #f4ffc7; z-index: 1; }
 .tile strong, .tile span { white-space: nowrap; max-width: 100%; }
@@ -45,8 +45,8 @@ input::placeholder { color: #8d9bac; }
 footer { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-shrink: 0; }
 footer p { color: #8d9bac; font-size: 10px; margin: 0; }
 .legend { display: flex; align-items: center; gap: 6px; font-size: 9px; color: #a4b0bf; }
-.legend i { width: 70px; height: 7px; background: linear-gradient(90deg, hsl(3 54% 30.44%), hsl(3 54% 66%)); }
-.legend i:nth-of-type(2) { background: linear-gradient(90deg, hsl(151 54% 66%), hsl(151 54% 30.44%)); }
+.legend i { width: 70px; height: 7px; background: linear-gradient(90deg, hsl(5 85% 30%), #8a8a8a); }
+.legend i:nth-of-type(2) { background: linear-gradient(90deg, #8a8a8a, hsl(140 85% 30%)); }
 .legend b { width: 8px; height: 8px; background: #454d5c; margin-left: 8px; }
 .status { color: #d5bd85; font-size: 10px; margin: 0; flex-shrink: 0; }
 .status:empty { display: none; }

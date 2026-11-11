@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { prepareMarket, treemap, upsideColor, matches, money, percent } from './model.js';
+import { prepareMarket, treemap, upsideColor, upsideTextColor, matches, money, percent } from './model.js';
 
 const stock = (symbol, cap, extra = {}) => ({
   symbol, name: `${symbol} company`, market_cap: cap, price: 100,
@@ -43,18 +43,22 @@ test('missing/nonpositive earnings remain neutral, not a fabricated downside', (
     const company = prepareMarket({ securities: [stock('A', 100, { net_income: income })] }).mapped[0];
     assert.equal(company.upside, null);
     assert.equal(upsideColor(company.upside), '#454d5c');
+    assert.equal(upsideTextColor(company.upside), '#ffffff');
   }
 });
 
 test('colors retain sign and strictly darken even for extreme upside', () => {
   const lightness = (color) => Number(color.match(/ ([\d.]+)%\)$/)[1]);
   assert.notEqual(upsideColor(0), upsideColor(null));
-  for (const sign of [-1, 1]) {
+  assert.equal(upsideColor(0), '#8a8a8a');
+  for (const [sign, hue] of [[-1, 5], [1, 140]]) {
     const colors = [.01, .5, 1, 5, 100].map((value) => upsideColor(sign * value));
-    assert.ok(colors.every((color) => color.startsWith(`hsl(${sign > 0 ? 151 : 3} `)));
+    assert.ok(colors.every((color) => color.startsWith(`hsl(${hue} `)));
     for (let index = 1; index < colors.length; index += 1) {
       assert.ok(lightness(colors[index]) < lightness(colors[index - 1]));
     }
+    assert.equal(upsideTextColor(sign * .01), '#000000');
+    assert.equal(upsideTextColor(sign * 100), '#ffffff');
   }
 });
 

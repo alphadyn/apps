@@ -12,7 +12,7 @@ HERE = Path(__file__).resolve().parent
 BACKGROUND = "#0c1118"
 TEXT = "#eef2f6"
 MUTED = "#9eacbd"
-COLORS = ("#26734e", "#389265", "#64c398", "#973a35", "#bd5149", "#d68178")
+COLORS = ("#0b8e37", "#10c64d", "#77c591", "#8e160b", "#c61f10", "#c57e77")
 
 
 def font(size, bold=False):
@@ -31,8 +31,8 @@ def generate(destination=HERE / "social-preview.png"):
     draw = ImageDraw.Draw(image)
     draw.rounded_rectangle((56, 42, 104, 90), radius=10, fill="#17212d")
     for box, color in (
-        ((64, 50, 82, 68), "#64c398"), ((64, 72, 82, 82), "#26734e"),
-        ((86, 50, 96, 60), "#d68178"), ((86, 64, 96, 82), "#973a35"),
+        ((64, 50, 82, 68), "#77c591"), ((64, 72, 82, 82), "#0b8e37"),
+        ((86, 50, 96, 60), "#c57e77"), ((86, 64, 96, 82), "#8e160b"),
     ):
         draw.rectangle(box, fill=color)
     draw.text((120, 55), "ALPHADYN / MARKETS", font=font(19, True), fill=MUTED)

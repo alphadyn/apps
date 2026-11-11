@@ -1,5 +1,8 @@
-import { prepareMarket, treemap, upsideColor, matches, money, percent } from './model.js';
-import { discountedCashFlowUpside, discountedCashFlowValue, marketCapDescription } from '../market-insights/ranking.js';
+import { prepareMarket, treemap, upsideColor, upsideTextColor, matches, money, percent } from './model.js';
+import {
+  discountedCashFlowUpside, discountedCashFlowValue, formatMoney, formatPE,
+  getSecurityPE, marketCapDescription,
+} from '../market-insights/ranking.js';
 
 const $ = (id) => document.getElementById(id);
 let market;
@@ -29,6 +32,16 @@ function inspect(company) {
   for (const button of buttons) button.classList.toggle('selected', button.dataset.id === company.id);
 }
 
+function clearInspection() {
+  selected = undefined;
+  $('selected-symbol').textContent = 'Explore the market';
+  $('selected-name').textContent = 'Hover, focus, or tap a company';
+  $('selected-cap').textContent = '--';
+  $('selected-upside').textContent = '--';
+  $('details').disabled = true;
+  for (const button of buttons) button.classList.remove('selected');
+}
+
 function showDetails(company) {
   inspect(company);
   const facts = node('dl');
@@ -39,6 +52,8 @@ function showDetails(company) {
     ['Share of mapped market', company.marketCap ? percent(company.marketCap / market.total) : 'Unavailable'],
     ['Representative ticker', company.id],
     ['Price', money(company.representative.price)],
+    ['Net income (TTM)', formatMoney(company.representative.net_income)],
+    ['P/E ratio (TTM)', formatPE(getSecurityPE(company.representative))],
     ['DCF value / share', money(company.fairValue)],
     ['Implied upside / downside', percent(company.upside)],
   ]) facts.append(node('dt', label), node('dd', value));
@@ -46,7 +61,7 @@ function showDetails(company) {
   if (company.classes.length > 1) {
     content.push(node('p', 'Share classes are combined to avoid counting the company twice. Area and color use the first listed class with a market cap, matching Market Insights. These are company-wide caps, not separate share-class valuations.'));
     for (const stock of company.classes) {
-      content.push(node('p', `${stock.symbol}: price ${money(stock.price)}, DCF ${money(discountedCashFlowValue(stock))}, implied upside ${percent(discountedCashFlowUpside(stock))}.`));
+      content.push(node('p', `${stock.symbol}: price ${money(stock.price)}, net income (TTM) ${formatMoney(stock.net_income)}, P/E ${formatPE(getSecurityPE(stock))}, DCF ${money(discountedCashFlowValue(stock))}, implied upside ${percent(discountedCashFlowUpside(stock))}.`));
     }
   }
   if (company.upside === null) content.push(node('p', 'DCF is unavailable when earnings are non-positive or earnings, price, or market cap are missing. No upside or downside is assumed.'));
@@ -101,7 +116,7 @@ function render() {
     button.type = 'button';
     button.dataset.id = company.id;
     button.style.background = upsideColor(company.upside);
-    button.classList.toggle('dark', company.upside === null || Math.abs(company.upside) > .25);
+    button.classList.toggle('dark', upsideTextColor(company.upside) === '#ffffff');
     const description = `${company.symbols.join(' / ')}: ${company.name}. Market cap ${money(company.marketCap)}. Implied upside ${percent(company.upside)}.`;
     button.setAttribute('aria-label', description);
     button.title = description;
@@ -153,6 +168,9 @@ async function load() {
 }
 
 $('search').addEventListener('input', search);
+$('map').addEventListener('pointerleave', () => {
+  if (!$('map').contains(document.activeElement)) clearInspection();
+});
 $('search').addEventListener('keydown', (event) => {
   if (event.key === 'Enter') {
     event.preventDefault();
@@ -180,7 +198,7 @@ $('coverage').addEventListener('click', () => {
 $('about').addEventListener('click', () => {
   showDialog('One market. Every company.', [
     node('p', 'Each rectangle occupies its company market cap divided by the combined mapped market cap. Search highlights matches without changing any area. Tiny labels scale down to preserve truthful proportions: hover or focus for the bottom readout, tap for full details, or search and press Enter.'),
-    node('p', 'Green means positive implied upside; red means negative upside (downside). Larger magnitudes are progressively darker. Gray means DCF is unavailable; zero upside is neutral. The color scale is continuous and does not cap extreme values.'),
+    node('p', 'Green means positive implied upside; red means negative upside (downside). Larger magnitudes are progressively darker and more saturated. Gray means DCF is unavailable; zero upside is neutral. The color scale continues beyond +/-100% and does not cap extreme values.'),
     node('p', 'Implied upside = (DCF value - price) / price. The shared Market Insights model projects positive TTM net income for five years, caps earnings growth at +/-5%, discounts at 10%, and uses 2.5% terminal growth. Shares are estimated from market cap / price.'),
     node('p', 'This simplified earnings-based DCF is not a full free-cash-flow valuation, analyst target, or investment recommendation. Company-wide caps are counted once by SEC CIK; combined tiles list every constituent share class.'),
     node('p', 'Sources: S&P 500 constituents from datasets/s-and-p-500-companies, Nasdaq market caps, Yahoo Finance closing prices, and SEC EDGAR earnings via the Market Insights snapshot. No synthetic data or estimated tile areas.'),

@@ -8,6 +8,8 @@ const $ = (id) => document.getElementById(id);
 let market;
 let selected;
 let buttons = [];
+let sectors = [];
+let buttonsById = new Map();
 
 function node(tag, text, className) {
   const element = document.createElement(tag);
@@ -74,17 +76,24 @@ function showDetails(company) {
 function renderLayout() {
   if (!market) return;
   const { width, height } = $('tiles').getBoundingClientRect();
-  const layout = treemap(market.mapped, width, height);
-  for (let index = 0; index < layout.length; index += 1) {
-    const tile = layout[index];
-    const button = buttons[index];
-    Object.assign(button.style, {
-      left: `${tile.x}px`, top: `${tile.y}px`, width: `${tile.width}px`, height: `${tile.height}px`,
+  const sectorLayout = treemap(sectors, width, height);
+  for (const sectorTile of sectorLayout) {
+    const region = sectorTile.company.region;
+    Object.assign(region.style, {
+      left: `${sectorTile.x}px`, top: `${sectorTile.y}px`,
+      width: `${sectorTile.width}px`, height: `${sectorTile.height}px`,
     });
-    const textLength = Math.max(tile.company.symbols.join(' / ').length, money(tile.company.marketCap).length, percent(tile.company.upside).length);
-    const fontSize = Math.max(1, Math.min(28, (tile.width - 3) / (textLength * .67), (tile.height - 3) / 3.8));
-    button.style.fontSize = `${fontSize}px`;
-    button.style.gap = fontSize < 8 ? '0' : '2px';
+    const companyLayout = treemap(sectorTile.company.companies, sectorTile.width, sectorTile.height);
+    for (const tile of companyLayout) {
+      const button = buttonsById.get(tile.company.id);
+      Object.assign(button.style, {
+        left: `${tile.x}px`, top: `${tile.y}px`, width: `${tile.width}px`, height: `${tile.height}px`,
+      });
+      const textLength = Math.max(tile.company.symbols.join(' / ').length, money(tile.company.marketCap).length, percent(tile.company.upside).length);
+      const fontSize = Math.max(1, Math.min(28, (tile.width - 3) / (textLength * .67), (tile.height - 3) / 3.8));
+      button.style.fontSize = `${fontSize}px`;
+      button.style.gap = fontSize < 8 ? '0' : '2px';
+    }
   }
 }
 
@@ -126,7 +135,27 @@ function render() {
     button.addEventListener('click', () => showDetails(company));
     return button;
   });
-  $('tiles').replaceChildren(...buttons);
+  buttonsById = new Map(buttons.map((button) => [button.dataset.id, button]));
+  const grouped = new Map();
+  for (const company of market.mapped) {
+    if (!grouped.has(company.sector)) grouped.set(company.sector, []);
+    grouped.get(company.sector).push(company);
+  }
+  sectors = [...grouped].map(([name, companies]) => ({
+    name,
+    companies,
+    marketCap: companies.reduce((sum, company) => sum + company.marketCap, 0),
+    region: node('div', undefined, 'sector-region'),
+  })).sort((a, b) => b.marketCap - a.marketCap || a.name.localeCompare(b.name));
+  for (const sector of sectors) {
+    sector.region.setAttribute('role', 'group');
+    sector.region.setAttribute('aria-label', `${sector.name} sector`);
+    const label = node('span', sector.name, 'sector-label');
+    const tiles = node('div', undefined, 'sector-tiles');
+    tiles.append(...sector.companies.map((company) => buttonsById.get(company.id)));
+    sector.region.append(label, tiles);
+  }
+  $('tiles').replaceChildren(...sectors.map((sector) => sector.region));
   renderLayout();
   if (selected) {
     const updated = market.companies.find((company) => company.id === selected.id);
@@ -200,7 +229,7 @@ $('coverage').addEventListener('click', () => {
 });
 $('about').addEventListener('click', () => {
   showDialog('One market. Every company.', [
-    node('p', 'Each rectangle occupies its company market cap divided by the combined mapped market cap. Search highlights matches without changing any area. Tiny labels scale down to preserve truthful proportions: hover or focus for the bottom readout, tap for full details, or search and press Enter.'),
+    node('p', 'Companies are grouped into sector rectangles sized by their combined market cap. Within each sector, every company rectangle is proportional to its market cap. Search highlights matches without changing any area. Tiny labels scale down to preserve truthful proportions: hover or focus for the bottom readout, tap for full details, or search and press Enter.'),
     node('p', 'Green means positive implied upside; red means negative upside (downside). Larger magnitudes are progressively darker and more saturated. Gray means DCF is unavailable; zero upside is neutral. The color scale continues beyond +/-100% and does not cap extreme values.'),
     node('p', 'Implied upside = (DCF value - price) / price. The shared Market Insights model projects positive TTM net income for five years, caps earnings growth at +/-5%, discounts at 10%, and uses 2.5% terminal growth. Shares are estimated from market cap / price.'),
     node('p', 'This simplified earnings-based DCF is not a full free-cash-flow valuation, analyst target, or investment recommendation. Company-wide caps are counted once by SEC CIK; combined tiles list every constituent share class.'),

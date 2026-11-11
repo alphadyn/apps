@@ -1,6 +1,6 @@
 # Market Map
 
-A viewport-filling S&P 500 treemap. Rectangle area is proportional to company market capitalization. Positive implied DCF upside is green, negative upside is red, and larger magnitudes are progressively darker and more saturated on a continuous, unclipped scale. Gray means unavailable valuation; zero is neutral.
+A viewport-filling S&P 500 treemap grouped into industry-sector rectangles. Sector area is proportional to its companies' combined market capitalization, and each company's area within a sector is proportional to its market capitalization. Positive implied DCF upside is green, negative upside is red, and larger magnitudes are progressively darker and more saturated on a continuous, unclipped scale. Gray means unavailable valuation; zero is neutral.
 
 ## Run
 
@@ -28,7 +28,7 @@ Stocks come from `../market-insights/data.json`; funds are excluded. All constit
 
 DCF and implied upside directly reuse [the existing helpers](../market-insights/ranking.js), not a duplicate model: five-year TTM net-income projection, earnings growth capped at +/-5%, 10% discount rate, 2.5% terminal growth, shares inferred from cap / price. Implied upside is `(DCF value - price) / price`. Missing or non-positive earnings, price, or cap yield unavailable valuation. This simplified earnings-based estimate is not an analyst target or investment advice.
 
-The gapless squarified layout assigns each company exactly `company cap / mapped total` of the rectangle's geometric area; thin inset separators do not change tile bounds. Source and coverage limitations are visible in the app.
+The gapless squarified layout assigns each sector area in proportion to its combined company cap, then assigns each company area within the sector in proportion to its cap. Thin sector and tile separators do not change tile bounds. Source and coverage limitations are visible in the app.
 
 ## Text-message link previews
 

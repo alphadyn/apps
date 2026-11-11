@@ -28,6 +28,10 @@ input::placeholder { color: #8d9bac; }
 #coverage { background: none; border: 0; padding: 0; font-size: 11px; text-decoration: underline; text-underline-offset: 3px; }
 #map { position: relative; flex: 1; min-height: 0; background: #17212d; border-radius: 3px; isolation: isolate; }
 #tiles { position: absolute; inset: 0; overflow: hidden; }
+.sector-region { position: absolute; overflow: hidden; }
+.sector-region::after { position: absolute; inset: 0; border: 1px solid #0c1118; content: ""; pointer-events: none; z-index: 2; }
+.sector-tiles { position: absolute; inset: 0; }
+.sector-label { position: absolute; z-index: 3; top: 3px; left: 4px; max-width: calc(100% - 8px); overflow: hidden; padding: 2px 5px; border-radius: 2px; background: #0c1118c9; color: #eef2f6; font-size: 9px; font-weight: 650; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; pointer-events: none; }
 #message { position: absolute; inset: 0; display: grid; align-content: center; justify-items: center; gap: 16px; padding: 20px; text-align: center; color: #a4b0bf; font-size: 14px; }
 #message[hidden] { display: none; }
 .tile { position: absolute; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px; padding: 0; border: 0; border-radius: 0; outline-offset: -2px; box-shadow: inset 0 0 0 .5px #0c1118; overflow: hidden; color: #000; line-height: 1.15; font-variant-numeric: tabular-nums; }

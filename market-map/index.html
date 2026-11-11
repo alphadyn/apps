@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script defer src="../analytics.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0c1118">
+  <meta name="description" content="The S&P 500 in one market-cap-weighted map, colored by implied DCF upside or downside.">
+  <title>Market Map | S&amp;P 500</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <a class="brand" href="../" aria-label="Alphadyn app catalog"><img src="icon.svg" alt="" width="34" height="34"></a>
+      <div class="heading"><span class="eyebrow">ALPHADYN / MARKETS</span><h1>Market Map <span>S&amp;P 500</span></h1></div>
+      <div class="actions"><button id="about" type="button">How to read</button><button id="refresh" type="button">Refresh</button></div>
+    </header>
+    <section class="summary" aria-label="Market overview">
+      <div><span class="eyebrow">TOTAL MARKET CAP</span><strong id="total">--</strong></div>
+      <div><span class="eyebrow">COMPANIES / TICKERS</span><strong id="count">--</strong></div>
+      <div class="snapshot"><span class="eyebrow">PRICE SNAPSHOT</span><strong id="date">--</strong></div>
+      <label class="search"><span class="sr-only">Find a ticker or company</span><input id="search" type="search" placeholder="Find ticker or company" autocomplete="off" disabled><span id="matches" role="status"></span></label>
+    </section>
+    <div class="map-heading"><p>Size = market cap <span> / </span> Color = implied upside</p><button id="coverage" type="button" disabled>Loading coverage...</button></div>
+    <section id="map" aria-label="S&P 500 market capitalization treemap" aria-busy="true">
+      <div id="message" role="status">Loading the S&amp;P 500 snapshot...</div>
+      <div id="tiles"></div>
+    </section>
+    <section class="inspection" aria-label="Selected company" aria-live="polite">
+      <div><strong id="selected-symbol">Explore the market</strong><span id="selected-name">Hover, focus, or tap a company</span></div>
+      <div><span class="eyebrow">MARKET CAP</span><strong id="selected-cap">--</strong></div>
+      <div><span class="eyebrow">IMPLIED UPSIDE</span><strong id="selected-upside">--</strong></div>
+      <button id="details" type="button" disabled>Details</button>
+    </section>
+    <footer>
+      <div class="legend" aria-label="Color legend"><span>-100%</span><i></i><span>0</span><i></i><span>+100%</span><b></b><span>N/A</span></div>
+      <p>DCF estimate, not a price forecast. <span class="desktop-note">Select any tile for details.</span></p>
+    </footer>
+    <p id="status" role="status" class="status"></p>
+  </main>
+  <dialog id="dialog" aria-labelledby="dialog-title">
+    <div class="dialog-heading"><h2 id="dialog-title"></h2><button id="close" type="button" aria-label="Close dialog">Close</button></div>
+    <div id="dialog-body"></div>
+  </dialog>
+</body>
+</html>

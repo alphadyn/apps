@@ -1,0 +1,87 @@
+:root { color-scheme: dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #eef2f6; background: #0c1118; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+button, input { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; color: #c6d0dc; background: #17212d; border: 1px solid #2c3949; border-radius: 6px; padding: 8px 12px; font-size: 12px; }
+button:hover { background: #263547; color: white; }
+button:disabled { cursor: default; opacity: .5; }
+:focus-visible { outline: 2px solid #d5f685; outline-offset: 3px; }
+.app { height: 100vh; height: 100dvh; display: flex; flex-direction: column; padding: 20px 24px 10px; gap: 12px; overflow: hidden; }
+header { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.brand { display: flex; }
+.heading { flex: 1; }
+.eyebrow { font-size: 9px; letter-spacing: .14em; color: #8d9bac; display: block; font-weight: 600; }
+h1 { margin: 3px 0 0; font-size: 23px; letter-spacing: -.7px; }
+h1 span { color: #8d9bac; font-size: 13px; font-weight: 400; letter-spacing: 0; margin-left: 9px; }
+.actions { display: flex; gap: 8px; }
+.summary { display: flex; align-items: center; gap: 32px; border-block: 1px solid #25303d; padding: 13px 0; flex-shrink: 0; }
+.summary strong { font-size: 22px; display: block; margin-top: 5px; font-weight: 550; letter-spacing: -.5px; }
+.snapshot strong { font-size: 14px; letter-spacing: 0; margin-top: 10px; }
+.search { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+input { width: 235px; color: #eef2f6; border: 1px solid #334254; border-radius: 6px; background: #131d28; padding: 10px 12px; font-size: 12px; }
+input::placeholder { color: #8d9bac; }
+#matches { font-size: 11px; color: #d5f685; }
+.map-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-shrink: 0; }
+.map-heading p { margin: 0; color: #a4b0bf; font-size: 11px; }
+.map-heading p span { margin: 0 8px; color: #455366; }
+#coverage { background: none; border: 0; padding: 0; font-size: 11px; text-decoration: underline; text-underline-offset: 3px; }
+#map { position: relative; flex: 1; min-height: 0; background: #17212d; border-radius: 3px; isolation: isolate; }
+#tiles { position: absolute; inset: 0; overflow: hidden; }
+#message { position: absolute; inset: 0; display: grid; align-content: center; justify-items: center; gap: 16px; padding: 20px; text-align: center; color: #a4b0bf; font-size: 14px; }
+#message[hidden] { display: none; }
+.tile { position: absolute; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px; padding: 0; border: 0; border-radius: 0; outline-offset: -2px; box-shadow: inset 0 0 0 .5px #0c1118; overflow: hidden; color: #091510; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.tile.dark { color: #fff; }
+.tile:hover, .tile:focus-visible, .tile.selected { box-shadow: inset 0 0 0 2px #f4ffc7; z-index: 1; }
+.tile strong, .tile span { white-space: nowrap; max-width: 100%; }
+.tile strong { font-weight: 750; letter-spacing: -.03em; }
+.tile span { font-size: .73em; }
+.tile.dim { opacity: .14; }
+.tile.match { box-shadow: inset 0 0 0 2px #f4ffc7; z-index: 1; }
+.inspection { display: flex; align-items: center; gap: 28px; min-height: 49px; flex-shrink: 0; padding-top: 3px; }
+.inspection > div:first-child { flex: 1; min-width: 0; }
+.inspection strong { display: block; font-size: 15px; margin-top: 4px; font-variant-numeric: tabular-nums; }
+#selected-name { display: block; color: #8d9bac; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px; }
+footer { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-shrink: 0; }
+footer p { color: #8d9bac; font-size: 10px; margin: 0; }
+.legend { display: flex; align-items: center; gap: 6px; font-size: 9px; color: #a4b0bf; }
+.legend i { width: 70px; height: 7px; background: linear-gradient(90deg, hsl(3 54% 30.44%), hsl(3 54% 66%)); }
+.legend i:nth-of-type(2) { background: linear-gradient(90deg, hsl(151 54% 66%), hsl(151 54% 30.44%)); }
+.legend b { width: 8px; height: 8px; background: #454d5c; margin-left: 8px; }
+.status { color: #d5bd85; font-size: 10px; margin: 0; flex-shrink: 0; }
+.status:empty { display: none; }
+dialog { width: min(560px, calc(100vw - 32px)); max-height: 85dvh; background: #141d28; color: #eef2f6; border: 1px solid #3b4c60; border-radius: 12px; padding: 24px; line-height: 1.6; font-size: 14px; }
+dialog::backdrop { background: #000a; backdrop-filter: blur(4px); }
+.dialog-heading { display: flex; align-items: start; gap: 20px; justify-content: space-between; }
+h2 { font-size: 20px; margin: 0 0 16px; line-height: 1.3; }
+dialog p { color: #b6c3d2; }
+dialog a { color: #b6e794; }
+dl { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+dt { color: #8d9bac; }
+dd { margin: 0; text-align: right; }
+.company-option { display: block; width: 100%; margin-top: 8px; text-align: left; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; clip-path: inset(50%); overflow: hidden; white-space: nowrap; }
+@media (max-width: 700px) {
+  .app { padding: 12px 10px 8px; gap: 8px; }
+  h1 { font-size: 20px; } h1 span { font-size: 11px; margin-left: 3px; }
+  .heading > .eyebrow { font-size: 7px; }
+  .brand img { width: 28px; height: 28px; }
+  .actions { gap: 4px; } .actions button { padding: 7px; font-size: 10px; }
+  .summary { flex-wrap: wrap; gap: 12px 24px; padding: 10px 0; }
+  .summary strong { font-size: 20px; } .snapshot { margin-left: auto; }
+  .snapshot strong { font-size: 11px; }
+  .eyebrow { font-size: 8px; letter-spacing: .08em; }
+  .search { width: 100%; margin: 0; } input { flex: 1; min-width: 0; width: 100%; padding: 8px 10px; }
+  .map-heading p, #coverage { font-size: 9px; } .map-heading p span { margin: 0 3px; }
+  .inspection { gap: 12px; min-height: 50px; } .inspection strong { font-size: 12px; }
+  #selected-name { font-size: 9px; } #details { padding: 7px; font-size: 10px; }
+  footer p { font-size: 8px; max-width: 110px; text-align: right; }
+  .desktop-note { display: none; } .legend i { width: 35px; }
+}
+@media (max-height: 500px) {
+  .app { padding-top: 6px; gap: 5px; }
+  header .eyebrow, .snapshot, footer, .brand { display: none; }
+  .summary { padding: 5px 0; flex-wrap: nowrap; } .summary strong { font-size: 15px; }
+  .search { width: auto; margin-left: auto; }
+  .inspection { min-height: 36px; } h1 { font-size: 18px; }
+}

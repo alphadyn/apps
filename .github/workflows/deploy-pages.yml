@@ -41,6 +41,7 @@ jobs:
           python3 -m unittest discover -s market-insights -p 'test_build*.py'
           node --test market-insights/*.test.js
           node --test market-map/*.test.js
+          python3 -m unittest discover -s market-map -p 'test_*.py'
           python3 market-insights/build_data.py
 
       - name: Test and build Signal news snapshot

@@ -30,10 +30,23 @@ DCF and implied upside directly reuse [the existing helpers](../market-insights/
 
 The gapless squarified layout assigns each company exactly `company cap / mapped total` of the rectangle's geometric area; thin inset separators do not change tile bounds. Source and coverage limitations are visible in the app.
 
-## Tests
+## Text-message link previews
+
+Share <https://alphadyn.github.io/apps/market-map/>. Static Open Graph and Twitter metadata in the HTML provide a title, description, canonical URL, and absolute HTTPS image URL for iMessage, SMS/RCS apps, and other link crawlers without executing JavaScript.
+
+The committed 1200x630 [preview image](social-preview.png) uses an illustrative treemap rather than dated prices or valuations. Regenerate it with Pillow installed:
+
+```bash
+python3 market-map/generate_social_preview.py
+```
+
+Preview support depends on the messaging client (plain SMS itself does not carry a rich card). The page and image must be deployed publicly before the production URL can unfurl; clients may cache older previews.
+
+## Validation
 
 ```bash
 node --test market-map/model.test.js
+python3 -m unittest discover -s market-map -p 'test_*.py'
 ```
 
 Tests cover constituent coverage, multi-class grouping, missing values, continuous signed colors, financial formatting, and 503-tile area conservation, bounds, and non-overlap across desktop, mobile, landscape, and unit-square layouts.

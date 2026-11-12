@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Maze Studio | Alphadyn Apps</title>
+  <meta name="description" content="Generate random mazes in any dimensions from 1 to 100 cells, each with exactly one solution. Reveal the route whenever you are ready.">
+  <meta name="theme-color" content="#f5f4ef">
+  <link rel="canonical" href="https://alphadyn.github.io/apps/maze-studio/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Maze Studio">
+  <meta property="og:title" content="Maze Studio | Alphadyn Apps">
+  <meta property="og:description" content="Generate random mazes in any dimensions from 1 to 100 cells, each with exactly one solution. Reveal the route whenever you are ready.">
+  <meta property="og:url" content="https://alphadyn.github.io/apps/maze-studio/">
+  <meta property="og:image" content="https://alphadyn.github.io/apps/maze-studio/social-preview.png">
+  <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/maze-studio/social-preview.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Maze Studio: Many turns. One way through. A green maze with a marked entrance and exit on a cream background.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Maze Studio | Alphadyn Apps">
+  <meta name="twitter:description" content="Generate random mazes in any dimensions from 1 to 100 cells, each with exactly one solution. Reveal the route whenever you are ready.">
+  <meta name="twitter:image" content="https://alphadyn.github.io/apps/maze-studio/social-preview.png">
+  <meta name="twitter:image:alt" content="Maze Studio: Many turns. One way through. A green maze with a marked entrance and exit on a cream background.">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="masthead">
+      <a class="brand" href="./" aria-label="Maze Studio home"><img src="icon.svg" width="38" height="38" alt=""> Maze Studio</a>
+    </header>
+    <section class="intro">
+      <p class="eyebrow">A little lost. By design.</p>
+      <h1>Many turns.<br>One way through.</h1>
+      <p>Set the dimensions. Make a maze. Find your way out.<br>Every maze is random. Every maze has exactly one solution.</p>
+    </section>
+    <div class="workspace">
+      <aside class="controls">
+        <form id="maze-form">
+          <div class="section-label"><span>01</span><h2>Make it yours</h2></div>
+          <p class="hint">Choose a width and height in cells.</p>
+          <div class="dimensions">
+            <label for="width">Width<input id="width" name="width" type="number" min="1" max="100" step="1" value="20" required aria-describedby="dimension-hint"></label>
+            <span class="multiply" aria-hidden="true">&times;</span>
+            <label for="height">Height<input id="height" name="height" type="number" min="1" max="100" step="1" value="20" required aria-describedby="dimension-hint"></label>
+          </div>
+          <p class="hint small" id="dimension-hint">Whole numbers from 1 to 100.</p>
+          <button class="primary" type="submit">Generate maze <span aria-hidden="true">&rarr;</span></button>
+          <p class="hint small">Generate again for a fresh challenge.</p>
+        </form>
+        <section class="solution-controls" aria-labelledby="solution-heading">
+          <div class="section-label"><span>02</span><h2 id="solution-heading">Find the way</h2></div>
+          <p class="hint">Take your time. The answer can wait.</p>
+          <button id="solve" class="secondary" type="button" aria-pressed="false" disabled>Reveal solution</button>
+          <p id="solution-detail" class="hint small">The route stays hidden until you ask.</p>
+        </section>
+        <section class="file-controls" aria-labelledby="file-heading">
+          <div class="section-label"><span>03</span><h2 id="file-heading">Keep the challenge</h2></div>
+          <p class="hint">Save your maze, then load it to solve later.</p>
+          <div class="file-buttons">
+            <button id="save" class="secondary" type="button" disabled>Save maze</button>
+            <button id="load" class="secondary" type="button">Load maze</button>
+          </div>
+          <input id="maze-file" type="file" accept=".txt,text/plain" aria-label="Choose a saved maze text file" hidden>
+          <p class="hint small">Maze Studio .txt files, up to 128 KB. Solutions are not saved.</p>
+        </section>
+        <div class="note"><span class="note-mark" aria-hidden="true">1</span><div><strong>One maze. One solution.</strong><p>All cells connect, with no loops and no unreachable spaces.</p></div></div>
+      </aside>
+      <section class="maze-panel" aria-labelledby="maze-heading">
+        <div class="panel-top">
+          <div><p class="eyebrow">Your next challenge</p><h2 id="maze-heading">The maze</h2></div>
+          <span id="size-badge" class="badge">20 &times; 20</span>
+        </div>
+        <div id="maze-viewport" class="maze-viewport" tabindex="0" role="region" aria-label="Maze drawing. Scroll to explore larger mazes.">
+          <svg id="maze" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="maze-title maze-description"></svg>
+        </div>
+        <div class="panel-bottom">
+          <div class="legend"><span><i class="start-dot"></i>Entrance</span><span><i class="end-dot"></i>Exit</span><span id="route-legend" hidden><i class="route-line"></i>Solution</span></div>
+          <span id="cell-count">400 cells</span>
+        </div>
+      </section>
+    </div>
+    <p id="status" role="status" aria-live="polite"></p>
+    <noscript><p class="error">Please enable JavaScript to generate and solve mazes.</p></noscript>
+    <footer><span>Made for curious minds.</span><span>Generated in your browser. No sign-up needed.</span></footer>
+  </main>
+</body>
+</html>

@@ -56,8 +56,7 @@ function showDetails(company) {
     ['Representative ticker', company.id],
     ['Price', money(company.representative.price)],
     ['Quote as of', company.representative.quote_at
-      ? new Date(company.representative.quote_at).toLocaleString()
-      : market.liveOnly ? 'No live quote available' : `Closing snapshot: ${market.priceDate || 'unknown date'}`],
+      ? new Date(company.representative.quote_at).toLocaleString() : 'No live quote available'],
     ['Net income (TTM)', formatMoney(company.representative.net_income)],
     ['P/E ratio (TTM)', formatPE(getSecurityPE(company.representative))],
     ['DCF value / share', money(company.fairValue)],
@@ -170,16 +169,12 @@ function render() {
   search();
   const warnings = [];
   if (market.missing.length) warnings.push(`${market.missing.map((company) => company.symbols.join('/')).join(', ')}: missing market cap; excluded from area and total. See coverage.`);
-  const stale = market.mapped.filter((company) => company.representative.market_cap_stale);
-  if (stale.length) warnings.push(`${stale.length} companies use retained market caps. See company details for dates.`);
-  const dataDate = market.quoteAsOf || (market.liveOnly ? null : market.priceDate);
+  const dataDate = market.quoteAsOf;
   const age = Date.now() - Date.parse(dataDate);
   if (!Number.isFinite(age)) warnings.push('Latest market data date is unavailable.');
   else if (age > 4 * 86400000) warnings.push('Latest market data is over four days old.');
   if (market.quoteErrors?.length) {
-    warnings.push(market.liveOnly
-      ? `Live market data is incomplete (${market.quoteCount}/${market.stockCount} current quotes). Snapshot prices and caps were removed; unavailable live values are excluded.`
-      : `Live market data is incomplete (${market.quoteCount}/${market.stockCount} current quotes). Published values remain where live data is unavailable.`);
+    warnings.push(`Live market data is incomplete (${market.quoteCount}/${market.stockCount} current quotes). Snapshot prices and caps are not used; unavailable live values are excluded.`);
     console.error('Market Map live market data incomplete:', market.quoteErrors);
   } else if (market.quoteCount !== undefined) {
     warnings.push(`Current quotes for ${market.quoteCount}/${market.stockCount} tickers; quotes may be delayed.`);
@@ -202,7 +197,7 @@ function clearMarketDisplay() {
   $('search').disabled = true;
   $('matches').textContent = '';
   $('tiles').replaceChildren();
-  $('message').textContent = 'Removing snapshot values and loading fresh market data...';
+  $('message').textContent = 'Loading the latest live market data...';
   $('message').hidden = false;
   $('status').textContent = '';
   clearInspection();
@@ -226,8 +221,8 @@ function clearSnapshotMarketValues(securities) {
   }));
 }
 
-async function load({ forceLive = false } = {}) {
-  if (forceLive) clearMarketDisplay();
+async function load() {
+  clearMarketDisplay();
   $('refresh').disabled = true;
   $('refresh').textContent = 'Loading...';
   $('map').setAttribute('aria-busy', 'true');
@@ -235,22 +230,16 @@ async function load({ forceLive = false } = {}) {
     const response = await fetch('../market-insights/data.json', { cache: 'no-store', signal: AbortSignal.timeout(20000) });
     if (!response.ok) throw new Error(`Snapshot request returned HTTP ${response.status}.`);
     const snapshot = await response.json();
-    if (!forceLive) {
-      market = prepareMarket(snapshot);
-      render();
-      $('status').textContent = 'Loading current market data; showing the published snapshot temporarily.';
-    }
+    snapshot.securities = clearSnapshotMarketValues(snapshot.securities);
     try {
       const symbols = snapshot.securities.filter((security) => security.asset_type !== 'fund')
         .map((security) => security.symbol.replace(/\./g, '-'));
       const { quotes, marketCaps, marketCapAsOf, errors } = await fetchMarketData(symbols, {
         url: quoteApiUrl(location.hostname),
-        cacheBust: forceLive ? `${Date.now()}-${Math.random()}` : undefined,
+        cacheBust: `${Date.now()}-${Math.random()}`,
       });
-      const baseSecurities = forceLive ? clearSnapshotMarketValues(snapshot.securities) : snapshot.securities;
-      snapshot.securities = applyQuotes(baseSecurities, quotes, marketCaps, marketCapAsOf);
+      snapshot.securities = applyQuotes(snapshot.securities, quotes, marketCaps, marketCapAsOf);
       market = prepareMarket(snapshot);
-      market.liveOnly = forceLive;
       const returnedQuotes = new Map(quotes.map((quote) => [quote.symbol, quote]));
       const currentQuotes = snapshot.securities.flatMap((security) => {
         const quote = returnedQuotes.get(security.symbol.replace(/\./g, '-'));
@@ -263,23 +252,16 @@ async function load({ forceLive = false } = {}) {
       render();
     } catch (error) {
       console.error('Market Map live market data load failed:', error);
-      if (forceLive) {
-        snapshot.securities = clearSnapshotMarketValues(snapshot.securities);
-        market = prepareMarket(snapshot);
-        market.liveOnly = true;
-      }
+      market = prepareMarket(snapshot);
       market.quoteCount = 0;
       market.quoteErrors = [error.message];
       render();
     }
   } catch (error) {
     console.error('Market Map snapshot load failed:', error);
-    const text = `Unable to load market data: ${error.message}`;
-    if (market) $('status').textContent = `${text} The previous snapshot remains displayed.`;
-    else {
-      $('message').replaceChildren(node('span', text), node('span', 'Use Refresh to retry. Serve the repository root and build the Market Insights snapshot if it is missing.'));
-      $('coverage').textContent = 'Data unavailable';
-    }
+    const text = `Unable to load constituent and fundamentals data: ${error.message}`;
+    $('message').replaceChildren(node('span', text), node('span', 'Live market values were not loaded. Use Refresh to retry.'));
+    $('coverage').textContent = 'Data unavailable';
   } finally {
     $('refresh').disabled = false;
     $('refresh').textContent = 'Refresh';
@@ -301,14 +283,14 @@ $('search').addEventListener('keydown', (event) => {
     if (found?.length) showDetails(found[0]);
   }
 });
-$('refresh').addEventListener('click', () => load({ forceLive: true }));
+$('refresh').addEventListener('click', load);
 $('details').addEventListener('click', () => { if (selected) showDetails(selected); });
 $('close').addEventListener('click', () => $('dialog').close());
 $('dialog').addEventListener('click', (event) => { if (event.target === $('dialog')) $('dialog').close(); });
 $('coverage').addEventListener('click', () => {
   const content = [
     node('p', `${market.stockCount} constituent tickers across ${market.companies.length} companies. ${market.mapped.length} companies have a usable market cap. Funds are excluded. Multi-class companies appear once.`),
-    node('p', `Latest market data: ${market.quoteAsOf ? new Date(market.quoteAsOf).toLocaleString() : `closing snapshot ${market.priceDate || 'unknown'}`}. Snapshot built: ${market.generatedAt || 'unknown'}. The app requests current quotes and market caps on load; quotes may be delayed. Published closing data remains as a fallback.`),
+    node('p', `Latest live market data: ${market.quoteAsOf ? new Date(market.quoteAsOf).toLocaleString() : 'unavailable'}. Prices and market caps are fetched on load and refresh; published snapshot valuations are not used. Constituents and earnings fundamentals come from the published dataset.`),
   ];
   if (market.missing.length) content.push(node('h3', 'Missing market caps'), node('p', 'These stocks remain searchable, but cannot be assigned a truthful area and are excluded from the mapped total.'));
   for (const company of market.missing) {
@@ -324,7 +306,7 @@ $('about').addEventListener('click', () => {
     node('p', 'Green means positive implied upside; red means negative upside (downside). Larger magnitudes are progressively darker and more saturated. Gray means DCF is unavailable; zero upside is neutral. The color scale continues beyond +/-100% and does not cap extreme values.'),
     node('p', 'Implied upside = (DCF value - price) / price. The shared Market Insights model projects positive TTM net income for five years, caps earnings growth at +/-5%, discounts at 10%, and uses 2.5% terminal growth. Shares are estimated from market cap / price.'),
     node('p', 'This simplified earnings-based DCF is not a full free-cash-flow valuation, analyst target, or investment recommendation. Company-wide caps are counted once by SEC CIK; combined tiles list every constituent share class.'),
-    node('p', 'Sources: S&P 500 constituents from datasets/s-and-p-500-companies, current Yahoo Finance regular-session quotes and Nasdaq market caps when available, and SEC EDGAR earnings via the Market Insights snapshot. Quotes may be delayed; published closing data remains as a fallback. No synthetic data or estimated tile areas.'),
+    node('p', 'Sources: S&P 500 constituents from datasets/s-and-p-500-companies, current Yahoo Finance regular-session quotes and Nasdaq market caps, and SEC EDGAR earnings via the Market Insights dataset. Quotes may be delayed. Snapshot prices and market caps are never used. No synthetic data or estimated tile areas.'),
   ]);
 });
 new ResizeObserver(renderLayout).observe($('tiles'));

@@ -5,27 +5,42 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Earth Explorer</title>
-    <meta name="description" content="Share a location and zoom level with a link, then explore it on an interactive 3D atlas with street maps, search, and measurement tools.">
+    <meta
+      name="description"
+      content="Share a location and zoom level with a link, then explore it on an interactive 3D atlas with street maps, search, and measurement tools."
+    >
     <link rel="canonical" href="https://alphadyn.github.io/apps/earth-explorer/">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Alphadyn Apps">
     <meta property="og:title" content="Earth Explorer — Share a 3D Globe View">
-    <meta property="og:description" content="Share a location and zoom level with a link, then explore it on an interactive 3D atlas with street maps, search, and measurement tools.">
+    <meta
+      property="og:description"
+      content="Share a location and zoom level with a link, then explore it on an interactive 3D atlas with street maps, search, and measurement tools."
+    >
     <meta property="og:url" content="https://alphadyn.github.io/apps/earth-explorer/">
     <meta property="og:image" content="https://alphadyn.github.io/apps/earth-explorer/social-preview.png">
     <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/earth-explorer/social-preview.png">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="Earth Explorer dark atlas card with a globe and compass, featuring 3D exploration, street maps, and search.">
+    <meta
+      property="og:image:alt"
+      content="Earth Explorer dark atlas card with a globe and compass, featuring 3D exploration, street maps, and search."
+    >
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Earth Explorer — Share a 3D Globe View">
-    <meta name="twitter:description" content="Share a location and zoom level with a link, then explore it on an interactive 3D atlas with street maps, search, and measurement tools.">
+    <meta
+      name="twitter:description"
+      content="Share a location and zoom level with a link, then explore it on an interactive 3D atlas with street maps, search, and measurement tools."
+    >
     <meta name="twitter:image" content="https://alphadyn.github.io/apps/earth-explorer/social-preview.png">
-    <meta name="twitter:image:alt" content="Earth Explorer dark atlas card with a globe and compass, featuring 3D exploration, street maps, and search.">
+    <meta
+      name="twitter:image:alt"
+      content="Earth Explorer dark atlas card with a globe and compass, featuring 3D exploration, street maps, and search."
+    >
     <meta name="theme-color" content="#101419" />
     <link rel="icon" href="app-icon.svg?v=2" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=12" />
+    <link rel="stylesheet" href="styles.css?v=14" />
   </head>
   <body>
     <div class="app-shell">
@@ -48,11 +63,19 @@
       <main class="app-grid">
         <section class="globe-panel">
           <div class="workspace-heading">
-            <div><p class="eyebrow">Explore the world</p><h2>Globe workspace</h2></div>
+            <div>
+              <p class="eyebrow">Explore the world</p>
+              <h2>Globe workspace</h2>
+            </div>
             <span class="workspace-badge">3D atlas</span>
           </div>
           <div id="globeContainer">
-            <div id="streetMapCredit" class="street-map-credit hidden">&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a></div>
+            <div id="streetMapCredit" class="street-map-credit hidden">
+              &copy;
+              <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>
+              contributors &copy;
+              <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>
+            </div>
             <button id="fullscreenBtn" class="fullscreen-btn" type="button" aria-label="Enter fullscreen" title="Enter fullscreen" aria-pressed="false">
               <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <path class="fullscreen-enter-icon" d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
@@ -102,7 +125,11 @@
             <p class="eyebrow">Location intelligence</p>
             <h2>Point Details</h2>
             <div id="inspectEmpty" class="empty-state">
-              <svg class="empty-icon" viewBox="0 0 40 40" fill="none" aria-hidden="true"><circle cx="20" cy="20" r="11" /><circle cx="20" cy="20" r="3" /><path d="M20 4v8m0 16v8M4 20h8m16 0h8" /></svg>
+              <svg class="empty-icon" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                <circle cx="20" cy="20" r="11" />
+                <circle cx="20" cy="20" r="3" />
+                <path d="M20 4v8m0 16v8M4 20h8m16 0h8" />
+              </svg>
               <strong>Your next destination</strong>
               <p>Click the globe or choose a search result to explore a location's coordinates and country.</p>
             </div>

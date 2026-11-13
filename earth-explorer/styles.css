@@ -594,55 +594,63 @@ h1 {
   letter-spacing: 0.04em;
 }
 
-@media (max-width: 860px) {
+@media (max-width: 980px) {
   .app-shell {
     padding: 24px;
     gap: 20px;
   }
 
   .app-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 32vw);
+  }
+}
+
+@media (max-width: 860px) {
+  .app-grid {
     grid-template-columns: minmax(0, 1fr);
   }
+}
 
-  @media (max-width: 480px) {
-    .app-shell {
-      padding: 18px 14px;
-    }
-
-    .topbar {
-      gap: 20px;
-      padding-bottom: 18px;
-    }
-
-    .mode-toggle {
-      width: 100%;
-    }
-
-    .mode-btn {
-      flex: 1;
-      padding: 10px;
-    }
-
-    .globe-panel {
-      padding: 12px;
-    }
-
-    .panel {
-      padding: 18px;
-    }
-
-    .globe-guide {
-      gap: 6px 14px;
-    }
-
-    .map-layers .layer-heading {
-      width: 100%;
-    }
+@media (max-width: 480px) {
+  .app-shell {
+    padding: 18px 14px;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      transition: none !important;
-    }
+  .topbar {
+    gap: 20px;
+    padding-bottom: 18px;
+  }
+
+  .mode-toggle {
+    width: 100%;
+  }
+
+  .mode-btn {
+    flex: 1;
+    padding: 10px;
+  }
+
+  .globe-panel {
+    padding: 12px;
+  }
+
+  .panel {
+    padding: 18px;
+  }
+
+  .globe-guide {
+    gap: 6px 14px;
+  }
+
+  .map-layers .layer-heading {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
   }
 }

@@ -2,6 +2,7 @@ import * as THREE from "three";
 
 const MAX_LATITUDE = 85.05112878;
 const TILE_LIMIT = 64;
+const TILE_SIZE = 512;
 const TILE_URL = "https://a.basemaps.cartocdn.com/light_all";
 const CARTO_KEY = "cb1_2w0f_1_82cba88eb21776b6335fa821";
 
@@ -85,9 +86,9 @@ export function createStreetMap(scene, camera, renderer, radius, status) {
     if (!supported.length) return [];
     const altitude = Math.max(camera.position.length() - radius, 0.00001);
     const latitudeScale = Math.max(0.08, Math.hypot(camera.position.x, camera.position.z) / camera.position.length());
-    const pixels = renderer.domElement.clientHeight;
+    const pixels = renderer.domElement.clientHeight * renderer.getPixelRatio();
     const viewWidth = 2 * altitude * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
-    let zoom = THREE.MathUtils.clamp(Math.ceil(Math.log2(2 * Math.PI * radius * latitudeScale * pixels / (256 * viewWidth))), 0, 19);
+    let zoom = THREE.MathUtils.clamp(Math.ceil(Math.log2(2 * Math.PI * radius * latitudeScale * pixels / (TILE_SIZE * viewWidth))), 0, 19);
     while (zoom >= 0) {
       const coords = supported.map(({ lat, lon }) => tileCoordinates(lat, lon, zoom));
       const count = 2 ** zoom;
@@ -131,9 +132,9 @@ export function createStreetMap(scene, camera, renderer, radius, status) {
         const tile = tiles[cursor++];
         if (cache.has(tile.key)) continue;
         try {
-          const texture = await loader.loadAsync(`${TILE_URL}/${tile.key}.png?key=${CARTO_KEY}`);
+          const texture = await loader.loadAsync(`${TILE_URL}/${tile.key}@2x.png?key=${CARTO_KEY}`);
           texture.colorSpace = THREE.SRGBColorSpace;
-          texture.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+          texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
           const mesh = new THREE.Mesh(
             tileGeometry(tile.x, tile.y, tile.zoom, radius + 0.000001),
             // Tile triangles and the imagery sphere have different tessellations.

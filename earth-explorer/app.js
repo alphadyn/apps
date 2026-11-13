@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { createStreetMap } from "./street-map.js?v=1";
+import { createStreetMap } from "./street-map.js?v=2";
 import { setupLocationSearch } from "./location-search.js?v=1";
 
 const EARTH_RADIUS_KM = 6371;
@@ -303,6 +303,7 @@ const textureLoader = new THREE.TextureLoader();
 const earthTexture = textureLoader.load(
   "https://unpkg.com/three-globe@2.31.1/example/img/earth-blue-marble.jpg"
 );
+earthTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
 const earthGeometry = new THREE.SphereGeometry(GLOBE_RADIUS, 128, 128);
 const earthMaterial = new THREE.MeshPhongMaterial({
   map: earthTexture,

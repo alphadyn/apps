@@ -28,7 +28,8 @@ distance between any two points you click.
 - **Optional national borders** overlaid on the globe surface, loaded from a public GeoJSON dataset
 - **Street map on the globe**: enable **Streets** to project CARTO light basemap tiles
   based on OpenStreetMap onto the Earth's curved surface. Tiles follow globe rotation
-  and progressively increase in detail as you zoom closer, without a separate flat map.
+  and progressively increase in detail as you zoom closer, using 512px retina tiles
+  for a sharper view on high-density displays, without a separate flat map.
   Streets default to off for the first four zoom-in levels and on at deeper levels;
   the checkbox remains manually adjustable until the zoom level changes.
   Tiles load on demand with up to six concurrent requests and a bounded cache.

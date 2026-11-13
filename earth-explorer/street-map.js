@@ -3,7 +3,7 @@ import * as THREE from "three";
 const MAX_LATITUDE = 85.05112878;
 const TILE_LIMIT = 64;
 const TILE_SIZE = 512;
-const TILE_URL = "https://a.basemaps.cartocdn.com/light_all";
+const TILE_URL = "https://a.basemaps.cartocdn.com/rastertiles/voyager";
 const CARTO_KEY = "cb1_2w0f_1_82cba88eb21776b6335fa821";
 
 export function tileCoordinates(lat, lon, zoom) {
@@ -120,13 +120,17 @@ export function createStreetMap(scene, camera, renderer, radius, status) {
   }
 
   async function loadTiles() {
-    if (busy || !enabled || completedKey === requestedKey) return;
+    if (busy || !enabled || !pendingTiles.length || completedKey === requestedKey) return;
     busy = true;
     const key = requestedKey;
     const tiles = pendingTiles;
     let cursor = 0;
     let failed = false;
     status.textContent = "Loading street tiles on the globe...";
+    for (const tile of tiles) {
+      const mesh = cache.get(tile.key);
+      if (mesh) mesh.visible = true;
+    }
     async function worker() {
       while (cursor < tiles.length && enabled && requestedKey === key) {
         const tile = tiles[cursor++];
@@ -141,8 +145,10 @@ export function createStreetMap(scene, camera, renderer, radius, status) {
             // Draw the outward-facing map after imagery without competing depths.
             new THREE.MeshBasicMaterial({ map: texture, depthTest: false, depthWrite: false })
           );
-          mesh.renderOrder = -1;
-          mesh.visible = false;
+          // Draw higher-detail tiles over lower-detail tiles during transitions,
+          // while keeping all tiles behind borders, markers, and grid lines.
+          mesh.renderOrder = -1 + tile.zoom / 100;
+          mesh.visible = enabled && requestedKey === key;
           cache.set(tile.key, mesh);
           group.add(mesh);
         } catch (error) {
@@ -167,14 +173,19 @@ export function createStreetMap(scene, camera, renderer, radius, status) {
         ? "Some street tiles could not load. Toggle Streets off and on to retry."
         : polar
           ? "Street maps end at 85.05° latitude; polar areas retain Earth imagery."
-          : `Street map on globe (level ${tiles[0]?.zoom ?? 0}). Zoom closer for more detail.`;
+          : tiles[0]?.zoom === 19
+            ? "Street map on globe (level 19). Maximum map detail reached."
+            : `Street map on globe (level ${tiles[0]?.zoom ?? 0}). Zoom closer for more detail.`;
     }
-    // Also bound abandoned batches while the user is still rotating or zooming.
-    for (const [tileKey, mesh] of cache) {
-      if (cache.size <= TILE_LIMIT * 2) break;
-      if (!mesh.visible) {
-        disposeTile(mesh);
-        cache.delete(tileKey);
+    // Bound abandoned batches even while the user keeps rotating or zooming.
+    const wanted = new Set(pendingTiles.map((tile) => tile.key));
+    for (const removeVisible of [false, true]) {
+      for (const [tileKey, mesh] of cache) {
+        if (cache.size <= TILE_LIMIT * 2) break;
+        if (!wanted.has(tileKey) && (removeVisible || !mesh.visible)) {
+          disposeTile(mesh);
+          cache.delete(tileKey);
+        }
       }
     }
     busy = false;

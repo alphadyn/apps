@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { createStreetMap } from "./street-map.js?v=2";
+import { createStreetMap } from "./street-map.js?v=3";
 import { setupLocationSearch } from "./location-search.js?v=1";
 
 const EARTH_RADIUS_KM = 6371;

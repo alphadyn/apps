@@ -26,13 +26,14 @@ distance between any two points you click.
 - **Double-click zoom** smoothly rotates the view to center the clicked location while
   zooming in, keeping the globe's center fixed; a fullscreen toggle is also available (press Esc to exit)
 - **Optional national borders** overlaid on the globe surface, loaded from a public GeoJSON dataset
-- **Street map on the globe**: enable **Streets** to project CARTO light basemap tiles
+- **Street map on the globe**: enable **Streets** to project CARTO Voyager basemap tiles
   based on OpenStreetMap onto the Earth's curved surface. Tiles follow globe rotation
   and progressively increase in detail as you zoom closer, using 512px retina tiles
   for a sharper view on high-density displays, without a separate flat map.
   Streets default to off for the first four zoom-in levels and on at deeper levels;
   the checkbox remains manually adjustable until the zoom level changes.
-  Tiles load on demand with up to six concurrent requests and a bounded cache.
+  Tiles appear as they load, with up to six concurrent requests and a bounded cache;
+  previously loaded tiles remain visible while new detail is loading.
   Attribution remains visible, including in fullscreen, and tile failures are reported.
 - **Progressive coordinate grid**: optional 30° grid at a distance;
   zooming in reveals 15°, 5°, and 2° grid lines.

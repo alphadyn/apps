@@ -12,7 +12,9 @@ python3 -m http.server 8000
 
 Open <http://localhost:8000/market-map/>. No new dependencies or API keys are required. If the snapshot is missing, generate it using the [Market Insights setup](../market-insights/README.md). The existing hourly Pages workflow generates and publishes that shared data.
 
-Click the app icon to reload the entry page and published Market Map snapshot, or use **Refresh** to reload the snapshot without leaving the current page; neither action fetches live prices. The app displays the snapshot price date and warns when it is over four days old. Failed requests show an explicit error and allow retry; a failed in-page refresh retains the previous map with a warning.
+On page load, Market Map fetches the latest published snapshot and then requests current Yahoo Finance quotes and Nasdaq market caps through the shared [market quote API](../api/market-quotes.js). The map's sizes and DCF colors update to use those values when available. Quotes may be delayed and regular-session prices do not include extended-hours trades. If a live request fails or returns partial data, page load retains published values where live data is unavailable and reports the incomplete update. The timestamp shows the most recent applied quote; when no quotes are available, it shows the latest closing-data date.
+
+Pressing **Refresh** clears the displayed map and snapshot prices, market caps, and P/E values before fetching fresh data. It adds a unique cache-busting query to both live quote and market-cap requests, so the API's short-term response cache is bypassed. Snapshot prices and caps are not restored if a live request fails or omits a ticker; those companies are excluded until live values are available. Constituent names, sectors, and earnings fundamentals still come from the published snapshot.
 
 ## Explore
 
@@ -24,7 +26,7 @@ Click the app icon to reload the entry page and published Market Map snapshot, o
 
 ## Methodology
 
-Stocks come from `../market-insights/data.json`; funds are excluded. All constituent tickers are retained, but multiple share classes are grouped by SEC CIK to avoid double-counting company-wide caps. A combined tile lists every constituent ticker. Its cap and DCF use the first listed class with a positive finite cap (the same first-issuer convention as Market Insights when that cap is available). Per-class valuations are shown in details. This is total company capitalization, **not float-adjusted S&P index weighting**.
+Stocks and earnings fundamentals come from `../market-insights/data.json`; funds are excluded. Current quotes and market caps are refreshed on page load and force-refreshed when **Refresh** is selected. Market cap and price-dependent DCF upside use refreshed values; on a forced refresh, companies without live prices and caps have no map area or DCF valuation. All constituent tickers are retained, but multiple share classes are grouped by SEC CIK to avoid double-counting company-wide caps. A combined tile lists every constituent ticker. Its cap and DCF use the first listed class with a positive finite cap (the same first-issuer convention as Market Insights when that cap is available). Per-class valuations are shown in details. This is total company capitalization, **not float-adjusted S&P index weighting**. Quotes may be delayed; regular-session prices do not include extended-hours trades. This is not a licensed real-time streaming feed.
 
 DCF and implied upside directly reuse [the existing helpers](../market-insights/ranking.js), not a duplicate model: five-year TTM net-income projection, earnings growth capped at +/-5%, 10% discount rate, 2.5% terminal growth, shares inferred from cap / price. Implied upside is `(DCF value - price) / price`. Missing or non-positive earnings, price, or cap yield unavailable valuation. This simplified earnings-based estimate is not an analyst target or investment advice.
 

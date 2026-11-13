@@ -127,6 +127,22 @@ test('market data fetches valuations once alongside quote batches', async () => 
   assert.deepEqual(result.errors, []);
 });
 
+test('cache-busted market refresh uses a unique URL for quotes and market caps', async () => {
+  const requested = [];
+  await fetchMarketData(['ABC'], {
+    url: '/quotes',
+    cacheBust: 'refresh-123',
+    fetcher: async (url) => {
+      requested.push(url);
+      return url.includes('marketCaps=1')
+        ? { ok: true, json: async () => ({ marketCaps: [{ symbol: 'ABC', market_cap: 2000, price: 100 }] }) }
+        : { ok: true, json: async () => ({ quotes: [quote('ABC')] }) };
+    },
+  });
+  assert.equal(requested.length, 2);
+  assert.ok(requested.every((url) => new URL(url, 'https://example.test').searchParams.get('_') === 'refresh-123'));
+});
+
 test('valuation failures keep quotes usable and expose errors instead of claiming complete success', async () => {
   for (const response of [
     { ok: false, status: 502 },

@@ -24,6 +24,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -245,20 +246,28 @@ def chart_points(payload, adjusted=False):
     return sorted(points.items()), result.get("meta") or {}
 
 
-def price_metrics(payload, total_return=False):
+def price_metrics(payload, total_return=False, now=None):
     points, meta = chart_points(payload, adjusted=total_return)
-    if len(points) < 2:
+    raw_points = points if not total_return else chart_points(payload)[0]
+    regular = (meta.get("currentTradingPeriod") or {}).get("regular") or {}
+    start, end = regular.get("start"), regular.get("end")
+    now = now or datetime.now(timezone.utc)
+    if start is not None and end is not None and start <= now.timestamp() < end:
+        timezone_name = meta.get("exchangeTimezoneName", "UTC")
+        session_date = datetime.fromtimestamp(start, ZoneInfo(timezone_name)).date()
+        points = [point for point in points if point[0] < session_date]
+        raw_points = [point for point in raw_points if point[0] < session_date]
+    if not points:
         return None
     last_date, last_close = points[-1]
-    result = ((payload or {}).get("chart") or {}).get("result") or [{}]
-    raw_closes = (((result[0].get("indicators") or {}).get("quote") or [{}])[0].get("close") or [])
-    last_raw_close = next((close for close in reversed(raw_closes) if close is not None and close > 0), None)
-    price = meta.get("regularMarketPrice") or last_raw_close or last_close
+    raw_close = next((close for day, close in reversed(raw_points) if day <= last_date), None)
+    if raw_close is None:
+        return None
     year_ago = close_on_or_before(points, shift_months(last_date, -12))
     quarter_ago = close_on_or_before(points, shift_months(last_date, -3))
     six_months_ago = close_on_or_before(points, shift_months(last_date, -6))
     return {
-        "price": round(float(price), 4),
+        "price": round(raw_close, 4),
         "price_date": last_date.isoformat(),
         "last_close": last_close,
         "close_1y": year_ago[1] if year_ago else None,

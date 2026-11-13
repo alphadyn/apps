@@ -141,13 +141,13 @@ class MarketCapTests(unittest.TestCase):
 
 
 class PriceAndRecordTests(unittest.TestCase):
-    def chart(self, closes, adjusted_closes=None):
+    def chart(self, closes, adjusted_closes=None, meta=None):
         stamps = [int(datetime(d.year, d.month, d.day, 20, tzinfo=timezone.utc).timestamp()) for d, _ in closes]
         indicators = {"quote": [{"close": [value for _, value in closes]}]}
         if adjusted_closes is not None:
             indicators["adjclose"] = [{"adjclose": adjusted_closes}]
         return {"chart": {"result": [{
-            "meta": {"regularMarketPrice": closes[-1][1]},
+            "meta": {"regularMarketPrice": closes[-1][1], **(meta or {})},
             "timestamp": stamps,
             "indicators": indicators,
         }]}}
@@ -163,6 +163,22 @@ class PriceAndRecordTests(unittest.TestCase):
         self.assertEqual(metrics["price_change_3m"], 0.25)
         self.assertAlmostEqual(metrics["price_change_6m"], 1 / 3)
         self.assertIsNone(build_data.price_metrics({"chart": {"result": []}}))
+
+    def test_price_metrics_uses_last_completed_close_during_regular_session(self):
+        closes = [(date(2026, 1, 6), 100.0), (date(2026, 1, 7), 120.0)]
+        session_start = int(datetime(2026, 1, 7, 14, 30, tzinfo=timezone.utc).timestamp())
+        session_end = int(datetime(2026, 1, 7, 21, 0, tzinfo=timezone.utc).timestamp())
+        payload = self.chart(closes, meta={
+            "regularMarketPrice": 125.0,
+            "exchangeTimezoneName": "America/New_York",
+            "currentTradingPeriod": {"regular": {"start": session_start, "end": session_end}},
+        })
+        metrics = build_data.price_metrics(
+            payload, now=datetime(2026, 1, 7, 17, 0, tzinfo=timezone.utc),
+        )
+        self.assertEqual(metrics["price"], 100.0)
+        self.assertEqual(metrics["price_date"], "2026-01-06")
+        self.assertEqual(metrics["last_close"], 100.0)
 
     def test_shift_months_clamps_to_month_end(self):
         self.assertEqual(build_data.shift_months(date(2026, 3, 31), -1), date(2026, 2, 28))

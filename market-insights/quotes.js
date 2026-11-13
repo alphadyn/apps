@@ -6,7 +6,7 @@ export function quoteApiUrl(hostname) {
     : '/api/market-quotes';
 }
 
-export async function fetchQuotes(symbols, { url, signal, fetcher = fetch }) {
+export async function fetchQuotes(symbols, { url, signal, fetcher = fetch, cacheBust }) {
   const batches = [];
   for (let index = 0; index < symbols.length; index += 20) batches.push(symbols.slice(index, index + 20));
   const quotes = [];
@@ -16,7 +16,9 @@ export async function fetchQuotes(symbols, { url, signal, fetcher = fetch }) {
     while (next < batches.length) {
       const batch = batches[next++];
       try {
-        const response = await fetcher(`${url}?symbols=${encodeURIComponent(batch.join(','))}`, {
+        const query = new URLSearchParams({ symbols: batch.join(',') });
+        if (cacheBust) query.set('_', cacheBust);
+        const response = await fetcher(`${url}?${query}`, {
           cache: 'no-store',
           signal: AbortSignal.any([...(signal ? [signal] : []), AbortSignal.timeout(15_000)]),
         });
@@ -39,10 +41,12 @@ export async function fetchQuotes(symbols, { url, signal, fetcher = fetch }) {
   return { quotes, errors };
 }
 
-export async function fetchMarketData(symbols, { url, signal, fetcher = fetch }) {
+export async function fetchMarketData(symbols, { url, signal, fetcher = fetch, cacheBust }) {
   const capsRequest = (async () => {
     try {
-      const response = await fetcher(`${url}?marketCaps=1`, {
+      const query = new URLSearchParams({ marketCaps: '1' });
+      if (cacheBust) query.set('_', cacheBust);
+      const response = await fetcher(`${url}?${query}`, {
         cache: 'no-store',
         signal: AbortSignal.any([...(signal ? [signal] : []), AbortSignal.timeout(15_000)]),
       });
@@ -58,7 +62,7 @@ export async function fetchMarketData(symbols, { url, signal, fetcher = fetch })
       return { marketCaps: [], errors: [`Market valuations unavailable: ${error.message}`] };
     }
   })();
-  const [quotes, caps] = await Promise.all([fetchQuotes(symbols, { url, signal, fetcher }), capsRequest]);
+  const [quotes, caps] = await Promise.all([fetchQuotes(symbols, { url, signal, fetcher, cacheBust }), capsRequest]);
   return { ...quotes, ...caps, errors: [...quotes.errors, ...caps.errors] };
 }
 

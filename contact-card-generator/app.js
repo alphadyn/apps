@@ -2,6 +2,7 @@
 
 const form = document.getElementById("contactForm");
 const resultPanel = document.getElementById("resultPanel");
+const emptyState = document.getElementById("emptyState");
 const vcfPreview = document.getElementById("vcfPreview");
 const previewName = document.getElementById("previewName");
 const qrCodeEl = document.getElementById("qrCode");
@@ -244,11 +245,17 @@ form.addEventListener("submit", (event) => {
   renderQrCodeWithFallback(fields);
 
   resultPanel.hidden = false;
-  resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+  emptyState.hidden = true;
+  previewName.focus({ preventScroll: true });
+  resultPanel.scrollIntoView({
+    behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+    block: "nearest",
+  });
 });
 
 form.addEventListener("reset", () => {
   resultPanel.hidden = true;
+  emptyState.hidden = false;
   currentVcf = "";
   currentPhotoBase64 = "";
   photoPreview.src = "";

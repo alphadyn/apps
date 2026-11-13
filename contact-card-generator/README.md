@@ -19,6 +19,8 @@ Select the header logo to reload the app's entry page. The current form and gene
 - Download the contact as a `.vcf` file that can be imported into any contacts app
 - Displays a QR code encoding the vCard so it can be scanned directly by a phone camera or QR reader
 - Download the QR code as a PNG image
+- Compact, responsive workspace with grouped fields, a sticky export panel on desktop, and a stacked layout on mobile
+- Keyboard-visible focus indicators and reduced-motion support
 
 ## Run locally
 
@@ -39,7 +41,7 @@ http://localhost:8000/
 
 1. Fill in as many contact fields as you'd like (at least one is required).
 2. Click "Generate contact card".
-3. Review the generated vCard text and the QR code preview.
+3. Review the generated QR code in the export panel. Expand "View vCard source" to inspect the raw contact text.
 4. Click "Download .vcf file" to save the contact card, or "Download QR code" to save a scannable image of it.
 
 ## Notes

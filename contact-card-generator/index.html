@@ -34,23 +34,22 @@
             <img class="brand-mark" src="logo.svg" alt="" />
           </a>
           <p class="eyebrow">Digital Business Card</p>
-          <span class="status-pill">Professional export</span>
         </div>
         <h1>Contact Card Generator</h1>
         <p class="subtitle">
-          Fill in the details below to build a standard vCard (.vcf) file
-          and a matching QR code that others can scan to save your contact.
+          Create a contact file and QR code, ready to share in seconds.
         </p>
       </header>
 
       <main class="app-card">
-        <div class="preview-strip" aria-label="App preview">
-          <img class="preview-art" src="ui-preview.svg" alt="Application UI preview" />
-        </div>
-
         <form id="contactForm" class="form-grid" novalidate>
+          <div class="form-heading">
+            <p class="eyebrow">01 / Create</p>
+            <h2>Your contact details</h2>
+            <p>Start with any field. Add only what you want to share.</p>
+          </div>
           <fieldset class="form-section">
-            <legend>Name</legend>
+            <legend><span class="section-number" aria-hidden="true">01</span> Personal information</legend>
             <div class="field-row">
               <label class="field">
                 <span>First name</span>
@@ -67,12 +66,13 @@
             </div>
             <div class="field-row">
               <div class="field photo-field">
-                <span>Profile picture</span>
+                <label for="photoInput">Profile picture <span class="optional">Optional</span></label>
                 <div class="photo-picker">
                   <img id="photoPreview" class="photo-preview" alt="Profile picture preview" hidden />
                   <div class="photo-picker-controls">
-                    <input type="file" id="photoInput" name="photo" accept="image/*" />
+                    <input type="file" id="photoInput" name="photo" accept="image/*" aria-describedby="photoHint" />
                     <button type="button" id="removePhotoBtn" class="btn-secondary" hidden>Remove photo</button>
+                    <p class="field-hint" id="photoHint">Choose an image. We'll resize it for your contact card.</p>
                   </div>
                 </div>
               </div>
@@ -80,7 +80,7 @@
           </fieldset>
 
           <fieldset class="form-section">
-            <legend>Work</legend>
+            <legend><span class="section-number" aria-hidden="true">02</span> Work</legend>
             <div class="field-row">
               <label class="field">
                 <span>Organization</span>
@@ -93,8 +93,8 @@
             </div>
           </fieldset>
 
-          <fieldset class="form-section">
-            <legend>Contact</legend>
+          <fieldset class="form-section contact-section">
+            <legend><span class="section-number" aria-hidden="true">03</span> Contact</legend>
             <div class="field-row">
               <label class="field">
                 <span>Mobile phone</span>
@@ -118,7 +118,7 @@
           </fieldset>
 
           <fieldset class="form-section">
-            <legend>Address</legend>
+            <legend><span class="section-number" aria-hidden="true">04</span> Address</legend>
             <div class="field-row">
               <label class="field field-wide">
                 <span>Street</span>
@@ -145,8 +145,8 @@
             </div>
           </fieldset>
 
-          <fieldset class="form-section">
-            <legend>Other details</legend>
+          <fieldset class="form-section other-section">
+            <legend><span class="section-number" aria-hidden="true">05</span> Other details</legend>
             <div class="field-row">
               <label class="field">
                 <span>Birthday</span>
@@ -165,24 +165,57 @@
             <button type="submit" class="btn-primary">Generate contact card</button>
             <button type="reset" class="btn-secondary">Clear form</button>
           </div>
+          <p class="form-footnote">Contact details are processed in your browser, not uploaded.</p>
         </form>
 
-        <section class="result-panel" id="resultPanel" hidden>
-          <h2>Your contact card</h2>
-          <div class="result-grid">
-            <div class="qr-box">
-              <div id="qrCode" class="qr-code"></div>
-              <p id="qrNote" class="qr-note" hidden></p>
-              <button type="button" id="downloadQrBtn" class="btn-secondary">Download QR code</button>
-            </div>
-            <div class="vcf-box">
-              <p class="vcf-name" id="previewName">&nbsp;</p>
-              <pre id="vcfPreview" class="vcf-preview"></pre>
-              <button type="button" id="downloadVcfBtn" class="btn-primary">Download .vcf file</button>
-            </div>
+        <aside class="export-sidebar" aria-label="Contact card export">
+          <div class="export-heading">
+            <p class="eyebrow">02 / Share</p>
+            <h2>Your next introduction</h2>
+            <p>A small card. A lasting connection.</p>
           </div>
-        </section>
+          <div class="empty-state" id="emptyState">
+            <div class="sample-card" aria-hidden="true">
+              <span class="sample-avatar">AB</span>
+              <span class="sample-name">Alex Bennett</span>
+              <span class="sample-role">Designer at Studio North</span>
+              <span class="sample-divider"></span>
+              <span class="sample-contact">alex@example.com</span>
+              <span class="sample-contact">+1 (555) 010-2040</span>
+              <span class="sample-badge">LET'S CONNECT</span>
+            </div>
+            <p class="example-caption">An example of what you can share</p>
+            <h3>Make it yours</h3>
+            <p>Fill in your details and select <strong>Generate contact card</strong> to get your downloads.</p>
+            <ul class="export-benefits">
+              <li><span aria-hidden="true">01</span> Save a .vcf file to any contacts app</li>
+              <li><span aria-hidden="true">02</span> Share a QR code for a quick scan</li>
+              <li><span aria-hidden="true">03</span> Include a photo for a personal touch</li>
+            </ul>
+          </div>
+          <section class="result-panel" id="resultPanel" hidden>
+            <p class="ready-label" role="status">Your contact card is ready</p>
+            <h3 class="vcf-name" id="previewName" tabindex="-1"></h3>
+            <div class="result-grid">
+              <div class="qr-box">
+                <div id="qrCode" class="qr-code" role="img" aria-label="Scan to save this contact"></div>
+                <p class="qr-caption">Scan to save your contact</p>
+                <p id="qrNote" class="qr-note" hidden></p>
+                <button type="button" id="downloadQrBtn" class="btn-secondary">Download QR code</button>
+              </div>
+              <div class="vcf-box">
+                <button type="button" id="downloadVcfBtn" class="btn-primary">Download .vcf file</button>
+                <details class="vcf-details">
+                  <summary>View vCard source</summary>
+                  <pre id="vcfPreview" class="vcf-preview" tabindex="0" aria-label="vCard source"></pre>
+                </details>
+              </div>
+            </div>
+          </section>
+          <p class="sharing-note">Share thoughtfully. Your file and QR code contain the details you enter.</p>
+        </aside>
       </main>
+      <footer class="page-footer">Made for real connections. <span>vCard 3.0 &middot; No sign-up &middot; Ready to share</span></footer>
     </div>
 
     <script src="https://unpkg.com/qrcode-generator@1.4.4/qrcode.js"></script>

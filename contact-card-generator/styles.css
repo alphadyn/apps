@@ -20,7 +20,7 @@ body {
   line-height: 1.5;
 }
 
-.page-shell { max-width: 1480px; margin: auto; padding: 24px; }
+.page-shell { max-width: 1480px; margin: auto; padding: clamp(18px, 2.4vw, 36px); }
 .topbar { margin-bottom: 20px; }
 .brand-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .brand-mark { display: block; width: 36px; height: 36px; border-radius: 10px; }
@@ -28,9 +28,9 @@ body {
 h1 { margin: 0 0 6px; font-size: clamp(1.7rem, 3vw, 2.25rem); line-height: 1.15; letter-spacing: -.045em; }
 .subtitle { margin: 0; color: var(--muted); font-size: .9rem; line-height: 1.5; }
 h2 { margin: 6px 0; font-size: 1.3rem; letter-spacing: -.025em; }
-.app-card { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
+.app-card { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 380px); gap: clamp(16px, 2vw, 24px); align-items: start; }
 .form-grid, .export-sidebar { min-width: 0; border: 1px solid var(--border); border-radius: 18px; background: var(--panel); box-shadow: 0 4px 20px #17243b04; }
-.form-grid { padding: 20px; }
+.form-grid { padding: clamp(18px, 2vw, 28px); }
 .form-heading { margin-bottom: 18px; }
 .form-heading > p:last-child, .export-heading > p:last-child { margin: 0; font-size: .85rem; color: var(--muted); }
 .form-section { min-width: 0; margin: 0 0 18px; padding: 12px 0 0; border: 0; border-top: 1px solid var(--border); }
@@ -106,15 +106,18 @@ summary { min-height: 44px; padding: 10px 0; color: var(--muted); cursor: pointe
   .other-section .field-row { margin-bottom: 0; }
 }
 
-@media (max-width: 960px) {
-  .app-card { grid-template-columns: minmax(0, 1fr) 280px; gap: 16px; }
+@media (max-width: 1120px) {
+  .form-section:first-of-type .field-row:first-of-type { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 900px) {
+  .app-card { grid-template-columns: minmax(0, 1fr); }
+  .export-sidebar { position: static; }
 }
 
 @media (max-width: 760px) {
   .page-shell { padding: 18px 14px; }
   .brand-bar { margin-bottom: 12px; gap: 9px; flex-wrap: wrap; }
-  .app-card { grid-template-columns: minmax(0, 1fr); }
-  .export-sidebar { position: static; }
   .sample-card { max-width: 360px; margin: auto; }
   .page-footer { flex-direction: column; }
 }
@@ -128,6 +131,7 @@ summary { min-height: 44px; padding: 10px 0; color: var(--muted); cursor: pointe
 
 @media (max-width: 560px) {
   .form-section:first-of-type .field-row:first-of-type { grid-template-columns: minmax(0, 1fr); }
+  .form-actions > button { width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {

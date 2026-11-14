@@ -23,8 +23,9 @@ distance between any two points you click.
 - **Shareable views**: share a link containing the current camera-facing latitude,
   longitude, and zoom level, with the current globe image attached where the browser's
   native share sheet supports image sharing. Opening the link restores that globe view.
-- **Double-click zoom** smoothly rotates the view to center the clicked location while
-  zooming in, keeping the globe's center fixed; a fullscreen toggle is also available (press Esc to exit)
+- **Double-tap / double-click zoom** smoothly rotates the view to center the tapped or
+  clicked location while zooming in, keeping the globe's center fixed; a fullscreen
+  toggle is also available (press Esc to exit)
 - **Optional national borders** overlaid on the globe surface, loaded from a public GeoJSON dataset
 - **Street map on the globe**: enable **Streets** to project CARTO Voyager basemap tiles
   based on OpenStreetMap onto the Earth's curved surface. Tiles follow globe rotation
@@ -71,8 +72,9 @@ Click the app icon in the header to reload the entry page and return the globe t
 4. Use **+**, **−**, or the scroll wheel/pinch gesture to zoom. The circular arrow resets
   the zoom and globe orientation. Use the checkboxes below the globe to show or hide
   national borders, coordinate grid, or streets. More grid lines and mapped place names appear as you zoom in.
-5. Double-click a location to rotate it into the center and zoom in without selecting a point. Use the fullscreen button
-  in the upper-right corner of the globe to expand it; click again or press Esc to exit.
+5. Double-tap (on touchscreens) or double-click a location to rotate it into the center and
+   zoom in without selecting a point. Use the fullscreen button in the upper-right corner
+   of the globe to expand it; click again or press Esc to exit.
 6. Enter a city, address, or landmark in **Find a Location**, then press Enter or **Search**.
    Choose a result to center and zoom the globe. Enable **Streets** for mapped roads and labels.
 7. Select the share button in the globe controls to copy a link to the current view.

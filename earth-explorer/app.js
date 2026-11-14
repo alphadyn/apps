@@ -707,10 +707,23 @@ function buildArcLine(pointA, pointB) {
 const raycaster = new THREE.Raycaster();
 const earthSurface = new THREE.Sphere(new THREE.Vector3(), GLOBE_RADIUS);
 const pointerNdc = new THREE.Vector2();
+const DOUBLE_TAP_DELAY = 300;
+const DOUBLE_TAP_DISTANCE = 32;
+const SELECTION_DELAY = 300;
+const TOUCH_SELECTION_DELAY = 350;
 let pointerDownPos = null;
 let pendingSelection = null;
+let lastTouchTap = null;
+let handledTouchDoubleTap = null;
 
 function onPointerDown(event) {
+  if (event.pointerType === "touch" && !event.isPrimary) {
+    pointerDownPos = null;
+    lastTouchTap = null;
+    clearTimeout(pendingSelection);
+    pendingSelection = null;
+    return;
+  }
   if (event.button !== 0) return;
   pointerDownPos = { x: event.clientX, y: event.clientY, id: event.pointerId };
 }
@@ -721,16 +734,35 @@ function onPointerUp(event) {
   const dy = event.clientY - pointerDownPos.y;
   pointerDownPos = null;
   // Ignore clicks that were actually drags used to rotate the globe
-  if (Math.hypot(dx, dy) > 4) return;
+  if (Math.hypot(dx, dy) > 4) {
+    if (event.pointerType === "touch") lastTouchTap = null;
+    return;
+  }
 
-  // Wait for the browser's dblclick event before selecting a point, so a
-  // double-click zoom doesn't also drop an inspect/measurement marker.
   const { clientX, clientY } = event;
+  if (event.pointerType === "touch") {
+    const now = performance.now();
+    const isDoubleTap = lastTouchTap &&
+      now - lastTouchTap.time <= DOUBLE_TAP_DELAY &&
+      Math.hypot(clientX - lastTouchTap.x, clientY - lastTouchTap.y) <= DOUBLE_TAP_DISTANCE;
+    if (isDoubleTap) {
+      clearTimeout(pendingSelection);
+      pendingSelection = null;
+      lastTouchTap = null;
+      handledTouchDoubleTap = { x: clientX, y: clientY, time: now };
+      zoomAtPoint(clientX, clientY);
+      return;
+    }
+    lastTouchTap = { x: clientX, y: clientY, time: now };
+  } else {
+    lastTouchTap = null;
+  }
+  // Give a second tap or click time to zoom before selecting a point.
   clearTimeout(pendingSelection);
   pendingSelection = setTimeout(() => {
     pendingSelection = null;
     selectPoint(clientX, clientY);
-  }, 300);
+  }, event.pointerType === "touch" ? TOUCH_SELECTION_DELAY : SELECTION_DELAY);
 }
 
 function selectPoint(clientX, clientY) {
@@ -753,16 +785,31 @@ function pointAt(clientX, clientY) {
   return raycaster.ray.intersectSphere(earthSurface, new THREE.Vector3());
 }
 
-renderer.domElement.addEventListener("pointerdown", onPointerDown);
-renderer.domElement.addEventListener("pointerup", onPointerUp);
-renderer.domElement.addEventListener("pointercancel", () => { pointerDownPos = null; });
-renderer.domElement.addEventListener("dblclick", (event) => {
-  event.preventDefault();
-  clearTimeout(pendingSelection);
-  pendingSelection = null;
-  const point = pointAt(event.clientX, event.clientY);
+function zoomAtPoint(clientX, clientY) {
+  const point = pointAt(clientX, clientY);
   if (point) zoomToPoint(1 / ZOOM_STEP, point);
   else zoomBy(1 / ZOOM_STEP);
+}
+
+renderer.domElement.addEventListener("pointerdown", onPointerDown);
+renderer.domElement.addEventListener("pointerup", onPointerUp);
+renderer.domElement.addEventListener("pointercancel", () => {
+  pointerDownPos = null;
+  lastTouchTap = null;
+});
+renderer.domElement.addEventListener("dblclick", (event) => {
+  event.preventDefault();
+  if (
+    handledTouchDoubleTap &&
+    performance.now() - handledTouchDoubleTap.time <= DOUBLE_TAP_DELAY &&
+    Math.hypot(event.clientX - handledTouchDoubleTap.x, event.clientY - handledTouchDoubleTap.y) <= DOUBLE_TAP_DISTANCE
+  ) {
+    handledTouchDoubleTap = null;
+    return;
+  }
+  clearTimeout(pendingSelection);
+  pendingSelection = null;
+  zoomAtPoint(event.clientX, event.clientY);
 });
 
 function handleInspectClick(point) {

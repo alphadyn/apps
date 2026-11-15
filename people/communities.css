@@ -1,0 +1,9 @@
+.community-mark{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:#e8f1e2;color:#63866a;font-size:23px}
+.community-card p{white-space:pre-line;overflow-wrap:anywhere;line-height:1.6}
+.community-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.community-compose{display:flex;flex-direction:column;align-items:flex-end;gap:10px;padding-bottom:20px;border-bottom:1px solid #eef1ed}
+.community-compose textarea{width:100%;min-height:90px;resize:vertical;border:1px solid #e0e7df;border-radius:8px;background:#fbfcfa;padding:12px;color:var(--ink);font:12px var(--sans)}
+.community-post{padding:19px 0;border-bottom:1px solid #eef1ed}
+.community-post:last-child{border-bottom:0;padding-bottom:0}
+.community-post-header{display:flex;align-items:center;gap:10px}
+.community-post p{color:#66776a;font-size:12px;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere;margin:12px 0}

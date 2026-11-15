@@ -1,6 +1,6 @@
 # Alphadyn AI Apps and Experiments
 
-This repository is a portfolio-style collection of 19 active, independent projects: interactive demos, data visualizations, browser apps, and Python utilities. Each project is designed to be opened, adapted, or expanded on its own. The collection is intentionally mixed: some apps are static browser experiences, while others use Supabase, Flask, or Vercel APIs.
+This repository is a portfolio-style collection of 20 active, independent projects: interactive demos, data visualizations, browser apps, and Python utilities. Each project is designed to be opened, adapted, or expanded on its own. The collection is intentionally mixed: some apps are static browser experiences, while others use Supabase, Flask, or Vercel APIs.
 
 The root landing page in [index.html](index.html) links directly to the deployed apps and gives a quick overview of the portfolio. It includes a Top apps section and a full catalog of all available apps and experiments.
 
@@ -28,6 +28,7 @@ Projects are listed alphabetically, matching the catalog on the landing page. Se
 - [Experiences](experiences/) ([Open app](https://alphadyn.github.io/apps/experiences/)) — Supabase-backed journal with trips, shareable Experience collections, Event maps, precise location picking, and media carousels.
 - [Forma](forma/) ([Open app](https://alphadyn.github.io/apps/forma/)) — Contemporary home concept studio with 17 space types, editable floors and lot dimensions, whole-property site plans, full-house 3D concepts, local saving, and SVG/JSON export.
 - [Fractals](fractals/) ([Open app](https://alphadyn.github.io/apps/fractals/)) — Interactive fractal visualizer.
+- [People](people/) ([Open app](https://alphadyn.github.io/apps/people/)) — Professional profiles, resume/CV, galleries, people search, public communities, and private messaging with optional email and SMS handoff.
 - [Lexhaven Legal Docketing](lexhaven-legal-docketing/) ([Open app](https://alphadyn.github.io/apps/lexhaven-legal-docketing/)) — Matter and deadline tracking app.
 - [Market Curve Lab](market-curve-lab/) ([Open app](https://alphadyn.github.io/apps/market-curve-lab/)) — Rank all 500 S&P 500 companies by market cap, search stocks, and inspect selected-ticker all-time performance, trendlines, and concavity.
 - [Market Insights](market-insights/) ([Open app](https://alphadyn.github.io/apps/market-insights/)) — Screen S&P 500 stocks and selected funds with valuation and earnings bounds, ten performance periods, sortable results, and interactive price-history charts.

@@ -5,9 +5,9 @@ import { createProject, isOutdoor, projectStats, propertyStats, unionArea, valid
 import { renderPropertyView } from "./property-view.js";
 import { renderFloor3D } from "./floor-view.js";
 
-test("twelve samples cover different sizes, bedroom counts, levels and footprints", () => {
-  assert.equal(SAMPLE_DESIGNS.length, 12);
-  assert.equal(new Set(SAMPLE_DESIGNS.map(s => s.id)).size, 12);
+test("fourteen samples cover different sizes, bedroom counts, levels and footprints", () => {
+  assert.equal(SAMPLE_DESIGNS.length, 14);
+  assert.equal(new Set(SAMPLE_DESIGNS.map(s => s.id)).size, 14);
   const expected = {
     "pocket-retreat": [80, 1, 1, 1],
     "garden-bungalow": [150, 2, 1, 1],
@@ -21,6 +21,8 @@ test("twelve samples cover different sizes, bedroom counts, levels and footprint
     "terrace-maisonette": [288, 3, 3, 2],
     "horizon-mansion": [720, 5, 6, 2],
     "grand-courtyard-estate": [1088, 6, 7, 3],
+    "roof-garden-family-home": [360, 3, 3, 3],
+    "skyline-family-house": [511, 4, 4, 3],
   };
   for (const sample of SAMPLE_DESIGNS) {
     const design = sample.create(), stats = projectStats(design);
@@ -40,6 +42,17 @@ test("twelve samples cover different sizes, bedroom counts, levels and footprint
   }
 });
 
+test("single-family rooftop samples include railed terraces, stair access and editable opening specifications", () => {
+  for (const id of ["roof-garden-family-home", "skyline-family-house"]) {
+    const design = createSampleDesign(id), roof = design.floors.at(-1);
+    assert.ok(roof.rooms.some(r => r.type === "terrace" && r.railing));
+    assert.ok(roof.rooms.some(r => r.type === "stairs"));
+    assert.ok(design.features.some(f => f.floorId === roof.id && f.type === "door"));
+    assert.ok(design.features.some(f => f.type === "gate"));
+    assert.ok(design.features.some(f => f.type === "window" && f.glazing === "double"));
+    assert.match(renderPropertyView(design, { view: "3d" }).markup, /data-terrace-railing/);
+  }
+});
 test("duplexes, maisonettes and mansions have their advertised distinguishing features", () => {
   for (const id of ["urban-duplex", "garden-duplex", "palm-maisonette", "terrace-maisonette"]) {
     const design = createSampleDesign(id);
@@ -108,7 +121,7 @@ test("all samples render as complete property plans and 3D floor previews", () =
       assert.doesNotMatch(result.markup, /NaN|undefined|Infinity/, `${sample.id}: ${view}`);
     }
     for (const f of design.floors) {
-      const markup = renderFloor3D(f.rooms, { ceiling: design.ceiling });
+      const markup = renderFloor3D(f.rooms, { ceiling: design.ceiling, features: (design.features || []).filter(item => item.floorId === f.id) });
       assert.doesNotMatch(markup, /NaN|undefined|Infinity/, `${sample.id}: ${f.name}`);
       assert.equal((markup.match(/class="iso-room"/g) || []).length, f.rooms.length);
     }

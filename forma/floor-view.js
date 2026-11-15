@@ -1,9 +1,10 @@
-import { bounds, isOutdoor, TYPES } from "./model.js";
+import { bounds, isOutdoor, TYPES, exteriorWalls } from "./model.js";
 import { createCamera, DEFAULT_CAMERA, sortFaces } from "./camera.js";
+import { featureVertices, featureMarkup, railingMarkup } from "./architecture.js";
 
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-export function renderFloor3D(rooms, { camera: angles = DEFAULT_CAMERA, ceiling = 2.8, viewportWidth = 900, zoom = 1, pan = { x: 0, y: 0 }, furniture = true, labels = true, selected = null } = {}) {
+export function renderFloor3D(rooms, { camera: angles = DEFAULT_CAMERA, ceiling = 2.8, viewportWidth = 900, zoom = 1, pan = { x: 0, y: 0 }, furniture = true, labels = true, selected = null, features = [] } = {}) {
   if (!rooms.length) return "";
   const camera = createCamera(angles), b = bounds(rooms);
   const wallHeight = Math.min(ceiling * .44, 1.6);
@@ -43,8 +44,23 @@ export function renderFloor3D(rooms, { camera: angles = DEFAULT_CAMERA, ceiling 
       scene.push({ vertices: [location], room, markup: `<text x="${p.x}" y="${p.y}" text-anchor="middle" fill="#5a6c50" font-size="8" font-family="Arial,sans-serif" pointer-events="none">${escape(room.name.toUpperCase())}</text>` });
     }
   }
+  for (const feature of features) {
+    const host = rooms.find(r => r.id === feature.roomId);
+    if (!host) continue;
+    const farSide = feature.side === (camera.toward.x >= 0 ? "west" : "east") || feature.side === (camera.toward.y >= 0 ? "north" : "south");
+    if (!farSide) continue;
+    const vertices = featureVertices(feature, host, 0, { x: 0, y: 0 }, wallHeight / ceiling);
+    scene.push({ vertices, markup: featureMarkup(feature, vertices, (x, y, z) => point([x, y, z])), feature });
+  }
+  for (const wall of exteriorWalls(rooms, ["north", "east", "south", "west"]).filter(w => w.room.railing)) {
+    const vertical = ["east", "west"].includes(wall.axis);
+    const edge = (along, z) => vertical ? [wall.at, along, z] : [along, wall.at, z];
+    const vertices = [edge(wall.from, .08), edge(wall.to, .08), edge(wall.to, 1.1), edge(wall.from, 1.1)];
+    scene.push({ vertices, markup: railingMarkup(vertices, (x, y, z) => point([x, y, z])), feature: true });
+  }
   const seen = new Set();
   for (const face of sortFaces(scene, camera)) {
+    if (face.feature) { markup += face.markup; continue; }
     const room = face.room, first = !seen.has(room.id); seen.add(room.id);
     markup += `<g class="${first ? "iso-room" : "iso-surface"}" data-room="${escape(room.id)}" ${first ? `tabindex="0" role="button" aria-label="${escape(room.name)}"` : ""}>${face.markup}</g>`;
   }

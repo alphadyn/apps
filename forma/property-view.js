@@ -1,5 +1,6 @@
 import { TYPES, bounds, isOutdoor, exteriorWalls, propertyStats } from "./model.js";
 import { createCamera, DEFAULT_CAMERA, sortFaces } from "./camera.js";
+import { featureHost, featureVertices, featureMarkup, railingMarkup, boundaryFence, fenceSettings, fenceMarkup } from "./architecture.js";
 
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const number = value => Number(value.toFixed(2));
@@ -37,9 +38,12 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
   const maxY = Math.max(p.depth + 8, allRooms.length ? p.houseY + b.y + b.depth + 2 : 0);
   const world = [[minX, minY], [maxX, minY], [maxX, maxY], [minX, maxY]];
   const height = propertyStats(project).height;
+  const fence = fenceSettings(project), fenceSegments = boundaryFence(project);
   const projected = iso ? [
     ...world.map(([x, y]) => projectPoint(x, y)),
     ...allRooms.flatMap(r => [[r.x + p.houseX, r.y + p.houseY], [r.x + r.width + p.houseX, r.y + p.houseY], [r.x + r.width + p.houseX, r.y + r.depth + p.houseY], [r.x + p.houseX, r.y + r.depth + p.houseY]].flatMap(([x, y]) => [projectPoint(x, y), projectPoint(x, y, height)])),
+    ...(project.features || []).flatMap(feature => featureVertices(feature, featureHost(project, feature), feature.type === "gate" ? 0 : project.floors.findIndex(f => f.id === feature.floorId) * project.ceiling, feature.type === "gate" ? { x: 0, y: 0 } : { x: p.houseX, y: p.houseY }).map(v => projectPoint(...v))),
+    ...fenceSegments.flatMap(segment => segment.vertices.map(v => projectPoint(...v))),
   ] : world.map(([x, y]) => ({ x, y }));
   const left = Math.min(...projected.map(v => v.x)), right = Math.max(...projected.map(v => v.x));
   const top = Math.min(...projected.map(v => v.y)), bottom = Math.max(...projected.map(v => v.y));
@@ -106,7 +110,8 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
         let surface = polygon(vertices, vertical ? "#bfc9b7" : "#e7e8dc", `data-exterior-wall="${wall.axis}"`);
         surface += polygon(wallRect(from, to, z + wallHeight - .14, z + wallHeight), "#f2f1e7");
         const span = to - from;
-        if (roof && span > 1.1 && wall.room.type !== "stairs") {
+        const specified = (project.features || []).filter(item => item.floorId === f.id && item.roomId === wall.room.id);
+        if (!specified.length && roof && span > 1.1 && wall.room.type !== "stairs") {
           const inset = Math.min(.55, span * .17);
           const low = wall.room.type === "garage" ? z + .15 : z + project.ceiling * .25;
           const high = z + project.ceiling * .79;
@@ -118,12 +123,34 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
             for (let h = low + .3; h < high; h += .3) surface += `<polyline points="${points([wallPoint(from + inset, h), wallPoint(to - inset, h)])}" fill="none" stroke="#7c8b73" stroke-width=".6"/>`;
           }
         }
+        for (const opening of specified.filter(item => item.side === wall.axis)) {
+          const openingStart = (vertical ? wall.room.y : wall.room.x) + opening.offset;
+          if (openingStart < wall.from - 1e-8 || openingStart + opening.width > wall.to + 1e-8) continue;
+          if (roof) surface += featureMarkup(opening, featureVertices(opening, wall.room, z, { x: p.houseX, y: p.houseY }), point);
+          else {
+            const vertices = featureVertices(opening, wall.room, z, { x: p.houseX, y: p.houseY }, wallHeight / project.ceiling);
+            surface += featureMarkup(opening, vertices, point);
+          }
+        }
         scene.push({ vertices, markup: surface, floor: f, index });
+      }
+      for (const wall of exteriorWalls(f.rooms, ["north", "east", "south", "west"]).filter(w => w.room.railing)) {
+        const vertical = ["east", "west"].includes(wall.axis);
+        const edge = (along, up) => vertical ? [wall.at + p.houseX, along + p.houseY, up] : [along + p.houseX, wall.at + p.houseY, up];
+        const vertices = [edge(wall.from, z + .08), edge(wall.to, z + .08), edge(wall.to, z + 1.1), edge(wall.from, z + 1.1)];
+        scene.push({ vertices, markup: railingMarkup(vertices, point), floor: f, index });
       }
       if (roof) {
         for (const r of enclosed) addFace(rect(r.x + p.houseX, r.y + p.houseY, r.width, r.depth, z + project.ceiling), index === project.floors.length - 1 ? "#d9dece" : "#ecece0", `style="stroke:#a8b39c;stroke-width:.5" data-roof-level="${index}"`, f, index);
       }
     });
+    for (const segment of fenceSegments) {
+      scene.push({ vertices: segment.vertices, markup: fenceMarkup(segment.vertices, fence, point) });
+    }
+    for (const gate of (project.features || []).filter(f => f.type === "gate")) {
+      const vertices = featureVertices(gate, featureHost(project, gate));
+      scene.push({ vertices, markup: featureMarkup(gate, vertices, point) });
+    }
     for (const tree of features.trees) {
       scene.push({ vertices: rect(tree.x - tree.radius, tree.y - tree.radius, tree.radius * 2, tree.radius * 2, tree.radius), markup: tree3d(tree) });
     }
@@ -148,6 +175,10 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
       for (const r of f.rooms) markup += polygon(rect(r.x + p.houseX, r.y + p.houseY, r.width, r.depth), "none", 'style="stroke:#7d957d;stroke-dasharray:4 3;stroke-width:1"');
       markup += "</g>";
     });
+    for (const segment of fenceSegments) markup += fenceMarkup(segment.vertices, fence, point, true);
+    for (const feature of (project.features || []).filter(f => f.type === "gate" || f.floorId === ground.id)) {
+      markup += featureMarkup(feature, featureVertices(feature, featureHost(project, feature), 0, feature.type === "gate" ? { x: 0, y: 0 } : { x: p.houseX, y: p.houseY }), point, true);
+    }
     for (const tree of features.trees) {
       const v = point(tree.x, tree.y), radius = tree.radius * scale;
       markup += `<g data-landscape-tree="true"><circle cx="${v.x}" cy="${v.y}" r="${radius}" fill="#bdcfa6" stroke="#98b185" stroke-width=".8"/><path d="M${v.x - radius * .7} ${v.y}h${radius * 1.4}m${-radius * .7} ${-radius * .7}v${radius * 1.4}" stroke="#91a77e" stroke-width=".7"/><circle cx="${v.x}" cy="${v.y}" r="${radius * .65}" fill="#a8bf9170" stroke="#a0b88c" stroke-width=".5"/></g>`;

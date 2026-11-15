@@ -15,7 +15,7 @@ A dependency-free, browser-based concept studio for contemporary homes. Open `fo
 
 ## Sample home designs
 
-Open **Sample designs** in the sidebar (inside the navigation menu on mobile), or **Project settings → Browse sample home designs**. The gallery includes twelve independent, editable concepts:
+Open **Sample designs** in the sidebar (inside the navigation menu on mobile), or **Project settings → Browse sample home designs**. The gallery includes fourteen independent, editable concepts:
 
 | Design | Total floor area | Bedrooms | Bathrooms | Floors | Design approach |
 | --- | ---: | ---: | ---: | ---: | --- |
@@ -31,6 +31,8 @@ Open **Sample designs** in the sidebar (inside the navigation menu on mobile), o
 | The Terrace Maisonette | 288 m² | 3 | 3 | 2 | Guest bedroom, upper lounge, and L-shaped sky terrace |
 | The Horizon Mansion | 720 m² | 5 | 6 | 2 | Triple garage, guest suite, and broad upper balcony |
 | The Grand Courtyard Estate | 1,088 m² | 6 | 7 | 3 | U-shaped garden court, cinema, wellness studio, and roof terraces |
+| The Roof Garden Family Home | 360 m² | 3 | 3 | 3 | Two living levels plus a stair-accessed, railed roof garden |
+| The Skyline Family House | 511 m² | 4 | 4 | 3 | Guest bedroom, garage, balcony, and rooftop outdoor zones |
 
 Here, **duplex** means a single-family home across two storeys, not two separate dwellings. The maisonettes are self-contained two-level homes with private ground-floor entrances. Mansions offer larger rooms, additional suites, and dedicated leisure spaces.
 
@@ -39,6 +41,36 @@ Areas include terraces, balconies, stairs, and garages; they are not conditioned
 **Explore design** opens a preview with a whole-house 3D concept, property site plan, and a cutaway of each floor. Viewing or canceling does not change the workspace. **Use this design** opens a fresh copy for editing; it replaces the current local workspace only after that confirmation. Download a backup using **Back up current design** first if needed. Undo restores the previous project until reload.
 
 All rooms, floor finishes, floor levels, and lot settings can be edited, saved locally, exported, and reopened like any other project. Opening the same sample again starts from its original layout rather than previous edits. Existing saved projects and the original startup concept are not automatically changed.
+
+## Doors, windows, and gates
+
+Open **Doors, windows & gates** in the sidebar, **Doors & windows** in a selected indoor room's inspector, or **Gates & opening specifications** in the property inspector.
+
+- Add a door or window and choose its room/floor; gates attach to a lot boundary.
+- Click an edge in the placement preview, or select north/east/south/west and enter an offset. North is the top plan edge; the street is south. Offsets run left to right on north/south walls, and top to bottom on east/west walls. Doors and windows follow their room when it moves; gates stay on the lot.
+- Specify width, height, window sill height, operation/style, timber/aluminum/steel/glass material, and glazing. Door styles include hinged, sliding, double, and pivot; windows include fixed, casement, and sliding; gates include swing, sliding, and double.
+- The preview updates without editing the project. **Save door/window/gate** applies the specification, shows the placement on the main plan, and saves locally. Closing or going back without saving discards form edits.
+- The specification schedule lists all features with their host, dimensions, offset, sill, style, material, and glazing. Select an entry to edit or delete it. Click a specified feature on the main canvas (or focus it and press Enter) to reopen its editor. Dragging in 3D still orbits; only a click opens the editor.
+- Features appear in floor plans, the ground-floor site plan, and relevant visible 3D walls. Floor cutaways show openings on the retained far walls with vertically scaled heights, matching the partial-height wall study. Whole-house views show actual specified dimensions; internal openings are not visible through closed exterior walls. Gates appear in property views, not individual floor plans.
+- Rooms without specifications retain illustrative auto-generated openings. Specifying an opening replaces those decorations for that room; removing its last specification restores them. These defaults are not entries in the specification schedule.
+- Validation rejects overlapping openings on the same physical wall (including opposite sides of shared walls), invalid dimensions/references, spans exceeding the host edge, and openings above the ceiling. Adjust or delete specifications before shrinking a host room/lot or lowering the ceiling. Deleting a room/floor also removes its attached specifications; Undo restores both. Duplicating a room copies its space/finish, not its opening specifications.
+- Specifications are included in JSON save/export/upload and visible features in SVG export. Existing saved designs without specifications remain compatible. Up to 400 specified features are supported.
+
+These are illustrative product specifications, not certified fabrication, structural, glazing-performance, fire-safety, or security details.
+
+### Boundary fencing
+
+Open **House & property → Edit property → Boundary fencing** to show/hide the perimeter fence and set its height (0.5–4 m), slatted/solid style, and material. Fencing wraps all four lot boundaries in both site and 3D views, with gaps at every specified gate. It rotates with the model and is included in SVG and JSON exports.
+
+For designs without explicit fence settings, adding a gate also shows a default 1.8 m slatted steel fence. Ungated legacy designs keep their previous unfenced appearance. An explicit disabled setting stays off even when gates are present. This is conceptual boundary treatment, not a boundary survey or certified security enclosure.
+
+## Rooftop terraces
+
+The two rooftop family-home samples include aligned stairs to a separate roof level, an enclosed stair/lobby, outdoor terrace zones, and example door/window/gate specifications. The roof level counts as a floor in the overview and its terrace area contributes to total floor area.
+
+For your own design, add a floor, add **Terrace** spaces on it, and name them as rooftop zones. Add a staircase aligned with the floor below and an enclosed access room as needed. Select any terrace or balcony, enable **Concept glass railing (1.1 m)**, and apply changes. Railings appear on exposed outdoor edges in the plan and 3D views, rotate with the model, and are included in saved designs and SVG exports. Removing the checkbox removes the railing.
+
+Roof access, edge protection, loading, drainage, waterproofing, staircase geometry, and structural support require professional design; the app does not certify these.
 
 ## House, lot, and property
 
@@ -80,12 +112,12 @@ The Forma logo reloads the locally saved workspace. No accounts or backend are r
 
 ## Scope
 
-This is a conceptual planning tool, **not construction or permit documentation**. Wall thickness, openings, furniture, and site landscaping are illustrative. The app does not check building regulations, structural safety, accessibility, circulation, collisions, or staircase compliance. Floor area is the sum of room rectangles across all floors, including terraces and stairs; overlapping areas count separately. Work with licensed professionals before construction.
+This is a conceptual planning tool, **not construction or permit documentation**. Wall thickness, openings, furniture, and site landscaping are illustrative. Specified openings are checked for span, height, references, and mutual overlap, but the app does not check building regulations, structural safety, accessibility, circulation, general room collisions, or staircase compliance. Floor area is the sum of room rectangles across all floors, including terraces and stairs; overlapping areas count separately. Work with licensed professionals before construction.
 
 ## Validation
 
 ```sh
-node --test forma/model.test.js forma/property-view.test.js forma/camera.test.js forma/samples.test.js
+node --test forma/model.test.js forma/property-view.test.js forma/camera.test.js forma/samples.test.js forma/architecture.test.js
 ```
 
-The tests cover all space types, totals, room placement, edits, saved-design file validation, legacy import, lot validation, union footprint area, exterior wall detection, orbit projection and angle limits, surface ordering, and both 3D renderers from every viewing quadrant. Sample tests check exact metrics, lot fit, non-overlapping rooms, supported upper-floor rooms, aligned stairs, fresh-copy isolation, project round trips, and preview rendering. UI can be previewed with the repository's **Preview apps portfolio** VS Code task.
+The tests cover all space types, totals, room placement, edits, saved-design file validation, legacy import, lot validation, union footprint area, exterior wall detection, orbit projection and angle limits, surface ordering, and both 3D renderers from every viewing quadrant. Sample tests check exact metrics, lot fit, non-overlapping rooms, supported upper-floor rooms, aligned stairs, fresh-copy isolation, project round trips, and preview rendering. Architecture tests cover specification validation, shared-wall overlaps, host geometry, saved features, full-perimeter rooftop railings, boundary fences, gate cutouts, and fence visibility from every quadrant. UI can be previewed with the repository's **Preview apps portfolio** VS Code task.

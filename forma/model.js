@@ -1,3 +1,5 @@
+import { validateFeatures, validateFence } from "./architecture.js";
+
 export const TYPES = {
   living: { name: "Living room", icon: "sofa", color: "#e5e8d5", category: "Living", width: 6, depth: 5 },
   bedroom: { name: "Bedroom", icon: "bed", color: "#e8e1d3", category: "Private", width: 4, depth: 4 },
@@ -82,7 +84,7 @@ export function propertyStats(project) {
   const p = project.property;
   const footprint = unionArea(rooms.filter(r => !isOutdoor(r)));
   const outsideRooms = rooms.filter(r => r.x + p.houseX < 0 || r.y + p.houseY < 0 || r.x + p.houseX + r.width > p.width || r.y + p.houseY + r.depth > p.depth);
-  const height = project.floors.reduce((highest, f, index) => Math.max(highest, ...f.rooms.map(r => index * project.ceiling + (isOutdoor(r) ? .08 : project.ceiling))), 0);
+  const height = project.floors.reduce((highest, f, index) => Math.max(highest, ...f.rooms.map(r => index * project.ceiling + (isOutdoor(r) ? r.railing ? 1.1 : .08 : project.ceiling))), 0);
   return { lotArea: p.width * p.depth, footprint, coverage: footprint / (p.width * p.depth) * 100, height, outsideRooms };
 }
 export function validateProperty(property) {
@@ -95,6 +97,7 @@ export function validateProperty(property) {
   }
   if (typeof property.roadName !== "string" || !property.roadName.trim() || property.roadName.length > 60) throw new Error("Street names must be between 1 and 60 characters.");
   if (typeof property.landscaping !== "boolean" || typeof property.driveway !== "boolean") throw new Error("Property landscape and driveway settings must be on or off.");
+  validateFence(property.fence);
   return property;
 }
 export function exteriorWalls(rooms, sides = ["east", "south"]) {
@@ -133,6 +136,7 @@ export function validateRoom(item) {
     if (typeof item[key] !== "number" || !Number.isFinite(item[key]) || Math.abs(item[key]) > 200) throw new Error("Room positions must be within 200 meters of the origin.");
   }
   if (!["oak", "tile", "concrete", "deck"].includes(item.material)) throw new Error("Choose a supported floor finish.");
+  if (item.railing !== undefined && (typeof item.railing !== "boolean" || !isOutdoor(item))) throw new Error("Railings are an on/off setting for terraces and balconies only.");
   return item;
 }
 export function validateProject(project) {
@@ -154,6 +158,7 @@ export function validateProject(project) {
       ids.add(item.id);
     }
   }
+  validateFeatures(project, ids);
   return project;
 }
 export function makeRoom(type, rooms) {

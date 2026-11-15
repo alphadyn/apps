@@ -260,6 +260,53 @@ const definitions = [
   },
 ];
 
+function rooftopHome(sourceId, name, roofRooms) {
+  const project = structuredClone(definitions.find(s => s.id === sourceId).project);
+  project.name = name;
+  const level = project.floors.length;
+  project.floors.push({
+    id: `level-${level}`, name: "Rooftop terrace",
+    rooms: roofRooms.map(([type, name, x, y, width, depth], index) => ({
+      ...createRoom(`roof-space-${index}`, type, name, x, y, width, depth),
+      ...(type === "terrace" ? { railing: true } : {}),
+    })),
+  });
+  const entry = project.floors[0].rooms.find(r => r.type === "entry");
+  const living = project.floors[0].rooms.find(r => r.type === "living");
+  const stairs = project.floors[level].rooms.find(r => r.type === "stairs");
+  project.features = [
+    { id: "roof-home-entry", type: "door", name: "Main entrance", floorId: project.floors[0].id, roomId: entry.id, side: "south", offset: .2, width: 1.2, height: 2.1, sill: 0, style: "pivot", material: "timber", glazing: "none" },
+    { id: "roof-home-window", type: "window", name: "Living panorama window", floorId: project.floors[0].id, roomId: living.id, side: "north", offset: .6, width: 3, height: 1.5, sill: .8, style: "fixed", material: "aluminum", glazing: "double" },
+    { id: "roof-access-door", type: "door", name: "Rooftop access door", floorId: `level-${level}`, roomId: stairs.id, side: "north", offset: .4, width: 1.1, height: 2.1, sill: 0, style: "hinged", material: "aluminum", glazing: "double" },
+    { id: "roof-home-gate", type: "gate", name: "Vehicle entrance gate", side: "south", offset: project.property.width - 5, width: 3.5, height: 1.8, sill: 0, style: "sliding", material: "steel", glazing: "none" },
+  ];
+  return project;
+}
+
+definitions.push(
+  {
+    id: "roof-garden-family-home", tag: "SINGLE-FAMILY ROOF GARDEN", description: "Three bedrooms below a private rooftop garden terrace.",
+    story: "A single-family two-storey home with a dedicated third-level roof terrace. The aligned staircase ends in an enclosed rooftop access lobby, with railed outdoor decks wrapping around it. Includes editable entry, glazing, roof-door, and boundary-gate specifications.",
+    highlights: ["Three bedrooms & three baths", "Stair-accessed rooftop terrace", "Specified doors, window & vehicle gate"],
+    project: rooftopHome("urban-duplex", "The Roof Garden Family Home", [
+      ["terrace", "Roof garden terrace", 0, 0, 10, 6.5],
+      ["terrace", "West roof deck", 0, 6.5, 4, 5.5], ["hallway", "Roof access lobby", 4, 6.5, 1.5, 5.5],
+      ["stairs", "Staircase", 5.5, 6.5, 2, 4], ["terrace", "East roof deck", 7.5, 6.5, 2.5, 5.5],
+      ["terrace", "South roof deck", 5.5, 10.5, 2, 1.5],
+    ]),
+  },
+  {
+    id: "skyline-family-house", tag: "SINGLE-FAMILY SKY TERRACE", description: "Four bedrooms, a garage, and outdoor living above the rooftops.",
+    story: "A generous single-family home with a guest bedroom, upper family lounge, and balcony. A third-level roof terrace offers multiple outdoor zones around the enclosed stair and lobby, with conceptual glass edge railings and editable opening specifications.",
+    highlights: ["Four bedrooms & four baths", "Garage, balcony & rooftop decks", "Continuous staircase to the roof"],
+    project: rooftopHome("garden-duplex", "The Skyline Family House", [
+      ["terrace", "Sky dining terrace", 0, 0, 14, 6.5], ["terrace", "West sky lounge", 0, 6.5, 6, 4],
+      ["stairs", "Staircase", 6, 6.5, 2, 4], ["hallway", "Roof access lobby", 8, 6.5, 2, 4],
+      ["terrace", "East sky deck", 10, 6.5, 4, 4],
+    ]),
+  },
+);
+
 export const SAMPLE_DESIGNS = definitions.map(({ project, ...details }) => ({
   ...details,
   create: () => validateProject(structuredClone(project)),

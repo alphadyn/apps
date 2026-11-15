@@ -1,6 +1,6 @@
 # Alphadyn AI Apps and Experiments
 
-This repository is a portfolio-style collection of 18 active, independent projects: interactive demos, data visualizations, browser apps, and Python utilities. Each project is designed to be opened, adapted, or expanded on its own. The collection is intentionally mixed: some apps are static browser experiences, while others use Supabase, Flask, or Vercel APIs.
+This repository is a portfolio-style collection of 19 active, independent projects: interactive demos, data visualizations, browser apps, and Python utilities. Each project is designed to be opened, adapted, or expanded on its own. The collection is intentionally mixed: some apps are static browser experiences, while others use Supabase, Flask, or Vercel APIs.
 
 The root landing page in [index.html](index.html) links directly to the deployed apps and gives a quick overview of the portfolio. It includes a Top apps section and a full catalog of all available apps and experiments.
 
@@ -26,6 +26,7 @@ Projects are listed alphabetically, matching the catalog on the landing page. Se
 - [The Daily Brief](daily-brief/) ([Open app](https://alphadyn.github.io/apps/daily-brief/)) — A concise daily overview that groups headlines from Google News, Reuters, CNN, BBC, Bloomberg, and CNBC.
 - [Earth Explorer](earth-explorer/) ([Open app](https://alphadyn.github.io/apps/earth-explorer/)) — Refined dark 3D atlas with CARTO/OpenStreetMap street tiles, city and landmark search, coordinate inspection, country overlays, and great-circle distance measurement.
 - [Experiences](experiences/) ([Open app](https://alphadyn.github.io/apps/experiences/)) — Supabase-backed journal with trips, shareable Experience collections, Event maps, precise location picking, and media carousels.
+- [Forma](forma/) ([Open app](https://alphadyn.github.io/apps/forma/)) — Contemporary home concept studio with 17 space types, editable floors and lot dimensions, whole-property site plans, full-house 3D concepts, local saving, and SVG/JSON export.
 - [Fractals](fractals/) ([Open app](https://alphadyn.github.io/apps/fractals/)) — Interactive fractal visualizer.
 - [Lexhaven Legal Docketing](lexhaven-legal-docketing/) ([Open app](https://alphadyn.github.io/apps/lexhaven-legal-docketing/)) — Matter and deadline tracking app.
 - [Market Curve Lab](market-curve-lab/) ([Open app](https://alphadyn.github.io/apps/market-curve-lab/)) — Rank all 500 S&P 500 companies by market cap, search stocks, and inspect selected-ticker all-time performance, trendlines, and concavity.

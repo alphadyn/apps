@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#191c1b">
+  <meta name="description" content="A considered space for your next home. Design contemporary floor plans with Forma, a private, browser-based architectural concept studio.">
+  <title>Forma — A space for possibility</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="./" aria-label="Forma home"><img src="icon.svg" alt=""><span>forma<span class="brand-period">.</span></span><span class="studio-tag">STUDIO</span></a>
+    <div class="workspace-label">YOUR WORKSPACE <span>⌘ K</span></div>
+    <button class="project-button" id="project-details"><span class="project-symbol" data-icon="house"></span><span><strong id="sidebar-name">The Courtyard House</strong><small>Residential project</small></span><span data-icon="chevrons"></span></button>
+    <div class="sidebar-section-heading">DESIGN <span class="tiny-dot"></span></div>
+    <nav class="design-nav" aria-label="Workspace">
+      <button class="active" data-panel="plan"><span data-icon="plan"></span>Floor plan<span class="nav-count" id="floor-count">2</span></button>
+      <button data-panel="property"><span data-icon="property"></span>House & property</button>
+      <button data-panel="rooms"><span data-icon="rooms"></span>Rooms & spaces<span class="nav-count" id="room-count">10</span></button>
+      <button data-panel="materials"><span data-icon="materials"></span>Materials<span class="new-badge">4</span></button>
+      <button data-panel="settings"><span data-icon="sliders"></span>Project settings</button>
+    </nav>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-heading">FLOORS <button class="icon-button" id="add-floor" aria-label="Add floor" title="Add floor"><span data-icon="plus"></span></button></div>
+    <div class="floor-list" id="floor-list"></div>
+    <div class="sidebar-section-heading spaces-heading">SPACE LIBRARY <span class="muted">↗</span></div>
+    <p class="library-hint">A home starts with its spaces.</p>
+    <div class="space-library" id="space-library"></div>
+    <button class="browse-spaces" id="browse-spaces">Browse all spaces <span data-icon="plus"></span></button>
+    <div class="sidebar-bottom">
+      <div class="idea-card"><span class="idea-icon" data-icon="sparkles"></span><strong>Room to imagine.</strong><p>Thoughtful spaces.<br>Extraordinary everyday living.</p><span class="mini-house"><i></i><i></i><i></i></span></div>
+      <button class="profile-button" id="about-button"><span class="avatar">JD</span><span><strong>Your personal studio</strong><small>Local workspace</small></span><span class="online-dot"></span></button>
+    </div>
+  </aside>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <button class="icon-button mobile-menu" id="mobile-menu" aria-label="Toggle navigation"><span data-icon="menu"></span></button>
+      <div class="breadcrumb"><span data-icon="house"></span><span class="slash">/</span><button id="rename-project">The Courtyard House</button><span class="project-badge">Concept</span></div>
+      <div class="header-actions"><span class="save-state" id="save-state"><i></i> All changes saved</span>      <button class="button open-design-button" id="open-design-button" aria-label="Open design" title="Upload a saved Forma design"><span data-icon="upload"></span><span class="open-design-label">Open design</span></button><button class="button subtle" id="save-button" title="Save project in this browser"><span data-icon="save"></span>Save project</button><button class="button export-button" id="export-button"><span data-icon="export"></span>Export<span data-icon="chevron"></span></button></div>
+    </header>
+
+    <main>
+      <div class="page-heading"><div><div class="eyebrow">YOUR VISION, TAKING SHAPE</div><h1>Every great home starts here<span>.</span></h1><p>Make room for the way you want to live.</p></div><div class="project-meta"><span class="status-pill"><i></i> In progress</span><span class="meta-date">CONTEMPORARY RESIDENTIAL</span></div></div>
+      <section class="summary-grid" aria-label="Project overview">
+        <div class="summary-card"><span class="summary-icon" data-icon="area"></span><div><span class="summary-label">TOTAL FLOOR AREA</span><strong id="stat-area">186.0 <small>m²</small></strong></div><span class="summary-note">All floors</span></div>
+        <div class="summary-card"><span class="summary-icon" data-icon="bed"></span><div><span class="summary-label">BEDROOMS</span><strong id="stat-bedrooms">3 <small>rooms</small></strong></div><span class="stat-decoration">↗</span></div>
+        <div class="summary-card"><span class="summary-icon" data-icon="bath"></span><div><span class="summary-label">BATHROOMS</span><strong id="stat-bathrooms">2 <small>rooms</small></strong></div><span class="stat-decoration">↗</span></div>
+        <div class="summary-card"><span class="summary-icon" data-icon="floors"></span><div><span class="summary-label">FLOORS</span><strong id="stat-floors">2 <small>levels</small></strong></div><span class="floor-mini">G <span>01</span></span></div>
+      </section>
+
+      <section class="editor" aria-label="Home design editor">
+        <div class="editor-header"><div class="editor-title"><span data-icon="plan"></span><h2 id="editor-title">Design canvas</h2><span class="dot-separator">·</span><span id="canvas-floor-name">Ground floor</span></div><div class="editor-controls"><div class="scope-switch" aria-label="Design scope"><button id="scope-floor" class="active" aria-pressed="true">Floor</button><button id="scope-property" aria-pressed="false">Property</button></div><div class="view-switch" aria-label="Canvas view"><button class="active" id="view-2d" aria-pressed="true"><span data-icon="plan"></span><span id="view-2d-label">2D plan</span></button><button id="view-3d" aria-pressed="false"><span data-icon="cube"></span>3D view</button></div></div></div>
+        <div class="editor-body">
+          <div class="canvas-column">
+            <div class="canvas-toolbar"><div class="tool-group" aria-label="Canvas tools"><button class="tool active" id="tool-select" aria-label="Select and move rooms" title="Select & move (V)"><span data-icon="cursor"></span></button><button class="tool" id="tool-pan" aria-label="Pan canvas" title="Pan (H)"><span data-icon="hand"></span></button><span class="tool-separator"></span><button class="tool" id="toolbar-add" aria-label="Add room" title="Add a space (R)"><span data-icon="room-add"></span></button><button class="tool active" id="toggle-dimensions" aria-label="Toggle dimensions" aria-pressed="true" title="Dimensions"><span data-icon="ruler"></span></button><span class="tool-separator"></span><button class="tool" id="undo" aria-label="Undo" title="Undo (⌘Z)" disabled><span data-icon="undo"></span></button><button class="tool" id="redo" aria-label="Redo" title="Redo (⌘⇧Z)" disabled><span data-icon="redo"></span></button></div><button class="layers-button" id="layers-button" aria-expanded="false"><span data-icon="layers"></span>Layers<span class="layers-number">3</span></button></div>
+            <div class="drawing-surface" id="drawing-surface">
+              <div class="canvas-caption"><span class="canvas-status-dot"></span><span id="plan-caption">GROUND FLOOR</span><span class="caption-separator">/</span><span id="canvas-view-caption">FLOOR PLAN</span></div>
+              <svg id="plan" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 690" role="img" aria-label="Interactive home floor plan"></svg>
+              <div class="north-marker"><span>N</span><svg viewBox="0 0 32 40" aria-hidden="true"><path d="M16 3 26 31 16 24 6 31Z" fill="none" stroke="currentColor"/><path d="M16 3V24L6 31Z" fill="currentColor"/></svg></div>
+              <div class="canvas-legend"><span><i class="legend-living"></i>Living</span><span><i class="legend-private"></i>Private</span><span><i class="legend-service"></i>Service</span><span><i class="legend-outdoor"></i>Outdoor</span></div>
+              <div class="zoom-controls"><button id="zoom-out" aria-label="Zoom out">−</button><span id="zoom-value">100%</span><button id="zoom-in" aria-label="Zoom in">+</button><span></span><button id="zoom-fit" aria-label="Fit plan to canvas" title="Fit to canvas"><span data-icon="expand"></span></button></div>
+              <div class="layers-popover" id="layers-popover" hidden><strong>Canvas layers</strong><label><input id="layer-furniture" type="checkbox" checked> Furniture & fixtures</label><label><input id="layer-labels" type="checkbox" checked> Room labels</label><label><input id="layer-grid" type="checkbox" checked> Background grid</label></div>
+              <div class="empty-floor" id="empty-floor" hidden><span data-icon="plan"></span><h3>A new level of possibility.</h3><p>Add your first space to start designing this floor.</p><button class="button primary" id="empty-add">Add a space</button></div>
+            </div>
+            <div class="canvas-footer"><span><i class="live-dot"></i><span id="canvas-help">Click a room to edit · Drag to rearrange</span></span><span id="scale-label">1 : 100 <span class="scale-bar"></span> 5 m</span></div>
+          </div>
+          <aside class="inspector" aria-label="Design properties">
+            <div class="inspector-heading"><h3 id="inspector-heading">Floor overview</h3><span data-icon="sliders"></span></div>
+            <div id="inspector-content"></div>
+            <div class="inspector-tip"><span data-icon="bulb"></span><p><strong>A little breathing room.</strong>Consider how spaces connect, not just how they look.</p></div>
+          </aside>
+        </div>
+      </section>
+      <footer class="workspace-footer"><span><span class="footer-mark">f.</span> Designed for the way you live.</span><span>CONCEPT DESIGN <span class="footer-dot">·</span> NOT FOR CONSTRUCTION<button id="shortcuts-button"><span data-icon="keyboard"></span>Shortcuts</button></span></footer>
+    </main>
+  </div>
+  <dialog id="app-dialog"><div class="dialog-heading"><div><span class="eyebrow" id="dialog-eyebrow">MAKE IT YOURS</span><h2 id="dialog-title">Add a space</h2></div><button class="icon-button" id="close-dialog" aria-label="Close dialog"><span data-icon="close"></span></button></div><div id="dialog-content"></div></dialog>
+  <div class="toast" id="toast" role="status" hidden></div>
+</body>
+</html>

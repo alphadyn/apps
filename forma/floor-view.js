@@ -4,7 +4,7 @@ import { featureVertices, featureMarkup, railingMarkup } from "./architecture.js
 
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-export function renderFloor3D(rooms, { camera: angles = DEFAULT_CAMERA, ceiling = 2.8, viewportWidth = 900, zoom = 1, pan = { x: 0, y: 0 }, furniture = true, labels = true, selected = null, features = [] } = {}) {
+export function renderFloor3D(rooms, { camera: angles = DEFAULT_CAMERA, ceiling = 2.8, viewportWidth = 900, zoom = 1, pan = { x: 0, y: 0 }, furniture = true, labels = true, selected = null, features = [], units = "metric" } = {}) {
   if (!rooms.length) return "";
   const camera = createCamera(angles), b = bounds(rooms);
   const wallHeight = Math.min(ceiling * .44, 1.6);
@@ -50,7 +50,7 @@ export function renderFloor3D(rooms, { camera: angles = DEFAULT_CAMERA, ceiling 
     const farSide = feature.side === (camera.toward.x >= 0 ? "west" : "east") || feature.side === (camera.toward.y >= 0 ? "north" : "south");
     if (!farSide) continue;
     const vertices = featureVertices(feature, host, 0, { x: 0, y: 0 }, wallHeight / ceiling);
-    scene.push({ vertices, markup: featureMarkup(feature, vertices, (x, y, z) => point([x, y, z])), feature });
+    scene.push({ vertices, markup: featureMarkup(feature, vertices, (x, y, z) => point([x, y, z]), false, units), feature });
   }
   for (const wall of exteriorWalls(rooms, ["north", "east", "south", "west"]).filter(w => w.room.railing)) {
     const vertical = ["east", "west"].includes(wall.axis);

@@ -50,5 +50,8 @@ test("room and opening schedules use current project data and CSV safely quotes 
   assert.match(scheduleCsv(project, "rooms"), /"Living, ""garden"""/);
   assert.match(scheduleCsv(project, "rooms"), /^"Level","Floor","Room"/);
   assert.match(scheduleCsv(project, "openings"), /"Front entrance"/);
+  assert.match(openingSchedule(project, "imperial")[0].dimensions, /3\.28 ft × 6\.89 ft/);
+  assert.match(scheduleCsv(project, "rooms", "imperial"), /"Area \(ft²\)"/);
+  assert.match(renderDocumentationDrawing(project, { view: "section", axis: "x", offset: 2, units: "imperial" }), /CUT AT 6\.56 ft/);
   assert.throws(() => scheduleCsv(project, "other"), /schedule/);
 });

@@ -11,6 +11,12 @@ test("site plan shows the lot, street, ground rooms and all upper footprints", (
   assert.doesNotMatch(markup, /NaN|undefined|Infinity/);
 });
 
+test("site-plan dimensions follow the selected measurement system", () => {
+  const { markup } = renderPropertyView(createProject(), { units: "imperial" });
+  assert.ok(markup.includes("85.3 ft"));
+  assert.ok(markup.includes("104.99 ft"));
+});
+
 test("full-house 3D stacks every floor with exterior windows and optional roofs", () => {
   const p = createProject();
   const normal = renderPropertyView(p, { view: "3d" }).markup;

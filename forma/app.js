@@ -6,6 +6,7 @@ import { SAMPLE_DESIGNS, createSampleDesign } from "./samples.js";
 import { featureHost, featureVertices, featureMarkup, fenceSettings, FEATURE_MATERIALS } from "./architecture.js";
 import { architectureDialog } from "./architecture-ui.js";
 import { documentationDialog } from "./documentation.js";
+import { areaUnit, fromMeters, formatArea as formatAreaValue, inputLength, inputLengthLimit, lengthUnit, toMeters, UNIT_SYSTEMS } from "./units.js";
 
 const $ = selector => document.querySelector(selector);
 const paths = {
@@ -62,6 +63,7 @@ function hydrateIcons(root = document) { root.querySelectorAll("[data-icon]").fo
 function escape(value) { return String(value).replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char])); }
 const format = value => value.toLocaleString("en", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const STORAGE_KEY = "forma-project-v1";
+const UNIT_STORAGE_KEY = "forma-units-v1";
 let project = createProject();
 let activeFloor = project.floors[0].id;
 let selected = null;
@@ -81,10 +83,26 @@ let drag = null;
 let saved = true;
 let toastTimer;
 let restoreError;
+let unitPreferenceError;
+let unitSystem = "metric";
+try {
+  const storedUnits = localStorage.getItem(UNIT_STORAGE_KEY);
+  if (UNIT_SYSTEMS.includes(storedUnits)) unitSystem = storedUnits;
+} catch (error) {
+  unitPreferenceError = `Could not restore your units preference: ${error.message}`;
+}
 try {
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored) { project = parseProject(stored); activeFloor = project.floors[0].id; }
 } catch (error) { restoreError = `Could not restore your workspace: ${error.message} The sample is open; your stored project has not been overwritten.`; saved = false; }
+
+const lengthText = value => `${format(fromMeters(value, unitSystem))} ${lengthUnit(unitSystem)}`;
+const areaText = value => {
+  const [formatted] = formatAreaValue(value, unitSystem, 1).split(" ");
+  const amount = Number(formatted.replaceAll(",", "")).toLocaleString("en", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  return `${amount} ${areaUnit(unitSystem)}`;
+};
+const inputLengthAttrs = (min, max, step) => `min="${inputLengthLimit(min, unitSystem)}" max="${inputLengthLimit(max, unitSystem)}" step="${unitSystem === "imperial" ? "any" : step}"`;
 
 const floor = () => project.floors.find(item => item.id === activeFloor);
 const selection = () => floor().rooms.find(item => item.id === selected);
@@ -138,12 +156,12 @@ function render() {
   $("#rename-project").textContent = project.name;
   $("#floor-count").textContent = stats.floors;
   $("#room-count").textContent = stats.rooms;
-  $("#stat-area").innerHTML = `${format(stats.area)} <small>m²</small>`;
+  $("#stat-area").innerHTML = areaText(stats.area).replace(/ ([^ ]+)$/, " <small>$1</small>");
   $("#stat-bedrooms").innerHTML = `${stats.bedrooms} <small>${stats.bedrooms === 1 ? "room" : "rooms"}</small>`;
   $("#stat-bathrooms").innerHTML = `${stats.bathrooms} <small>${stats.bathrooms === 1 ? "room" : "rooms"}</small>`;
   $("#stat-floors").innerHTML = `${stats.floors} <small>${stats.floors === 1 ? "level" : "levels"}</small>`;
   $(".floor-mini").innerHTML = `G${stats.floors > 1 ? ` <span>${String(stats.floors - 1).padStart(2, "0")}</span>` : ""}`;
-  $("#floor-list").innerHTML = project.floors.map((item, index) => `<button class="floor-button ${item.id === activeFloor ? "active" : ""}" data-floor="${escape(item.id)}" ${item.id === activeFloor ? 'aria-current="true"' : ""}><span class="floor-indicator">${index ? String(index).padStart(2, "0") : "G"}</span>${escape(item.name)}<span class="floor-area">${format(floorArea(item))} m²</span></button>`).join("");
+  $("#floor-list").innerHTML = project.floors.map((item, index) => `<button class="floor-button ${item.id === activeFloor ? "active" : ""}" data-floor="${escape(item.id)}" ${item.id === activeFloor ? 'aria-current="true"' : ""}><span class="floor-indicator">${index ? String(index).padStart(2, "0") : "G"}</span>${escape(item.name)}<span class="floor-area">${areaText(floorArea(item))}</span></button>`).join("");
   $("#canvas-floor-name").textContent = scope === "property" ? "All floors & lot" : floor().name;
   $("#editor-title").textContent = scope === "property" ? "Property canvas" : "Design canvas";
   $("#plan-caption").textContent = scope === "property" ? "FULL PROPERTY" : floor().name.toUpperCase();
@@ -182,7 +200,7 @@ function render() {
 }
 function updateScale() {
   const screenScale = $("#plan").getScreenCTM()?.a || 1;
-  $("#scale-label").innerHTML = view === "2d" ? `METRIC <span class="scale-bar" style="width:${drawing.scale * screenScale * zoom * 2}px"></span> 2 m` : "AXONOMETRIC · NOT TO SCALE";
+  $("#scale-label").innerHTML = view === "2d" ? `${unitSystem.toUpperCase()} <span class="scale-bar" style="width:${drawing.scale * screenScale * zoom * 2}px"></span> ${lengthText(2)}` : "AXONOMETRIC · NOT TO SCALE";
 }
 function updateCameraControls() {
   $("#camera-yaw").value = String(Math.round(camera.yaw));
@@ -225,9 +243,9 @@ function renderPlan() {
   const viewportWidth = Math.min(900, 690 * surface.width / Math.max(surface.height, 1));
   $("#plan").setAttribute("viewBox", `${450 - viewportWidth / 2} 0 ${viewportWidth} 690`);
   if (scope === "property") {
-    const result = renderPropertyView(project, { view, zoom, pan, dimensions, labels: $("#layer-labels").checked, roof: showRoof, viewportWidth, camera });
+    const result = renderPropertyView(project, { view, zoom, pan, dimensions, labels: $("#layer-labels").checked, roof: showRoof, viewportWidth, camera, units: unitSystem });
     drawing.scale = result.scale;
-    $("#plan").setAttribute("aria-label", `${project.name}, ${view === "3d" ? "full-house 3D view" : "property site plan"}, ${project.floors.length} floors on a ${project.property.width} by ${project.property.depth} meter lot`);
+    $("#plan").setAttribute("aria-label", `${project.name}, ${view === "3d" ? "full-house 3D view" : "property site plan"}, ${project.floors.length} floors on a ${lengthText(project.property.width)} by ${lengthText(project.property.depth)} lot`);
     $("#plan").innerHTML = result.markup;
     return;
   }
@@ -238,7 +256,7 @@ function renderPlan() {
   const svg = $("#plan");
   svg.setAttribute("aria-label", `${floor().name}, ${view === "2d" ? "floor plan" : "axonometric view"} with ${rooms.length} spaces`);
   const defs = '<defs><pattern id="oak" width="32" height="8" patternUnits="userSpaceOnUse"><path d="M0 0h32M16 0v8" fill="none" stroke="#979c7e" stroke-opacity=".09" stroke-width=".6"/></pattern><pattern id="tile" width="14" height="14" patternUnits="userSpaceOnUse"><path d="M14 0H0V14" fill="none" stroke="#8eaaa0" stroke-opacity=".18" stroke-width=".6"/></pattern><pattern id="deck" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M0 0v8" stroke="#92a27c" stroke-opacity=".25" stroke-width=".7"/></pattern><filter id="plan-shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="3" dy="6" stdDeviation="7" flood-color="#3d5030" flood-opacity=".08"/></filter></defs>';
-  if (view === "3d") { svg.innerHTML = defs + renderFloor3D(rooms, { camera, ceiling: project.ceiling, viewportWidth, zoom, pan, selected, furniture: $("#layer-furniture").checked, labels: $("#layer-labels").checked, features: (project.features || []).filter(f => f.floorId === activeFloor) }); return; }
+  if (view === "3d") { svg.innerHTML = defs + renderFloor3D(rooms, { camera, ceiling: project.ceiling, viewportWidth, zoom, pan, selected, furniture: $("#layer-furniture").checked, labels: $("#layer-labels").checked, features: (project.features || []).filter(f => f.floorId === activeFloor), units: unitSystem }); return; }
   const { x: ox, y: oy } = drawing;
   let markup = `<g transform="translate(${450 + pan.x} ${345 + pan.y}) scale(${zoom}) translate(-450 -345)">`;
   if (rooms.length) {
@@ -256,9 +274,9 @@ function renderPlan() {
     const w = item.width * scale, h = item.depth * scale;
     const labelSize = Math.min(10, Math.max(6, w / (item.name.length * .67)));
     const isStairs = item.type === "stairs";
-    markup += `<g class="room-shape ${item.id === selected ? "selected" : ""}" data-room="${escape(item.id)}" transform="translate(${x} ${y})" tabindex="0" role="button" aria-label="${escape(item.name)}, ${format(item.width * item.depth)} square meters"><title>${escape(item.name)} · ${item.width} × ${item.depth} m</title><rect class="room-outline" width="${w}" height="${h}" fill="${spec.color}" stroke="#58644b" stroke-width="4"/><rect x="2" y="2" width="${Math.max(0, w - 4)}" height="${Math.max(0, h - 4)}" fill="${item.material === "concrete" ? "#b9bdb42a" : `url(#${item.material})`}" pointer-events="none"/>`;
+    markup += `<g class="room-shape ${item.id === selected ? "selected" : ""}" data-room="${escape(item.id)}" transform="translate(${x} ${y})" tabindex="0" role="button" aria-label="${escape(item.name)}, ${areaText(item.width * item.depth)}"><title>${escape(item.name)} · ${lengthText(item.width)} × ${lengthText(item.depth)}</title><rect class="room-outline" width="${w}" height="${h}" fill="${spec.color}" stroke="#58644b" stroke-width="4"/><rect x="2" y="2" width="${Math.max(0, w - 4)}" height="${Math.max(0, h - 4)}" fill="${item.material === "concrete" ? "#b9bdb42a" : `url(#${item.material})`}" pointer-events="none"/>`;
     if ($("#layer-furniture").checked) markup += furniture(item.type, w, h);
-    if ($("#layer-labels").checked) markup += `<g class="room-label"><text x="${w / 2}" y="${h * (isStairs ? .87 : .81)}" text-anchor="middle" class="room-name" style="font-size:${labelSize}px;letter-spacing:${w < 90 ? .6 : 1.3}px">${escape(item.name.toUpperCase())}</text><text x="${w / 2}" y="${h * (isStairs ? .87 : .81) + 15}" text-anchor="middle" class="room-area" style="font-size:${w < 75 ? 7 : 9}px">${format(item.width * item.depth)} m²${w > 110 ? ` <tspan fill="#abb39b">/</tspan> ${format(item.width)} × ${format(item.depth)} m` : ""}</text></g>`;
+    if ($("#layer-labels").checked) markup += `<g class="room-label"><text x="${w / 2}" y="${h * (isStairs ? .87 : .81)}" text-anchor="middle" class="room-name" style="font-size:${labelSize}px;letter-spacing:${w < 90 ? .6 : 1.3}px">${escape(item.name.toUpperCase())}</text><text x="${w / 2}" y="${h * (isStairs ? .87 : .81) + 15}" text-anchor="middle" class="room-area" style="font-size:${w < 75 ? 7 : 9}px">${areaText(item.width * item.depth)}${w > 110 ? ` <tspan fill="#abb39b">/</tspan> ${lengthText(item.width)} × ${lengthText(item.depth)}` : ""}</text></g>`;
     if (!isOutdoor(item) && !(project.features || []).some(f => f.roomId === item.id)) {
       const windowWidth = Math.min(w * .4, 90);
       markup += `<path d="M${w * .25} 0h${windowWidth}" stroke="#f1f3e8" stroke-width="5"/><path d="M${w * .25} -1.6h${windowWidth}m${-windowWidth} 3.2h${windowWidth}" stroke="#91a28a" stroke-width=".7"/>`;
@@ -274,7 +292,7 @@ function renderPlan() {
   }
   markup += "</g>";
   for (const feature of (project.features || []).filter(f => f.floorId === activeFloor)) {
-    markup += featureMarkup(feature, featureVertices(feature, featureHost(project, feature)), (x, y) => ({ x: ox + x * scale, y: oy + y * scale }), true);
+    markup += featureMarkup(feature, featureVertices(feature, featureHost(project, feature)), (x, y) => ({ x: ox + x * scale, y: oy + y * scale }), true, unitSystem);
   }
   for (const wall of exteriorWalls(rooms, ["north", "east", "south", "west"]).filter(w => w.room.railing)) {
     const vertical = ["east", "west"].includes(wall.axis);
@@ -283,7 +301,7 @@ function renderPlan() {
   }
   if (dimensions && rooms.length) {
     const left = ox + b.x * scale, top = oy + b.y * scale, right = left + b.width * scale, bottom = top + b.depth * scale;
-    markup += `<g pointer-events="none"><path class="dim-line" d="M${left} ${top - 45}V${top - 30}m0-7H${right}m0-8v15M${left - 53} ${top}h15m-7 0V${bottom}m-8 0h15"/><text class="dimension" x="${(left + right) / 2}" y="${top - 43}" text-anchor="middle">${format(b.width)} m</text><text class="dimension" transform="translate(${left - 52} ${(top + bottom) / 2}) rotate(-90)" text-anchor="middle">${format(b.depth)} m</text></g>`;
+    markup += `<g pointer-events="none"><path class="dim-line" d="M${left} ${top - 45}V${top - 30}m0-7H${right}m0-8v15M${left - 53} ${top}h15m-7 0V${bottom}m-8 0h15"/><text class="dimension" x="${(left + right) / 2}" y="${top - 43}" text-anchor="middle">${lengthText(b.width)}</text><text class="dimension" transform="translate(${left - 52} ${(top + bottom) / 2}) rotate(-90)" text-anchor="middle">${lengthText(b.depth)}</text></g>`;
   }
   markup += "</g>";
   svg.innerHTML = defs + markup;
@@ -295,16 +313,17 @@ function renderInspector() {
   $("#inspector-heading").textContent = item ? "Space properties" : "Floor overview";
   const content = $("#inspector-content");
   if (!item) {
-    content.innerHTML = `<span class="property-label">CURRENT FLOOR</span><div class="property-value">${escape(floor().name)}</div><p class="floor-description">A thoughtful balance of open spaces<br>and everyday essentials.</p><div class="inspector-divider"></div><div class="floor-totals"><div><strong>${format(floorArea(floor()))} <small>m²</small></strong><p>Floor area</p></div><div><strong>${floor().rooms.length} <small>spaces</small></strong><p>On this floor</p></div></div><div class="inspector-divider"></div><div class="room-list-title"><span class="property-label">SPACES ON THIS FLOOR</span><span>${String(floor().rooms.length).padStart(2, "0")}</span></div><div>${floor().rooms.map(r => `<button class="overview-room" data-select-room="${escape(r.id)}">${icon(TYPES[r.type].icon)}<span>${escape(r.name)}</span><span class="room-list-area">${format(r.width * r.depth)} m²</span></button>`).join("")}</div><button class="add-space-button" id="inspector-add">${icon("plus")}Add a space</button>${project.floors.length > 1 ? `<button class="floor-delete" id="remove-floor">${icon("trash")}Remove this floor</button>` : ""}<div style="height:25px"></div>`;
+    content.innerHTML = `<span class="property-label">CURRENT FLOOR</span><div class="property-value">${escape(floor().name)}</div><p class="floor-description">A thoughtful balance of open spaces<br>and everyday essentials.</p><div class="inspector-divider"></div><div class="floor-totals"><div><strong>${areaText(floorArea(floor()))}</strong><p>Floor area</p></div><div><strong>${floor().rooms.length} <small>spaces</small></strong><p>On this floor</p></div></div><div class="inspector-divider"></div><div class="room-list-title"><span class="property-label">SPACES ON THIS FLOOR</span><span>${String(floor().rooms.length).padStart(2, "0")}</span></div><div>${floor().rooms.map(r => `<button class="overview-room" data-select-room="${escape(r.id)}">${icon(TYPES[r.type].icon)}<span>${escape(r.name)}</span><span class="room-list-area">${areaText(r.width * r.depth)}</span></button>`).join("")}</div><button class="add-space-button" id="inspector-add">${icon("plus")}Add a space</button>${project.floors.length > 1 ? `<button class="floor-delete" id="remove-floor">${icon("trash")}Remove this floor</button>` : ""}<div style="height:25px"></div>`;
     $("#inspector-add").onclick = addDialog;
     if ($("#remove-floor")) $("#remove-floor").onclick = deleteFloorDialog;
     return;
   }
   const spec = TYPES[item.type];
-  content.innerHTML = `<button class="back-overview" id="deselect-room">${icon("back")}Back to floor overview</button><div class="selection-heading"><span>${icon(spec.icon)}</span><div><strong>${escape(spec.name)}</strong><small>${escape(spec.category)} space</small></div></div><form id="room-form"><div class="property-field"><label for="room-name">Space name</label><input id="room-name" name="name" value="${escape(item.name)}" maxlength="60" required></div><div class="field-row"><div class="property-field"><label for="room-width">Width</label><div class="input-unit"><input id="room-width" name="width" type="number" value="${item.width}" min="1" max="30" step="0.1" required><span>m</span></div></div><div class="property-field"><label for="room-depth">Depth</label><div class="input-unit"><input id="room-depth" name="depth" type="number" value="${item.depth}" min="1" max="30" step="0.1" required><span>m</span></div></div></div><div class="field-row"><div class="property-field"><label for="room-x">Position X</label><div class="input-unit"><input id="room-x" name="x" type="number" value="${item.x}" min="-200" max="200" step="0.1" required><span>m</span></div></div><div class="property-field"><label for="room-y">Position Y</label><div class="input-unit"><input id="room-y" name="y" type="number" value="${item.y}" min="-200" max="200" step="0.1" required><span>m</span></div></div></div><div class="property-field"><label for="room-material">Floor finish</label><select id="room-material" name="material">${[["oak", "Natural oak"], ["tile", "Limestone tile"], ["concrete", "Polished concrete"], ["deck", "Timber decking"]].map(([value, name]) => `<option value="${value}" ${item.material === value ? "selected" : ""}>${name}</option>`).join("")}</select></div><div class="area-readout"><span>Total space area</span><strong>${format(item.width * item.depth)} m²</strong></div><button class="button primary" style="width:100%;margin-top:15px" type="submit">Apply changes</button></form><div class="room-actions"><button id="duplicate-room">${icon("copy")}Duplicate</button><button class="danger" id="delete-room" aria-label="Delete space">${icon("trash")}</button></div>`;
+  const dimensionField = (name, label, value, min, max) => `<div class="property-field"><label for="room-${name}">${label}</label><div class="input-unit"><input id="room-${name}" name="${name}" type="number" value="${inputLength(value, unitSystem)}" ${inputLengthAttrs(min, max, ".1")} required><span>${lengthUnit(unitSystem)}</span></div></div>`;
+  content.innerHTML = `<button class="back-overview" id="deselect-room">${icon("back")}Back to floor overview</button><div class="selection-heading"><span>${icon(spec.icon)}</span><div><strong>${escape(spec.name)}</strong><small>${escape(spec.category)} space</small></div></div><form id="room-form"><div class="property-field"><label for="room-name">Space name</label><input id="room-name" name="name" value="${escape(item.name)}" maxlength="60" required></div><div class="field-row">${dimensionField("width", "Width", item.width, 1, 30)}${dimensionField("depth", "Depth", item.depth, 1, 30)}</div><div class="field-row">${dimensionField("x", "Position X", item.x, -200, 200)}${dimensionField("y", "Position Y", item.y, -200, 200)}</div><div class="property-field"><label for="room-material">Floor finish</label><select id="room-material" name="material">${[["oak", "Natural oak"], ["tile", "Limestone tile"], ["concrete", "Polished concrete"], ["deck", "Timber decking"]].map(([value, name]) => `<option value="${value}" ${item.material === value ? "selected" : ""}>${name}</option>`).join("")}</select></div><div class="area-readout"><span>Total space area</span><strong>${areaText(item.width * item.depth)}</strong></div><button class="button primary" style="width:100%;margin-top:15px" type="submit">Apply changes</button></form><div class="room-actions"><button id="duplicate-room">${icon("copy")}Duplicate</button><button class="danger" id="delete-room" aria-label="Delete space">${icon("trash")}</button></div>`;
   $("#deselect-room").onclick = () => { selected = null; render(); };
   if (isOutdoor(item)) {
-    $("#room-form .area-readout").insertAdjacentHTML("beforebegin", `<label class="property-checkbox"><input type="checkbox" name="railing" id="room-railing" ${item.railing ? "checked" : ""}>Concept glass railing (1.1 m)</label>`);
+    $("#room-form .area-readout").insertAdjacentHTML("beforebegin", `<label class="property-checkbox"><input type="checkbox" name="railing" id="room-railing" ${item.railing ? "checked" : ""}>Concept glass railing (${lengthText(1.1)})</label>`);
   } else {
     content.insertAdjacentHTML("beforeend", '<button class="add-space-button" id="room-openings">Doors & windows</button>');
     $("#room-openings").onclick = () => architecturalFeatures();
@@ -314,7 +333,7 @@ function renderInspector() {
     const data = new FormData(event.currentTarget);
     const updated = { ...item, name: String(data.get("name")).trim(), material: data.get("material") };
     if (isOutdoor(item)) updated.railing = data.has("railing");
-    for (const key of ["width", "depth", "x", "y"]) updated[key] = Number(data.get(key));
+    for (const key of ["width", "depth", "x", "y"]) updated[key] = toMeters(Number(data.get(key)), unitSystem);
     try { validateRoom(updated); } catch (error) { toast(error.message, true); return; }
     if (change(() => Object.assign(item, updated))) toast("Space updated. A little closer to home.");
   };
@@ -331,7 +350,7 @@ function renderInspector() {
 function renderPropertyInspector() {
   const p = project.property, stats = propertyStats(project);
   $("#inspector-heading").textContent = "House & property";
-  $("#inspector-content").innerHTML = `<span class="property-label">THE WHOLE PICTURE</span><div class="property-value">${escape(project.name)}</div><p class="floor-description">Every floor. Every outdoor space.<br>One place to call home.</p><div class="inspector-divider"></div><div class="floor-totals"><div><strong>${format(stats.lotArea)} <small>m²</small></strong><p>Lot area</p></div><div><strong>${format(stats.footprint)} <small>m²</small></strong><p>Building footprint</p></div></div><div class="property-metrics"><span>Lot dimensions<strong>${format(p.width)} × ${format(p.depth)} m</strong></span><span>Site coverage<strong>${format(stats.coverage)}%</strong></span><span>House height<strong>${format(stats.height)} m</strong></span><span>Street frontage<strong>${escape(p.roadName)}</strong></span></div>${stats.outsideRooms.length ? `<div class="property-warning" role="status"><strong>Outside the property line</strong>${stats.outsideRooms.length} ${stats.outsideRooms.length === 1 ? "space extends" : "spaces extend"} beyond the lot. Adjust house placement, lot dimensions, or the floor plan.</div>` : '<div class="property-within"><i class="live-dot"></i>All spaces are inside the lot.</div>'}<button class="add-space-button" id="edit-property">${icon("sliders")}Edit property</button>${view === "3d" ? `<label class="property-checkbox roof-control"><input id="show-roof" type="checkbox" ${showRoof ? "checked" : ""}>Show full-height walls & roofs</label><p class="dialog-note">Turn off for an open-top study. Select a floor below to edit its interior.</p>` : '<p class="dialog-note">Solid shapes show the ground floor. Dashed outlines include all upper-floor footprints.</p>'}<div class="inspector-divider"></div><div class="room-list-title"><span class="property-label">FLOORS IN THIS HOUSE</span><span>${String(project.floors.length).padStart(2, "0")}</span></div>${project.floors.map(f => `<button class="overview-room" data-floor="${escape(f.id)}">${icon("floors")}<span>${escape(f.name)}</span><span class="room-list-area">${format(floorArea(f))} m² ↗</span></button>`).join("")}<p class="dialog-note">Concept massing only. Property lines are user-defined, not a land survey.</p><div style="height:25px"></div>`;
+  $("#inspector-content").innerHTML = `<span class="property-label">THE WHOLE PICTURE</span><div class="property-value">${escape(project.name)}</div><p class="floor-description">Every floor. Every outdoor space.<br>One place to call home.</p><div class="inspector-divider"></div><div class="floor-totals"><div><strong>${areaText(stats.lotArea)}</strong><p>Lot area</p></div><div><strong>${areaText(stats.footprint)}</strong><p>Building footprint</p></div></div><div class="property-metrics"><span>Lot dimensions<strong>${lengthText(p.width)} × ${lengthText(p.depth)}</strong></span><span>Site coverage<strong>${format(stats.coverage)}%</strong></span><span>House height<strong>${lengthText(stats.height)}</strong></span><span>Street frontage<strong>${escape(p.roadName)}</strong></span></div>${stats.outsideRooms.length ? `<div class="property-warning" role="status"><strong>Outside the property line</strong>${stats.outsideRooms.length} ${stats.outsideRooms.length === 1 ? "space extends" : "spaces extend"} beyond the lot. Adjust house placement, lot dimensions, or the floor plan.</div>` : '<div class="property-within"><i class="live-dot"></i>All spaces are inside the lot.</div>'}<button class="add-space-button" id="edit-property">${icon("sliders")}Edit property</button>${view === "3d" ? `<label class="property-checkbox roof-control"><input id="show-roof" type="checkbox" ${showRoof ? "checked" : ""}>Show full-height walls & roofs</label><p class="dialog-note">Turn off for an open-top study. Select a floor below to edit its interior.</p>` : '<p class="dialog-note">Solid shapes show the ground floor. Dashed outlines include all upper-floor footprints.</p>'}<div class="inspector-divider"></div><div class="room-list-title"><span class="property-label">FLOORS IN THIS HOUSE</span><span>${String(project.floors.length).padStart(2, "0")}</span></div>${project.floors.map(f => `<button class="overview-room" data-floor="${escape(f.id)}">${icon("floors")}<span>${escape(f.name)}</span><span class="room-list-area">${areaText(floorArea(f))} ↗</span></button>`).join("")}<p class="dialog-note">Concept massing only. Property lines are user-defined, not a land survey.</p><div style="height:25px"></div>`;
   $("#edit-property").onclick = propertyDialog;
   $("#edit-property").insertAdjacentHTML("afterend", '<button class="add-space-button" id="property-openings">Gates & opening specifications</button>');
   $("#property-openings").onclick = () => architecturalFeatures();
@@ -340,15 +359,15 @@ function renderPropertyInspector() {
 function propertyDialog() {
   const p = project.property;
   const fence = fenceSettings(project);
-  const field = (name, label, value, min, max) => `<div class="property-field"><label for="property-${name}">${label}</label><div class="input-unit"><input id="property-${name}" name="${name}" type="number" value="${value}" min="${min}" max="${max}" step=".1" required><span>m</span></div></div>`;
+  const field = (name, label, value, min, max) => `<div class="property-field"><label for="property-${name}">${label}</label><div class="input-unit"><input id="property-${name}" name="${name}" type="number" value="${inputLength(value, unitSystem)}" ${inputLengthAttrs(min, max, ".1")} required><span>${lengthUnit(unitSystem)}</span></div></div>`;
   showDialog("A place in the world.", `<form id="property-form" class="dialog-form"><p class="dialog-description">Define a rectangular lot and place the whole house on it. All floors share the same house origin.</p><div class="field-row">${field("width", "Lot width", p.width, 8, 200)}${field("depth", "Lot depth", p.depth, 8, 200)}</div><div class="field-row">${field("houseX", "House origin X", p.houseX, -200, 200)}${field("houseY", "House origin Y", p.houseY, -200, 200)}</div><p class="dialog-note property-origin-note">X is measured from the left boundary; Y from the rear boundary. Room positions are relative to this origin. The street is along the front (bottom) boundary.</p><div class="property-field"><label for="property-roadName">Street name</label><input id="property-roadName" name="roadName" value="${escape(p.roadName)}" maxlength="60" required></div><div class="property-checks"><label class="property-checkbox"><input type="checkbox" name="landscaping" ${p.landscaping ? "checked" : ""}>Show conceptual landscaping</label><label class="property-checkbox"><input type="checkbox" name="driveway" ${p.driveway ? "checked" : ""}>Show driveway to street</label></div><p class="dialog-note">House placement outside the lot is allowed for exploration, but will display a warning. Setbacks, zoning, and legal boundaries are not checked.</p><div class="dialog-actions"><button class="button primary" type="submit">Apply property settings</button></div></form>`, "LOT & HOUSE PLACEMENT");
-  $("#property-form .property-checks").insertAdjacentHTML("beforebegin", `<fieldset class="fence-settings"><legend>BOUNDARY FENCING</legend><label class="property-checkbox"><input type="checkbox" name="fence-enabled" id="fence-enabled" ${fence.enabled ? "checked" : ""}>Show perimeter fence (with gate openings)</label><div class="field-row"><div class="property-field"><label for="fence-height">Fence height (m)</label><input id="fence-height" name="fence-height" type="number" min=".5" max="4" step=".1" value="${fence.height}" required></div><div class="property-field"><label for="fence-style">Style</label><select id="fence-style" name="fence-style">${["slatted", "solid"].map(s => `<option ${fence.style === s ? "selected" : ""}>${s}</option>`).join("")}</select></div></div><div class="property-field"><label for="fence-material">Material</label><select id="fence-material" name="fence-material">${Object.keys(FEATURE_MATERIALS).map(s => `<option ${fence.material === s ? "selected" : ""}>${s}</option>`).join("")}</select></div><p class="dialog-note">Gates cut openings in the fence along their selected boundary. Fence dimensions are conceptual, not certified security or structural specifications.</p></fieldset>`);
+  $("#property-form .property-checks").insertAdjacentHTML("beforebegin", `<fieldset class="fence-settings"><legend>BOUNDARY FENCING</legend><label class="property-checkbox"><input type="checkbox" name="fence-enabled" id="fence-enabled" ${fence.enabled ? "checked" : ""}>Show perimeter fence (with gate openings)</label><div class="field-row"><div class="property-field"><label for="fence-height">Fence height (${lengthUnit(unitSystem)})</label><input id="fence-height" name="fence-height" type="number" ${inputLengthAttrs(.5, 4, ".1")} value="${inputLength(fence.height, unitSystem)}" required></div><div class="property-field"><label for="fence-style">Style</label><select id="fence-style" name="fence-style">${["slatted", "solid"].map(s => `<option ${fence.style === s ? "selected" : ""}>${s}</option>`).join("")}</select></div></div><div class="property-field"><label for="fence-material">Material</label><select id="fence-material" name="fence-material">${Object.keys(FEATURE_MATERIALS).map(s => `<option ${fence.material === s ? "selected" : ""}>${s}</option>`).join("")}</select></div><p class="dialog-note">Gates cut openings in the fence along their selected boundary. Fence dimensions are conceptual, not certified security or structural specifications.</p></fieldset>`);
   $("#property-form").onsubmit = event => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const updated = { roadName: String(data.get("roadName")).trim(), landscaping: data.has("landscaping"), driveway: data.has("driveway") };
-    updated.fence = { enabled: data.has("fence-enabled"), height: Number(data.get("fence-height")), style: data.get("fence-style"), material: data.get("fence-material") };
-    for (const key of ["width", "depth", "houseX", "houseY"]) updated[key] = Number(data.get(key));
+    updated.fence = { enabled: data.has("fence-enabled"), height: toMeters(Number(data.get("fence-height")), unitSystem), style: data.get("fence-style"), material: data.get("fence-material") };
+    for (const key of ["width", "depth", "houseX", "houseY"]) updated[key] = toMeters(Number(data.get(key)), unitSystem);
     try { validateProperty(updated); } catch (error) { toast(error.message, true); return; }
     if (change(() => { project.property = updated; scope = "property"; activePanel = "property"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; })) {
       closeDialog(); toast("Property updated. Your home, in context.");
@@ -364,7 +383,7 @@ function architecturalFeatures(featureId) {
   activePanel = "architecture";
   document.querySelectorAll(".design-nav button").forEach(button => button.classList.toggle("active", button.dataset.panel === activePanel));
   architectureDialog({
-    getProject: () => project, showDialog, change, selectedRoomId: selected, featureId,
+    getProject: () => project, showDialog, change, selectedRoomId: selected, featureId, units: unitSystem,
     reveal: feature => {
       if (feature.type === "gate") { scope = "property"; selected = null; }
       else { activeFloor = feature.floorId; selected = feature.roomId; scope = "floor"; }
@@ -394,14 +413,14 @@ function projectBackup() {
 }
 function sampleArtwork(design, label, mode = "3d", floorId = null) {
   const markup = floorId
-    ? renderFloor3D(design.floors.find(f => f.id === floorId).rooms, { ceiling: design.ceiling, labels: true, features: (design.features || []).filter(f => f.floorId === floorId) })
-    : renderPropertyView(design, { view: mode, labels: false, dimensions: false }).markup;
+    ? renderFloor3D(design.floors.find(f => f.id === floorId).rooms, { ceiling: design.ceiling, labels: true, features: (design.features || []).filter(f => f.floorId === floorId), units: unitSystem })
+    : renderPropertyView(design, { view: mode, labels: false, dimensions: false, units: unitSystem }).markup;
   return `<div class="sample-artwork" inert><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 690" role="img" aria-label="${escape(label)}">${markup}</svg></div>`;
 }
 function sampleGallery() {
   showDialog("Find your starting point.", `<p class="dialog-description">${SAMPLE_DESIGNS.length} contemporary concepts, from compact retreats to duplexes, maisonettes, mansions, and single-family rooftop homes. Explore a design, then make an editable copy your own.</p><div class="sample-grid">${SAMPLE_DESIGNS.map(sample => {
     const design = sample.create(), stats = projectStats(design);
-    return `<article class="sample-card">${sampleArtwork(design, `${design.name}, whole-house concept`)}<div class="sample-card-body"><span class="eyebrow">${escape(sample.tag)}</span><h3>${escape(design.name)}</h3><p>${escape(sample.description)}</p><div class="sample-facts"><span>${format(stats.area)} m²</span><span>${stats.bedrooms} ${stats.bedrooms === 1 ? "bed" : "beds"}</span><span>${stats.floors} ${stats.floors === 1 ? "level" : "levels"}</span></div><button class="button" data-preview-sample="${escape(sample.id)}">Explore design ${icon("back")}</button></div></article>`;
+    return `<article class="sample-card">${sampleArtwork(design, `${design.name}, whole-house concept`)}<div class="sample-card-body"><span class="eyebrow">${escape(sample.tag)}</span><h3>${escape(design.name)}</h3><p>${escape(sample.description)}</p><div class="sample-facts"><span>${areaText(stats.area)}</span><span>${stats.bedrooms} ${stats.bedrooms === 1 ? "bed" : "beds"}</span><span>${stats.floors} ${stats.floors === 1 ? "level" : "levels"}</span></div><button class="button" data-preview-sample="${escape(sample.id)}">Explore design ${icon("back")}</button></div></article>`;
   }).join("")}</div><p class="dialog-note">Areas include terraces, balconies, and garages. These are editable concept layouts, not construction-ready plans. Your current design stays unchanged until you choose Use this design.</p>`, "THE FORMA COLLECTION");
   $("#app-dialog").classList.add("samples-dialog");
   $("#app-dialog").scrollTop = 0;
@@ -411,7 +430,7 @@ function sampleDetails(id) {
   const sample = SAMPLE_DESIGNS.find(item => item.id === id);
   if (!sample) { toast("This sample design is not available.", true); return; }
   const design = createSampleDesign(id), stats = projectStats(design), site = propertyStats(design);
-  showDialog(design.name, `<button class="back-overview" id="back-to-samples">${icon("back")}All sample designs</button><div class="sample-detail-grid"><div><div class="sample-preview-controls"><label for="sample-view">PREVIEW</label><select id="sample-view" aria-label="Sample preview view"><option value="3d">Full house in 3D</option><option value="2d">Property site plan</option>${design.floors.map(f => `<option value="${escape(f.id)}">${escape(f.name)} — cutaway</option>`).join("")}</select></div><div id="sample-detail-art">${sampleArtwork(design, `${design.name}, whole-house concept`)}</div></div><div class="sample-description"><span class="eyebrow">${escape(sample.tag)}</span><p>${escape(sample.story)}</p><ul>${sample.highlights.map(item => `<li>${escape(item)}</li>`).join("")}</ul><dl class="sample-measurements"><div><dt>Total floor area</dt><dd>${format(stats.area)} m²</dd></div><div><dt>Bedrooms / bathrooms</dt><dd>${stats.bedrooms} / ${stats.bathrooms}</dd></div><div><dt>Floors / spaces</dt><dd>${stats.floors} / ${stats.rooms}</dd></div><div><dt>Lot dimensions</dt><dd>${format(design.property.width)} × ${format(design.property.depth)} m</dd></div><div><dt>Building footprint</dt><dd>${format(site.footprint)} m²</dd></div><div><dt>Design language</dt><dd>${escape(design.style)}</dd></div></dl></div></div><div class="sample-replacement"><p><strong>Make this design your own.</strong>Using a sample replaces <b>${escape(project.name)}</b> in this browser. Download a backup first to keep it. You can also undo the replacement until reload.</p><button class="button" id="sample-backup">${icon("save")}Back up current design</button></div><p class="dialog-note">Every room, finish, floor, and property setting is editable. Total floor area includes outdoor spaces and garages. Concept design only; consult a licensed professional before building.</p><div class="dialog-actions"><button class="button" id="cancel-sample">Keep current design</button><button class="button primary" id="use-sample">Use this design</button></div>`, "EXPLORE A SAMPLE HOME");
+  showDialog(design.name, `<button class="back-overview" id="back-to-samples">${icon("back")}All sample designs</button><div class="sample-detail-grid"><div><div class="sample-preview-controls"><label for="sample-view">PREVIEW</label><select id="sample-view" aria-label="Sample preview view"><option value="3d">Full house in 3D</option><option value="2d">Property site plan</option>${design.floors.map(f => `<option value="${escape(f.id)}">${escape(f.name)} — cutaway</option>`).join("")}</select></div><div id="sample-detail-art">${sampleArtwork(design, `${design.name}, whole-house concept`)}</div></div><div class="sample-description"><span class="eyebrow">${escape(sample.tag)}</span><p>${escape(sample.story)}</p><ul>${sample.highlights.map(item => `<li>${escape(item)}</li>`).join("")}</ul><dl class="sample-measurements"><div><dt>Total floor area</dt><dd>${areaText(stats.area)}</dd></div><div><dt>Bedrooms / bathrooms</dt><dd>${stats.bedrooms} / ${stats.bathrooms}</dd></div><div><dt>Floors / spaces</dt><dd>${stats.floors} / ${stats.rooms}</dd></div><div><dt>Lot dimensions</dt><dd>${lengthText(design.property.width)} × ${lengthText(design.property.depth)}</dd></div><div><dt>Building footprint</dt><dd>${areaText(site.footprint)}</dd></div><div><dt>Design language</dt><dd>${escape(design.style)}</dd></div></dl></div></div><div class="sample-replacement"><p><strong>Make this design your own.</strong>Using a sample replaces <b>${escape(project.name)}</b> in this browser. Download a backup first to keep it. You can also undo the replacement until reload.</p><button class="button" id="sample-backup">${icon("save")}Back up current design</button></div><p class="dialog-note">Every room, finish, floor, and property setting is editable. Total floor area includes outdoor spaces and garages. Concept design only; consult a licensed professional before building.</p><div class="dialog-actions"><button class="button" id="cancel-sample">Keep current design</button><button class="button primary" id="use-sample">Use this design</button></div>`, "EXPLORE A SAMPLE HOME");
   $("#app-dialog").classList.add("samples-dialog");
   $("#app-dialog").scrollTop = 0;
   $("#back-to-samples").onclick = sampleGallery;
@@ -436,11 +455,24 @@ function addDialog() {
   showDialog("Make room for living.", `<p class="dialog-description">Choose a space to add to ${escape(floor().name.toLowerCase())}. You can refine its dimensions and position on the canvas.</p><div class="dialog-space-grid">${Object.entries(TYPES).map(([type, spec]) => `<button data-add-type="${type}">${icon(spec.icon)}${spec.name}</button>`).join("")}</div>`);
 }
 function projectDialog() {
-  showDialog("Your project, your way.", `<form id="settings-form" class="dialog-form"><div class="property-field"><label for="project-name">Project name</label><input id="project-name" name="name" maxlength="80" value="${escape(project.name)}" required></div><div class="field-row"><div class="property-field"><label for="project-style">Design language</label><select id="project-style" name="style">${["Contemporary", "Minimalist", "Modern organic", "Mid-century"].map(style => `<option ${project.style === style ? "selected" : ""}>${style}</option>`).join("")}</select></div><div class="property-field"><label for="ceiling">Ceiling height (m)</label><input id="ceiling" name="ceiling" type="number" min="2" max="6" step=".1" value="${project.ceiling}" required></div></div><p class="dialog-note">This is a conceptual planning tool, not architectural or structural documentation. Consult a licensed professional before building. Areas include terraces and stairs; overlapping rooms are counted individually.</p><div class="dialog-actions"><button class="button" type="button" id="import-project">${icon("upload")}Open project</button><button class="button primary" type="submit">Save settings</button></div></form>`, "PROJECT SETTINGS");
+  showDialog("Your project, your way.", `<form id="settings-form" class="dialog-form"><div class="property-field"><label for="project-name">Project name</label><input id="project-name" name="name" maxlength="80" value="${escape(project.name)}" required></div><div class="field-row"><div class="property-field"><label for="project-style">Design language</label><select id="project-style" name="style">${["Contemporary", "Minimalist", "Modern organic", "Mid-century"].map(style => `<option ${project.style === style ? "selected" : ""}>${style}</option>`).join("")}</select></div><div class="property-field"><label for="ceiling">Ceiling height (${lengthUnit(unitSystem)})</label><input id="ceiling" name="ceiling" type="number" ${inputLengthAttrs(2, 6, ".1")} value="${inputLength(project.ceiling, unitSystem)}" required></div></div><div class="property-field"><label for="unit-system">Measurement units</label><select id="unit-system" name="units"><option value="metric" ${unitSystem === "metric" ? "selected" : ""}>Metric (meters, square meters)</option><option value="imperial" ${unitSystem === "imperial" ? "selected" : ""}>Imperial (feet, square feet)</option></select></div><p class="dialog-note">This is a conceptual planning tool, not architectural or structural documentation. Consult a licensed professional before building. Areas include terraces and stairs; overlapping rooms are counted individually.</p><div class="dialog-actions"><button class="button" type="button" id="import-project">${icon("upload")}Open project</button><button class="button primary" type="submit">Save settings</button></div></form>`, "PROJECT SETTINGS");
   $("#settings-form").onsubmit = event => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    if (change(() => { project.name = String(data.get("name")).trim(); project.style = data.get("style"); project.ceiling = Number(data.get("ceiling")); })) closeDialog();
+    if (change(() => {
+      project.name = String(data.get("name")).trim();
+      project.style = data.get("style");
+      project.ceiling = toMeters(Number(data.get("ceiling")), unitSystem);
+    })) {
+      const nextUnits = String(data.get("units"));
+      if (UNIT_SYSTEMS.includes(nextUnits) && nextUnits !== unitSystem) {
+        unitSystem = nextUnits;
+        try { localStorage.setItem(UNIT_STORAGE_KEY, unitSystem); }
+        catch (error) { toast(`Unable to save units preference: ${error.message}`, true); }
+      }
+      render();
+      closeDialog();
+    }
   };
   $("#import-project").onclick = importProject;
   $("#settings-form").insertAdjacentHTML("beforeend", '<div class="settings-links"><button class="browse-spaces" id="edit-property-settings" type="button">Edit lot & house placement</button><button class="browse-spaces" id="browse-sample-settings" type="button">Browse sample home designs</button><button class="floor-delete" id="new-project" type="button">Start a new, blank project</button></div>');
@@ -522,7 +554,7 @@ function importProject() {
       if (!input.isConnected || ticket !== request || !$("#app-dialog").open) return;
       pending = imported;
       const stats = projectStats(imported);
-      $("#design-preview").innerHTML = `<span class="property-label">READY TO CONTINUE</span><strong>${escape(imported.name)}</strong><small>${escape(file.name)}</small><div class="upload-summary"><span>${stats.floors} ${stats.floors === 1 ? "floor" : "floors"}</span><span>${stats.rooms} ${stats.rooms === 1 ? "space" : "spaces"}</span><span>${format(stats.area)} m²</span></div><p>Lot ${format(imported.property.width)} × ${format(imported.property.depth)} m · ${escape(imported.style)}</p>`;
+      $("#design-preview").innerHTML = `<span class="property-label">READY TO CONTINUE</span><strong>${escape(imported.name)}</strong><small>${escape(file.name)}</small><div class="upload-summary"><span>${stats.floors} ${stats.floors === 1 ? "floor" : "floors"}</span><span>${stats.rooms} ${stats.rooms === 1 ? "space" : "spaces"}</span><span>${areaText(stats.area)}</span></div><p>Lot ${lengthText(imported.property.width)} × ${lengthText(imported.property.depth)} · ${escape(imported.style)}</p>`;
       $("#design-preview").hidden = false;
       $("#upload-status").textContent = "Design checked. Open it when you are ready.";
       confirm.disabled = false;
@@ -545,7 +577,7 @@ function importProject() {
   };
 }
 function roomDirectory() {
-  showDialog("A place for everything.", `<p class="dialog-description">${projectStats(project).rooms} spaces, each with a purpose. Select one to refine it.</p>${project.floors.map(f => `<h3 class="room-directory-floor">${escape(f.name.toUpperCase())}</h3>${f.rooms.map(r => `<button class="directory-room" data-directory-floor="${escape(f.id)}" data-directory-room="${escape(r.id)}">${icon(TYPES[r.type].icon)}${escape(r.name)}<small>${format(r.width * r.depth)} m²</small></button>`).join("") || '<p class="dialog-note">A blank canvas, ready for your ideas.</p>'}`).join("")}`, "ROOMS & SPACES");
+  showDialog("A place for everything.", `<p class="dialog-description">${projectStats(project).rooms} spaces, each with a purpose. Select one to refine it.</p>${project.floors.map(f => `<h3 class="room-directory-floor">${escape(f.name.toUpperCase())}</h3>${f.rooms.map(r => `<button class="directory-room" data-directory-floor="${escape(f.id)}" data-directory-room="${escape(r.id)}">${icon(TYPES[r.type].icon)}${escape(r.name)}<small>${areaText(r.width * r.depth)}</small></button>`).join("") || '<p class="dialog-note">A blank canvas, ready for your ideas.</p>'}`).join("")}`, "ROOMS & SPACES");
 }
 function materialsDialog() {
   const materials = [["#d6c6a9", "Natural oak", "Warm grain · Living & private spaces"], ["#d7ded4", "Limestone tile", "Quiet texture · Bathrooms & utility"], ["#b8bdb4", "Polished concrete", "A grounded, contemporary finish"], ["#aab694", "Timber decking", "Natural connection · Outdoor living"]];
@@ -582,7 +614,7 @@ document.addEventListener("click", event => {
       architecture: () => architecturalFeatures(), documentation: () => {
         activePanel = "documentation";
         render();
-        documentationDialog({ getProject: () => project, showDialog, download });
+        documentationDialog({ getProject: () => project, showDialog, download, units: unitSystem });
       },
       rooms: roomDirectory, materials: materialsDialog, settings: projectDialog,
     };
@@ -730,3 +762,4 @@ render();
 new ResizeObserver(() => { renderPlan(); updateScale(); }).observe($("#plan"));
 $(".meta-date").textContent = `${project.style.toUpperCase()} RESIDENTIAL`;
 if (restoreError) { $("#save-state").textContent = "Local restore failed"; toast(restoreError, true); }
+else if (unitPreferenceError) toast(unitPreferenceError, true);

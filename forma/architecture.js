@@ -1,3 +1,5 @@
+import { formatLength } from "./units.js";
+
 export const FEATURE_STYLES = {
   door: ["hinged", "sliding", "double", "pivot"],
   window: ["fixed", "casement", "sliding"],
@@ -31,7 +33,7 @@ export function boundaryFence(project) {
     }));
   });
 }
-export function fenceMarkup(vertices, settings, point, plan = false) {
+export function fenceMarkup(vertices, settings, point, plan = false, units = "metric") {
   const coords = vertices.map(v => point(...v)), frame = FEATURE_MATERIALS[settings.material];
   const line = (a, b, width = 1) => `<path d="M${a.x} ${a.y}L${b.x} ${b.y}" fill="none" stroke="${frame}" stroke-width="${width}"/>`;
   let markup = plan ? line(coords[0], coords[1], 3) : `<polygon points="${coords.map(p => `${p.x},${p.y}`).join(" ")}" fill="${settings.material === "glass" ? "#a5c5bf55" : settings.style === "slatted" ? "#b6c4b955" : frame}" stroke="${frame}" stroke-width="1"/>`;
@@ -45,7 +47,7 @@ export function fenceMarkup(vertices, settings, point, plan = false) {
         { x: coords[3].x + (coords[2].x - coords[3].x) * t, y: coords[3].y + (coords[2].y - coords[3].y) * t }, settings.style === "slatted" ? 1.2 : 1);
     }
   }
-  return `<g data-boundary-fence="true" pointer-events="none"><title>${escape(`${settings.height} m ${settings.material} ${settings.style} boundary fence`)}</title>${markup}</g>`;
+  return `<g data-boundary-fence="true" pointer-events="none"><title>${escape(`${formatLength(settings.height, units)} ${settings.material} ${settings.style} boundary fence`)}</title>${markup}</g>`;
 }
 
 export function featureHost(project, feature) {
@@ -99,7 +101,7 @@ export function validateFeatures(project, ids = new Set()) {
   }
 }
 
-export function featureMarkup(feature, vertices, point, plan = false) {
+export function featureMarkup(feature, vertices, point, plan = false, units = "metric") {
   const coords = vertices.map(v => point(...v));
   const line = (a, b, color, width = 1) => `<path d="M${a.x} ${a.y}L${b.x} ${b.y}" fill="none" stroke="${color}" stroke-width="${width}"/>`;
   const fill = feature.glazing === "none" ? FEATURE_MATERIALS[feature.material] : "#9fc4c1";
@@ -137,7 +139,7 @@ export function featureMarkup(feature, vertices, point, plan = false) {
       markup += line({ x: bottom.x * .55 + top.x * .45, y: bottom.y * .55 + top.y * .45 }, { x: bottom.x * .4 + top.x * .6, y: bottom.y * .4 + top.y * .6 }, "#384f47", 1.5);
     }
   }
-  return `<g class="architectural-feature" data-feature="${escape(feature.id)}" tabindex="0" role="button" aria-label="Edit ${escape(feature.name)}"><title>${escape(`${feature.name} · ${feature.width} × ${feature.height} m · ${feature.style} · ${feature.material} · ${feature.glazing} glazing`)}</title>${markup}</g>`;
+  return `<g class="architectural-feature" data-feature="${escape(feature.id)}" tabindex="0" role="button" aria-label="Edit ${escape(feature.name)}"><title>${escape(`${feature.name} · ${formatLength(feature.width, units)} × ${formatLength(feature.height, units)} · ${feature.style} · ${feature.material} · ${feature.glazing} glazing`)}</title>${markup}</g>`;
 }
 
 export function railingMarkup(vertices, point) {

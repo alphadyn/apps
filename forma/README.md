@@ -12,6 +12,7 @@ A dependency-free, browser-based concept studio for contemporary homes. Open `fo
 - Pan, zoom, fit the plan, and toggle dimensions, furniture, labels, and the grid.
 - Undo and redo up to 60 project edits. Shortcuts are available at the bottom of the workspace.
 - Settings include the project name, design language (project metadata), and ceiling height (reflected in the axonometric wall study).
+- Choose metric or imperial units in **Project settings**. Dimensions, areas, drawings, schedules, and editable measurements follow the selected units; project files continue to store measurements in meters.
 
 ## Sample home designs
 

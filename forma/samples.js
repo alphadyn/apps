@@ -45,7 +45,7 @@ const definitions = [
   },
   {
     id: "terrace-townhouse", tag: "NARROW-LOT HOME", description: "Three levels of possibility on an urban lot.",
-    story: "A seven-meter-wide townhouse with social spaces on the ground floor, two bedrooms and a study above, and a private primary suite on the top level. Aligned stairs link all floors; a balcony and roof terrace create outdoor retreats.",
+    story: "A narrow townhouse with social spaces on the ground floor, two bedrooms and a study above, and a private primary suite on the top level. Aligned stairs link all floors; a balcony and roof terrace create outdoor retreats.",
     highlights: ["Three bedrooms & study", "Three aligned staircases", "Balcony & roof terrace"],
     project: home("The Terrace Townhouse", "Contemporary", 2.8, [11, 24, 2, 4, "Alder Street"], [
       [
@@ -84,7 +84,7 @@ const definitions = [
   {
     id: "urban-duplex", tag: "COMPACT DUPLEX", description: "A three-bedroom family home on two efficient levels.",
     story: "A single-family, two-storey duplex with an open social floor, a dedicated laundry, and three upstairs bedrooms. A central hall and aligned staircase organize a compact rectangular footprint.",
-    highlights: ["Single-family two-storey home", "Three bedrooms & three baths", "Compact 10-meter-wide footprint"],
+    highlights: ["Single-family two-storey home", "Three bedrooms & three baths", "Compact footprint"],
     project: home("The Urban Duplex", "Contemporary", 2.8, [18, 26, 4, 6, "Maple Lane"], [
       [
         ["living", "Living room", 0, 0, 6, 5], ["dining", "Dining room", 6, 0, 4, 5],
@@ -168,7 +168,7 @@ const definitions = [
   {
     id: "horizon-mansion", tag: "CONTEMPORARY MANSION", description: "Five bedrooms, broad social spaces, and a sweeping balcony.",
     story: "A five-bedroom, two-storey mansion with a guest suite, study, and triple garage on the ground floor. Upstairs, a primary suite and three further bedrooms surround family spaces and a broad terrace above the garage.",
-    highlights: ["Five bedrooms & six baths", "Triple garage & guest suite", "70-square-meter upper balcony"],
+    highlights: ["Five bedrooms & six baths", "Triple garage & guest suite", "Broad upper balcony"],
     project: home("The Horizon Mansion", "Contemporary", 3.2, [46, 48, 11, 10, "Horizon Boulevard"], [
       [
         ["living", "Grand living room", 0, 0, 9, 6], ["dining", "Dining room", 9, 0, 7, 6],

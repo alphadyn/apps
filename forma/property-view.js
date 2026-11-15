@@ -1,6 +1,7 @@
 import { TYPES, bounds, isOutdoor, exteriorWalls, propertyStats } from "./model.js";
 import { createCamera, DEFAULT_CAMERA, sortFaces } from "./camera.js";
 import { featureHost, featureVertices, featureMarkup, railingMarkup, boundaryFence, fenceSettings, fenceMarkup } from "./architecture.js";
+import { formatLength } from "./units.js";
 
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const number = value => Number(value.toFixed(2));
@@ -26,7 +27,7 @@ export function propertyFeatures(project) {
   return { trees, driveway };
 }
 
-export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 0, y: 0 }, dimensions = true, labels = true, roof = true, viewportWidth = 900, camera: angles = DEFAULT_CAMERA } = {}) {
+export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 0, y: 0 }, dimensions = true, labels = true, roof = true, viewportWidth = 900, camera: angles = DEFAULT_CAMERA, units = "metric" } = {}) {
   const iso = view === "3d";
   const camera = createCamera(angles), projectPoint = camera.project;
   const p = project.property;
@@ -126,10 +127,10 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
         for (const opening of specified.filter(item => item.side === wall.axis)) {
           const openingStart = (vertical ? wall.room.y : wall.room.x) + opening.offset;
           if (openingStart < wall.from - 1e-8 || openingStart + opening.width > wall.to + 1e-8) continue;
-          if (roof) surface += featureMarkup(opening, featureVertices(opening, wall.room, z, { x: p.houseX, y: p.houseY }), point);
+          if (roof) surface += featureMarkup(opening, featureVertices(opening, wall.room, z, { x: p.houseX, y: p.houseY }), point, false, units);
           else {
             const vertices = featureVertices(opening, wall.room, z, { x: p.houseX, y: p.houseY }, wallHeight / project.ceiling);
-            surface += featureMarkup(opening, vertices, point);
+            surface += featureMarkup(opening, vertices, point, false, units);
           }
         }
         scene.push({ vertices, markup: surface, floor: f, index });
@@ -145,11 +146,11 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
       }
     });
     for (const segment of fenceSegments) {
-      scene.push({ vertices: segment.vertices, markup: fenceMarkup(segment.vertices, fence, point) });
+      scene.push({ vertices: segment.vertices, markup: fenceMarkup(segment.vertices, fence, point, false, units) });
     }
     for (const gate of (project.features || []).filter(f => f.type === "gate")) {
       const vertices = featureVertices(gate, featureHost(project, gate));
-      scene.push({ vertices, markup: featureMarkup(gate, vertices, point) });
+      scene.push({ vertices, markup: featureMarkup(gate, vertices, point, false, units) });
     }
     for (const tree of features.trees) {
       scene.push({ vertices: rect(tree.x - tree.radius, tree.y - tree.radius, tree.radius * 2, tree.radius * 2, tree.radius), markup: tree3d(tree) });
@@ -160,7 +161,7 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
       const f = face.floor, first = !seen.has(f.id); seen.add(f.id);
       markup += `<g class="property-floor" data-property-floor="${escape(f.id)}" ${first ? `data-floor-level="${face.index}" tabindex="0" role="button" aria-label="Edit ${escape(f.name)}"` : ""}>${first ? `<title>${escape(f.name)} · level ${face.index + 1}</title>` : ""}${face.markup}</g>`;
     }
-    if (labels) markup += text(450, 621, `${project.floors.length} ${project.floors.length === 1 ? "LEVEL" : "LEVELS"} · ${number(height)} m HIGH · ${roof ? "EXTERIOR STUDY" : "OPEN-TOP STUDY"}`, 'letter-spacing="1.6"');
+    if (labels) markup += text(450, 621, `${project.floors.length} ${project.floors.length === 1 ? "LEVEL" : "LEVELS"} · ${formatLength(height, units)} HIGH · ${roof ? "EXTERIOR STUDY" : "OPEN-TOP STUDY"}`, 'letter-spacing="1.6"');
   } else {
     const ground = project.floors[0];
     for (const r of ground.rooms) {
@@ -175,9 +176,9 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
       for (const r of f.rooms) markup += polygon(rect(r.x + p.houseX, r.y + p.houseY, r.width, r.depth), "none", 'style="stroke:#7d957d;stroke-dasharray:4 3;stroke-width:1"');
       markup += "</g>";
     });
-    for (const segment of fenceSegments) markup += fenceMarkup(segment.vertices, fence, point, true);
+    for (const segment of fenceSegments) markup += fenceMarkup(segment.vertices, fence, point, true, units);
     for (const feature of (project.features || []).filter(f => f.type === "gate" || f.floorId === ground.id)) {
-      markup += featureMarkup(feature, featureVertices(feature, featureHost(project, feature), 0, feature.type === "gate" ? { x: 0, y: 0 } : { x: p.houseX, y: p.houseY }), point, true);
+      markup += featureMarkup(feature, featureVertices(feature, featureHost(project, feature), 0, feature.type === "gate" ? { x: 0, y: 0 } : { x: p.houseX, y: p.houseY }), point, true, units);
     }
     for (const tree of features.trees) {
       const v = point(tree.x, tree.y), radius = tree.radius * scale;
@@ -192,8 +193,8 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
   if (dimensions) {
     const a = point(0, -1.5), b = point(p.width, -1.5), c = point(-1.5, 0), d = point(-1.5, p.depth);
     markup += `<polyline points="${a.x},${a.y} ${b.x},${b.y}" fill="none" stroke="#8da17c" stroke-width=".7"/><polyline points="${c.x},${c.y} ${d.x},${d.y}" fill="none" stroke="#8da17c" stroke-width=".7"/>`;
-    markup += text((a.x + b.x) / 2, (a.y + b.y) / 2 - 7, `${number(p.width)} m`);
-    markup += text((c.x + d.x) / 2 - 16, (c.y + d.y) / 2, `${number(p.depth)} m`);
+    markup += text((a.x + b.x) / 2, (a.y + b.y) / 2 - 7, formatLength(p.width, units));
+    markup += text((c.x + d.x) / 2 - 16, (c.y + d.y) / 2, formatLength(p.depth, units));
   }
   markup += "</g>";
   return { markup, scale };

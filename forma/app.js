@@ -5,6 +5,7 @@ import { cameraFromDrag, createCamera, DEFAULT_CAMERA, normalizeCamera } from ".
 import { SAMPLE_DESIGNS, createSampleDesign } from "./samples.js";
 import { featureHost, featureVertices, featureMarkup, fenceSettings, FEATURE_MATERIALS } from "./architecture.js";
 import { architectureDialog } from "./architecture-ui.js";
+import { documentationDialog } from "./documentation.js";
 
 const $ = selector => document.querySelector(selector);
 const paths = {
@@ -66,6 +67,7 @@ let activeFloor = project.floors[0].id;
 let selected = null;
 let view = "2d";
 let scope = "floor";
+let activePanel = "plan";
 let showRoof = true;
 let camera = { ...DEFAULT_CAMERA };
 let tool = "select";
@@ -110,9 +112,9 @@ function commit(before) {
 }
 function change(action) {
   const before = snapshot();
-  const previousFloor = activeFloor, previousSelection = selected, previousScope = scope;
+  const previousFloor = activeFloor, previousSelection = selected, previousScope = scope, previousPanel = activePanel;
   try { action(); validateProject(project); commit(before); return true; }
-  catch (error) { project = JSON.parse(before); activeFloor = previousFloor; selected = previousSelection; scope = previousScope; toast(error.message, true); render(); return false; }
+  catch (error) { project = JSON.parse(before); activeFloor = previousFloor; selected = previousSelection; scope = previousScope; activePanel = previousPanel; toast(error.message, true); render(); return false; }
 }
 function history(redo = false) {
   const source = redo ? redoStack : undoStack;
@@ -124,11 +126,11 @@ function history(redo = false) {
   persist(); render();
 }
 function selectFloor(id) {
-  activeFloor = id; scope = "floor"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; render();
+  activeFloor = id; scope = "floor"; activePanel = "plan"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; render();
   $(".sidebar").classList.remove("open");
 }
 function setScope(value) {
-  scope = value; selected = null; zoom = 1; pan = { x: 0, y: 0 }; render();
+  scope = value; activePanel = value === "property" ? "property" : "plan"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; render();
 }
 function render() {
   const stats = projectStats(project);
@@ -161,7 +163,7 @@ function render() {
     $(`#scope-${value}`).classList.toggle("active", scope === value);
     $(`#scope-${value}`).setAttribute("aria-pressed", scope === value);
   }
-  document.querySelectorAll(".design-nav button").forEach(button => button.classList.toggle("active", button.dataset.panel === (scope === "property" ? "property" : "plan")));
+  document.querySelectorAll(".design-nav button").forEach(button => button.classList.toggle("active", button.dataset.panel === activePanel));
   $(".canvas-legend").innerHTML = scope === "property"
     ? '<span><i class="legend-living"></i>House</span><span><i class="legend-outdoor"></i>Grounds</span><span><i class="legend-boundary"></i>Property line</span>'
     : '<span><i class="legend-living"></i>Living</span><span><i class="legend-private"></i>Private</span><span><i class="legend-service"></i>Service</span><span><i class="legend-outdoor"></i>Outdoor</span>';
@@ -348,7 +350,7 @@ function propertyDialog() {
     updated.fence = { enabled: data.has("fence-enabled"), height: Number(data.get("fence-height")), style: data.get("fence-style"), material: data.get("fence-material") };
     for (const key of ["width", "depth", "houseX", "houseY"]) updated[key] = Number(data.get(key));
     try { validateProperty(updated); } catch (error) { toast(error.message, true); return; }
-    if (change(() => { project.property = updated; scope = "property"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; })) {
+    if (change(() => { project.property = updated; scope = "property"; activePanel = "property"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; })) {
       closeDialog(); toast("Property updated. Your home, in context.");
     }
   };
@@ -359,17 +361,20 @@ function deleteRoom(item) { change(() => {
   selected = null;
 }); }
 function architecturalFeatures(featureId) {
+  activePanel = "architecture";
+  document.querySelectorAll(".design-nav button").forEach(button => button.classList.toggle("active", button.dataset.panel === activePanel));
   architectureDialog({
     getProject: () => project, showDialog, change, selectedRoomId: selected, featureId,
     reveal: feature => {
       if (feature.type === "gate") { scope = "property"; selected = null; }
       else { activeFloor = feature.floorId; selected = feature.roomId; scope = "floor"; }
+      activePanel = "architecture";
       view = "2d"; zoom = 1; pan = { x: 0, y: 0 }; render();
     },
   });
 }
 function showDialog(title, html, eyebrow = "MAKE IT YOURS") {
-  $("#app-dialog").classList.remove("samples-dialog");
+  $("#app-dialog").classList.remove("samples-dialog", "documentation-dialog");
   $("#dialog-title").textContent = title;
   $("#dialog-eyebrow").textContent = eyebrow;
   $("#dialog-content").innerHTML = html;
@@ -379,7 +384,7 @@ function showDialog(title, html, eyebrow = "MAKE IT YOURS") {
 const closeDialog = () => $("#app-dialog").close();
 function openDesign(next) {
   return change(() => {
-    project = next; activeFloor = project.floors[0].id; scope = "floor"; view = "2d"; tool = "select";
+    project = next; activeFloor = project.floors[0].id; scope = "floor"; activePanel = "plan"; view = "2d"; tool = "select";
     selected = null; zoom = 1; pan = { x: 0, y: 0 }; camera = { ...DEFAULT_CAMERA };
   });
 }
@@ -423,7 +428,7 @@ function sampleDetails(id) {
 function addRoom(type) {
   change(() => {
     const item = makeRoom(type, floor().rooms);
-    floor().rooms.push(item); scope = "floor"; selected = item.id; zoom = 1; pan = { x: 0, y: 0 };
+    floor().rooms.push(item); scope = "floor"; activePanel = "plan"; selected = item.id; zoom = 1; pan = { x: 0, y: 0 };
   });
   closeDialog();
 }
@@ -445,7 +450,7 @@ function projectDialog() {
     showDialog("Room for a new beginning.", '<p class="dialog-description">Start a blank home with one ground floor. Your current design will be replaced in this browser. Download a project backup first if you want to keep it. You can also undo this action until you reload.</p><div class="dialog-actions"><button class="button" id="cancel-new">Keep designing</button><button class="button primary" id="confirm-new">Start new project</button></div>', "A CLEAN SLATE");
     $("#cancel-new").onclick = projectDialog;
     $("#confirm-new").onclick = () => {
-      change(() => { project = { ...createProject(), name: "Untitled home", floors: [{ id: crypto.randomUUID(), name: "Ground floor", rooms: [] }] }; activeFloor = project.floors[0].id; scope = "floor"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; camera = { ...DEFAULT_CAMERA }; });
+      change(() => { project = { ...createProject(), name: "Untitled home", floors: [{ id: crypto.randomUUID(), name: "Ground floor", rooms: [] }] }; activeFloor = project.floors[0].id; scope = "floor"; activePanel = "plan"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; camera = { ...DEFAULT_CAMERA }; });
       closeDialog();
     };
   };
@@ -457,7 +462,7 @@ function addFloorDialog() {
     event.preventDefault();
     const name = String(new FormData(event.currentTarget).get("name")).trim();
     if (!name) { toast("Give your floor a name.", true); return; }
-    change(() => { const newFloor = { id: crypto.randomUUID(), name, rooms: [] }; project.floors.push(newFloor); activeFloor = newFloor.id; scope = "floor"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; });
+    change(() => { const newFloor = { id: crypto.randomUUID(), name, rooms: [] }; project.floors.push(newFloor); activeFloor = newFloor.id; scope = "floor"; activePanel = "plan"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; });
     closeDialog();
   };
 }
@@ -572,7 +577,16 @@ document.addEventListener("click", event => {
   if (directoryButton) { selectFloor(directoryButton.dataset.directoryFloor); selected = directoryButton.dataset.directoryRoom; render(); closeDialog(); }
   const panel = event.target.closest("[data-panel]");
   if (panel) {
-    const panels = { plan: () => setScope("floor"), property: () => setScope("property"), samples: sampleGallery, architecture: () => architecturalFeatures(), rooms: roomDirectory, materials: materialsDialog, settings: projectDialog };
+    const panels = {
+      plan: () => setScope("floor"), property: () => setScope("property"), samples: sampleGallery,
+      architecture: () => architecturalFeatures(), documentation: () => {
+        activePanel = "documentation";
+        render();
+        documentationDialog({ getProject: () => project, showDialog, download });
+      },
+      rooms: roomDirectory, materials: materialsDialog, settings: projectDialog,
+    };
+    activePanel = panel.dataset.panel;
     panels[panel.dataset.panel]();
     $(".sidebar").classList.remove("open");
   }
@@ -646,7 +660,7 @@ function endDrag(event, cancelled = false) {
   else if (previous.mode === "orbit" && !previous.moved) {
     if (previous.featureId) { render(); architecturalFeatures(previous.featureId); return; }
     if (scope === "property" && previous.floorId) {
-      activeFloor = previous.floorId; scope = "floor"; zoom = 1; pan = { x: 0, y: 0 };
+      activeFloor = previous.floorId; scope = "floor"; activePanel = "plan"; zoom = 1; pan = { x: 0, y: 0 };
       selected = previous.roomId || null;
     } else if (scope === "floor") selected = previous.roomId || null;
   }

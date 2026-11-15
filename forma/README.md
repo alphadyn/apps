@@ -53,6 +53,17 @@ Open **Doors, windows & gates** in the sidebar, **Doors & windows** in a selecte
 - The specification schedule lists all features with their host, dimensions, offset, sill, style, material, and glazing. Select an entry to edit or delete it. Click a specified feature on the main canvas (or focus it and press Enter) to reopen its editor. Dragging in 3D still orbits; only a click opens the editor.
 - Features appear in floor plans, the ground-floor site plan, and relevant visible 3D walls. Floor cutaways show openings on the retained far walls with vertically scaled heights, matching the partial-height wall study. Whole-house views show actual specified dimensions; internal openings are not visible through closed exterior walls. Gates appear in property views, not individual floor plans.
 - Rooms without specifications retain illustrative auto-generated openings. Specifying an opening replaces those decorations for that room; removing its last specification restores them. These defaults are not entries in the specification schedule.
+
+## Architectural documentation
+
+Open **Documentation** in the sidebar for a project-derived drawing and schedule set:
+
+- Generate north, east, south, and west concept elevations from exterior room edges, floor heights, and specified door/window placements. Rooms without opening specifications retain the same illustrative north-facing window and south-facing door conventions as the plan.
+- Generate an A–A or B–B building section. Move the cut position to inspect spaces intersected across all floors.
+- Review a room schedule with level, type, area, dimensions, and floor finish, or an opening schedule with host, location, size, and specification.
+- Download drawings as SVG or schedules as CSV for design discussions and further drafting.
+
+Documentation reflects the current editable project, including floor names, room changes, and specified openings. Drawings use uniform project ceiling heights and schematic geometry; they are not construction documents, code-compliant elevations, or engineering details.
 - Validation rejects overlapping openings on the same physical wall (including opposite sides of shared walls), invalid dimensions/references, spans exceeding the host edge, and openings above the ceiling. Adjust or delete specifications before shrinking a host room/lot or lowering the ceiling. Deleting a room/floor also removes its attached specifications; Undo restores both. Duplicating a room copies its space/finish, not its opening specifications.
 - Specifications are included in JSON save/export/upload and visible features in SVG export. Existing saved designs without specifications remain compatible. Up to 400 specified features are supported.
 

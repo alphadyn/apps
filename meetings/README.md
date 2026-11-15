@@ -4,7 +4,7 @@
 
 > Browser-based WebRTC meeting app with mobile controls. See the [repository catalog](../README.md) for shared setup and deployment context.
 
-A browser-based video conferencing app. Enter a name and a meeting code to join a room where
+A browser-based video conferencing app. Enter a name, meeting code, and private invite secret to join a room where
 participants can talk, video chat, message each other, and share files — all peer-to-peer, with
 no application server required, and all strongly encrypted end-to-end.
 
@@ -16,19 +16,23 @@ The Meetings logo on the join screen links back to the app's landing page. Reloa
 - **Text chat** sent over a WebRTC data channel to everyone currently in the meeting
 - **File sharing** (up to 25 MB) — send a file and everyone in the meeting gets a direct download
   link
-- **Strong end-to-end encryption**: audio and video are protected by WebRTC's mandatory
-  DTLS-SRTP transport encryption, and chat, file transfers, and all room signaling are separately
-  encrypted with AES-256-GCM using a key derived (via PBKDF2, 150,000 iterations) from the
-  meeting code — see Encryption below for details
+- **Strong end-to-end content encryption**: encoded audio/video frames, chat, files, and
+  participant-directory messages use AES-256-GCM with keys derived from a random 256-bit
+  invite secret, on top of WebRTC transport encryption. Signaling metadata is not end-to-end
+  encrypted; see Encryption below for the trust model and limitations.
 - **Mesh topology**: the first participant to join a meeting code becomes its lightweight
   directory (introducing new joiners to everyone already present); every participant then holds a
   direct connection to every other participant, so media/chat/files never pass through a central
   server
-- **Invite links**: "Copy invite link" puts a URL with `?room=<code>` on the clipboard so others
-  can join the same meeting with one click
+- **Private invite links**: "Copy invite link" copies `?room=<code>#key=<secret>`. The fragment
+  is not sent in HTTP requests or to the signaling broker. Treat the entire invite as a credential.
 - **Fullscreen mode**: expand the meeting view and exit fullscreen with the toolbar control
 - **Mobile-friendly layout**: responsive video tiles, touch-sized controls, and an overlay panel
-  for chat, people, and files on smaller screens
+  for chat, people, and files on smaller screens. The pre-join form and device preview sit side
+  by side on larger displays and stack on phones. Landscape phones use a compact toolbar;
+  dynamic viewport sizing and safe-area padding keep the meeting controls within reach.
+- **Accessible meeting details**: visible panel close control, synchronized toolbar states,
+  arrow-key/Home/End tab navigation, Escape to close, and keyboard-accessible file sharing
 - Participant list with live join/leave updates
 
 ## Run it
@@ -42,12 +46,17 @@ cd meetings
 python3 -m http.server 8000
 ```
 
-Then open http://localhost:8000 in your browser. To test locally with multiple participants, open
-the same meeting code in separate browser tabs, windows, or devices.
+Then open http://localhost:8000 in your browser. Encrypted media requires a current browser with
+`RTCRtpScriptTransform`, Web Crypto, and Worker support. Opening the HTML directly using `file:`
+is not supported for joining: the media worker must be served over HTTPS or localhost.
+To test locally with multiple participants, use the complete invite link in separate browser tabs,
+windows, or devices.
 
 ## How to use
-1. Enter your name and a meeting code. Click **Generate a new code** to create one, then click
-  **Join meeting**.
+1. Click **Create meeting** to generate a room code and a random private secret, enter your name,
+  then click **Join meeting**. To join an existing meeting, use its complete invite link or enter
+  its room code and 43-character secret separately. A room code alone is no longer sufficient;
+  older clients are incompatible with this encryption protocol.
 2. Grant camera/microphone permission when prompted. The app waits for your device permissions
   before starting the meeting; if one device is unavailable, the other can still work. If you
   change browser permissions or connect a device, click **Retry camera / microphone** on the
@@ -67,22 +76,42 @@ the same meeting code in separate browser tabs, windows, or devices.
 - `app.js` — PeerJS-based mesh signaling, media/data connection handling, chat, file transfer, and
   the AES-256-GCM encryption layer
 - `styles.css` — layout and visual styling
+- `crypto.js` — shared secret generation, key derivation, and authenticated encryption
+- `media-worker.js` — encoded audio/video frame encryption and decryption
+- `tests/` — dependency-free browser regression tests; open `/tests/` on the local server
 
 ## Encryption
-- **Audio & video**: WebRTC mandates DTLS-SRTP for every peer connection, so calls are always
-  encrypted in transit browser-to-browser — this can't be disabled and requires no extra setup.
-- **Chat, files, and signaling**: every data-channel message (chat text, file bytes, and the
-  join/roster messages used to introduce participants) is additionally encrypted with
-  AES-256-GCM before it's sent. The key is derived from the meeting code using PBKDF2 (SHA-256,
-  150,000 iterations) via the browser's Web Crypto API, so only participants who know the meeting
-  code can decrypt this traffic, not the PeerJS signaling broker or any network relay in between.
-  Each message uses a fresh random 96-bit IV.
-- **Peer identity**: the meeting's directory peer ID is a SHA-256 hash of the meeting code rather
-  than the code itself, so the plaintext meeting code is never sent to the public signaling
-  server.
-- This design keeps the same trust model as the app itself: whoever has the meeting code can join
-  the meeting and decrypt its traffic, matching how invite links already work, while adding a
-  strong encryption layer on top of transport security.
+- **Secret and keys**: `crypto.getRandomValues` generates a 32-byte secret encoded as 43
+  base64url characters. HKDF-SHA-256 derives separate data and media key material, scoped to
+  the room and protocol version. Keys are non-extractable Web Crypto keys. Human-chosen room
+  codes are never encryption keys. The secret is kept in memory and the password field, never
+  in local/session storage. An incoming invite's fragment is removed from the current history
+  entry after loading; browser history, clipboard managers, extensions, and screenshots still
+  require care.
+- **Audio & video**: an `RTCRtpScriptTransform` worker encrypts each encoded frame with
+  AES-256-GCM before WebRTC sends it, in addition to DTLS-SRTP. HMAC-SHA-256 derives a distinct
+  frame key for each call, direction, and track kind. Each frame has a fresh random 96-bit IV,
+  a 128-bit authentication tag, and an authenticated counter. Receivers reject malformed,
+  tampered, wrong-key, and replayed frames (with a bounded reordering window). Unsupported
+  browsers or worker/transform failures do not fall back to unencrypted content.
+- **Chat, files, and directory messages**: AES-256-GCM protects every data-channel payload.
+  The authenticated context binds the protocol, connection, sender, recipient, message type,
+  file ID, and ordered sequence. Encryption and decryption are serialized per connection so
+  file metadata and data stay ordered. Plaintext, tampered, replayed, and wrong-key messages
+  close the connection with an explicit error. Peers must complete a fresh encrypted
+  challenge/response identity exchange before media calls are accepted; captured identity
+  messages cannot authenticate a new connection.
+- **What remains visible**: the PeerJS broker handles WebRTC offers/answers, ICE candidates,
+  connection IDs, and timing; STUN and network infrastructure can see IP addresses and traffic
+  size/timing. These setup messages are necessary to connect and are not claimed to be
+  end-to-end encrypted. The directory ID is a versioned hash of the public room code. Neither
+  the broker nor relays receive the invite secret or content keys.
+- **Trust model**: anyone with the full invite secret can join and decrypt meeting content.
+  There is no independent participant identity verification, forward secrecy against a later
+  compromise of the shared invite secret, or automatic rekey on departure. Start a new meeting
+  and share a new invite to revoke old access. The page origin and its loaded scripts (including
+  PeerJS from its CDN) must be trusted: encryption cannot protect against compromised client
+  code, browser extensions, recording by participants, or a compromised endpoint.
 
 ## Notes & limitations
 - Because signaling relies on PeerJS's public broker and media flows directly between browsers,

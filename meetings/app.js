@@ -6,7 +6,7 @@
 // participant (mesh topology) for audio/video, chat, and file sharing.
 
 (() => {
-  const HOST_PREFIX = 'meetup-host-';
+  const HOST_PREFIX = 'meetup-v2-';
   const MAX_FILE_BYTES = 25 * 1024 * 1024; // 25 MB
 
   // ---- DOM references -------------------------------------------------
@@ -15,6 +15,7 @@
   const joinForm = document.getElementById('joinForm');
   const nameInput = document.getElementById('nameInput');
   const roomInput = document.getElementById('roomInput');
+  const secretInput = document.getElementById('secretInput');
   const newMeetingBtn = document.getElementById('newMeetingBtn');
   const joinStatus = document.getElementById('joinStatus');
   const previewVideo = document.getElementById('previewVideo');
@@ -29,6 +30,7 @@
   const meetingMediaStatus = document.getElementById('meetingMediaStatus');
   const videoGrid = document.getElementById('videoGrid');
   const sidePanel = document.getElementById('sidePanel');
+  const closePanelBtn = document.getElementById('closePanelBtn');
   const sideTabs = document.querySelectorAll('.side-tab');
   const sidePanels = document.querySelectorAll('.side-tab-panel');
 
@@ -56,7 +58,14 @@
   let myName = '';
   let isHost = false;
   let hostPeerId = '';
-  let roomKey = null; // AES-256-GCM CryptoKey derived from the meeting code
+  let roomKey = null;
+  let mediaKey = null;
+  let meetingSecret = '';
+  let mediaWorker = null;
+  let leaving = false;
+  const transformedEndpoints = new WeakSet();
+  const connectionStates = new WeakMap();
+  const pendingCalls = new Map();
   /** peerId -> { name, conn, call, videoEl } */
   const participants = new Map();
   /** host-only: peerId -> name, tracks everyone known in the room */
@@ -94,61 +103,81 @@
   }
 
   // ---- End-to-end encryption ---------------------------------------------
-  // Every data-channel message (chat, roster/signaling, and file transfers) is
-  // encrypted with AES-256-GCM using a key derived from the meeting code via
-  // PBKDF2. Only people who know the meeting code can decrypt this traffic —
-  // not the PeerJS signaling broker or any relay in between. This is on top
-  // of the DTLS-SRTP encryption WebRTC itself mandates for every connection
-  // (audio, video, and data channels), so audio/video is always encrypted
-  // in transit even though it isn't re-encrypted at the application layer.
+  // Content keys are derived from a random invite secret, never the public room code.
+  // PeerJS still sees connection metadata, but all content is encrypted before sending.
   if (!window.crypto?.subtle) {
-    throw new Error('This browser does not support the Web Crypto API needed for encrypted meetings.');
-  }
-
-  async function deriveRoomKey(room) {
-    const enc = new TextEncoder();
-    const baseKey = await crypto.subtle.importKey('raw', enc.encode(room), 'PBKDF2', false, ['deriveKey']);
-    return crypto.subtle.deriveKey(
-      { name: 'PBKDF2', salt: enc.encode('meetings-app-e2ee-v1'), iterations: 150000, hash: 'SHA-256' },
-      baseKey,
-      { name: 'AES-GCM', length: 256 },
-      false,
-      ['encrypt', 'decrypt']
-    );
+    setStatus(joinStatus, 'Encrypted meetings require Web Crypto over HTTPS or localhost. Use a supported browser.');
+    joinForm.querySelector('button[type="submit"]').disabled = true;
+    newMeetingBtn.disabled = true;
+    return;
   }
 
   async function deriveHostPeerId(room) {
-    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('meetings-app-host-id-v1:' + room));
+    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('meetings-app-host-id-v2:' + room));
     const hex = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
     return HOST_PREFIX + hex.slice(0, 24);
   }
 
-  // Encrypts an arbitrary JSON-serializable message and sends it on `conn`.
-  async function sendSecure(conn, message) {
-    const iv = crypto.getRandomValues(new Uint8Array(12));
-    const plaintext = new TextEncoder().encode(JSON.stringify(message));
-    const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, roomKey, plaintext);
-    conn.send({ type: 'enc', iv: Array.from(iv), ct });
+  function encryptionFailure(conn, error) {
+    const state = connectionStates.get(conn);
+    if (state?.failed) return;
+    if (state) {
+      state.failed = true;
+      clearTimeout(state.timer);
+    }
+    console.error('Encrypted connection failed:', error);
+    setStatus(connectionStatus, 'Encryption failed. Check the invite secret and reconnect; no plaintext fallback is allowed.');
+    conn.close();
+    if (participants.get(conn.peer)?.conn === conn) removeParticipant(conn.peer);
   }
 
-  // Encrypts a raw file chunk (ArrayBuffer) without JSON/base64 overhead.
-  async function sendSecureBinary(conn, fileId, buffer) {
-    const iv = crypto.getRandomValues(new Uint8Array(12));
-    const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, roomKey, buffer);
-    conn.send({ type: 'enc-bin', id: fileId, iv: Array.from(iv), ct });
+  function envelopeContext(conn, envelope, from, to) {
+    return JSON.stringify([2, conn.connectionId, from, to, envelope.type, envelope.id || '', envelope.seq]);
   }
 
-  async function decryptEnvelope(envelope) {
-    const iv = new Uint8Array(envelope.iv);
-    if (envelope.type === 'enc') {
-      const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, roomKey, envelope.ct);
-      return JSON.parse(new TextDecoder().decode(pt));
+  function sendEncrypted(conn, type, plaintext, id = '') {
+    const state = connectionStates.get(conn);
+    if (!state) throw new Error('Encrypted connection has not been initialized.');
+    const key = roomKey;
+    const sender = myId;
+    state.sending = state.sending.then(async () => {
+      if (state.failed) throw new Error('Encrypted connection is closed.');
+      const envelope = { v: 2, type, id, seq: state.sendSequence++ };
+      if (!Number.isSafeInteger(envelope.seq)) throw new Error('Message counter exhausted.');
+      const sealed = await MeetingsCrypto.seal(key, plaintext, envelopeContext(conn, envelope, sender, conn.peer));
+      conn.send({ ...envelope, iv: Array.from(sealed.iv), ct: sealed.ciphertext });
+      return true;
+    }).catch((error) => {
+      if (!state.failed) encryptionFailure(conn, error);
+      state.failed = true;
+      return false;
+    });
+    return state.sending;
+  }
+
+  function sendSecure(conn, message) {
+    return sendEncrypted(conn, 'enc', new TextEncoder().encode(JSON.stringify(message)));
+  }
+
+  function sendSecureBinary(conn, fileId, buffer) {
+    return sendEncrypted(conn, 'enc-bin', buffer, fileId);
+  }
+
+  async function decryptEnvelope(conn, envelope) {
+    const state = connectionStates.get(conn);
+    if (!envelope || envelope.v !== 2 || !['enc', 'enc-bin'].includes(envelope.type) ||
+        !Array.isArray(envelope.iv) || envelope.iv.length !== 12 ||
+        !envelope.iv.every(byte => Number.isInteger(byte) && byte >= 0 && byte <= 255) ||
+        typeof envelope.id !== 'string' || envelope.seq !== state.receiveSequence ||
+        !Number.isSafeInteger(envelope.seq)) {
+      throw new Error('Invalid, replayed, or incompatible encrypted message.');
     }
-    if (envelope.type === 'enc-bin') {
-      const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, roomKey, envelope.ct);
-      return { type: 'file-chunk', id: envelope.id, buffer: pt };
-    }
-    return null;
+    const pt = await MeetingsCrypto.open(roomKey, new Uint8Array(envelope.iv), envelope.ct,
+      envelopeContext(conn, envelope, conn.peer, myId));
+    state.receiveSequence++;
+    return envelope.type === 'enc'
+      ? JSON.parse(new TextDecoder().decode(pt))
+      : { type: 'file-chunk', id: envelope.id, buffer: pt };
   }
 
   // ---- Local media preflight ---------------------------------------------
@@ -219,11 +248,7 @@
     retryMediaBtn.classList.toggle('hidden', hasAudio && hasVideo);
     for (const [kind, buttons] of [['audio', [previewMicBtn, micBtn]], ['video', [previewCamBtn, camBtn]]]) {
       const track = (kind === 'audio' ? localStream.getAudioTracks() : localStream.getVideoTracks())[0];
-      buttons.forEach((button) => {
-        button.disabled = !track;
-        button.classList.toggle('is-on', !!track?.enabled);
-        button.setAttribute('aria-pressed', String(!!track?.enabled));
-      });
+      buttons.forEach((button) => updateMediaButton(button, kind, track));
     }
     return localStream;
   }
@@ -259,11 +284,22 @@
     const enabled = !tracks[0].enabled;
     tracks.forEach((t) => { t.enabled = enabled; });
     const otherBtn = kind === 'audio' ? (btn === micBtn ? previewMicBtn : micBtn) : (btn === camBtn ? previewCamBtn : camBtn);
-    [btn, otherBtn].forEach((button) => {
-      button.classList.toggle('is-on', enabled);
-      button.setAttribute('aria-pressed', String(enabled));
-    });
+    [btn, otherBtn].forEach((button) => updateMediaButton(button, kind, tracks[0]));
     if (kind === 'video') updateTileVideoState(document.getElementById('tile-local'), localStream);
+  }
+
+  function updateMediaButton(button, kind, track) {
+    const enabled = !!track?.enabled;
+    button.disabled = !track;
+    button.classList.toggle('is-on', enabled);
+    button.setAttribute('aria-pressed', String(enabled));
+    const device = kind === 'audio' ? 'Microphone' : 'Camera';
+    button.title = `${device} ${!track ? 'unavailable' : enabled ? 'on' : 'off'}`;
+    if (button === micBtn || button === camBtn) {
+      button.querySelector('.control-label').textContent = !track
+        ? kind === 'audio' ? 'No mic' : 'No camera'
+        : kind === 'audio' ? enabled ? 'Mute' : 'Unmute' : enabled ? 'Stop video' : 'Start video';
+    }
   }
 
   previewMicBtn.addEventListener('click', () => toggleTrack('audio', previewMicBtn));
@@ -280,7 +316,17 @@
   // Pre-fill room code from URL (?room=xyz) for invite links.
   const params = new URLSearchParams(window.location.search);
   if (params.get('room')) roomInput.value = params.get('room');
-  newMeetingBtn.addEventListener('click', () => { roomInput.value = randomRoomCode(); });
+  const fragment = new URLSearchParams(window.location.hash.slice(1));
+  if (fragment.has('key')) {
+    secretInput.value = fragment.get('key');
+    // Remove the secret from history before any later navigation or link copying.
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  }
+  newMeetingBtn.addEventListener('click', () => {
+    roomInput.value = randomRoomCode();
+    secretInput.value = MeetingsCrypto.generateSecret();
+    setStatus(joinStatus, 'Private meeting created. Join, then copy the complete invite link to share access.');
+  });
 
   // ---- Joining a meeting ---------------------------------------------------
   joinForm.addEventListener('submit', (e) => {
@@ -293,23 +339,38 @@
     joinForm.querySelector('button[type="submit"]').disabled = true;
     startMeeting(room).catch((err) => {
       console.error(err);
+      if (peer) peer.destroy();
+      if (mediaWorker) mediaWorker.terminate();
+      mediaWorker = null;
+      roomKey = null;
+      mediaKey = null;
       setStatus(joinStatus, err.message || 'Could not connect. Please try again.');
       joinForm.querySelector('button[type="submit"]').disabled = false;
     });
   });
 
   async function startMeeting(room) {
+    if (typeof RTCRtpScriptTransform !== 'function' || typeof Worker !== 'function') {
+      throw new Error('This browser does not support end-to-end media encryption. Use a current browser with RTCRtpScriptTransform support.');
+    }
+    if (window.location.protocol === 'file:') {
+      throw new Error('Encrypted media requires a worker served over HTTPS or localhost. Open the deployed app or serve it locally.');
+    }
+    meetingSecret = secretInput.value.trim();
+    const keys = await MeetingsCrypto.deriveKeys(room, meetingSecret);
+    roomKey = keys.dataKey;
+    mediaKey = keys.mediaKey;
+    await startMediaWorker();
     // Permission prompts can still be pending when the user clicks Join.
     // PeerJS must never call/answer with a null stream.
     await (mediaPromise || Promise.resolve(localStream));
-    roomKey = await deriveRoomKey(room);
     hostPeerId = await deriveHostPeerId(room);
     await tryBecomeHost(room);
   }
 
   function tryBecomeHost(room) {
     return new Promise((resolve, reject) => {
-      const candidate = new Peer(hostPeerId, { debug: 1 });
+      const candidate = new Peer(hostPeerId, peerOptions());
       let settled = false;
 
       candidate.on('open', (id) => {
@@ -329,6 +390,7 @@
           candidate.destroy();
           joinAsGuest(room).then(resolve).catch(reject);
         } else {
+          candidate.destroy();
           reject(err);
         }
       });
@@ -337,7 +399,7 @@
 
   function joinAsGuest(room) {
     return new Promise((resolve, reject) => {
-      const candidate = new Peer({ debug: 1 });
+      const candidate = new Peer(peerOptions());
       candidate.on('open', (id) => {
         isHost = false;
         peer = candidate;
@@ -348,6 +410,7 @@
         resolve();
       });
       candidate.on('error', (err) => {
+        candidate.destroy();
         reject(err);
       });
     });
@@ -356,8 +419,20 @@
   function wireCommonPeerEvents() {
     peer.on('connection', (conn) => setupDataConnection(conn));
     peer.on('call', (call) => {
-      call.answer(localStream);
-      wireCallEvents(call);
+      if (participants.get(call.peer)?.authenticated) {
+        answerEncryptedCall(call);
+      } else {
+        if (pendingCalls.has(call.peer)) {
+          call.close();
+          return;
+        }
+        const timer = setTimeout(() => {
+          pendingCalls.delete(call.peer);
+          call.close();
+          setStatus(connectionStatus, 'An unauthenticated media call was rejected.');
+        }, 10000);
+        pendingCalls.set(call.peer, { call, timer });
+      }
     });
     peer.on('disconnected', () => setStatus(connectionStatus, 'Reconnecting…'));
     peer.on('error', (err) => console.warn('Peer error:', err));
@@ -379,29 +454,158 @@
     if (existing && existing.conn) return;
     const conn = peer.connect(id, { reliable: true });
     setupDataConnection(conn);
-    const call = peer.call(id, localStream);
-    wireCallEvents(call);
   }
 
   function setupDataConnection(conn) {
     const existing = participants.get(conn.peer) || {};
+    if (existing.conn && existing.conn !== conn) {
+      conn.close();
+      return;
+    }
     participants.set(conn.peer, { ...existing, conn });
+    const state = {
+      sending: Promise.resolve(), receiving: Promise.resolve(),
+      sendSequence: 0, receiveSequence: 0, failed: false,
+      challenge: MeetingsCrypto.generateSecret(), receivedHello: false
+    };
+    connectionStates.set(conn, state);
+    const timer = setTimeout(() => {
+      if (!participants.get(conn.peer)?.authenticated) encryptionFailure(conn, new Error('Peer authentication timed out.'));
+    }, 10000);
+    state.timer = timer;
 
     conn.on('open', () => {
-      sendSecure(conn, { type: 'hello', name: myName, id: myId });
+      sendSecure(conn, { type: 'hello', challenge: state.challenge });
     });
 
-    conn.on('data', async (envelope) => {
-      const msg = await decryptEnvelope(envelope);
-      if (msg) handleMessage(conn.peer, msg);
+    conn.on('data', (envelope) => {
+      state.receiving = state.receiving.then(async () => {
+        if (state.failed) return;
+        const msg = await decryptEnvelope(conn, envelope);
+        if (!participants.get(conn.peer)?.authenticated && !['hello', 'proof'].includes(msg.type)) throw new Error('Peer must authenticate first.');
+        handleMessage(conn.peer, msg);
+      }).catch((error) => {
+        if (!state.failed) encryptionFailure(conn, error);
+        state.failed = true;
+      });
     });
 
-    conn.on('close', () => removeParticipant(conn.peer));
+    conn.on('error', (error) => encryptionFailure(conn, error));
+    conn.on('close', () => {
+      clearTimeout(timer);
+      state.failed = true;
+      removeParticipant(conn.peer);
+    });
+  }
+
+  function peerOptions() {
+    return {
+      debug: 1,
+      config: {
+        encodedInsertableStreams: true,
+        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+      }
+    };
+  }
+
+  function startMediaWorker() {
+    if (mediaWorker) mediaWorker.terminate();
+    return new Promise((resolve, reject) => {
+      const worker = new Worker('media-worker.js');
+      mediaWorker = worker;
+      const timer = setTimeout(() => {
+        worker.terminate();
+        reject(new Error('Media encryption worker failed to start. No unencrypted connection was made.'));
+      }, 10000);
+      worker.onmessage = ({ data }) => {
+        if (data.type === 'ready') {
+          clearTimeout(timer);
+          resolve();
+        } else if (data.type === 'encryption-error') {
+          console.error('Media encryption failed:', data.message);
+          leaveMeeting();
+          setStatus(joinStatus, 'Media encryption failed. The meeting was closed; check your invite and reconnect.');
+        }
+      };
+      worker.onerror = (error) => {
+        clearTimeout(timer);
+        console.error('Media encryption worker failed:', error);
+        worker.terminate();
+        reject(new Error('Media encryption is unavailable. No unencrypted fallback is allowed.'));
+        if (!meetingScreen.classList.contains('hidden')) {
+          leaveMeeting();
+          setStatus(joinStatus, 'Media encryption stopped. The meeting was closed for your protection.');
+        }
+      };
+    });
+  }
+
+  function installMediaTransforms(call) {
+    const pc = call.peerConnection;
+    for (const [operation, endpoints] of [['encrypt', pc.getSenders()], ['decrypt', pc.getReceivers()]]) {
+      for (const endpoint of endpoints) {
+        if (!endpoint.track || transformedEndpoints.has(endpoint)) continue;
+        const sender = operation === 'encrypt' ? myId : call.peer;
+        const receiver = operation === 'encrypt' ? call.peer : myId;
+        const context = [call.connectionId, sender, receiver, endpoint.track.kind];
+        endpoint.transform = new RTCRtpScriptTransform(mediaWorker, { operation, mediaKey, context });
+        transformedEndpoints.add(endpoint);
+      }
+    }
+  }
+
+  function mediaTransformOptions(getCall) {
+    return {
+      // Include receive slots even when the caller has no local devices.
+      constraints: { offerToReceiveAudio: true, offerToReceiveVideo: true },
+      sdpTransform(sdp) {
+        try {
+          installMediaTransforms(getCall());
+          return sdp;
+        } catch (error) {
+          console.error('Unable to install media encryption:', error);
+          getCall().close();
+          setStatus(connectionStatus, 'Unable to encrypt this media connection. Call rejected.');
+          throw error;
+        }
+      }
+    };
+  }
+
+  function answerEncryptedCall(call) {
+    if (participants.get(call.peer)?.call) {
+      call.close();
+      return;
+    }
+    call.answer(localStream, mediaTransformOptions(() => call));
+    wireCallEvents(call);
+  }
+
+  function startEncryptedCall(id) {
+    const entry = participants.get(id);
+    if (entry.call || !entry.authenticated) return;
+    let call;
+    call = peer.call(id, localStream, mediaTransformOptions(() => call));
+    wireCallEvents(call);
   }
 
   function wireCallEvents(call) {
     const existing = participants.get(call.peer) || {};
     participants.set(call.peer, { ...existing, call });
+    call.peerConnection.addEventListener('track', () => {
+      try {
+        installMediaTransforms(call);
+      } catch (error) {
+        console.error('Unable to decrypt incoming media:', error);
+        call.close();
+        setStatus(connectionStatus, 'Incoming media could not be decrypted. Call rejected.');
+      }
+    });
+    call.on('error', (error) => {
+      console.error('Encrypted media call failed:', error);
+      call.close();
+      setStatus(connectionStatus, 'Encrypted media connection failed. Rejoin to retry.');
+    });
     call.on('stream', (remoteStream) => {
       addRemoteVideoTile(call.peer, remoteStream);
     });
@@ -412,13 +616,37 @@
   function handleMessage(fromId, msg) {
     switch (msg.type) {
       case 'hello': {
+        const entry = participants.get(fromId);
+        const state = connectionStates.get(entry.conn);
+        if (state.receivedHello) throw new Error('Repeated authentication greeting.');
+        MeetingsCrypto.decodeSecret(msg.challenge);
+        state.receivedHello = true;
+        sendSecure(entry.conn, { type: 'proof', challenge: msg.challenge, name: myName, id: myId });
+        break;
+      }
+      case 'proof': {
+        if (msg.id !== fromId || typeof msg.name !== 'string' || msg.name.length > 40) throw new Error('Invalid authenticated peer identity.');
         const entry = participants.get(fromId) || {};
+        const state = connectionStates.get(entry.conn);
+        if (!state?.receivedHello || msg.challenge !== state.challenge || entry.authenticated) {
+          throw new Error('Peer authentication challenge failed.');
+        }
         entry.name = msg.name;
+        entry.authenticated = true;
         participants.set(fromId, entry);
+        clearTimeout(connectionStates.get(entry.conn)?.timer);
+        const pending = pendingCalls.get(fromId);
+        if (pending) {
+          clearTimeout(pending.timer);
+          pendingCalls.delete(fromId);
+          answerEncryptedCall(pending.call);
+        } else if (myId < fromId) {
+          startEncryptedCall(fromId);
+        }
         renderPeopleList();
         updateTileName(fromId, msg.name);
 
-        if (isHost) {
+        if (isHost && !leaving) {
           roster.set(fromId, msg.name);
           const conn = entry.conn;
           if (conn) {
@@ -481,7 +709,15 @@
     const entry = participants.get(id);
     if (!entry) return;
     participants.delete(id);
-    if (isHost) {
+    const pending = pendingCalls.get(id);
+    if (pending) {
+      clearTimeout(pending.timer);
+      pendingCalls.delete(id);
+      pending.call.close();
+    }
+    if (entry.call) entry.call.close();
+    if (entry.conn) entry.conn.close();
+    if (isHost && !leaving) {
       roster.delete(id);
       broadcast({ type: 'peer-left', id });
     }
@@ -576,18 +812,24 @@
 
   function sendFile(file) {
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       const fileId = `${myId}-${Date.now()}`;
       const buffer = reader.result;
       const meta = { type: 'file-meta', id: fileId, from: myName, name: file.name, mime: file.type, size: file.size };
-      participants.forEach(({ conn }) => {
-        if (conn && conn.open) {
-          sendSecure(conn, meta);
-          sendSecureBinary(conn, fileId, buffer);
-        }
-      });
+      const recipients = [...participants.values()].filter(({ conn, authenticated }) => authenticated && conn?.open);
+      if (!recipients.length) {
+        logFileEvent('No authenticated participants are connected. The file was not sent.');
+        return;
+      }
+      const results = await Promise.all(recipients.map(async ({ conn }) =>
+        await sendSecure(conn, meta) && await sendSecureBinary(conn, fileId, buffer)));
+      if (!results.every(Boolean)) {
+        logFileEvent(`"${file.name}" could not be encrypted and sent to every participant.`);
+        return;
+      }
       logFileEvent(`You shared "${file.name}" (${formatBytes(file.size)}).`);
     };
+    reader.onerror = () => logFileEvent(`"${file.name}" could not be read and was not sent.`);
     reader.readAsArrayBuffer(file);
   }
 
@@ -622,29 +864,54 @@
   micBtn.addEventListener('click', () => toggleTrack('audio', micBtn));
   camBtn.addEventListener('click', () => toggleTrack('video', camBtn));
 
-  sideTabs.forEach((tab) => {
-    tab.addEventListener('click', () => {
-      sideTabs.forEach((t) => t.classList.remove('is-active'));
-      tab.classList.add('is-active');
-      sidePanels.forEach((p) => p.classList.toggle('hidden', p.dataset.panel !== tab.dataset.tab));
-      sidePanel.classList.remove('hidden');
+  const panelButtons = new Map([['chat', chatToggleBtn], ['people', peopleToggleBtn], ['files', filesToggleBtn]]);
+  let activePanel = null;
+  function setSidePanel(tabName) {
+    activePanel = tabName;
+    sidePanel.classList.toggle('hidden', !tabName);
+    sideTabs.forEach((tab) => {
+      const selected = tab.dataset.tab === (tabName || 'chat');
+      tab.classList.toggle('is-active', selected);
+      tab.setAttribute('aria-selected', String(selected));
+      tab.tabIndex = selected ? 0 : -1;
     });
-  });
-
-  function toggleSidePanel(tabName) {
-    const alreadyOpen = !sidePanel.classList.contains('hidden') && document.querySelector(`.side-tab[data-tab="${tabName}"]`).classList.contains('is-active');
-    if (alreadyOpen) {
-      sidePanel.classList.add('hidden');
-      return;
-    }
-    sideTabs.forEach((t) => t.classList.toggle('is-active', t.dataset.tab === tabName));
-    sidePanels.forEach((p) => p.classList.toggle('hidden', p.dataset.panel !== tabName));
-    sidePanel.classList.remove('hidden');
+    sidePanels.forEach((panel) => panel.classList.toggle('hidden', panel.dataset.panel !== (tabName || 'chat')));
+    panelButtons.forEach((button, name) => {
+      button.classList.toggle('is-active', name === tabName);
+      button.setAttribute('aria-expanded', String(name === tabName));
+    });
   }
 
-  chatToggleBtn.addEventListener('click', () => toggleSidePanel('chat'));
-  peopleToggleBtn.addEventListener('click', () => toggleSidePanel('people'));
-  filesToggleBtn.addEventListener('click', () => toggleSidePanel('files'));
+  function closeSidePanel() {
+    const trigger = panelButtons.get(activePanel);
+    const focusWasInside = sidePanel.contains(document.activeElement);
+    setSidePanel(null);
+    if (focusWasInside) trigger?.focus();
+  }
+
+  sideTabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => setSidePanel(tab.dataset.tab));
+    tab.addEventListener('keydown', (event) => {
+      const last = sideTabs.length - 1;
+      const next = event.key === 'ArrowRight' ? (index + 1) % sideTabs.length
+        : event.key === 'ArrowLeft' ? (index + last) % sideTabs.length
+          : event.key === 'Home' ? 0 : event.key === 'End' ? last : null;
+      if (next === null) return;
+      event.preventDefault();
+      setSidePanel(sideTabs[next].dataset.tab);
+      sideTabs[next].focus();
+    });
+  });
+  panelButtons.forEach((button, name) => {
+    button.addEventListener('click', () => setSidePanel(activePanel === name ? null : name));
+  });
+  closePanelBtn.addEventListener('click', closeSidePanel);
+  sidePanel.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeSidePanel();
+    }
+  });
 
   function getFullscreenElement() {
     return document.fullscreenElement || document.webkitFullscreenElement || null;
@@ -684,7 +951,10 @@
   document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
 
   copyLinkBtn.addEventListener('click', async () => {
-    const url = `${window.location.origin}${window.location.pathname}?room=${encodeURIComponent(roomLabel.textContent)}`;
+    const invite = new URL(window.location.href);
+    invite.search = new URLSearchParams({ room: roomLabel.textContent }).toString();
+    invite.hash = new URLSearchParams({ key: meetingSecret }).toString();
+    const url = invite.href;
     try {
       await navigator.clipboard.writeText(url);
       setStatus(connectionStatus, 'Invite link copied!');
@@ -700,26 +970,45 @@
   });
 
   function leaveMeeting() {
+    leaving = true;
     const exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen;
     if (getFullscreenElement() === meetingScreen && exitFullscreen) exitFullscreen.call(document);
-    broadcast({ type: 'peer-left', id: myId });
     participants.forEach(({ conn, call }) => {
+      const state = conn && connectionStates.get(conn);
+      if (state) {
+        state.failed = true;
+        clearTimeout(state.timer);
+      }
       if (conn) conn.close();
       if (call) call.close();
     });
     participants.clear();
+    pendingCalls.forEach(({ call, timer }) => {
+      clearTimeout(timer);
+      call.close();
+    });
+    pendingCalls.clear();
     roster.clear();
     if (peer) peer.destroy();
+    if (mediaWorker) mediaWorker.terminate();
+    mediaWorker = null;
+    roomKey = null;
+    mediaKey = null;
+    meetingSecret = '';
+    secretInput.value = '';
+    incomingFiles.clear();
     if (localStream) localStream.getTracks().forEach((t) => t.stop());
     localStream = null;
     previewVideo.srcObject = null;
     videoGrid.innerHTML = '';
     chatLog.innerHTML = '';
     fileLog.innerHTML = '';
+    setSidePanel(null);
     meetingScreen.classList.add('hidden');
     joinScreen.classList.remove('hidden');
     joinForm.querySelector('button[type="submit"]').disabled = false;
     setStatus(joinStatus, '');
     requestMediaWithFeedback();
+    leaving = false;
   }
 })();

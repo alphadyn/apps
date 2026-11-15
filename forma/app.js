@@ -1,5 +1,8 @@
 import { TYPES, createProject, floorArea, projectStats, propertyStats, bounds, isOutdoor, validateRoom, validateProject, validateProperty, makeRoom, parseProject, readProjectFile } from "./model.js";
 import { renderPropertyView } from "./property-view.js";
+import { renderFloor3D } from "./floor-view.js";
+import { cameraFromDrag, createCamera, DEFAULT_CAMERA, normalizeCamera } from "./camera.js";
+import { SAMPLE_DESIGNS, createSampleDesign } from "./samples.js";
 
 const $ = selector => document.querySelector(selector);
 const paths = {
@@ -62,6 +65,7 @@ let selected = null;
 let view = "2d";
 let scope = "floor";
 let showRoof = true;
+let camera = { ...DEFAULT_CAMERA };
 let tool = "select";
 let dimensions = true;
 let zoom = 1;
@@ -144,8 +148,13 @@ function render() {
   $("#layer-furniture").disabled = scope === "property";
   $("#view-2d-label").textContent = scope === "property" ? "Site plan" : "2D plan";
   $("#tool-select").classList.toggle("active", tool === "select");
+  $("#tool-select").setAttribute("aria-label", view === "3d" ? "Rotate and select model" : "Select and move rooms");
+  $("#tool-select").title = view === "3d" ? "Rotate & select (V)" : "Select & move (V)";
   $("#tool-pan").classList.toggle("active", tool === "pan");
   $("#drawing-surface").classList.toggle("pan-mode", tool === "pan");
+  $("#drawing-surface").classList.toggle("orbit-mode", view === "3d" && tool !== "pan");
+  $("#orbit-controls").hidden = view !== "3d";
+  updateCameraControls();
   for (const value of ["floor", "property"]) {
     $(`#scope-${value}`).classList.toggle("active", scope === value);
     $(`#scope-${value}`).setAttribute("aria-pressed", scope === value);
@@ -162,7 +171,7 @@ function render() {
   $("#view-3d").setAttribute("aria-pressed", view === "3d");
   $("#zoom-value").textContent = `${Math.round(zoom * 100)}%`;
   $("#empty-floor").hidden = scope === "property" || floor().rooms.length > 0;
-  $("#canvas-help").textContent = tool === "pan" ? "Drag the canvas to pan · V to select" : scope === "property" ? "Whole property · Click the house to edit a floor" : view === "3d" ? "Axonometric concept · Click a space to edit" : "Click a room to edit · Drag to rearrange";
+  $("#canvas-help").textContent = tool === "pan" ? "Drag the canvas to pan · V to select" : view === "3d" ? "Drag to rotate · Click to edit · H to pan" : scope === "property" ? "Whole property · Click the house to edit a floor" : "Click a room to edit · Drag to rearrange";
   renderPlan(); renderInspector();
   updateScale();
   $(".meta-date").textContent = `${project.style.toUpperCase()} RESIDENTIAL`;
@@ -170,6 +179,17 @@ function render() {
 function updateScale() {
   const screenScale = $("#plan").getScreenCTM()?.a || 1;
   $("#scale-label").innerHTML = view === "2d" ? `METRIC <span class="scale-bar" style="width:${drawing.scale * screenScale * zoom * 2}px"></span> 2 m` : "AXONOMETRIC · NOT TO SCALE";
+}
+function updateCameraControls() {
+  $("#camera-yaw").value = String(Math.round(camera.yaw));
+  $("#camera-pitch").value = String(Math.round(camera.pitch));
+  $("#camera-yaw-value").textContent = `${Math.round(camera.yaw)}°`;
+  $("#camera-pitch-value").textContent = `${Math.round(camera.pitch)}°`;
+  const north = createCamera(camera).project(0, -1);
+  $(".north-marker svg").style.transform = view === "3d" ? `rotate(${Math.atan2(north.x, -north.y) * 180 / Math.PI}deg)` : "";
+}
+function setCamera(angles) {
+  camera = normalizeCamera(angles); updateCameraControls(); renderPlan();
 }
 
 function furniture(type, w, h) {
@@ -201,7 +221,7 @@ function renderPlan() {
   const viewportWidth = Math.min(900, 690 * surface.width / Math.max(surface.height, 1));
   $("#plan").setAttribute("viewBox", `${450 - viewportWidth / 2} 0 ${viewportWidth} 690`);
   if (scope === "property") {
-    const result = renderPropertyView(project, { view, zoom, pan, dimensions, labels: $("#layer-labels").checked, roof: showRoof, viewportWidth });
+    const result = renderPropertyView(project, { view, zoom, pan, dimensions, labels: $("#layer-labels").checked, roof: showRoof, viewportWidth, camera });
     drawing.scale = result.scale;
     $("#plan").setAttribute("aria-label", `${project.name}, ${view === "3d" ? "full-house 3D view" : "property site plan"}, ${project.floors.length} floors on a ${project.property.width} by ${project.property.depth} meter lot`);
     $("#plan").innerHTML = result.markup;
@@ -214,7 +234,7 @@ function renderPlan() {
   const svg = $("#plan");
   svg.setAttribute("aria-label", `${floor().name}, ${view === "2d" ? "floor plan" : "axonometric view"} with ${rooms.length} spaces`);
   const defs = '<defs><pattern id="oak" width="32" height="8" patternUnits="userSpaceOnUse"><path d="M0 0h32M16 0v8" fill="none" stroke="#979c7e" stroke-opacity=".09" stroke-width=".6"/></pattern><pattern id="tile" width="14" height="14" patternUnits="userSpaceOnUse"><path d="M14 0H0V14" fill="none" stroke="#8eaaa0" stroke-opacity=".18" stroke-width=".6"/></pattern><pattern id="deck" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M0 0v8" stroke="#92a27c" stroke-opacity=".25" stroke-width=".7"/></pattern><filter id="plan-shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="3" dy="6" stdDeviation="7" flood-color="#3d5030" flood-opacity=".08"/></filter></defs>';
-  if (view === "3d") { svg.innerHTML = defs + renderIsometric(rooms, viewportWidth); return; }
+  if (view === "3d") { svg.innerHTML = defs + renderFloor3D(rooms, { camera, ceiling: project.ceiling, viewportWidth, zoom, pan, selected, furniture: $("#layer-furniture").checked, labels: $("#layer-labels").checked }); return; }
   const { x: ox, y: oy } = drawing;
   let markup = `<g transform="translate(${450 + pan.x} ${345 + pan.y}) scale(${zoom}) translate(-450 -345)">`;
   if (rooms.length) {
@@ -255,43 +275,6 @@ function renderPlan() {
   }
   markup += "</g>";
   svg.innerHTML = defs + markup;
-}
-function renderIsometric(rooms, viewportWidth) {
-  if (!rooms.length) return "";
-  const b = bounds(rooms);
-  const projectPoint = (x, y, z = 0) => ({ x: (x - y) * .866, y: (x + y) * .5 - z });
-  const corners = [[b.x, b.y], [b.x + b.width, b.y], [b.x, b.y + b.depth], [b.x + b.width, b.y + b.depth]];
-  const projected = corners.flatMap(([x, y]) => [projectPoint(x, y), projectPoint(x, y, 1.6)]);
-  const minX = Math.min(...projected.map(p => p.x)), maxX = Math.max(...projected.map(p => p.x));
-  const minY = Math.min(...projected.map(p => p.y)), maxY = Math.max(...projected.map(p => p.y));
-  const s = Math.min(Math.min(660, Math.max(100, viewportWidth - 140)) / (maxX - minX), 460 / (maxY - minY));
-  const points = list => list.map(([x, y, z = 0]) => { const p = projectPoint(x, y, z); return `${(p.x - (minX + maxX) / 2) * s + 450},${(p.y - (minY + maxY) / 2) * s + 350}`; }).join(" ");
-  const poly = (list, fill, extra = "") => `<polygon points="${points(list)}" fill="${fill}" stroke="#7b8d72" stroke-width="1" ${extra}/>`;
-  let markup = `<g transform="translate(${450 + pan.x} ${345 + pan.y}) scale(${zoom}) translate(-450 -345)">`;
-  markup += poly([[b.x - .6, b.y - .6, -.2], [b.x + b.width + .6, b.y - .6, -.2], [b.x + b.width + .6, b.y + b.depth + .6, -.2], [b.x - .6, b.y + b.depth + .6, -.2]], "#d8e1c9");
-  for (const item of [...rooms].sort((a, b) => a.x + a.y - b.x - b.y)) {
-    const x = item.x, y = item.y, w = item.width, d = item.depth;
-    const wallHeight = isOutdoor(item) ? .13 : Math.min(project.ceiling * .44, 1.6);
-    markup += `<g class="iso-room" data-room="${escape(item.id)}" tabindex="0" role="button" aria-label="${escape(item.name)}">`;
-    markup += poly([[x, y], [x + w, y], [x + w, y + d], [x, y + d]], TYPES[item.type].color, item.id === selected ? 'style="stroke:#38885c;stroke-width:3"' : "");
-    markup += poly([[x, y], [x, y + d], [x, y + d, wallHeight], [x, y, wallHeight]], "#c1cbb7");
-    markup += poly([[x, y], [x + w, y], [x + w, y, wallHeight], [x, y, wallHeight]], "#e1e4d7");
-    if (item.type === "stairs") {
-      for (let i = 1; i < 10; i++) markup += poly([[x + .1, y + d * i / 10, .03], [x + w - .1, y + d * i / 10, .03], [x + w - .1, y + d * (i + 1) / 10, .03], [x + .1, y + d * (i + 1) / 10, .03]], i % 2 ? "#e5e7db" : "#cbd2bd");
-    } else if ($("#layer-furniture").checked) {
-      const furnitureColor = item.type === "bedroom" ? "#f1eee3" : "#d1d6c3";
-      const fx = x + w * .24, fy = y + d * .25, fw = w * .48, fd = d * .3;
-      markup += poly([[fx, fy, .15], [fx + fw, fy, .15], [fx + fw, fy + fd, .15], [fx, fy + fd, .15]], furnitureColor);
-      markup += poly([[fx, fy + fd], [fx + fw, fy + fd], [fx + fw, fy + fd, .15], [fx, fy + fd, .15]], "#b9c3aa");
-    }
-    if ($("#layer-labels").checked) {
-      const p = projectPoint(x + w * .55, y + d * .76, .02);
-      markup += `<text x="${(p.x - (minX + maxX) / 2) * s + 450}" y="${(p.y - (minY + maxY) / 2) * s + 350}" text-anchor="middle" fill="#5a6c50" font-size="8" font-family="DM Sans,sans-serif" transform="rotate(-30 ${(p.x - (minX + maxX) / 2) * s + 450} ${(p.y - (minY + maxY) / 2) * s + 350})">${escape(item.name.toUpperCase())}</text>`;
-    }
-    markup += "</g>";
-  }
-  markup += `<text x="450" y="623" text-anchor="middle" font-family="DM Sans,sans-serif" fill="#7b8f70" font-size="9" letter-spacing="2">AXONOMETRIC STUDY · PARTIAL-HEIGHT WALLS</text></g>`;
-  return markup;
 }
 
 function renderInspector() {
@@ -349,6 +332,7 @@ function propertyDialog() {
 }
 function deleteRoom(item) { change(() => { floor().rooms = floor().rooms.filter(r => r.id !== item.id); selected = null; }); }
 function showDialog(title, html, eyebrow = "MAKE IT YOURS") {
+  $("#app-dialog").classList.remove("samples-dialog");
   $("#dialog-title").textContent = title;
   $("#dialog-eyebrow").textContent = eyebrow;
   $("#dialog-content").innerHTML = html;
@@ -356,6 +340,49 @@ function showDialog(title, html, eyebrow = "MAKE IT YOURS") {
   if (!$("#app-dialog").open) $("#app-dialog").showModal();
 }
 const closeDialog = () => $("#app-dialog").close();
+function openDesign(next) {
+  return change(() => {
+    project = next; activeFloor = project.floors[0].id; scope = "floor"; view = "2d"; tool = "select";
+    selected = null; zoom = 1; pan = { x: 0, y: 0 }; camera = { ...DEFAULT_CAMERA };
+  });
+}
+function projectBackup() {
+  download(new Blob([JSON.stringify(project, null, 2)], { type: "application/json" }), ".forma.json");
+  toast("Current design backup downloaded.");
+}
+function sampleArtwork(design, label, mode = "3d", floorId = null) {
+  const markup = floorId
+    ? renderFloor3D(design.floors.find(f => f.id === floorId).rooms, { ceiling: design.ceiling, labels: true })
+    : renderPropertyView(design, { view: mode, labels: false, dimensions: false }).markup;
+  return `<div class="sample-artwork" inert><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 690" role="img" aria-label="${escape(label)}">${markup}</svg></div>`;
+}
+function sampleGallery() {
+  showDialog("Find your starting point.", `<p class="dialog-description">${SAMPLE_DESIGNS.length} contemporary concepts, from compact retreats to duplexes, maisonettes, and mansions. Explore a design, then make an editable copy your own.</p><div class="sample-grid">${SAMPLE_DESIGNS.map(sample => {
+    const design = sample.create(), stats = projectStats(design);
+    return `<article class="sample-card">${sampleArtwork(design, `${design.name}, whole-house concept`)}<div class="sample-card-body"><span class="eyebrow">${escape(sample.tag)}</span><h3>${escape(design.name)}</h3><p>${escape(sample.description)}</p><div class="sample-facts"><span>${format(stats.area)} m²</span><span>${stats.bedrooms} ${stats.bedrooms === 1 ? "bed" : "beds"}</span><span>${stats.floors} ${stats.floors === 1 ? "level" : "levels"}</span></div><button class="button" data-preview-sample="${escape(sample.id)}">Explore design ${icon("back")}</button></div></article>`;
+  }).join("")}</div><p class="dialog-note">Areas include terraces, balconies, and garages. These are editable concept layouts, not construction-ready plans. Your current design stays unchanged until you choose Use this design.</p>`, "THE FORMA COLLECTION");
+  $("#app-dialog").classList.add("samples-dialog");
+  $("#app-dialog").scrollTop = 0;
+  $("#dialog-content").querySelectorAll("[data-preview-sample]").forEach(button => { button.onclick = () => sampleDetails(button.dataset.previewSample); });
+}
+function sampleDetails(id) {
+  const sample = SAMPLE_DESIGNS.find(item => item.id === id);
+  if (!sample) { toast("This sample design is not available.", true); return; }
+  const design = createSampleDesign(id), stats = projectStats(design), site = propertyStats(design);
+  showDialog(design.name, `<button class="back-overview" id="back-to-samples">${icon("back")}All sample designs</button><div class="sample-detail-grid"><div><div class="sample-preview-controls"><label for="sample-view">PREVIEW</label><select id="sample-view" aria-label="Sample preview view"><option value="3d">Full house in 3D</option><option value="2d">Property site plan</option>${design.floors.map(f => `<option value="${escape(f.id)}">${escape(f.name)} — cutaway</option>`).join("")}</select></div><div id="sample-detail-art">${sampleArtwork(design, `${design.name}, whole-house concept`)}</div></div><div class="sample-description"><span class="eyebrow">${escape(sample.tag)}</span><p>${escape(sample.story)}</p><ul>${sample.highlights.map(item => `<li>${escape(item)}</li>`).join("")}</ul><dl class="sample-measurements"><div><dt>Total floor area</dt><dd>${format(stats.area)} m²</dd></div><div><dt>Bedrooms / bathrooms</dt><dd>${stats.bedrooms} / ${stats.bathrooms}</dd></div><div><dt>Floors / spaces</dt><dd>${stats.floors} / ${stats.rooms}</dd></div><div><dt>Lot dimensions</dt><dd>${format(design.property.width)} × ${format(design.property.depth)} m</dd></div><div><dt>Building footprint</dt><dd>${format(site.footprint)} m²</dd></div><div><dt>Design language</dt><dd>${escape(design.style)}</dd></div></dl></div></div><div class="sample-replacement"><p><strong>Make this design your own.</strong>Using a sample replaces <b>${escape(project.name)}</b> in this browser. Download a backup first to keep it. You can also undo the replacement until reload.</p><button class="button" id="sample-backup">${icon("save")}Back up current design</button></div><p class="dialog-note">Every room, finish, floor, and property setting is editable. Total floor area includes outdoor spaces and garages. Concept design only; consult a licensed professional before building.</p><div class="dialog-actions"><button class="button" id="cancel-sample">Keep current design</button><button class="button primary" id="use-sample">Use this design</button></div>`, "EXPLORE A SAMPLE HOME");
+  $("#app-dialog").classList.add("samples-dialog");
+  $("#app-dialog").scrollTop = 0;
+  $("#back-to-samples").onclick = sampleGallery;
+  $("#sample-backup").onclick = projectBackup;
+  $("#cancel-sample").onclick = closeDialog;
+  $("#sample-view").onchange = event => {
+    const value = event.target.value, isFloor = value !== "2d" && value !== "3d";
+    $("#sample-detail-art").innerHTML = sampleArtwork(design, `${design.name}, ${isFloor ? design.floors.find(f => f.id === value).name : value === "2d" ? "site plan" : "whole-house concept"}`, isFloor ? "3d" : value, isFloor ? value : null);
+  };
+  $("#use-sample").onclick = () => {
+    if (openDesign(design)) { closeDialog(); $(".sidebar").classList.remove("open"); toast(`${design.name} is ready. Make it your own.`); }
+  };
+}
 function addRoom(type) {
   change(() => {
     const item = makeRoom(type, floor().rooms);
@@ -374,13 +401,14 @@ function projectDialog() {
     if (change(() => { project.name = String(data.get("name")).trim(); project.style = data.get("style"); project.ceiling = Number(data.get("ceiling")); })) closeDialog();
   };
   $("#import-project").onclick = importProject;
-  $("#settings-form").insertAdjacentHTML("beforeend", '<div class="settings-links"><button class="browse-spaces" id="edit-property-settings" type="button">Edit lot & house placement</button><button class="floor-delete" id="new-project" type="button">Start a new, blank project</button></div>');
+  $("#settings-form").insertAdjacentHTML("beforeend", '<div class="settings-links"><button class="browse-spaces" id="edit-property-settings" type="button">Edit lot & house placement</button><button class="browse-spaces" id="browse-sample-settings" type="button">Browse sample home designs</button><button class="floor-delete" id="new-project" type="button">Start a new, blank project</button></div>');
+  $("#browse-sample-settings").onclick = sampleGallery;
   $("#edit-property-settings").onclick = propertyDialog;
   $("#new-project").onclick = () => {
     showDialog("Room for a new beginning.", '<p class="dialog-description">Start a blank home with one ground floor. Your current design will be replaced in this browser. Download a project backup first if you want to keep it. You can also undo this action until you reload.</p><div class="dialog-actions"><button class="button" id="cancel-new">Keep designing</button><button class="button primary" id="confirm-new">Start new project</button></div>', "A CLEAN SLATE");
     $("#cancel-new").onclick = projectDialog;
     $("#confirm-new").onclick = () => {
-      change(() => { project = { ...createProject(), name: "Untitled home", floors: [{ id: crypto.randomUUID(), name: "Ground floor", rooms: [] }] }; activeFloor = project.floors[0].id; scope = "floor"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; });
+      change(() => { project = { ...createProject(), name: "Untitled home", floors: [{ id: crypto.randomUUID(), name: "Ground floor", rooms: [] }] }; activeFloor = project.floors[0].id; scope = "floor"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; camera = { ...DEFAULT_CAMERA }; });
       closeDialog();
     };
   };
@@ -463,15 +491,10 @@ function importProject() {
   zone.ondragleave = () => zone.classList.remove("drag-over");
   zone.ondrop = event => { event.preventDefault(); zone.classList.remove("drag-over"); loadFile(event.dataTransfer.files); };
   $("#cancel-upload").onclick = closeDialog;
-  $("#backup-before-upload").onclick = () => {
-    download(new Blob([JSON.stringify(project, null, 2)], { type: "application/json" }), ".forma.json");
-    toast("Current design backup downloaded.");
-  };
+  $("#backup-before-upload").onclick = projectBackup;
   confirm.onclick = () => {
     if (!pending) return;
-    if (change(() => {
-      project = pending; activeFloor = project.floors[0].id; scope = "floor"; view = "2d"; tool = "select"; selected = null; zoom = 1; pan = { x: 0, y: 0 };
-    })) {
+    if (openDesign(pending)) {
       closeDialog(); $(".sidebar").classList.remove("open"); toast("Design opened. You can continue editing.");
     }
   };
@@ -496,6 +519,7 @@ function svgPoint(event) {
 }
 
 hydrateIcons();
+$("#sample-count").textContent = SAMPLE_DESIGNS.length;
 $("#space-library").innerHTML = ["bedroom", "bathroom", "kitchen", "living", "dining", "stairs", "hallway", "closet"].map(type => `<button class="library-item" data-add-type="${type}" title="Add ${TYPES[type].name.toLowerCase()}">${icon(TYPES[type].icon)}${TYPES[type].name}</button>`).join("");
 document.addEventListener("click", event => {
   const add = event.target.closest("[data-add-type]");
@@ -508,17 +532,23 @@ document.addEventListener("click", event => {
   if (directoryButton) { selectFloor(directoryButton.dataset.directoryFloor); selected = directoryButton.dataset.directoryRoom; render(); closeDialog(); }
   const panel = event.target.closest("[data-panel]");
   if (panel) {
-    const panels = { plan: () => setScope("floor"), property: () => setScope("property"), rooms: roomDirectory, materials: materialsDialog, settings: projectDialog };
+    const panels = { plan: () => setScope("floor"), property: () => setScope("property"), samples: sampleGallery, rooms: roomDirectory, materials: materialsDialog, settings: projectDialog };
     panels[panel.dataset.panel]();
     $(".sidebar").classList.remove("open");
   }
 });
 $("#plan").addEventListener("pointerdown", event => {
-  if (event.button !== 0) return;
+  if (event.button !== 0 || drag) return;
   const target = event.target.closest("[data-room]");
   const point = svgPoint(event);
   if (tool === "pan") {
     drag = { mode: "pan", start: point, pan: { ...pan } };
+  } else if (view === "3d") {
+    drag = {
+      mode: "orbit", start: { x: event.clientX, y: event.clientY }, camera: { ...camera }, moved: false,
+      roomId: target?.dataset.room, floorId: event.target.closest("[data-property-floor]")?.dataset.propertyFloor,
+    };
+    $("#drawing-surface").classList.add("orbiting");
   } else if (scope === "property") {
     const building = event.target.closest("[data-property-floor]");
     if (building) {
@@ -532,10 +562,16 @@ $("#plan").addEventListener("pointerdown", event => {
     drag = view === "2d" ? { mode: "room", id: selected, start: point, x: item.x, y: item.y, scale: drawing.scale, before: snapshot(), moved: false } : null;
     render();
   } else { selected = null; render(); }
-  if (drag) { $("#plan").setPointerCapture(event.pointerId); event.preventDefault(); }
+  if (drag) { drag.pointerId = event.pointerId; $("#plan").setPointerCapture(event.pointerId); event.preventDefault(); }
 });
 $("#plan").addEventListener("pointermove", event => {
-  if (!drag) return;
+  if (!drag || drag.pointerId !== event.pointerId) return;
+  if (drag.mode === "orbit") {
+    const dx = event.clientX - drag.start.x, dy = event.clientY - drag.start.y;
+    if (Math.hypot(dx, dy) > 4) drag.moved = true;
+    if (drag.moved) setCamera(cameraFromDrag(drag.camera, dx, dy));
+    return;
+  }
   const point = svgPoint(event);
   const dx = (point.x - drag.start.x) / zoom, dy = (point.y - drag.start.y) / zoom;
   if (drag.mode === "pan") { pan = { x: drag.pan.x + dx * zoom, y: drag.pan.y + dy * zoom }; renderPlan(); }
@@ -549,19 +585,28 @@ $("#plan").addEventListener("pointermove", event => {
     if (g) g.setAttribute("transform", `translate(${drawing.x + item.x * drag.scale} ${drawing.y + item.y * drag.scale})`);
   }
 });
-function endDrag(event) {
-  if (!drag) return;
+function endDrag(event, cancelled = false) {
+  if (!drag || drag.pointerId !== event.pointerId) return;
   const previous = drag;
   drag = null;
+  $("#drawing-surface").classList.remove("orbiting");
   if ($("#plan").hasPointerCapture(event.pointerId)) $("#plan").releasePointerCapture(event.pointerId);
-  if (previous.mode === "room" && previous.moved) commit(previous.before);
+  if (cancelled) {
+    if (previous.mode === "room") project = JSON.parse(previous.before);
+    if (previous.mode === "orbit") camera = previous.camera;
+    if (previous.mode === "pan") pan = previous.pan;
+  } else if (previous.mode === "room" && previous.moved) commit(previous.before);
+  else if (previous.mode === "orbit" && !previous.moved) {
+    if (scope === "property" && previous.floorId) {
+      activeFloor = previous.floorId; scope = "floor"; zoom = 1; pan = { x: 0, y: 0 };
+      selected = previous.roomId || null;
+    } else if (scope === "floor") selected = previous.roomId || null;
+  }
   render();
 }
 $("#plan").addEventListener("pointerup", endDrag);
-$("#plan").addEventListener("pointercancel", event => {
-  if (drag?.mode === "room") project = JSON.parse(drag.before);
-  endDrag(event);
-});
+$("#plan").addEventListener("pointercancel", event => endDrag(event, true));
+$("#plan").addEventListener("lostpointercapture", event => endDrag(event, true));
 $("#plan").addEventListener("keydown", event => {
   if ((event.key === "Enter" || event.key === " ") && event.target.dataset.propertyFloor) {
     event.preventDefault(); selectFloor(event.target.dataset.propertyFloor); return;
@@ -586,6 +631,9 @@ $("#undo").onclick = () => history();
 $("#redo").onclick = () => history(true);
 $("#view-2d").onclick = () => { view = "2d"; render(); };
 $("#view-3d").onclick = () => { view = "3d"; render(); };
+$("#camera-yaw").oninput = event => setCamera({ ...camera, yaw: Number(event.target.value) });
+$("#camera-pitch").oninput = event => setCamera({ ...camera, pitch: Number(event.target.value) });
+$("#reset-camera").onclick = () => { camera = { ...DEFAULT_CAMERA }; zoom = 1; pan = { x: 0, y: 0 }; render(); };
 $("#tool-select").onclick = () => setTool("select");
 $("#tool-pan").onclick = () => setTool("pan");
 $("#toggle-dimensions").onclick = () => { dimensions = !dimensions; $("#toggle-dimensions").classList.toggle("active", dimensions); $("#toggle-dimensions").setAttribute("aria-pressed", dimensions); renderPlan(); };

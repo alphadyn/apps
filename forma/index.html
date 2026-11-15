@@ -19,6 +19,7 @@
     <nav class="design-nav" aria-label="Workspace">
       <button class="active" data-panel="plan"><span data-icon="plan"></span>Floor plan<span class="nav-count" id="floor-count">2</span></button>
       <button data-panel="property"><span data-icon="property"></span>House & property</button>
+      <button data-panel="samples"><span data-icon="sparkles"></span>Sample designs<span class="new-badge" id="sample-count"></span></button>
       <button data-panel="rooms"><span data-icon="rooms"></span>Rooms & spaces<span class="nav-count" id="room-count">10</span></button>
       <button data-panel="materials"><span data-icon="materials"></span>Materials<span class="new-badge">4</span></button>
       <button data-panel="settings"><span data-icon="sliders"></span>Project settings</button>
@@ -61,6 +62,7 @@
               <div class="canvas-caption"><span class="canvas-status-dot"></span><span id="plan-caption">GROUND FLOOR</span><span class="caption-separator">/</span><span id="canvas-view-caption">FLOOR PLAN</span></div>
               <svg id="plan" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 690" role="img" aria-label="Interactive home floor plan"></svg>
               <div class="north-marker"><span>N</span><svg viewBox="0 0 32 40" aria-hidden="true"><path d="M16 3 26 31 16 24 6 31Z" fill="none" stroke="currentColor"/><path d="M16 3V24L6 31Z" fill="currentColor"/></svg></div>
+              <div class="orbit-controls" id="orbit-controls" hidden aria-label="3D rotation controls"><div class="orbit-heading"><strong>3D ORBIT</strong><button id="reset-camera" title="Reset rotation, zoom, and pan" aria-label="Reset 3D view"><span data-icon="undo"></span>Reset</button></div><label for="camera-yaw"><span>Rotate</span><input id="camera-yaw" type="range" min="0" max="360" step="1" value="45" aria-label="3D horizontal rotation"><output id="camera-yaw-value" for="camera-yaw">45°</output></label><label for="camera-pitch"><span>Tilt</span><input id="camera-pitch" type="range" min="10" max="80" step="1" value="30" aria-label="3D tilt"><output id="camera-pitch-value" for="camera-pitch">30°</output></label></div>
               <div class="canvas-legend"><span><i class="legend-living"></i>Living</span><span><i class="legend-private"></i>Private</span><span><i class="legend-service"></i>Service</span><span><i class="legend-outdoor"></i>Outdoor</span></div>
               <div class="zoom-controls"><button id="zoom-out" aria-label="Zoom out">−</button><span id="zoom-value">100%</span><button id="zoom-in" aria-label="Zoom in">+</button><span></span><button id="zoom-fit" aria-label="Fit plan to canvas" title="Fit to canvas"><span data-icon="expand"></span></button></div>
               <div class="layers-popover" id="layers-popover" hidden><strong>Canvas layers</strong><label><input id="layer-furniture" type="checkbox" checked> Furniture & fixtures</label><label><input id="layer-labels" type="checkbox" checked> Room labels</label><label><input id="layer-grid" type="checkbox" checked> Background grid</label></div>

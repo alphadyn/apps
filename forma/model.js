@@ -24,6 +24,7 @@ const room = (id, type, name, x, y, width, depth) => ({
   id, type, name, x, y, width, depth,
   material: ["terrace", "balcony"].includes(type) ? "deck" : ["bathroom", "utility", "laundry", "entry"].includes(type) ? "tile" : type === "garage" ? "concrete" : "oak",
 });
+export { room as createRoom };
 export function createProject() {
   return {
     version: 1, name: "The Courtyard House", style: "Contemporary", ceiling: 2.8, property: defaultProperty(),
@@ -96,21 +97,24 @@ export function validateProperty(property) {
   if (typeof property.landscaping !== "boolean" || typeof property.driveway !== "boolean") throw new Error("Property landscape and driveway settings must be on or off.");
   return property;
 }
-export function exteriorWalls(rooms) {
+export function exteriorWalls(rooms, sides = ["east", "south"]) {
   const walls = [];
   for (const r of rooms) {
-    for (const axis of ["east", "south"]) {
-      const start = axis === "east" ? r.y : r.x;
-      const end = start + (axis === "east" ? r.depth : r.width);
-      const at = axis === "east" ? r.x + r.width : r.y + r.depth;
+    for (const axis of sides) {
+      const vertical = axis === "east" || axis === "west";
+      const positive = axis === "east" || axis === "south";
+      const start = vertical ? r.y : r.x;
+      const end = start + (vertical ? r.depth : r.width);
+      const extent = vertical ? r.width : r.depth;
+      const at = (vertical ? r.x : r.y) + (positive ? extent : 0);
       let spans = [[start, end]];
       for (const neighbor of rooms) {
         if (neighbor === r) continue;
-        const low = axis === "east" ? neighbor.x : neighbor.y;
-        const high = low + (axis === "east" ? neighbor.width : neighbor.depth);
-        if (low > at + 1e-8 || high <= at + 1e-8) continue;
-        const from = axis === "east" ? neighbor.y : neighbor.x;
-        const to = from + (axis === "east" ? neighbor.depth : neighbor.width);
+        const low = vertical ? neighbor.x : neighbor.y;
+        const high = low + (vertical ? neighbor.width : neighbor.depth);
+        if (positive ? low > at + 1e-8 || high <= at + 1e-8 : low >= at - 1e-8 || high < at - 1e-8) continue;
+        const from = vertical ? neighbor.y : neighbor.x;
+        const to = from + (vertical ? neighbor.depth : neighbor.width);
         spans = spans.flatMap(([a, b]) => to <= a || from >= b ? [[a, b]] : [[a, Math.min(b, from)], [Math.max(a, to), b]].filter(([x, y]) => y - x > 1e-8));
       }
       for (const [from, to] of spans) walls.push({ axis, at, from, to, room: r });

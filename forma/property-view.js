@@ -1,8 +1,8 @@
 import { TYPES, bounds, isOutdoor, exteriorWalls, propertyStats } from "./model.js";
+import { createCamera, DEFAULT_CAMERA, sortFaces } from "./camera.js";
 
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const number = value => Number(value.toFixed(2));
-const projectPoint = (x, y, z = 0) => ({ x: (x - y) * .866, y: (x + y) * .5 - z });
 
 export function propertyFeatures(project) {
   const p = project.property;
@@ -25,8 +25,9 @@ export function propertyFeatures(project) {
   return { trees, driveway };
 }
 
-export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 0, y: 0 }, dimensions = true, labels = true, roof = true, viewportWidth = 900 } = {}) {
+export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 0, y: 0 }, dimensions = true, labels = true, roof = true, viewportWidth = 900, camera: angles = DEFAULT_CAMERA } = {}) {
   const iso = view === "3d";
+  const camera = createCamera(angles), projectPoint = camera.project;
   const p = project.property;
   const allRooms = project.floors.flatMap(f => f.rooms);
   const b = bounds(allRooms);
@@ -38,7 +39,7 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
   const height = propertyStats(project).height;
   const projected = iso ? [
     ...world.map(([x, y]) => projectPoint(x, y)),
-    ...allRooms.flatMap(r => [[r.x + p.houseX, r.y + p.houseY], [r.x + r.width + p.houseX, r.y + r.depth + p.houseY]].map(([x, y]) => projectPoint(x, y, height))),
+    ...allRooms.flatMap(r => [[r.x + p.houseX, r.y + p.houseY], [r.x + r.width + p.houseX, r.y + p.houseY], [r.x + r.width + p.houseX, r.y + r.depth + p.houseY], [r.x + p.houseX, r.y + r.depth + p.houseY]].flatMap(([x, y]) => [projectPoint(x, y), projectPoint(x, y, height)])),
   ] : world.map(([x, y]) => ({ x, y }));
   const left = Math.min(...projected.map(v => v.x)), right = Math.max(...projected.map(v => v.x));
   const top = Math.min(...projected.map(v => v.y)), bottom = Math.max(...projected.map(v => v.y));
@@ -75,49 +76,63 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
   }
 
   if (iso) {
-    for (const tree of features.trees.filter(t => t.x + t.y < p.houseX + p.houseY)) markup += tree3d(tree);
+    const scene = [];
+    const addFace = (vertices, fill, extra, floor, index) => {
+      scene.push({ vertices, markup: polygon(vertices, fill, extra), floor, index });
+    };
     project.floors.forEach((f, index) => {
       const z = index * project.ceiling;
       const enclosed = f.rooms.filter(r => !isOutdoor(r));
-      const walls = exteriorWalls(enclosed).sort((a, b) => a.at + a.from - b.at - b.from);
-      markup += `<g class="property-floor" data-property-floor="${escape(f.id)}" data-floor-level="${index}" tabindex="0" role="button" aria-label="Edit ${escape(f.name)}"><title>${escape(f.name)} · level ${index + 1}</title>`;
+      const walls = exteriorWalls(enclosed, Object.keys(camera.faces).filter(side => camera.faces[side]));
       for (const r of f.rooms) {
         const x = r.x + p.houseX, y = r.y + p.houseY;
         const isDeck = isOutdoor(r);
-        markup += polygon(rect(x, y, r.width, r.depth, z + .08), isDeck ? "#b9b696" : "#cbd0bf");
+        const vertices = rect(x, y, r.width, r.depth, z + .08);
+        let surface = polygon(vertices, isDeck ? "#b9b696" : "#cbd0bf");
         if (isDeck) {
-          for (let step = .35; step < r.width; step += .35) markup += `<polyline points="${points([[x + step, y, z + .09], [x + step, y + r.depth, z + .09]])}" stroke="#9c9e7d" stroke-width=".5" fill="none"/>`;
+          for (let step = .35; step < r.width; step += .35) surface += `<polyline points="${points([[x + step, y, z + .08], [x + step, y + r.depth, z + .08]])}" stroke="#9c9e7d" stroke-width=".5" fill="none"/>`;
         }
+        scene.push({ vertices, markup: surface, floor: f, index });
       }
       for (const wall of walls) {
-        const at = wall.at + (wall.axis === "east" ? p.houseX : p.houseY);
-        const from = wall.from + (wall.axis === "east" ? p.houseY : p.houseX);
-        const to = wall.to + (wall.axis === "east" ? p.houseY : p.houseX);
-        const wallPoint = (along, up) => wall.axis === "east" ? [at, along, up] : [along, at, up];
+        const vertical = wall.axis === "east" || wall.axis === "west";
+        const at = wall.at + (vertical ? p.houseX : p.houseY);
+        const from = wall.from + (vertical ? p.houseY : p.houseX);
+        const to = wall.to + (vertical ? p.houseY : p.houseX);
+        const wallPoint = (along, up) => vertical ? [at, along, up] : [along, at, up];
         const wallHeight = roof ? project.ceiling : Math.min(project.ceiling * .5, 1.5);
         const wallRect = (a, b, low, high) => [wallPoint(a, low), wallPoint(b, low), wallPoint(b, high), wallPoint(a, high)];
-        markup += polygon(wallRect(from, to, z + .08, z + wallHeight), wall.axis === "east" ? "#bfc9b7" : "#e7e8dc", `data-exterior-wall="${wall.axis}"`);
-        markup += polygon(wallRect(from, to, z + wallHeight - .14, z + wallHeight), "#f2f1e7");
+        const vertices = wallRect(from, to, z + .08, z + wallHeight);
+        let surface = polygon(vertices, vertical ? "#bfc9b7" : "#e7e8dc", `data-exterior-wall="${wall.axis}"`);
+        surface += polygon(wallRect(from, to, z + wallHeight - .14, z + wallHeight), "#f2f1e7");
         const span = to - from;
         if (roof && span > 1.1 && wall.room.type !== "stairs") {
           const inset = Math.min(.55, span * .17);
           const low = wall.room.type === "garage" ? z + .15 : z + project.ceiling * .25;
           const high = z + project.ceiling * .79;
           const glass = wall.room.type === "garage" ? "#a4ad97" : "#8fa89e";
-          markup += polygon(wallRect(from + inset, to - inset, low, high), glass, 'style="stroke:#738a7b;stroke-width:.7" data-exterior-window="true"');
+          surface += polygon(wallRect(from + inset, to - inset, low, high), glass, 'style="stroke:#738a7b;stroke-width:.7" data-exterior-window="true"');
           const middle = (from + to) / 2;
-          markup += `<polyline points="${points([wallPoint(middle, low), wallPoint(middle, high)])}" fill="none" stroke="#dce4d8" stroke-width="1"/>`;
+          surface += `<polyline points="${points([wallPoint(middle, low), wallPoint(middle, high)])}" fill="none" stroke="#dce4d8" stroke-width="1"/>`;
           if (wall.room.type === "garage") {
-            for (let h = low + .3; h < high; h += .3) markup += `<polyline points="${points([wallPoint(from + inset, h), wallPoint(to - inset, h)])}" fill="none" stroke="#7c8b73" stroke-width=".6"/>`;
+            for (let h = low + .3; h < high; h += .3) surface += `<polyline points="${points([wallPoint(from + inset, h), wallPoint(to - inset, h)])}" fill="none" stroke="#7c8b73" stroke-width=".6"/>`;
           }
         }
+        scene.push({ vertices, markup: surface, floor: f, index });
       }
       if (roof) {
-        for (const r of enclosed) markup += polygon(rect(r.x + p.houseX, r.y + p.houseY, r.width, r.depth, z + project.ceiling), index === project.floors.length - 1 ? "#d9dece" : "#ecece0", `style="stroke:#a8b39c;stroke-width:.5" data-roof-level="${index}"`);
+        for (const r of enclosed) addFace(rect(r.x + p.houseX, r.y + p.houseY, r.width, r.depth, z + project.ceiling), index === project.floors.length - 1 ? "#d9dece" : "#ecece0", `style="stroke:#a8b39c;stroke-width:.5" data-roof-level="${index}"`, f, index);
       }
-      markup += "</g>";
     });
-    for (const tree of features.trees.filter(t => t.x + t.y >= p.houseX + p.houseY)) markup += tree3d(tree);
+    for (const tree of features.trees) {
+      scene.push({ vertices: rect(tree.x - tree.radius, tree.y - tree.radius, tree.radius * 2, tree.radius * 2, tree.radius), markup: tree3d(tree) });
+    }
+    const seen = new Set();
+    for (const face of sortFaces(scene, camera)) {
+      if (!face.floor) { markup += face.markup; continue; }
+      const f = face.floor, first = !seen.has(f.id); seen.add(f.id);
+      markup += `<g class="property-floor" data-property-floor="${escape(f.id)}" ${first ? `data-floor-level="${face.index}" tabindex="0" role="button" aria-label="Edit ${escape(f.name)}"` : ""}>${first ? `<title>${escape(f.name)} · level ${face.index + 1}</title>` : ""}${face.markup}</g>`;
+    }
     if (labels) markup += text(450, 621, `${project.floors.length} ${project.floors.length === 1 ? "LEVEL" : "LEVELS"} · ${number(height)} m HIGH · ${roof ? "EXTERIOR STUDY" : "OPEN-TOP STUDY"}`, 'letter-spacing="1.6"');
   } else {
     const ground = project.floors[0];

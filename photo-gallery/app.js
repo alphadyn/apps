@@ -1,17 +1,40 @@
 const PHOTO_COUNT = 10;
-const IMAGE_SOURCE = "https://picsum.photos"; // random photos, new set fetched on every page load
+const IMAGE_SOURCE = "https://images.unsplash.com";
+const FALLBACK_IMAGE = "preview-photo.jpg";
+const PHOTO_IDS = [
+  "photo-1500530855697-b586d89ba3ee",
+  "photo-1470770841072-f978cf4d019e",
+  "photo-1501785888041-af3ef285b470",
+  "photo-1464822759023-fed622ff2c3b",
+  "photo-1470252649378-9c29740c9fa8",
+  "photo-1500534623283-312aade485b7",
+  "photo-1518837695005-2083093ee35b",
+  "photo-1507525428034-b723cf961d3e",
+  "photo-1472214103451-9374bd1c798e",
+  "photo-1441974231531-c6227db76b6e",
+  "photo-1470071459604-3b5ec3a7fe05",
+  "photo-1482938289607-e9573fc25ebb",
+  "photo-1497250681960-ef046c08a56e",
+  "photo-1511497584788-876760111969",
+  "photo-1500534314209-a25ddb2bd429",
+  "photo-1472396961693-142e6e269027",
+  "photo-1482192596544-9eb780fc7f66",
+  "photo-1454496522488-7a8e488e8606",
+  "photo-1464278533981-50106e6176b1",
+  "photo-1469474968028-56623f02e42e",
+];
 
-// Fresh random seeds each load so a new set of photos is fetched from the web on every refresh
 function buildPhotoList() {
-  const photos = [];
-  for (let i = 1; i <= PHOTO_COUNT; i++) {
-    const seed = `${Date.now()}-${Math.floor(Math.random() * 1000000)}-${i}`;
-    photos.push({
-      src: `${IMAGE_SOURCE}/seed/${seed}/1200/800`,
-      caption: `Photo ${i} of ${PHOTO_COUNT}`,
-    });
+  const photoIds = [...PHOTO_IDS];
+  for (let i = photoIds.length - 1; i > 0; i--) {
+    const randomIndex = Math.floor(Math.random() * (i + 1));
+    [photoIds[i], photoIds[randomIndex]] = [photoIds[randomIndex], photoIds[i]];
   }
-  return photos;
+
+  return photoIds.slice(0, PHOTO_COUNT).map((id, index) => ({
+    src: `${IMAGE_SOURCE}/${id}?auto=format&fit=crop&w=1200&q=80`,
+    caption: `Photo ${index + 1} of ${PHOTO_COUNT}`,
+  }));
 }
 
 const PHOTOS = buildPhotoList();
@@ -40,6 +63,20 @@ let wasPlayingBeforeMaximize = true;
 let carouselSwipePointerId = null;
 let fullscreenSwipePointerId = null;
 const SWIPE_THRESHOLD = 50;
+
+function setPhotoImage(img, src) {
+  img.onerror = () => {
+    img.onerror = null;
+    img.src = FALLBACK_IMAGE;
+  };
+  img.src = src;
+}
+
+function loadPhotoImages() {
+  document.querySelectorAll("[data-photo-src]").forEach((img) => {
+    setPhotoImage(img, img.dataset.photoSrc);
+  });
+}
 
 function isButtonInteraction(target) {
   return target instanceof Element && target.closest("button");
@@ -106,7 +143,8 @@ function buildSlides() {
     slide.dataset.index = String(index);
 
     const img = document.createElement("img");
-    img.src = photo.src;
+    img.src = FALLBACK_IMAGE;
+    img.dataset.photoSrc = photo.src;
     img.alt = photo.caption;
     img.loading = index === 0 ? "eager" : "lazy";
 
@@ -117,7 +155,8 @@ function buildSlides() {
     thumb.className = "thumb" + (index === 0 ? " active" : "");
     thumb.setAttribute("aria-label", `Go to ${photo.caption}`);
     const thumbImg = document.createElement("img");
-    thumbImg.src = photo.src;
+    thumbImg.src = FALLBACK_IMAGE;
+    thumbImg.dataset.photoSrc = photo.src;
     thumbImg.alt = "";
     thumb.appendChild(thumbImg);
     thumb.addEventListener("click", () => goTo(index));
@@ -176,14 +215,14 @@ function openMaximized() {
   if (playing) {
     togglePlay();
   }
-  fullscreenImg.src = PHOTOS[current].src;
+  setPhotoImage(fullscreenImg, PHOTOS[current].src);
   fullscreenCaption.textContent = PHOTOS[current].caption;
   fullscreenModal.classList.add("active");
   document.body.style.overflow = "hidden";
 }
 
 function updateFullscreenImage() {
-  fullscreenImg.src = PHOTOS[current].src;
+  setPhotoImage(fullscreenImg, PHOTOS[current].src);
   fullscreenCaption.textContent = PHOTOS[current].caption;
 }
 
@@ -303,3 +342,4 @@ document.addEventListener("keydown", (event) => {
 buildSlides();
 render();
 startTimer();
+window.addEventListener("load", loadPhotoImages, { once: true });

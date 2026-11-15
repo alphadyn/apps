@@ -4,13 +4,13 @@
 
 > Standalone responsive browser gallery. See the [repository catalog](../README.md) for shared setup and deployment context.
 
-A browser-based web app that fetches 10 new random photos from the web on every page load/refresh and displays them in an auto-rotating carousel.
+A browser-based web app that selects 10 distinct photos from a pool of 20 on every page load/refresh and displays them in an auto-rotating carousel. The gallery UI renders without waiting for the photo service; if a photo cannot load, the local preview image is shown instead.
 
-Photo Gallery has no clickable app icon or brand link. Reload the page to fetch a new set of photos and restart the carousel.
+Photo Gallery has no clickable app icon or brand link. Reload the page to select a new set of photos and restart the carousel. Photos require an internet connection; the local preview image is used if the photo service is unavailable.
 
 ## Features
 
-- 10 photos fetched live from Picsum Photos on every page load, so a new set appears each time you refresh
+- 10 distinct photos randomly selected from a pool of 20 Unsplash images on every page load
 - Auto-rotating carousel with a progress bar
 - Previous / Next navigation buttons
 - Play / Pause toggle
@@ -30,7 +30,7 @@ Photo Gallery has no clickable app icon or brand link. Reload the page to fetch 
 
 ## How To Run
 
-No build tools or installation are required. An internet connection is required to load photos, since a new set is requested from Picsum Photos on every refresh.
+No build tools or installation are required. An internet connection is required to load photos from Unsplash.
 
 1. Open `index.html` in any modern browser.
 2. Refresh the page to get a brand-new set of 10 photos.
@@ -56,4 +56,4 @@ Run the repository-wide test suite from the project root:
 
 ## Notes
 
-Photos are served by [Picsum Photos](https://picsum.photos) using a randomly generated seed per image, per page load. Since the photos are fetched over the network, the app requires an active internet connection and will not work fully offline.
+Photos are served by [Unsplash](https://unsplash.com/) from a curated pool of 20 images. Since the photos are fetched over the network, the app requires an active internet connection and will not work fully offline.

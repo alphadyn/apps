@@ -23,12 +23,11 @@ Projects are listed alphabetically, matching the catalog on the landing page. Se
 
 - [Atlas Store](atlas-store/) ([Open app](https://alphadyn.github.io/apps/atlas-store/)) — Storefront mockup with catalog, cart, and checkout flow.
 - [Contact Card Generator](contact-card-generator/) ([Open app](https://alphadyn.github.io/apps/contact-card-generator/)) — Create vCard contact files and QR codes with optional profile photos.
-- [The Daily Brief](daily-brief/) ([Open app](https://alphadyn.github.io/apps/daily-brief/)) — A concise daily overview that groups headlines from Google News, Reuters, CNN, BBC, Bloomberg, and CNBC.
+- [Daily Brief](daily-brief/) ([Open app](https://alphadyn.github.io/apps/daily-brief/)) — A concise daily overview that groups headlines from Google News, Reuters, CNN, BBC, Bloomberg, and CNBC.
 - [Earth Explorer](earth-explorer/) ([Open app](https://alphadyn.github.io/apps/earth-explorer/)) — Refined dark 3D atlas with CARTO/OpenStreetMap street tiles, city and landmark search, coordinate inspection, country overlays, and great-circle distance measurement.
 - [Experiences](experiences/) ([Open app](https://alphadyn.github.io/apps/experiences/)) — Supabase-backed journal with trips, shareable Experience collections, Event maps, precise location picking, and media carousels.
 - [Forma](forma/) ([Open app](https://alphadyn.github.io/apps/forma/)) — Contemporary home concept studio with 17 space types, editable floors and lot dimensions, whole-property site plans, full-house 3D concepts, local saving, and SVG/JSON export.
 - [Fractals](fractals/) ([Open app](https://alphadyn.github.io/apps/fractals/)) — Interactive fractal visualizer.
-- [People](people/) ([Open app](https://alphadyn.github.io/apps/people/)) — Professional profiles, resume/CV, galleries, people search, public communities, and private messaging with optional email and SMS handoff.
 - [Lexhaven Legal Docketing](lexhaven-legal-docketing/) ([Open app](https://alphadyn.github.io/apps/lexhaven-legal-docketing/)) — Matter and deadline tracking app.
 - [Market Curve Lab](market-curve-lab/) ([Open app](https://alphadyn.github.io/apps/market-curve-lab/)) — Rank all 500 S&P 500 companies by market cap, search stocks, and inspect selected-ticker all-time performance, trendlines, and concavity.
 - [Market Insights](market-insights/) ([Open app](https://alphadyn.github.io/apps/market-insights/)) — Screen S&P 500 stocks and selected funds with valuation and earnings bounds, ten performance periods, sortable results, and interactive price-history charts.
@@ -37,6 +36,7 @@ Projects are listed alphabetically, matching the catalog on the landing page. Se
 - [Meetings](meetings/) ([Open app](https://alphadyn.github.io/apps/meetings/)) — Encrypted WebRTC meetings with chat, file sharing, fullscreen mode, and responsive mobile controls.
 - [Nexus](nexus/) ([Open app](https://alphadyn.github.io/apps/nexus/)) — Media workspace with browser UI, sample media, filtering, metadata editing, and optional Supabase persistence.
 - [Northstar EHR](northstar-ehr/) ([Open app](https://alphadyn.github.io/apps/northstar-ehr/)) — Responsive electronic health record demo for patient care workflows and encounter documentation.
+- [People](people/) ([Open app](https://alphadyn.github.io/apps/people/)) — Professional profiles, resume/CV, galleries, people search, public communities, and private messaging with optional email and SMS handoff.
 - [Photo Gallery](photo-gallery/) ([Open app](https://alphadyn.github.io/apps/photo-gallery/)) — Responsive gallery app.
 - [Pulse](pulse/) ([Open app](https://alphadyn.github.io/apps/pulse/)) — Supabase-backed social news with tagged posts, media attachments, voting, threaded comments, public profiles, and Admin moderation.
 - [Signal](signal/) ([Open app](https://alphadyn.github.io/apps/signal/)) — Google News snapshot reader with ranked trending names and phrases, shared removed-keyword preferences, search, and JSON export.
@@ -89,12 +89,12 @@ python3 app.py
 
 Open <http://127.0.0.1:5001>, type a ticker or company name, and choose a matching stock. The complete S&P 500 is listed in market-cap order; ranking data is cached for six hours, and selected-ticker histories for one hour. The dashboard shows the closest-fitting model by R² and classifies recent performance curvature as concave up or down.
 
-### Contact Card Generator, Pulse, Signal, and The Daily Brief
+### Contact Card Generator, Pulse, Signal, and Daily Brief
 
 - [Contact Card Generator](contact-card-generator/README.md) is a static utility with browser-side contact generation and a CDN-hosted QR library. Serve `contact-card-generator/`; no account or database is needed.
 - [Pulse](pulse/README.md) uses Supabase Auth, namespaced tables, RLS policies, and optional attachment Storage. Follow its setup guide before using a new project; the initial schema is destructive on rerun, so existing installations should use the documented migrations.
 - [Signal](signal/README.md) loads a generated RSS snapshot. Run `python3 signal/build_data.py` before a local preview. Its shared removed-keyword list uses a public-edit Supabase table configured separately from the snapshot; the local Flask capture is a separate interface.
-- [The Daily Brief](daily-brief/README.md) reads live feeds through the repository-root Vercel API and generates a short overview from headlines. The summary does not use article text or a generative AI service.
+- [Daily Brief](daily-brief/README.md) reads live feeds through the repository-root Vercel API and generates a short overview from headlines. The summary does not use article text or a generative AI service.
 
 ### Market Insights
 
@@ -137,7 +137,7 @@ A convenience wrapper is also included:
 
 The pytest configuration is defined in [pytest.ini](pytest.ini).
 
-Signal, Pulse, The Daily Brief, and Market Insights also have focused regression tests (JavaScript tests require Node.js 18 or newer):
+Signal, Pulse, Daily Brief, and Market Insights also have focused regression tests (JavaScript tests require Node.js 18 or newer):
 
 ```bash
 python3 -m unittest discover -s signal -p test_build_data.py

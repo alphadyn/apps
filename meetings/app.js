@@ -152,8 +152,25 @@
   }
 
   // ---- Local media preflight ---------------------------------------------
+  function mediaErrorMessage(kind, error) {
+    const device = kind === 'audio' ? 'Microphone' : kind === 'video' ? 'Camera' : 'Camera and microphone';
+    switch (error.name) {
+      case 'NotAllowedError':
+      case 'SecurityError':
+        return `${device} access is blocked. Allow access in your browser's site permissions and your system's privacy settings, then retry.`;
+      case 'NotFoundError':
+        return `${kind === 'both' ? 'No camera or microphone was found' : `${device} was not found`}. Connect a device, then retry.`;
+      case 'NotReadableError':
+      case 'AbortError':
+        return `${device} could not start. Close other apps using it, check your device, then retry.`;
+      default:
+        return `${device} could not start: ${error.message || error.name || 'Unknown error'}.`;
+    }
+  }
+
   async function acquireLocalStream() {
     if (!localStream) localStream = new MediaStream();
+    const errors = new Map();
     const missingAudio = !localStream.getAudioTracks().some((track) => track.readyState === 'live');
     const missingVideo = !localStream.getVideoTracks().some((track) => track.readyState === 'live');
     if (navigator.mediaDevices?.getUserMedia && (missingAudio || missingVideo)) {
@@ -167,8 +184,9 @@
           try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: kind === 'video', audio: kind === 'audio' });
             stream.getTracks().forEach((track) => localStream.addTrack(track));
-          } catch {
-            // Joining with just the available devices (or chat only) is supported.
+          } catch (error) {
+            console.warn(`Unable to acquire ${kind}:`, error);
+            errors.set(kind, error);
           }
         }
       }
@@ -178,12 +196,23 @@
     previewVideo.srcObject = localStream;
     const hasAudio = localStream.getAudioTracks().length > 0;
     const hasVideo = localStream.getVideoTracks().length > 0;
-    const message = !navigator.mediaDevices?.getUserMedia
+    let message = !navigator.mediaDevices?.getUserMedia
       ? 'Camera and microphone require HTTPS or localhost in a supported browser. You can still use chat/files.'
       : hasAudio && hasVideo ? ''
         : hasAudio ? 'Camera unavailable — joining with audio only.'
           : hasVideo ? 'Microphone unavailable — joining with video only.'
             : 'Microphone and camera are unavailable. Check browser permissions or devices; you can still use chat/files.';
+    if (errors.size) {
+      const audioError = errors.get('audio');
+      const videoError = errors.get('video');
+      message = audioError && videoError && audioError.name === videoError.name && audioError.message === videoError.message
+        ? mediaErrorMessage('both', audioError)
+        : [...errors].map(([kind, error]) => mediaErrorMessage(kind, error)).join(' ');
+      if (window.location.protocol === 'file:') {
+        message += ' If access stays blocked in this preview, open the app over HTTPS or localhost in a browser with camera and microphone access.';
+      }
+      message += ' You can still join with available devices or use chat and files.';
+    }
     setStatus(previewStatus, message);
     setStatus(meetingMediaStatus, message);
     meetingMediaStatus.classList.toggle('hidden', !message);
@@ -200,7 +229,26 @@
   }
 
   function requestLocalMedia() {
-    if (!mediaPromise) mediaPromise = acquireLocalStream().finally(() => { mediaPromise = null; });
+    if (!mediaPromise) {
+      retryMediaBtn.disabled = true;
+      retryMediaBtn.textContent = 'Checking devices…';
+      setStatus(previewStatus, 'Requesting camera and microphone access. Respond to your browser’s permission prompt if shown.');
+      previewVideo.setAttribute('aria-busy', 'true');
+      mediaPromise = acquireLocalStream().catch((error) => {
+        console.error('Unable to initialize local media:', error);
+        const message = `Unable to initialize camera and microphone: ${error.message || error.name}. Retry or join with chat and files.`;
+        setStatus(previewStatus, message);
+        setStatus(meetingMediaStatus, message);
+        meetingMediaStatus.classList.remove('hidden');
+        retryMediaBtn.classList.remove('hidden');
+        throw error;
+      }).finally(() => {
+        mediaPromise = null;
+        retryMediaBtn.disabled = false;
+        retryMediaBtn.textContent = 'Retry camera / microphone';
+        previewVideo.setAttribute('aria-busy', 'false');
+      });
+    }
     return mediaPromise;
   }
 
@@ -221,8 +269,13 @@
   previewMicBtn.addEventListener('click', () => toggleTrack('audio', previewMicBtn));
   previewCamBtn.addEventListener('click', () => toggleTrack('video', previewCamBtn));
 
-  retryMediaBtn.addEventListener('click', () => requestLocalMedia());
-  requestLocalMedia();
+  function requestMediaWithFeedback() {
+    // requestLocalMedia displays initialization failures before rejecting.
+    requestLocalMedia().catch((error) => setStatus(joinStatus, error.message || 'Device initialization failed.'));
+  }
+
+  retryMediaBtn.addEventListener('click', requestMediaWithFeedback);
+  requestMediaWithFeedback();
 
   // Pre-fill room code from URL (?room=xyz) for invite links.
   const params = new URLSearchParams(window.location.search);
@@ -667,6 +720,6 @@
     joinScreen.classList.remove('hidden');
     joinForm.querySelector('button[type="submit"]').disabled = false;
     setStatus(joinStatus, '');
-    requestLocalMedia();
+    requestMediaWithFeedback();
   }
 })();

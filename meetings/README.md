@@ -52,6 +52,11 @@ the same meeting code in separate browser tabs, windows, or devices.
   before starting the meeting; if one device is unavailable, the other can still work. If you
   change browser permissions or connect a device, click **Retry camera / microphone** on the
   join screen. You can also join without either device to use chat and files.
+  If access is blocked, enable camera and microphone access in both your browser's site
+  permissions and your operating system's privacy settings before retrying. An embedded
+  editor preview may block capture; use the HTTPS app or localhost in a supported browser.
+  Retry reports permission, missing-device, and device-in-use errors and keeps any already
+  working microphone or camera track.
 3. Use the control bar to mute your mic, stop your camera, open **Chat**, view **People**, share
   **Files**, enter or exit **Fullscreen**, or **Leave** the meeting. On phones, the toolbar and
   side panel adapt to the smaller screen.

@@ -92,6 +92,7 @@
     openDialog('Create a community', `<form id="community-form" class="form-grid">
       <label class="field full">Community name<input name="name" maxlength="100" required></label>
       <label class="field full">What brings your community together?<textarea name="description" maxlength="1000"></textarea></label>
+      <label class="field full">Community image URL (optional)<input name="image_url" type="url" maxlength="2000"></label>
       <div class="field full"><p class="form-help">Communities, members, and posts are public. You will automatically join your new community.</p><p class="dialog-error" role="alert"></p><div class="form-actions"><button class="button primary" type="submit">Create community</button></div></div>
     </form>`, 'BRING PEOPLE TOGETHER');
   }
@@ -136,12 +137,13 @@
     if (!community) {
       return `${intro('FIND YOUR PEOPLE', 'Better together.', 'Discover communities built around shared work, ideas, and interests.')}
         <div class="section-header"><div><h2>Explore communities</h2><p>Find your place or start something new.</p></div><button class="button primary" data-action="create-community">Create community ＋</button></div>
-        <div class="directory">${state.communities.map((item) => `<article class="card directory-card community-card"><span class="community-mark">✳</span><h3>${escape(item.name)}</h3><p>${escape(item.description || 'A community for people to connect.')}</p><button class="button" data-community="${escape(item.id)}">Explore community ↗</button></article>`).join('')}</div>
+        <div class="directory">${state.communities.map((item) => `<article class="card directory-card community-card">${safeUrl(item.image_url) ? `<img class="community-image" src="${escape(safeUrl(item.image_url))}" alt="" loading="lazy">` : '<span class="community-mark">✳</span>'}<h3>${escape(item.name)}</h3><p>${escape(item.description || 'A community for people to connect.')}</p><button class="button" data-community="${escape(item.id)}">Explore community ↗</button></article>`).join('')}</div>
         ${state.communities.length ? '' : '<div class="card section-card"><p class="empty">No communities yet. Start the first one.</p></div>'}`;
     }
     const joined = state.communityMembers.some((member) => member.user_id === state.user?.id);
     const members = state.communityMembers.map((member) => state.profiles.find((profile) => profile.id === member.user_id)).filter(Boolean);
     return `${intro('A PLACE TO CONNECT', escape(community.name), escape(community.description || 'A community for people to connect.'))}
+      ${safeUrl(community.image_url) ? `<img class="community-banner" src="${escape(safeUrl(community.image_url))}" alt="">` : ''}
       <div class="community-toolbar"><button class="section-action" data-view="communities">← All communities</button><button class="button ${joined ? '' : 'primary'}" data-action="${joined ? 'leave-community' : 'join-community'}">${joined ? 'Leave community' : 'Join community'}</button></div>
       <div class="layout"><div class="stack"><section class="card section-card"><div class="section-header"><div><span class="section-index">THE CONVERSATION</span><h2>Community posts</h2><p>Posts are visible to everyone.</p></div></div>
         ${joined ? '<form id="community-post-form" class="community-compose"><label class="sr-only" for="community-post-body">Write a community post</label><textarea id="community-post-body" name="body" maxlength="4000" required placeholder="Share something with the community..."></textarea><button class="button primary" type="submit">Share post ↗</button></form>' : '<p class="empty">Join this community to share a post.</p>'}
@@ -305,7 +307,8 @@
       } else if (form.id === 'community-form') {
         const name = values.name.trim();
         if (!name) throw new Error('Please enter a community name.');
-        const community = check(await client.from('people_communities').insert({ name, description: values.description.trim(), creator_id: state.user.id }).select().single());
+        if (values.image_url && !safeUrl(values.image_url)) throw new Error('The image link must use HTTP or HTTPS.');
+        const community = check(await client.from('people_communities').insert({ name, description: values.description.trim(), image_url: values.image_url.trim(), creator_id: state.user.id }).select().single());
         dialog.close(); await navigate('communities', community.id); notice('Your community is ready.');
       } else if (form.id === 'community-post-form') {
         const body = values.body.trim();

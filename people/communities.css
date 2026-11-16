@@ -1,4 +1,7 @@
 .community-mark{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:#e8f1e2;color:#63866a;font-size:23px}
+.community-card{min-width:0}
+.community-card .community-image{display:block;width:100%;max-width:100%;height:96px;object-fit:cover;border-radius:10px}
+.community-banner{display:block;width:100%;max-width:100%;height:160px;object-fit:cover;border-radius:12px;margin-bottom:20px}
 .community-card p{white-space:pre-line;overflow-wrap:anywhere;line-height:1.6}
 .community-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
 .community-compose{display:flex;flex-direction:column;align-items:flex-end;gap:10px;padding-bottom:20px;border-bottom:1px solid #eef1ed}

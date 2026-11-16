@@ -4,8 +4,12 @@ create table if not exists public.people_communities (
   creator_id uuid not null references public.people_profiles(id) on delete cascade,
   name text not null check (char_length(trim(name)) between 1 and 100),
   description text not null default '' check (char_length(description) <= 1000),
+  image_url text not null default '' check (char_length(image_url) <= 2000),
   created_at timestamptz not null default now()
 );
+
+alter table public.people_communities
+  add column if not exists image_url text not null default '' check (char_length(image_url) <= 2000);
 
 create table if not exists public.people_community_members (
   community_id uuid not null references public.people_communities(id) on delete cascade,

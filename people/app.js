@@ -226,7 +226,7 @@
   async function initialize() {
     $('#year').textContent = new Date().getFullYear();
     if (client) {
-      state.user = check(await client.auth.getUser()).user;
+      state.user = check(await client.auth.getSession()).session?.user ?? null;
       await loadProfiles();
       await loadGallery();
     } else if (configured) notice('The Supabase library could not be loaded. Check your connection and reload.', true);

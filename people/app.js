@@ -34,7 +34,7 @@
   const samplePosts = [
     { id: 'sample-post', community_id: 'community-design', author_id: 'sample-1', body: 'What is one small detail that made a product feel more human to you lately?', created_at: '2026-11-10T12:00:00Z' }
   ];
-  const config = window.KINSHIP_CONFIG || {};
+  const config = window.PEOPLE_CONFIG || {};
   const configured = Boolean(config.url && config.anonKey);
   const client = configured && window.supabase ? supabase.createClient(config.url, config.anonKey) : null;
   const state = { user: null, own: null, profiles: configured ? [] : sampleProfiles, gallery: [], view: 'profile', selected: null, thread: null, messages: [], search: '', communities: [], communityId: null, communityMembers: [], communityPosts: [] };
@@ -168,27 +168,27 @@
     const profiles = [];
     const pageSize = 500;
     for (let offset = 0; ; offset += pageSize) {
-      const page = check(await client.from('kinship_profiles').select('*').order('created_at', { ascending: false }).order('id').range(offset, offset + pageSize - 1));
+      const page = check(await client.from('people_profiles').select('*').order('created_at', { ascending: false }).order('id').range(offset, offset + pageSize - 1));
       profiles.push(...page);
       if (page.length < pageSize) break;
     }
     state.profiles = profiles;
     state.own = state.profiles.find((p) => p.id === state.user?.id) || null;
-    if (state.user && !state.own) state.own = check(await client.from('kinship_profiles').select('*').eq('id', state.user.id).maybeSingle());
+    if (state.user && !state.own) state.own = check(await client.from('people_profiles').select('*').eq('id', state.user.id).maybeSingle());
   }
   async function loadGallery() {
     const profile = currentProfile();
-    state.gallery = client && profile ? check(await client.from('kinship_gallery').select('*').eq('owner_id', profile.id).order('created_at', { ascending: false })) : [];
+    state.gallery = client && profile ? check(await client.from('people_gallery').select('*').eq('owner_id', profile.id).order('created_at', { ascending: false })) : [];
   }
   async function loadMessages() {
-    state.messages = client && state.user ? check(await client.from('kinship_messages').select('*').order('created_at', { ascending: false }).limit(1000)).reverse() : [];
+    state.messages = client && state.user ? check(await client.from('people_messages').select('*').order('created_at', { ascending: false }).limit(1000)).reverse() : [];
   }
   async function loadCommunities() {
     if (!configured) { state.communities = sampleCommunities; return; }
     if (!client) throw new Error('The Supabase library could not be loaded. Check your connection and reload.');
     const items = [];
     for (let offset = 0; ; offset += 500) {
-      const page = check(await client.from('kinship_communities').select('*').order('created_at', { ascending: false }).order('id').range(offset, offset + 499));
+      const page = check(await client.from('people_communities').select('*').order('created_at', { ascending: false }).order('id').range(offset, offset + 499));
       items.push(...page);
       if (page.length < 500) break;
     }
@@ -204,14 +204,14 @@
     async function pages(table, order, ascending) {
       const items = [];
       for (let offset = 0; ; offset += 500) {
-        const page = check(await client.from(table).select('*').eq('community_id', id).order(order, { ascending }).order(table === 'kinship_community_members' ? 'user_id' : 'id').range(offset, offset + 499));
+        const page = check(await client.from(table).select('*').eq('community_id', id).order(order, { ascending }).order(table === 'people_community_members' ? 'user_id' : 'id').range(offset, offset + 499));
         items.push(...page);
         if (page.length < 500) return items;
       }
     }
     [state.communityMembers, state.communityPosts] = await Promise.all([
-      pages('kinship_community_members', 'joined_at', true),
-      pages('kinship_community_posts', 'created_at', false)
+      pages('people_community_members', 'joined_at', true),
+      pages('people_community_posts', 'created_at', false)
     ]);
   }
   async function navigate(view, selected = null) {
@@ -249,14 +249,14 @@
       else if (target.dataset.action === 'create-community') { if (requireProfile()) communityForm(); }
       else if (target.dataset.action === 'join-community') {
         if (requireProfile()) {
-          check(await client.from('kinship_community_members').insert({ community_id: state.communityId, user_id: state.user.id }));
+          check(await client.from('people_community_members').insert({ community_id: state.communityId, user_id: state.user.id }));
           await loadCommunity(state.communityId); render(); notice('You joined the community.');
         }
       } else if (target.dataset.action === 'leave-community' && window.confirm('Leave this community?')) {
-        check(await client.from('kinship_community_members').delete().eq('community_id', state.communityId).eq('user_id', state.user.id));
+        check(await client.from('people_community_members').delete().eq('community_id', state.communityId).eq('user_id', state.user.id));
         await loadCommunity(state.communityId); render(); notice('You left the community.');
       } else if (target.dataset.deletePost && window.confirm('Remove this post?')) {
-        check(await client.from('kinship_community_posts').delete().eq('id', target.dataset.deletePost).eq('author_id', state.user.id));
+        check(await client.from('people_community_posts').delete().eq('id', target.dataset.deletePost).eq('author_id', state.user.id));
         await loadCommunity(state.communityId); render(); notice('Post removed.');
       }
       else if (target.dataset.action === 'message') {
@@ -264,7 +264,7 @@
         else if (!state.own) profileForm({ name: state.user.user_metadata?.name || '' });
         else { state.thread = target.dataset.id; await navigate('messages'); }
       } else if (target.dataset.deleteGallery && window.confirm('Remove this gallery project?')) {
-        check(await client.from('kinship_gallery').delete().eq('id', target.dataset.deleteGallery).eq('owner_id', state.user.id));
+        check(await client.from('people_gallery').delete().eq('id', target.dataset.deleteGallery).eq('owner_id', state.user.id));
         await loadGallery(); render(); notice('Project removed.');
       } else if (target.id === 'close-dialog') dialog.close();
       else if (target.id === 'account-button') {
@@ -294,28 +294,28 @@
         values.name = values.name.trim();
         if (!values.name) throw new Error('Please enter your name.');
         for (const key of ['avatar_url', 'cv_url']) if (values[key] && !safeUrl(values[key])) throw new Error('Photo and CV links must use HTTP or HTTPS.');
-        check(await client.from('kinship_profiles').upsert({ ...values, id: state.user.id }));
+        check(await client.from('people_profiles').upsert({ ...values, id: state.user.id }));
         await loadProfiles(); dialog.close(); await navigate('profile'); notice('Your profile has been saved.');
       } else if (form.id === 'gallery-form') {
         if (!safeUrl(values.image_url)) throw new Error('The image link must use HTTP or HTTPS.');
         values.title = values.title.trim();
         if (!values.title) throw new Error('Please enter a project title.');
-        check(await client.from('kinship_gallery').insert({ ...values, owner_id: state.user.id }));
+        check(await client.from('people_gallery').insert({ ...values, owner_id: state.user.id }));
         dialog.close(); await loadGallery(); render(); notice('Project added to your gallery.');
       } else if (form.id === 'community-form') {
         const name = values.name.trim();
         if (!name) throw new Error('Please enter a community name.');
-        const community = check(await client.from('kinship_communities').insert({ name, description: values.description.trim(), creator_id: state.user.id }).select().single());
+        const community = check(await client.from('people_communities').insert({ name, description: values.description.trim(), creator_id: state.user.id }).select().single());
         dialog.close(); await navigate('communities', community.id); notice('Your community is ready.');
       } else if (form.id === 'community-post-form') {
         const body = values.body.trim();
         if (!body) throw new Error('Please write a post.');
-        check(await client.from('kinship_community_posts').insert({ community_id: state.communityId, author_id: state.user.id, body }));
+        check(await client.from('people_community_posts').insert({ community_id: state.communityId, author_id: state.user.id, body }));
         await loadCommunity(state.communityId); render(); notice('Your post has been shared.');
       } else if (form.id === 'message-form') {
         const body = values.body.trim();
         if (!body) throw new Error('Please enter a message.');
-        check(await client.from('kinship_messages').insert({ sender_id: state.user.id, recipient_id: state.thread, body }));
+        check(await client.from('people_messages').insert({ sender_id: state.user.id, recipient_id: state.thread, body }));
         await loadMessages(); render(); document.querySelector('.messages')?.scrollTo(0, 1000000);
       }
     } catch (error) { if (errorBox) errorBox.textContent = error.message || String(error); else showError(error); }

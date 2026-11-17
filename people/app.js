@@ -65,7 +65,7 @@
       ${signup ? '<label class="field full">Your name<input name="name" required maxlength="100" autocomplete="name"></label>' : ''}
       <label class="field full">Email<input type="email" name="email" required autocomplete="email"></label>
       <label class="field full">Password<input type="password" name="password" required minlength="6" autocomplete="${signup ? 'new-password' : 'current-password'}"></label>
-      <div class="field full"><p class="form-help">${signup ? 'Use a real email address. You may need to confirm it before signing in.' : 'Sign in to edit your profile and message people.'}</p><p class="dialog-error" role="alert"></p><div class="form-actions"><button class="button primary" type="submit">${signup ? 'Create account' : 'Sign in'}</button><button class="form-switch" type="button" data-auth-switch="${signup ? 'signin' : 'signup'}">${signup ? 'Already a member? Sign in' : 'New here? Create an account'}</button></div></div>
+      <div class="field full"><p class="form-help">${signup ? 'Create your account and start using People right away.' : 'Sign in to edit your profile and message people.'}</p><p class="dialog-error" role="alert"></p><div class="form-actions"><button class="button primary" type="submit">${signup ? 'Create account' : 'Sign in'}</button><button class="form-switch" type="button" data-auth-switch="${signup ? 'signin' : 'signup'}">${signup ? 'Already a member? Sign in' : 'New here? Create an account'}</button></div></div>
     </form>`, 'YOUR PROFESSIONAL HOME');
   }
   function profileForm(profile = {}) {
@@ -287,7 +287,7 @@
       else if (form.id === 'auth-form') {
         if (values.name !== undefined) {
           const result = check(await client.auth.signUp({ email: values.email, password: values.password, options: { data: { name: values.name.trim() } } }));
-          if (!result.session) { dialog.close(); notice('Account created. Check your email to confirm your account, then sign in.'); return; }
+          if (!result.session) { dialog.close(); notice('Account created, but email confirmation is still enabled in Supabase. Disable Confirm email in Authentication → Providers → Email to sign in immediately.', true); return; }
           state.user = result.user;
         } else state.user = check(await client.auth.signInWithPassword({ email: values.email, password: values.password })).user;
         await loadProfiles(); dialog.close(); await navigate('profile');

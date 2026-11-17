@@ -4,7 +4,7 @@ import { renderFloor3D } from "./floor-view.js";
 import { cameraFromDrag, createCamera, DEFAULT_CAMERA, normalizeCamera } from "./camera.js";
 import { SAMPLE_DESIGNS, createSampleDesign } from "./samples.js";
 import { featureHost, featureVertices, featureMarkup, fenceSettings, FEATURE_MATERIALS } from "./architecture.js";
-import { architectureDialog } from "./architecture-ui.js";
+import { architectureDialog } from "./architecture-ui.js?v=20261117-1";
 import { documentationDialog } from "./documentation.js";
 import { shiftSpaceBoundary } from "./space-edit.js";
 import { shiftOpening, openingEditMarkup } from "./opening-edit.js";
@@ -385,6 +385,9 @@ function renderInspector() {
   if (isOutdoor(item)) {
     $("#room-form .area-readout").insertAdjacentHTML("beforebegin", `<label class="property-checkbox"><input type="checkbox" name="railing" id="room-railing" ${item.railing ? "checked" : ""}>Concept glass railing (${lengthText(1.1)})</label>`);
   } else if (!item.outline) {
+    $("#room-form").insertAdjacentHTML("beforebegin", '<div class="room-element-actions"><span class="property-label">ADD TO THIS SPACE</span><div class="feature-add-actions"><button class="button" id="room-add-door">Add door</button><button class="button" id="room-add-window">Add window</button></div></div>');
+    $("#room-add-door").onclick = () => architecturalFeatures(undefined, "door");
+    $("#room-add-window").onclick = () => architecturalFeatures(undefined, "window");
     content.insertAdjacentHTML("beforeend", '<button class="add-space-button" id="room-openings">Doors & windows</button>');
     if (!roomHasFeatures) $("#room-openings").insertAdjacentHTML("afterend", '<p class="dialog-note">Add door and window specifications to make openings editable on the plan.</p>');
     $("#room-openings").onclick = () => architecturalFeatures();
@@ -465,11 +468,14 @@ function deleteRoom(item) { change(() => {
   if (project.features) project.features = project.features.filter(f => f.roomId !== item.id);
   selected = null;
 }); }
-function architecturalFeatures(featureId) {
+function architecturalFeatures(featureId, newFeatureType) {
   activePanel = "architecture";
   document.querySelectorAll(".design-nav button").forEach(button => button.classList.toggle("active", button.dataset.panel === activePanel));
   architectureDialog({
-    getProject: () => project, showDialog, change, selectedRoomId: selected, featureId, units: unitSystem,
+    getProject: () => project, showDialog, change, selectedRoomId: selected, featureId, newFeatureType, units: unitSystem,
+    onAdded: feature => {
+      selectedOpening = feature.id; activePanel = "plan"; closeDialog(); render();
+    },
     reveal: feature => {
       if (feature.type === "gate") { scope = "property"; selected = null; }
       else { activeFloor = feature.floorId; selected = feature.roomId; scope = "floor"; }

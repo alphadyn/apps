@@ -1,7 +1,7 @@
 import { FEATURE_STYLES, FEATURE_MATERIALS, GLAZING, SIDES, escape, featureHost, wallLength, featureVertices, featureMarkup, validateFeatures } from "./architecture.js";
 import { formatLength, inputLength, inputLengthLimit, lengthUnit, toMeters } from "./units.js";
 
-export function architectureDialog({ getProject, showDialog, change, reveal, selectedRoomId, featureId, units = "metric" }) {
+export function architectureDialog({ getProject, showDialog, change, reveal, selectedRoomId, featureId, newFeatureType, onAdded, units = "metric" }) {
   const $ = selector => document.querySelector(selector);
   const option = (value, label, selected) => `<option value="${escape(value)}" ${value === selected ? "selected" : ""}>${escape(label)}</option>`;
   const rooms = () => getProject().floors.flatMap(f => f.rooms.filter(r => !["terrace", "balcony"].includes(r.type) && !r.outline).map(r => ({ floor: f, room: r })));
@@ -74,7 +74,11 @@ export function architectureDialog({ getProject, showDialog, change, reveal, sel
     form.onsubmit = event => {
       event.preventDefault();
       const next = candidate();
-      if (change(() => { getProject().features = listWith(next); })) { reveal(next); schedule(); }
+      if (change(() => { getProject().features = listWith(next); })) {
+        reveal(next);
+        if (!original && newFeatureType && onAdded) onAdded(next);
+        else schedule();
+      }
       else preview();
     };
     $("#feature-back").onclick = schedule;
@@ -84,5 +88,6 @@ export function architectureDialog({ getProject, showDialog, change, reveal, sel
     preview();
   }
   if (featureId && (getProject().features || []).some(f => f.id === featureId)) edit(featureId);
+  else if (newFeatureType) edit(null, newFeatureType);
   else schedule();
 }

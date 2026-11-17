@@ -66,10 +66,10 @@ rounded(draw, (583, 145, 1135, 538), 23, (15, 24, 42, 242), (92, 119, 154, 150),
 draw.text((610, 168), "PROJECT DIRECTORY", font=font(10, True), fill=(143, 164, 192, 255))
 draw.text((610, 190), "A universe of useful ideas", font=font(20, True), fill=(241, 245, 255, 255))
 cards = [
-    ((610, 231, 862, 350), "MARKETS", "Market Curve Lab", "Trendlines & S&P 500 analysis", (110, 231, 210, 255), "chart"),
-    ((878, 231, 1107, 350), "SOCIAL", "Pulse", "Stories & conversations", (138, 167, 255, 255), "pulse"),
-    ((610, 365, 862, 484), "MAPS", "Experiences", "Places, moments & memories", (255, 188, 130, 255), "pin"),
-    ((878, 365, 1107, 484), "WORKSPACE", "Nexus", "A home for your content", (195, 157, 255, 255), "diamond"),
+    ((610, 231, 862, 350), "MARKETS", "Market Map", "S&P 500 treemap", (110, 231, 210, 255), "chart"),
+    ((878, 231, 1107, 350), "NEWS", "Signal", "Ranked news & trends", (138, 167, 255, 255), "pulse"),
+    ((610, 365, 862, 484), "COMMUNITY", "People", "Profiles & communities", (255, 188, 130, 255), "pin"),
+    ((878, 365, 1107, 484), "COMMERCE", "Atlas Store", "Storefront & checkout", (195, 157, 255, 255), "diamond"),
 ]
 for box, category, title, desc, accent, mark in cards:
     rounded(draw, box, 15, (22, 34, 55, 255), (63, 83, 112, 170), 1)

@@ -1,7 +1,7 @@
 const VERCEL_API = 'https://ai-orcin-eta-15.vercel.app/api/daily-brief';
 const API_URL = window.location.hostname.endsWith('github.io')
   || ['localhost', '127.0.0.1'].includes(window.location.hostname)
-  ? VERCEL_API
+  ? `${VERCEL_API}?origin=${encodeURIComponent(window.location.origin)}`
   : '/api/daily-brief';
 
 const elements = {
@@ -60,8 +60,6 @@ function setError(message) {
   elements.sourceTotal.textContent = '0 / 6';
   elements.sourceList.replaceChildren();
   elements.sourceFootnote.textContent = 'The feeds may be temporarily unavailable. Try again in a moment.';
-  elements.coverageCount.textContent = 'No headlines loaded';
-  elements.storyList.replaceChildren();
 }
 
 function renderSources(sources) {
@@ -91,6 +89,29 @@ function renderSources(sources) {
     : 'Feeds are checked on each visit; coverage changes throughout the day.';
 }
 
+function createArticleLink(story) {
+  const publisherSuffix = ` - ${story.source}`;
+  const title = story.title.toLocaleLowerCase().endsWith(publisherSuffix.toLocaleLowerCase())
+    ? story.title.slice(0, -publisherSuffix.length)
+    : story.title;
+  let url;
+  try {
+    url = new URL(story.url);
+  } catch {
+    return document.createTextNode(title);
+  }
+  if (!['http:', 'https:'].includes(url.protocol)) {
+    return document.createTextNode(title);
+  }
+
+  const link = document.createElement('a');
+  link.href = url.href;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.textContent = title;
+  return link;
+}
+
 function renderDigest(digest, generatedAt) {
   elements.briefContent.replaceChildren();
   const heading = document.createElement('h2');
@@ -106,14 +127,23 @@ function renderDigest(digest, generatedAt) {
     number.textContent = String(index + 1).padStart(2, '0');
     const text = document.createElement('span');
     const lead = document.createElement('strong');
-    lead.textContent = `${item.lead.source}: “${item.lead.title}”`;
+    lead.append(
+      document.createTextNode(`${item.lead.source}: “`),
+      createArticleLink(item.lead),
+      document.createTextNode('”'),
+    );
     text.append(lead);
 
     if (item.supporting.length) {
-      const supporting = document.createTextNode(
-        ` Related coverage from ${item.supporting.map((story) => story.source).filter((value, position, list) => list.indexOf(value) === position).join(', ')} follows the same thread, including “${item.supporting[0].title}.”`,
+      const supporting = item.supporting[0];
+      const supportingSources = [...new Set(item.supporting.map((story) => story.source))].join(', ');
+      text.append(
+        document.createTextNode(
+          ` More from ${supportingSources}: “`,
+        ),
+        createArticleLink(supporting),
+        document.createTextNode('.”'),
       );
-      text.append(supporting);
     } else {
       text.append(document.createTextNode('.'));
     }

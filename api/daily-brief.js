@@ -228,7 +228,7 @@ export default async function handler(request, response) {
     response.setHeader('Vary', 'Origin');
   }
   response.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  response.setHeader('Cache-Control', 'public, max-age=0, s-maxage=300, stale-while-revalidate=900');
+  response.setHeader('Cache-Control', 'no-store');
 
   if (request.method === 'OPTIONS') {
     response.status(204).end();

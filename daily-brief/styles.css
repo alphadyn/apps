@@ -137,6 +137,9 @@ h1 em { color: var(--green); font-style: normal; }
 .digest-paragraph { display: grid; grid-template-columns: 25px minmax(0, 1fr); gap: 10px; margin: 0; color: #47534b; font-size: .93rem; line-height: 1.72; }
 .digest-number { padding-top: 2px; color: var(--orange); font: 500 .67rem var(--mono); }
 .digest-paragraph strong { color: #293a31; font-weight: 700; }
+.digest-paragraph a { color: var(--green); text-decoration: none; box-shadow: inset 0 -1px #cbd8cc; }
+.digest-paragraph a:hover { box-shadow: inset 0 -1px currentColor; }
+.digest-paragraph a:focus-visible { border-radius: 2px; outline: 2px solid var(--green); outline-offset: 2px; }
 .brief-note { margin: 0; padding-top: 14px; border-top: 1px solid #e8e8e0; color: #7c857d; font-size: .75rem; line-height: 1.55; }
 
 .loading-state, .error-state { min-height: 265px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
@@ -212,7 +215,7 @@ footer > span:first-child { color: var(--green); font-size: .6rem; }
   .loading-state, .error-state { min-height: 170px; }
   .sources-card h2 { margin-top: 16px; font-size: 1.1rem; }
   .sources-intro { font-size: .73rem; }
-  .source-list { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 14px; margin-top: 10px; }
+  .source-list { grid-template-columns: 1fr; margin-top: 10px; }
   .source-row { min-height: 29px; gap: 6px; }
   .source-name { font-size: .74rem; }
   .source-count { font-size: .57rem; }

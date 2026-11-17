@@ -24,6 +24,14 @@ export const isOutdoor = item => TYPES[item.type].category === "Outdoor";
 export const defaultProperty = () => ({ width: 26, depth: 32, houseX: 8, houseY: 7, roadName: "Oak Lane", landscaping: true, driveway: true });
 export const roomOutline = item => item.outline || [[0, 0], [item.width, 0], [item.width, item.depth], [0, item.depth]];
 export const roomVertices = item => roomOutline(item).map(([x, y]) => [item.x + x, item.y + y]);
+export function hasRectangularOutline(item) {
+  const points = roomOutline(item), near = (a, b) => Math.abs(a - b) < 1e-8;
+  return near(roomArea(item), item.width * item.depth) && points.every(([x, y], index) => {
+    const [nx, ny] = points[(index + 1) % points.length];
+    return near(x, nx) && (near(x, 0) || near(x, item.width)) ||
+      near(y, ny) && (near(y, 0) || near(y, item.depth));
+  });
+}
 export function roomArea(item) {
   const points = roomOutline(item);
   return Math.abs(points.reduce((sum, [x, y], index) => {

@@ -1,4 +1,4 @@
-import { roomOutline, roomVertices, validateRoom } from "./model.js";
+import { roomOutline, roomVertices, validateRoom, hasRectangularOutline } from "./model.js?v=20261117-1";
 
 const EPSILON = 1e-7;
 const clean = value => Math.round(value * 1e9) / 1e9;
@@ -26,7 +26,7 @@ function reshape(room, vertices) {
 }
 
 // Always edit the gesture's original geometry, not the previous pointer frame.
-export function shiftSpaceBoundary(rooms, roomId, mode, index, dx, dy, shared = false) {
+export function shiftSpaceBoundary(rooms, roomId, mode, index, dx, dy, shared = false, keepRightAngles = true) {
   const room = rooms.find(item => item.id === roomId);
   if (!room) throw new Error("Select a room before changing its boundary.");
   const points = roomVertices(room);
@@ -44,6 +44,19 @@ export function shiftSpaceBoundary(rooms, roomId, mode, index, dx, dy, shared = 
   return rooms.map(item => {
     if (item.id !== roomId && !shared) return item;
     const original = roomVertices(item);
+    const affected = p => mode === "wall" ? onSegment(a, b, p) : same(a, p);
+    if (keepRightAngles && hasRectangularOutline(item)) {
+      const left = item.x, right = item.x + item.width, top = item.y, bottom = item.y + item.depth;
+      const touched = [...original.filter(affected), ...anchors.filter(anchor => original.some((p, i) => onSegment(p, original[(i + 1) % original.length], anchor)))];
+      if (!touched.length) return item;
+      const moves = (axis, at) => touched.some(p => Math.abs(p[axis] - at) < EPSILON);
+      const x1 = clean(left + (moves(0, left) ? dx : 0));
+      const x2 = clean(right + (moves(0, right) ? dx : 0));
+      const y1 = clean(top + (moves(1, top) ? dy : 0));
+      const y2 = clean(bottom + (moves(1, bottom) ? dy : 0));
+      if (x2 - x1 < 1 || y2 - y1 < 1) throw new Error("Room dimensions must be between 1 and 30 meters.");
+      return reshape(item, [[x1, y1], [x2, y1], [x2, y2], [x1, y2]]);
+    }
     const expanded = original.flatMap((p, i) => {
       const next = original[(i + 1) % original.length];
       // Split partial shared edges at junctions so both rooms keep the same seam.
@@ -53,8 +66,7 @@ export function shiftSpaceBoundary(rooms, roomId, mode, index, dx, dy, shared = 
     });
     let changed = false;
     const moved = expanded.map(p => {
-      const affected = mode === "wall" ? onSegment(a, b, p) : same(a, p);
-      if (!affected) return p;
+      if (!affected(p)) return p;
       changed = true;
       return [clean(p[0] + dx), clean(p[1] + dy)];
     });

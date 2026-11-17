@@ -1,6 +1,23 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { TYPES, createProject, defaultProperty, floorArea, projectStats, propertyStats, validateProject, validateProperty, validateRoom, makeRoom, parseProject, readProjectFile, bounds, unionArea, exteriorWalls, exteriorRoomWalls, roomArea } from "./model.js";
+import { hasRectangularOutline } from "./model.js";
+
+test("rectangular outline detection permits redundant edge corners but not shape-changing simplification", () => {
+  const room = createProject().floors[0].rooms[1];
+  assert.equal(hasRectangularOutline(room), true);
+  const rectangular = { ...room, outline: [[0, 0], [4, 0], [4, 2.5], [4, 5], [0, 5]] };
+  validateRoom(rectangular);
+  assert.equal(hasRectangularOutline(rectangular), true);
+  assert.equal(hasRectangularOutline({ ...rectangular, outline: [...rectangular.outline].reverse() }), true);
+  assert.equal(hasRectangularOutline({ ...room, outline: [[0, 0], [4, 0], [4, 5], [1, 4], [0, 5]] }), false);
+  assert.equal(hasRectangularOutline({ ...room, outline: [[0, 0], [4, 0], [0, 5]] }), false);
+  assert.equal(hasRectangularOutline({ ...room, outline: [[1, 1], [3, 1], [3, 4], [1, 4]] }), false);
+  const simplified = { ...rectangular };
+  delete simplified.outline;
+  assert.equal(roomArea(simplified), roomArea(rectangular));
+  assert.deepEqual(bounds([simplified]), bounds([rectangular]));
+});
 
 test("sample home has editable essentials and accurate totals across both floors", () => {
   const p = createProject();

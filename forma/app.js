@@ -1,4 +1,4 @@
-import { TYPES, createProject, floorArea, projectStats, propertyStats, bounds, isOutdoor, exteriorRoomWalls, roomOutline, roomArea, roomCentroid, validateRoom, validateProject, validateProperty, makeRoom, parseProject, readProjectFile } from "./model.js";
+import { TYPES, createProject, floorArea, projectStats, propertyStats, bounds, isOutdoor, exteriorRoomWalls, roomOutline, roomArea, roomCentroid, validateRoom, validateProject, validateProperty, makeRoom, parseProject, readProjectFile, hasRectangularOutline } from "./model.js?v=20261117-1";
 import { renderPropertyView } from "./property-view.js";
 import { renderFloor3D } from "./floor-view.js";
 import { cameraFromDrag, createCamera, DEFAULT_CAMERA, normalizeCamera } from "./camera.js";
@@ -6,7 +6,7 @@ import { SAMPLE_DESIGNS, createSampleDesign } from "./samples.js";
 import { featureHost, featureVertices, featureMarkup, fenceSettings, FEATURE_MATERIALS } from "./architecture.js";
 import { architectureDialog } from "./architecture-ui.js?v=20261117-1";
 import { documentationDialog } from "./documentation.js";
-import { shiftSpaceBoundary } from "./space-edit.js";
+import { shiftSpaceBoundary } from "./space-edit.js?v=20261117-1";
 import { shiftOpening, openingEditMarkup } from "./opening-edit.js";
 import { areaUnit, fromMeters, formatArea as formatAreaValue, inputLength, inputLengthLimit, lengthUnit, toMeters, UNIT_SYSTEMS } from "./units.js";
 
@@ -72,6 +72,7 @@ let selected = null;
 let selectedOpening = null;
 let selectedCorner = null;
 let shiftSharedBoundaries = false;
+let keepRightAngles = true;
 let view = "2d";
 let scope = "floor";
 let activePanel = "plan";
@@ -375,7 +376,9 @@ function renderInspector() {
   const corners = roomOutline(item);
   content.innerHTML = `<button class="back-overview" id="deselect-room">${icon("back")}Back to floor overview</button><div class="selection-heading"><span>${icon(spec.icon)}</span><div><strong>${escape(spec.name)}</strong><small>${escape(spec.category)} space</small></div></div><form id="room-form"><div class="property-field"><label for="room-name">Space name</label><input id="room-name" name="name" value="${escape(item.name)}" maxlength="60" required></div><div class="field-row">${dimensionField("width", "Width", item.width, 1, 30)}${dimensionField("depth", "Depth", item.depth, 1, 30)}</div><div class="field-row">${dimensionField("x", "Position X", item.x, -200, 200)}${dimensionField("y", "Position Y", item.y, -200, 200)}</div><div class="property-field"><label for="room-material">Floor finish</label><select id="room-material" name="material">${[["oak", "Natural oak"], ["tile", "Limestone tile"], ["concrete", "Polished concrete"], ["deck", "Timber decking"]].map(([value, name]) => `<option value="${value}" ${item.material === value ? "selected" : ""}>${name}</option>`).join("")}</select></div><div class="area-readout"><span>Total space area</span><strong>${areaText(roomArea(item))}</strong></div><button class="button primary" style="width:100%;margin-top:15px" type="submit">Apply changes</button></form><div class="outline-controls"><span class="property-label">WALLS & CORNERS</span><p>Drag wall edges or corners on the plan. Add corners for custom outlines.</p>${roomHasFeatures ? '<p class="dialog-note">Remove this room’s door and window specifications before changing its outline.</p>' : `<button class="add-space-button" id="add-corner" ${corners.length >= 12 ? "disabled" : ""}>${icon("plus")}Add corner</button><button class="add-space-button" id="remove-corner" ${selectedCorner === null || corners.length <= 3 ? "disabled" : ""}>${icon("trash")}Remove selected corner</button>`}</div><div class="room-actions"><button id="duplicate-room">${icon("copy")}Duplicate</button><button class="danger" id="delete-room" aria-label="Delete space">${icon("trash")}</button></div>`;
   $("#deselect-room").onclick = () => { selected = null; selectedCorner = null; render(); };
-  $(".outline-controls p").textContent = "Drag a wall to resize. Drag a corner to reshape.";
+  $(".outline-controls p").textContent = "Drag a wall or corner to resize. Rectangular spaces keep right angles by default.";
+  $(".outline-controls p").insertAdjacentHTML("afterend", `<label class="property-checkbox"><input type="checkbox" id="keep-right-angles" ${keepRightAngles ? "checked" : ""}>Keep right angles</label>`);
+  $("#keep-right-angles").onchange = event => { keepRightAngles = event.target.checked; };
   $(".outline-controls p").insertAdjacentHTML("afterend", `<details class="boundary-keyboard-help"><summary>Keyboard controls</summary><p>Focus a handle with Tab, then use arrow keys to move it by 0.1 m. Hold Shift to move by 0.5 m.</p></details><label class="property-checkbox"><input type="checkbox" id="shift-shared-boundaries" aria-describedby="shared-boundary-help" ${shiftSharedBoundaries ? "checked" : ""}>Adjust adjoining rooms</label><p id="shared-boundary-help">Move connected walls and corners together.</p>`);
   $("#shift-shared-boundaries").onchange = event => { shiftSharedBoundaries = event.target.checked; };
   if (roomHasFeatures) $(".outline-controls .dialog-note").textContent = "Doors and windows must still fit after resizing. Remove them before changing the room's shape.";
@@ -384,15 +387,18 @@ function renderInspector() {
   }
   if (isOutdoor(item)) {
     $("#room-form .area-readout").insertAdjacentHTML("beforebegin", `<label class="property-checkbox"><input type="checkbox" name="railing" id="room-railing" ${item.railing ? "checked" : ""}>Concept glass railing (${lengthText(1.1)})</label>`);
-  } else if (!item.outline) {
-    $("#room-form").insertAdjacentHTML("beforebegin", '<div class="room-element-actions"><span class="property-label">ADD TO THIS SPACE</span><div class="feature-add-actions"><button class="button" id="room-add-door">Add door</button><button class="button" id="room-add-window">Add window</button></div></div>');
+  } else {
+    $("#room-form").insertAdjacentHTML("beforebegin", `<div class="room-element-actions"><span class="property-label">ADD TO THIS SPACE</span><div class="feature-add-actions"><button class="button" id="room-add-door" ${item.outline ? 'disabled aria-describedby="room-elements-help"' : ""}>Add door</button><button class="button" id="room-add-window" ${item.outline ? 'disabled aria-describedby="room-elements-help"' : ""}>Add window</button></div>${item.outline ? `<p class="dialog-note" id="room-elements-help">${hasRectangularOutline(item) ? 'Remove extra corners to enable doors and windows. The room shape will stay the same.</p><button class="add-space-button" id="simplify-room-outline">Remove extra corners</button>' : 'Doors and windows currently require a rectangular room without custom corners. Remove custom corners in Walls & corners to enable these controls.</p>'}` : ""}</div>`);
     $("#room-add-door").onclick = () => architecturalFeatures(undefined, "door");
     $("#room-add-window").onclick = () => architecturalFeatures(undefined, "window");
-    content.insertAdjacentHTML("beforeend", '<button class="add-space-button" id="room-openings">Doors & windows</button>');
-    if (!roomHasFeatures) $("#room-openings").insertAdjacentHTML("afterend", '<p class="dialog-note">Add door and window specifications to make openings editable on the plan.</p>');
-    $("#room-openings").onclick = () => architecturalFeatures();
-  } else {
-    content.insertAdjacentHTML("beforeend", '<p class="dialog-note">Remove custom corners to add door or window specifications.</p>');
+    if ($("#simplify-room-outline")) $("#simplify-room-outline").onclick = () => {
+      if (change(() => { delete item.outline; selectedCorner = null; })) toast("Extra corners removed. You can now add doors and windows.");
+    };
+    if (!item.outline) {
+      content.insertAdjacentHTML("beforeend", '<button class="add-space-button" id="room-openings">Doors & windows</button>');
+      if (!roomHasFeatures) $("#room-openings").insertAdjacentHTML("afterend", '<p class="dialog-note">Add door and window specifications to make openings editable on the plan.</p>');
+      $("#room-openings").onclick = () => architecturalFeatures();
+    }
   }
   $("#room-form").onsubmit = event => {
     event.preventDefault();
@@ -819,7 +825,7 @@ $("#plan").addEventListener("pointermove", event => {
     const dx = Math.round((point.x - drag.start.x) / (zoom * drag.scale) * 10) / 10;
     const dy = Math.round((point.y - drag.start.y) / (zoom * drag.scale) * 10) / 10;
     try {
-      originalFloor.rooms = shiftSpaceBoundary(originalFloor.rooms, drag.id, drag.mode, drag.index, dx, dy, shiftSharedBoundaries);
+      originalFloor.rooms = shiftSpaceBoundary(originalFloor.rooms, drag.id, drag.mode, drag.index, dx, dy, shiftSharedBoundaries, keepRightAngles);
       validateProject(before);
       project = before;
       drag.error = null;
@@ -885,7 +891,7 @@ $("#plan").addEventListener("keydown", event => {
     const index = Number(handle.dataset[mode]);
     const distance = event.shiftKey ? .5 : .1;
     const [dx, dy] = arrows[event.key].map(value => value * distance);
-    change(() => { floor().rooms = shiftSpaceBoundary(floor().rooms, selected, mode, index, dx, dy, shiftSharedBoundaries); });
+    change(() => { floor().rooms = shiftSpaceBoundary(floor().rooms, selected, mode, index, dx, dy, shiftSharedBoundaries, keepRightAngles); });
     $(`#plan [data-${mode}="${index}"][tabindex]`)?.focus();
     return;
   }

@@ -5,7 +5,34 @@ import { shiftSpaceBoundary } from "./space-edit.js";
 
 const room = (id, x = 0, y = 0, width = 4, depth = 4) => createRoom(id, "living", id, x, y, width, depth);
 const shift = (rooms, index, dx, dy, shared = false, mode = "wall") =>
-  shiftSpaceBoundary(rooms, rooms[0].id, mode, index, dx, dy, shared);
+  shiftSpaceBoundary(rooms, rooms[0].id, mode, index, dx, dy, shared, false);
+
+test("rectangular corner edits preserve right angles by default with the opposite corner fixed", () => {
+  for (const [index, dx, dy, vertices] of [
+    [0, -1, -2, [[-1, -2], [4, -2], [4, 4], [-1, 4]]],
+    [1, 1, -2, [[0, -2], [5, -2], [5, 4], [0, 4]]],
+    [2, 1, 2, [[0, 0], [5, 0], [5, 6], [0, 6]]],
+    [3, -1, 2, [[-1, 0], [4, 0], [4, 6], [-1, 6]]],
+  ]) {
+    const [updated] = shiftSpaceBoundary([room("a")], "a", "corner", index, dx, dy);
+    assert.deepEqual(roomVertices(updated), vertices);
+    assert.equal(updated.outline, undefined);
+  }
+});
+
+test("right-angle mode keeps adjoining rectangles rectangular, including partial shared walls", () => {
+  const rooms = [room("a", 0, 1, 4, 2), room("b", 4, 0, 4, 4)];
+  const updated = shiftSpaceBoundary(rooms, "a", "wall", 1, 1, 0, true);
+  assert.deepEqual(updated.map(r => [r.x, r.width, r.outline]), [[0, 5, undefined], [5, 3, undefined]]);
+  assert.deepEqual(rooms, [room("a", 0, 1, 4, 2), room("b", 4, 0, 4, 4)]);
+});
+
+test("right-angle mode rejects corner inversion and preserves custom nonrectangular editing", () => {
+  assert.throws(() => shiftSpaceBoundary([room("a")], "a", "corner", 0, 5, 5), /dimensions/);
+  const triangle = { ...room("a"), outline: [[0, 0], [4, 0], [0, 4]] };
+  const [updated] = shiftSpaceBoundary([triangle], "a", "corner", 0, -.5, -.5);
+  assert.equal(updated.outline.length, 3);
+});
 
 test("walls expand and contract beyond original bounds with the opposite wall fixed", () => {
   const original = [room("a")];
@@ -87,7 +114,7 @@ test("resized rooms preserve valid opening specifications and reject invalid one
   tooSmall.floors[0].rooms = shiftSpaceBoundary(tooSmall.floors[0].rooms, "living-1", "wall", 1, -2, 0);
   assert.throws(() => validateProject(tooSmall), /fit along/);
   const invalid = structuredClone(project);
-  invalid.floors[0].rooms = shiftSpaceBoundary(invalid.floors[0].rooms, "living-1", "corner", 1, .5, .5);
+  invalid.floors[0].rooms = shiftSpaceBoundary(invalid.floors[0].rooms, "living-1", "corner", 1, .5, .5, false, false);
   assert.throws(() => validateProject(invalid), /custom room corners/);
   assert.equal(project.floors[0].rooms[0].width, 7);
 });

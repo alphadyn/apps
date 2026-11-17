@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Build the Google News snapshot served by GitHub Pages."""
 
-from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 import json
 from pathlib import Path
 import sys
-from urllib.error import URLError
+import time
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urlparse
 from urllib.request import Request, urlopen
 import xml.etree.ElementTree as ET
@@ -26,6 +27,32 @@ SOURCE_FEEDS = [
     ],
 ]
 OUTPUT_PATH = Path(__file__).with_name("news.json")
+FEED_INTERVAL_SECONDS = 2
+MAX_ATTEMPTS = 3
+RETRY_BASE_SECONDS = 5
+MAX_RETRY_DELAY_SECONDS = 120
+
+
+def retry_delay(error: HTTPError, attempt: int) -> float:
+    delay: float = RETRY_BASE_SECONDS * 2 ** attempt
+    retry_after = error.headers.get("Retry-After") if error.headers else None
+    if retry_after:
+        seconds: float
+        try:
+            seconds = int(retry_after)
+        except ValueError:
+            try:
+                retry_at = parsedate_to_datetime(retry_after)
+                seconds = (retry_at - datetime.now(timezone.utc)).total_seconds()
+            except (TypeError, ValueError, OverflowError):
+                seconds = 0
+        delay = max(delay, seconds)
+    if delay > MAX_RETRY_DELAY_SECONDS:
+        raise RuntimeError(
+            f"Google News requested a {delay:g}s cooldown, exceeding the "
+            f"{MAX_RETRY_DELAY_SECONDS}s build limit; no snapshot was written."
+        ) from error
+    return delay
 
 
 def parse_feed(content: bytes, section: str) -> list[dict[str, object]]:
@@ -52,28 +79,50 @@ def parse_feed(content: bytes, section: str) -> list[dict[str, object]]:
 
 def fetch_feed(feed: dict[str, str]) -> list[dict[str, object]]:
     request = Request(feed["url"], headers={"Accept": "application/rss+xml"})
-    with urlopen(request, timeout=30) as response:
-        return parse_feed(response.read(), feed["section"])
+    for attempt in range(MAX_ATTEMPTS):
+        try:
+            with urlopen(request, timeout=30) as response:
+                return parse_feed(response.read(), feed["section"])
+        except HTTPError as error:
+            error.close()
+            if error.code not in {429, 503}:
+                raise
+            delay = retry_delay(error, attempt)
+            if attempt == MAX_ATTEMPTS - 1:
+                print(
+                    f'{feed["section"]}: HTTP {error.code}; attempts exhausted, '
+                    f'cooling down for {delay:g}s before continuing.',
+                    file=sys.stderr,
+                )
+                time.sleep(delay)
+                raise
+            print(
+                f'{feed["section"]}: HTTP {error.code}; retrying in {delay:g}s '
+                f'(attempt {attempt + 2}/{MAX_ATTEMPTS}).',
+                file=sys.stderr,
+            )
+            time.sleep(delay)
+    raise RuntimeError("The feed retry loop ended without a result.")
 
 
 def build_snapshot() -> dict[str, object]:
     news = []
     failures = []
     seen_links = set()
-    with ThreadPoolExecutor(max_workers=3) as executor:
-        requests = [(feed, executor.submit(fetch_feed, feed)) for feed in SOURCE_FEEDS]
-        for feed, future in requests:
-            try:
-                stories = future.result()
-            except (URLError, TimeoutError, OSError, ET.ParseError, ValueError) as error:
-                message = str(error)
-                print(f'{feed["section"]}: {message}', file=sys.stderr)
-                failures.append({**feed, "error": message})
-                continue
-            for story in stories:
-                if story["header_url"] not in seen_links:
-                    seen_links.add(story["header_url"])
-                    news.append(story)
+    for index, feed in enumerate(SOURCE_FEEDS):
+        if index:
+            time.sleep(FEED_INTERVAL_SECONDS)
+        try:
+            stories = fetch_feed(feed)
+        except (URLError, TimeoutError, OSError, ET.ParseError, ValueError) as error:
+            message = str(error)
+            print(f'{feed["section"]}: {message}', file=sys.stderr)
+            failures.append({**feed, "error": message})
+            continue
+        for story in stories:
+            if story["header_url"] not in seen_links:
+                seen_links.add(story["header_url"])
+                news.append(story)
     if not news:
         raise RuntimeError("All Google News feeds failed; no snapshot was written.")
     return {

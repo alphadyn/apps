@@ -52,6 +52,14 @@ pushes to `main` or manual dispatch. Browser captures load this same-origin snap
 they do not use an RSS conversion or CORS proxy.
 
 The snapshot includes Top Stories and eight topic feeds, deduplicated by article URL.
+Feed requests run sequentially with a two-second pause between sections to avoid
+concurrent bursts. HTTP 429 and 503 responses are retried up to three total attempts
+with five- and ten-second backoff, or the server's `Retry-After` delay if longer
+(both seconds and HTTP dates are supported). After the final failed attempt, the
+builder also observes a cooldown (at least 20 seconds) before continuing to another
+section. Retries and exhausted attempts are logged. If the requested
+cooldown exceeds two minutes, the build fails without writing a new snapshot
+rather than retrying before the server allows it.
 The interface and JSON download preserve the snapshot's actual capture timestamp.
 Failed sections are recorded in `failed_feeds`, logged during the build, and displayed
 in the page. A build with no usable headlines fails instead of publishing an empty

@@ -1,11 +1,13 @@
 import contextlib
+from datetime import datetime, timezone
+from email.message import Message
 import io
 import json
 from pathlib import Path
 import tempfile
 import unittest
-from unittest.mock import patch
-from urllib.error import URLError
+from unittest.mock import call, patch
+from urllib.error import HTTPError, URLError
 
 import build_data
 
@@ -17,6 +19,19 @@ RSS = b"""<rss><channel>
 
 
 class SnapshotTests(unittest.TestCase):
+    def setUp(self):
+        sleep = patch("build_data.time.sleep")
+        self.sleep = sleep.start()
+        self.addCleanup(sleep.stop)
+
+    def http_error(self, code=429, retry_after=None):
+        headers = Message()
+        if retry_after is not None:
+            headers["Retry-After"] = retry_after
+        return HTTPError(
+            build_data.SOURCE_FEEDS[0]["url"], code, "Unavailable", headers, io.BytesIO()
+        )
+
     def test_parse_normalizes_and_filters_unusable_items(self):
         self.assertEqual(build_data.parse_feed(RSS, "World"), [{
             "header_title": "Main headline",
@@ -57,6 +72,73 @@ class SnapshotTests(unittest.TestCase):
         self.assertEqual(len(snapshot["news"]), 10)
         self.assertEqual(snapshot["failed_feeds"], [])
         self.assertEqual(snapshot["news"][1]["section"], "Top Stories")
+        self.assertEqual(self.sleep.call_args_list, [call(2)] * 8)
+
+    def test_fetch_retries_transient_http_errors_with_backoff(self):
+        with patch("build_data.urlopen") as open_url, \
+                contextlib.redirect_stderr(io.StringIO()) as log:
+            response = open_url.return_value
+            response.__enter__.return_value.read.return_value = RSS
+            open_url.side_effect = [self.http_error(), self.http_error(503), response]
+            stories = build_data.fetch_feed(build_data.SOURCE_FEEDS[0])
+        self.assertEqual(stories[0]["section"], "Top Stories")
+        self.assertEqual(open_url.call_count, 3)
+        self.assertEqual(self.sleep.call_args_list, [call(5), call(10)])
+        self.assertIn("retrying", log.getvalue())
+
+    def test_retry_after_seconds_and_http_date(self):
+        now = datetime(2026, 11, 17, tzinfo=timezone.utc)
+        for header in ("30", "Tue, 17 Nov 2026 00:00:30 GMT"):
+            with self.subTest(header=header), patch("build_data.datetime") as clock:
+                clock.now.return_value = now
+                self.assertEqual(build_data.retry_delay(self.http_error(retry_after=header), 0), 30)
+
+    def test_recovered_rate_limit_does_not_mark_section_failed(self):
+        with patch("build_data.urlopen") as open_url, \
+                contextlib.redirect_stderr(io.StringIO()):
+            response = open_url.return_value
+            response.__enter__.return_value.read.return_value = RSS
+            open_url.side_effect = [
+                self.http_error(retry_after="120"), *[response] * len(build_data.SOURCE_FEEDS),
+            ]
+            snapshot = build_data.build_snapshot()
+        self.assertEqual(snapshot["failed_feeds"], [])
+        self.assertEqual(len(snapshot["news"]), 1)
+        self.assertEqual(open_url.call_count, 10)
+        self.assertEqual(self.sleep.call_args_list, [call(120), *[call(2)] * 8])
+
+    def test_invalid_or_past_retry_after_uses_backoff(self):
+        for header in ("invalid", "-1", "Thu, 01 Jan 1970 00:00:00 GMT"):
+            with self.subTest(header=header):
+                self.assertEqual(build_data.retry_delay(self.http_error(retry_after=header), 1), 10)
+
+    def test_excessive_cooldown_does_not_overwrite_snapshot(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "news.json"
+            output.write_text("previous snapshot", encoding="utf-8")
+            with patch("build_data.OUTPUT_PATH", output), \
+                    patch("build_data.urlopen", side_effect=self.http_error(retry_after="121")), \
+                    self.assertRaisesRegex(RuntimeError, "cooldown"):
+                build_data.main()
+            self.assertEqual(output.read_text(encoding="utf-8"), "previous snapshot")
+        self.sleep.assert_not_called()
+
+    def test_fetch_stops_after_three_attempts(self):
+        with patch("build_data.urlopen", side_effect=self.http_error()) as open_url, \
+                contextlib.redirect_stderr(io.StringIO()), \
+                self.assertRaises(HTTPError):
+            build_data.fetch_feed(build_data.SOURCE_FEEDS[0])
+        self.assertEqual(open_url.call_count, 3)
+        self.assertEqual(self.sleep.call_args_list, [call(5), call(10), call(20)])
+
+    def test_fetch_does_not_retry_other_failures(self):
+        for error in (self.http_error(404), URLError("offline"), ValueError("invalid RSS")):
+            with self.subTest(error=error), \
+                    patch("build_data.urlopen", side_effect=error) as open_url, \
+                    self.assertRaises(type(error)):
+                build_data.fetch_feed(build_data.SOURCE_FEEDS[0])
+            self.assertEqual(open_url.call_count, 1)
+        self.sleep.assert_not_called()
 
     def test_partial_failure_is_recorded_and_logged(self):
         def fetch(feed):

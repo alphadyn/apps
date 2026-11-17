@@ -6,6 +6,7 @@ import { SAMPLE_DESIGNS, createSampleDesign } from "./samples.js";
 import { featureHost, featureVertices, featureMarkup, fenceSettings, FEATURE_MATERIALS } from "./architecture.js";
 import { architectureDialog } from "./architecture-ui.js";
 import { documentationDialog } from "./documentation.js";
+import { shiftSpaceBoundary } from "./space-edit.js";
 import { areaUnit, fromMeters, formatArea as formatAreaValue, inputLength, inputLengthLimit, lengthUnit, toMeters, UNIT_SYSTEMS } from "./units.js";
 
 const $ = selector => document.querySelector(selector);
@@ -68,6 +69,7 @@ let project = createProject();
 let activeFloor = project.floors[0].id;
 let selected = null;
 let selectedCorner = null;
+let shiftSharedBoundaries = false;
 let view = "2d";
 let scope = "floor";
 let activePanel = "plan";
@@ -271,8 +273,8 @@ function renderPlan() {
   }
   const rooms = floor().rooms;
   const b = bounds(rooms);
-  const scale = Math.min(Math.min(650, Math.max(180, viewportWidth - 170)) / Math.max(b.width, 8), 465 / Math.max(b.depth, 8));
-  drawing = { scale, x: (900 - b.width * scale) / 2 - b.x * scale, y: (690 - b.depth * scale) / 2 - b.y * scale + 2 };
+  const scale = drag?.drawing?.scale ?? Math.min(Math.min(650, Math.max(180, viewportWidth - 170)) / Math.max(b.width, 8), 465 / Math.max(b.depth, 8));
+  drawing = drag?.drawing ?? { scale, x: (900 - b.width * scale) / 2 - b.x * scale, y: (690 - b.depth * scale) / 2 - b.y * scale + 2 };
   const svg = $("#plan");
   svg.setAttribute("aria-label", `${floor().name}, ${view === "2d" ? "floor plan" : "axonometric view"} with ${rooms.length} spaces`);
   const defs = '<defs><pattern id="oak" width="32" height="8" patternUnits="userSpaceOnUse"><path d="M0 0h32M16 0v8" fill="none" stroke="#979c7e" stroke-opacity=".09" stroke-width=".6"/></pattern><pattern id="tile" width="14" height="14" patternUnits="userSpaceOnUse"><path d="M14 0H0V14" fill="none" stroke="#8eaaa0" stroke-opacity=".18" stroke-width=".6"/></pattern><pattern id="deck" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M0 0v8" stroke="#92a27c" stroke-opacity=".25" stroke-width=".7"/></pattern><filter id="plan-shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="3" dy="6" stdDeviation="7" flood-color="#3d5030" flood-opacity=".08"/></filter></defs>';
@@ -288,6 +290,7 @@ function renderPlan() {
     markup += plant(ox + b.x * scale - 20, oy + (b.y + b.depth) * scale - 10, 12);
   }
   markup += `<g filter="url(#plan-shadow)">`;
+  let boundaryHandles = "";
   for (const [roomIndex, item] of rooms.entries()) {
     const spec = TYPES[item.type];
     const x = ox + item.x * scale, y = oy + item.y * scale;
@@ -310,11 +313,16 @@ function renderPlan() {
       markup += `<g clip-path="url(#room-clip-${roomIndex})">${plant(13, h - 13, 8)}${plant(w - 13, h - 13, 8)}</g>`;
     }
     if (item.id === selected) {
+      boundaryHandles = `<g data-room="${escape(item.id)}" transform="translate(${x} ${y})">`;
       outline.forEach(([px, py], index) => {
         const [nx, ny] = outline[(index + 1) % outline.length];
-        markup += `<line data-wall="${index}" x1="${px * scale}" y1="${py * scale}" x2="${nx * scale}" y2="${ny * scale}" stroke="transparent" stroke-width="12" style="cursor:move;pointer-events:stroke"/>`;
-        markup += `<circle data-corner="${index}" cx="${px * scale}" cy="${py * scale}" r="5" fill="${selectedCorner === index ? "#e4a95c" : "#f4f3e8"}" stroke="#38885c" stroke-width="2" tabindex="0" role="button" aria-label="Move corner ${index + 1}" style="cursor:move"/>`;
+        boundaryHandles += `<line data-wall="${index}" x1="${px * scale}" y1="${py * scale}" x2="${nx * scale}" y2="${ny * scale}" stroke="transparent" stroke-width="12" style="cursor:move;pointer-events:stroke"/>`;
+        boundaryHandles += `<rect data-wall="${index}" x="${(px + nx) * scale / 2 - 4}" y="${(py + ny) * scale / 2 - 4}" width="8" height="8" fill="#f4f3e8" stroke="#38885c" stroke-width="2" tabindex="0" role="button" aria-label="Move wall ${index + 1}" style="cursor:move"><title>Drag to shift wall; arrow keys adjust by 0.1 m, Shift by 0.5 m</title></rect>`;
       });
+      outline.forEach(([px, py], index) => {
+        boundaryHandles += `<circle data-corner="${index}" cx="${px * scale}" cy="${py * scale}" r="5" fill="${selectedCorner === index ? "#e4a95c" : "#f4f3e8"}" stroke="#38885c" stroke-width="2" tabindex="0" role="button" aria-label="Move corner ${index + 1}" style="cursor:move"><title>Drag to reshape; arrow keys adjust by 0.1 m, Shift by 0.5 m</title></circle>`;
+      });
+      boundaryHandles += "</g>";
     }
     markup += "</g>";
   }
@@ -322,6 +330,7 @@ function renderPlan() {
   for (const feature of (project.features || []).filter(f => f.floorId === activeFloor)) {
     markup += featureMarkup(feature, featureVertices(feature, featureHost(project, feature)), (x, y) => ({ x: ox + x * scale, y: oy + y * scale }), true, unitSystem);
   }
+  markup += boundaryHandles;
   for (const wall of exteriorRoomWalls(rooms).filter(w => w.room.railing)) {
     markup += `<path data-terrace-railing="true" d="M${ox + wall.a[0] * scale} ${oy + wall.a[1] * scale}L${ox + wall.b[0] * scale} ${oy + wall.b[1] * scale}" stroke="#688b7c" stroke-width="2" stroke-dasharray="8 3" pointer-events="none"/>`;
   }
@@ -350,6 +359,10 @@ function renderInspector() {
   const corners = roomOutline(item);
   content.innerHTML = `<button class="back-overview" id="deselect-room">${icon("back")}Back to floor overview</button><div class="selection-heading"><span>${icon(spec.icon)}</span><div><strong>${escape(spec.name)}</strong><small>${escape(spec.category)} space</small></div></div><form id="room-form"><div class="property-field"><label for="room-name">Space name</label><input id="room-name" name="name" value="${escape(item.name)}" maxlength="60" required></div><div class="field-row">${dimensionField("width", "Width", item.width, 1, 30)}${dimensionField("depth", "Depth", item.depth, 1, 30)}</div><div class="field-row">${dimensionField("x", "Position X", item.x, -200, 200)}${dimensionField("y", "Position Y", item.y, -200, 200)}</div><div class="property-field"><label for="room-material">Floor finish</label><select id="room-material" name="material">${[["oak", "Natural oak"], ["tile", "Limestone tile"], ["concrete", "Polished concrete"], ["deck", "Timber decking"]].map(([value, name]) => `<option value="${value}" ${item.material === value ? "selected" : ""}>${name}</option>`).join("")}</select></div><div class="area-readout"><span>Total space area</span><strong>${areaText(roomArea(item))}</strong></div><button class="button primary" style="width:100%;margin-top:15px" type="submit">Apply changes</button></form><div class="outline-controls"><span class="property-label">WALLS & CORNERS</span><p>Drag wall edges or corners on the plan. Add corners for custom outlines.</p>${roomHasFeatures ? '<p class="dialog-note">Remove this room’s door and window specifications before changing its outline.</p>' : `<button class="add-space-button" id="add-corner" ${corners.length >= 12 ? "disabled" : ""}>${icon("plus")}Add corner</button><button class="add-space-button" id="remove-corner" ${selectedCorner === null || corners.length <= 3 ? "disabled" : ""}>${icon("trash")}Remove selected corner</button>`}</div><div class="room-actions"><button id="duplicate-room">${icon("copy")}Duplicate</button><button class="danger" id="delete-room" aria-label="Delete space">${icon("trash")}</button></div>`;
   $("#deselect-room").onclick = () => { selected = null; selectedCorner = null; render(); };
+  $(".outline-controls p").textContent = "Drag a wall to resize. Drag a corner to reshape.";
+  $(".outline-controls p").insertAdjacentHTML("afterend", `<details class="boundary-keyboard-help"><summary>Keyboard controls</summary><p>Focus a handle with Tab, then use arrow keys to move it by 0.1 m. Hold Shift to move by 0.5 m.</p></details><label class="property-checkbox"><input type="checkbox" id="shift-shared-boundaries" aria-describedby="shared-boundary-help" ${shiftSharedBoundaries ? "checked" : ""}>Adjust adjoining rooms</label><p id="shared-boundary-help">Move connected walls and corners together.</p>`);
+  $("#shift-shared-boundaries").onchange = event => { shiftSharedBoundaries = event.target.checked; };
+  if (roomHasFeatures) $(".outline-controls .dialog-note").textContent = "Doors and windows must still fit after resizing. Remove them before changing the room's shape.";
   if (isOutdoor(item)) {
     $("#room-form .area-readout").insertAdjacentHTML("beforebegin", `<label class="property-checkbox"><input type="checkbox" name="railing" id="room-railing" ${item.railing ? "checked" : ""}>Concept glass railing (${lengthText(1.1)})</label>`);
   } else if (!item.outline) {
@@ -719,18 +732,12 @@ $("#plan").addEventListener("pointerdown", event => {
     if (previousSelected !== selected) selectedCorner = null;
     const cornerHandle = event.target.closest("[data-corner]");
     const wallHandle = event.target.closest("[data-wall]");
-    const hasFeatures = (project.features || []).some(feature => feature.roomId === item.id);
-    if ((cornerHandle || wallHandle) && hasFeatures) {
-      render();
-      toast("Remove this room’s door and window specifications before changing its outline.", true);
-      return;
-    }
     if (cornerHandle) {
       selectedCorner = Number(cornerHandle.dataset.corner);
-      drag = { mode: "corner", id: selected, index: selectedCorner, start: point, outline: roomOutline(item).map(position => [...position]), before: snapshot(), scale: drawing.scale, moved: false };
+      drag = { mode: "corner", id: selected, index: selectedCorner, start: point, before: snapshot(), drawing: { ...drawing }, scale: drawing.scale, moved: false };
     } else if (wallHandle) {
       selectedCorner = null;
-      drag = { mode: "wall", id: selected, index: Number(wallHandle.dataset.wall), start: point, outline: roomOutline(item).map(position => [...position]), before: snapshot(), scale: drawing.scale, moved: false };
+      drag = { mode: "wall", id: selected, index: Number(wallHandle.dataset.wall), start: point, before: snapshot(), drawing: { ...drawing }, scale: drawing.scale, moved: false };
     } else {
       drag = view === "2d" ? { mode: "room", id: selected, start: point, x: item.x, y: item.y, scale: drawing.scale, before: snapshot(), moved: false } : null;
     }
@@ -759,24 +766,17 @@ $("#plan").addEventListener("pointermove", event => {
     if (item.railing || (project.features || []).some(f => f.roomId === item.id)) renderPlan();
     else if (g) g.setAttribute("transform", `translate(${drawing.x + item.x * drag.scale} ${drawing.y + item.y * drag.scale})`);
   } else if (drag.mode === "corner" || drag.mode === "wall") {
-    const item = selection();
-    if (!item) return;
-    const outline = drag.outline.map(position => [...position]);
-    let dx = Math.round((point.x - drag.start.x) / (zoom * drag.scale) * 10) / 10;
-    let dy = Math.round((point.y - drag.start.y) / (zoom * drag.scale) * 10) / 10;
-    if (drag.mode === "corner") {
-      const corner = outline[drag.index];
-      outline[drag.index] = [Math.min(item.width, Math.max(0, corner[0] + dx)), Math.min(item.depth, Math.max(0, corner[1] + dy))];
-    } else {
-      const next = (drag.index + 1) % outline.length;
-      const a = outline[drag.index], b = outline[next];
-      dx = Math.min(item.width - Math.max(a[0], b[0]), Math.max(-Math.min(a[0], b[0]), dx));
-      dy = Math.min(item.depth - Math.max(a[1], b[1]), Math.max(-Math.min(a[1], b[1]), dy));
-      outline[drag.index] = [a[0] + dx, a[1] + dy];
-      outline[next] = [b[0] + dx, b[1] + dy];
-    }
-    item.outline = outline;
-    drag.moved = Math.hypot(dx, dy) > 0;
+    const before = JSON.parse(drag.before);
+    const originalFloor = before.floors.find(item => item.id === activeFloor);
+    const dx = Math.round((point.x - drag.start.x) / (zoom * drag.scale) * 10) / 10;
+    const dy = Math.round((point.y - drag.start.y) / (zoom * drag.scale) * 10) / 10;
+    try {
+      originalFloor.rooms = shiftSpaceBoundary(originalFloor.rooms, drag.id, drag.mode, drag.index, dx, dy, shiftSharedBoundaries);
+      validateProject(before);
+      project = before;
+      drag.error = null;
+      drag.moved = snapshot() !== drag.before;
+    } catch (error) { drag.error = error.message; }
     renderPlan();
   }
 });
@@ -786,10 +786,11 @@ function endDrag(event, cancelled = false) {
   drag = null;
   $("#drawing-surface").classList.remove("orbiting");
   if ($("#plan").hasPointerCapture(event.pointerId)) $("#plan").releasePointerCapture(event.pointerId);
-  if (cancelled) {
+  if (cancelled || previous.error) {
     if (["room", "wall", "corner"].includes(previous.mode)) project = JSON.parse(previous.before);
     if (previous.mode === "orbit") camera = previous.camera;
     if (previous.mode === "pan") pan = previous.pan;
+    if (previous.error && !cancelled) toast(previous.error, true);
   } else if (["room", "wall", "corner"].includes(previous.mode) && previous.moved) {
     try { validateProject(project); commit(previous.before); }
     catch (error) { project = JSON.parse(previous.before); toast(error.message, true); }
@@ -807,6 +808,18 @@ $("#plan").addEventListener("pointerup", endDrag);
 $("#plan").addEventListener("pointercancel", event => endDrag(event, true));
 $("#plan").addEventListener("lostpointercapture", event => endDrag(event, true));
 $("#plan").addEventListener("keydown", event => {
+  const handle = event.target.closest("[data-wall], [data-corner]");
+  const arrows = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+  if (handle && arrows[event.key] && view === "2d" && scope === "floor" && !drag) {
+    event.preventDefault();
+    const mode = handle.dataset.corner !== undefined ? "corner" : "wall";
+    const index = Number(handle.dataset[mode]);
+    const distance = event.shiftKey ? .5 : .1;
+    const [dx, dy] = arrows[event.key].map(value => value * distance);
+    change(() => { floor().rooms = shiftSpaceBoundary(floor().rooms, selected, mode, index, dx, dy, shiftSharedBoundaries); });
+    $(`#plan [data-${mode}="${index}"][tabindex]`)?.focus();
+    return;
+  }
   if ((event.key === "Enter" || event.key === " ") && event.target.dataset.feature) {
     event.preventDefault(); architecturalFeatures(event.target.dataset.feature); return;
   }

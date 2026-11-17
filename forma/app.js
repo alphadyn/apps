@@ -7,6 +7,7 @@ import { featureHost, featureVertices, featureMarkup, fenceSettings, FEATURE_MAT
 import { architectureDialog } from "./architecture-ui.js";
 import { documentationDialog } from "./documentation.js";
 import { shiftSpaceBoundary } from "./space-edit.js";
+import { shiftOpening, openingEditMarkup } from "./opening-edit.js";
 import { areaUnit, fromMeters, formatArea as formatAreaValue, inputLength, inputLengthLimit, lengthUnit, toMeters, UNIT_SYSTEMS } from "./units.js";
 
 const $ = selector => document.querySelector(selector);
@@ -327,10 +328,15 @@ function renderPlan() {
     markup += "</g>";
   }
   markup += "</g>";
-  for (const feature of (project.features || []).filter(f => f.floorId === activeFloor)) {
-    markup += featureMarkup(feature, featureVertices(feature, featureHost(project, feature)), (x, y) => ({ x: ox + x * scale, y: oy + y * scale }), true, unitSystem);
-  }
   markup += boundaryHandles;
+  let openingHandles = "";
+  for (const feature of (project.features || []).filter(f => f.floorId === activeFloor)) {
+    const vertices = featureVertices(feature, featureHost(project, feature));
+    const point = (x, y) => ({ x: ox + x * scale, y: oy + y * scale });
+    markup += `<g class="editable-opening">${featureMarkup(feature, vertices, point, true, unitSystem)}</g>`;
+    if (feature.roomId === selected && tool !== "pan") openingHandles += openingEditMarkup(feature, vertices, point, unitSystem);
+  }
+  markup += openingHandles;
   for (const wall of exteriorRoomWalls(rooms).filter(w => w.room.railing)) {
     markup += `<path data-terrace-railing="true" d="M${ox + wall.a[0] * scale} ${oy + wall.a[1] * scale}L${ox + wall.b[0] * scale} ${oy + wall.b[1] * scale}" stroke="#688b7c" stroke-width="2" stroke-dasharray="8 3" pointer-events="none"/>`;
   }
@@ -363,10 +369,14 @@ function renderInspector() {
   $(".outline-controls p").insertAdjacentHTML("afterend", `<details class="boundary-keyboard-help"><summary>Keyboard controls</summary><p>Focus a handle with Tab, then use arrow keys to move it by 0.1 m. Hold Shift to move by 0.5 m.</p></details><label class="property-checkbox"><input type="checkbox" id="shift-shared-boundaries" aria-describedby="shared-boundary-help" ${shiftSharedBoundaries ? "checked" : ""}>Adjust adjoining rooms</label><p id="shared-boundary-help">Move connected walls and corners together.</p>`);
   $("#shift-shared-boundaries").onchange = event => { shiftSharedBoundaries = event.target.checked; };
   if (roomHasFeatures) $(".outline-controls .dialog-note").textContent = "Doors and windows must still fit after resizing. Remove them before changing the room's shape.";
+  if (roomHasFeatures) {
+    content.insertAdjacentHTML("beforeend", '<div class="opening-edit-help"><span class="property-label">DOORS & WINDOWS</span><p>Drag an opening along its wall to move it. Drag an end handle to resize. Click the opening for exact measurements or to change walls.</p><details class="boundary-keyboard-help"><summary>Keyboard controls</summary><p>Focus an opening or handle with Tab. Use arrow keys along the wall to adjust by 0.1 m, or Shift + arrow keys for 0.5 m. Press Enter for specifications.</p></details></div>');
+  }
   if (isOutdoor(item)) {
     $("#room-form .area-readout").insertAdjacentHTML("beforebegin", `<label class="property-checkbox"><input type="checkbox" name="railing" id="room-railing" ${item.railing ? "checked" : ""}>Concept glass railing (${lengthText(1.1)})</label>`);
   } else if (!item.outline) {
     content.insertAdjacentHTML("beforeend", '<button class="add-space-button" id="room-openings">Doors & windows</button>');
+    if (!roomHasFeatures) $("#room-openings").insertAdjacentHTML("afterend", '<p class="dialog-note">Add door and window specifications to make openings editable on the plan.</p>');
     $("#room-openings").onclick = () => architecturalFeatures();
   } else {
     content.insertAdjacentHTML("beforeend", '<p class="dialog-note">Remove custom corners to add door or window specifications.</p>');
@@ -706,7 +716,8 @@ document.addEventListener("click", event => {
 $("#plan").addEventListener("pointerdown", event => {
   if (event.button !== 0 || drag) return;
   const featureId = event.target.closest("[data-feature]")?.dataset.feature;
-  if (featureId && tool !== "pan" && view === "2d") { event.preventDefault(); architecturalFeatures(featureId); return; }
+  const feature = (project.features || []).find(item => item.id === featureId);
+  if (featureId && tool !== "pan" && view === "2d" && (scope !== "floor" || feature?.type === "gate")) { event.preventDefault(); architecturalFeatures(featureId); return; }
   const target = event.target.closest("[data-room]");
   const point = svgPoint(event);
   if (tool === "pan") {
@@ -718,6 +729,15 @@ $("#plan").addEventListener("pointerdown", event => {
       featureId,
     };
     $("#drawing-surface").classList.add("orbiting");
+  } else if (feature) {
+    selected = feature.roomId;
+    selectedCorner = null;
+    drag = {
+      mode: "opening", id: feature.id, action: event.target.closest("[data-opening-action]")?.dataset.openingAction || "move",
+      start: point, clientStart: { x: event.clientX, y: event.clientY }, before: snapshot(),
+      drawing: { ...drawing }, scale: drawing.scale, moved: false,
+    };
+    render();
   } else if (scope === "property") {
     const building = event.target.closest("[data-property-floor]");
     if (building) {
@@ -756,6 +776,16 @@ $("#plan").addEventListener("pointermove", event => {
   const point = svgPoint(event);
   const dx = (point.x - drag.start.x) / zoom, dy = (point.y - drag.start.y) / zoom;
   if (drag.mode === "pan") { pan = { x: drag.pan.x + dx * zoom, y: drag.pan.y + dy * zoom }; renderPlan(); }
+  else if (drag.mode === "opening") {
+    if (!drag.started && Math.hypot(event.clientX - drag.clientStart.x, event.clientY - drag.clientStart.y) <= 4) return;
+    drag.started = true;
+    try {
+      project = shiftOpening(JSON.parse(drag.before), drag.id, drag.action, Math.round(dx / drag.scale * 10) / 10, Math.round(dy / drag.scale * 10) / 10);
+      drag.error = null;
+      drag.moved = snapshot() !== drag.before;
+    } catch (error) { drag.error = error.message; }
+    renderPlan();
+  }
   else if (drag.mode === "room") {
     const item = selection();
     if (!item) return;
@@ -787,13 +817,16 @@ function endDrag(event, cancelled = false) {
   $("#drawing-surface").classList.remove("orbiting");
   if ($("#plan").hasPointerCapture(event.pointerId)) $("#plan").releasePointerCapture(event.pointerId);
   if (cancelled || previous.error) {
-    if (["room", "wall", "corner"].includes(previous.mode)) project = JSON.parse(previous.before);
+    if (["room", "wall", "corner", "opening"].includes(previous.mode)) project = JSON.parse(previous.before);
     if (previous.mode === "orbit") camera = previous.camera;
     if (previous.mode === "pan") pan = previous.pan;
     if (previous.error && !cancelled) toast(previous.error, true);
-  } else if (["room", "wall", "corner"].includes(previous.mode) && previous.moved) {
+  } else if (["room", "wall", "corner", "opening"].includes(previous.mode) && previous.moved) {
     try { validateProject(project); commit(previous.before); }
     catch (error) { project = JSON.parse(previous.before); toast(error.message, true); }
+  }
+  else if (previous.mode === "opening" && !previous.started && previous.action === "move") {
+    render(); architecturalFeatures(previous.id); return;
   }
   else if (previous.mode === "orbit" && !previous.moved) {
     if (previous.featureId) { render(); architecturalFeatures(previous.featureId); return; }
@@ -808,8 +841,22 @@ $("#plan").addEventListener("pointerup", endDrag);
 $("#plan").addEventListener("pointercancel", event => endDrag(event, true));
 $("#plan").addEventListener("lostpointercapture", event => endDrag(event, true));
 $("#plan").addEventListener("keydown", event => {
+  if (drag?.mode === "opening") return;
   const handle = event.target.closest("[data-wall], [data-corner]");
   const arrows = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+  const featureId = event.target.closest("[data-feature]")?.dataset.feature;
+  const feature = (project.features || []).find(item => item.id === featureId);
+  if (feature && ["door", "window"].includes(feature.type) && arrows[event.key] && view === "2d" && scope === "floor" && tool !== "pan" && !drag && !event.metaKey && !event.ctrlKey && !event.altKey) {
+    event.preventDefault();
+    const action = event.target.closest("[data-opening-action]")?.dataset.openingAction || "move";
+    const distance = event.shiftKey ? .5 : .1;
+    const [dx, dy] = arrows[event.key].map(value => value * distance);
+    selected = feature.roomId;
+    change(() => { project = shiftOpening(project, feature.id, action, dx, dy); });
+    const root = [...$("#plan").querySelectorAll(".opening-controls")].find(el => el.dataset.feature === feature.id);
+    root?.querySelector(`[data-opening-action="${action}"]`)?.focus();
+    return;
+  }
   if (handle && arrows[event.key] && view === "2d" && scope === "floor" && !drag) {
     event.preventDefault();
     const mode = handle.dataset.corner !== undefined ? "corner" : "wall";
@@ -820,8 +867,8 @@ $("#plan").addEventListener("keydown", event => {
     $(`#plan [data-${mode}="${index}"][tabindex]`)?.focus();
     return;
   }
-  if ((event.key === "Enter" || event.key === " ") && event.target.dataset.feature) {
-    event.preventDefault(); architecturalFeatures(event.target.dataset.feature); return;
+  if ((event.key === "Enter" || event.key === " ") && featureId) {
+    event.preventDefault(); architecturalFeatures(featureId); return;
   }
   if ((event.key === "Enter" || event.key === " ") && event.target.dataset.propertyFloor) {
     event.preventDefault(); selectFloor(event.target.dataset.propertyFloor); return;
@@ -867,6 +914,10 @@ $("#shortcuts-button").onclick = shortcutsDialog;
 $("#about-button").onclick = () => showDialog("A space for possibility.", '<p class="dialog-description">Forma is your personal contemporary home-design studio. Compose spaces, explore proportions, and imagine everyday life in a home that feels like you.</p><p class="dialog-description">Your project stays in this browser. Download a project file to keep a backup or continue in another browser. No account, no cloud, just room to create.</p><p class="dialog-note">The Forma logo returns to this workspace. Concept planning only. Walls, doors, windows, and furniture are illustrative; plans are not code-checked or construction-ready.</p>', "WELCOME TO FORMA");
 document.addEventListener("keydown", event => {
   const editing = ["INPUT", "SELECT", "TEXTAREA"].includes(event.target.tagName);
+  if (event.key === "Escape" && drag?.mode === "opening") {
+    event.preventDefault(); endDrag({ pointerId: drag.pointerId }, true); return;
+  }
+  if (drag?.mode === "opening") { event.preventDefault(); return; }
   if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") { event.preventDefault(); applyChanges(); return; }
   if (editing || $("#app-dialog").open) return;
   if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "z") { event.preventDefault(); history(event.shiftKey); }
@@ -875,7 +926,10 @@ document.addEventListener("keydown", event => {
   else if (event.key.toLowerCase() === "v") setTool("select");
   else if (event.key.toLowerCase() === "h") setTool("pan");
   else if (event.key.toLowerCase() === "r") addDialog();
-  else if ((event.key === "Delete" || event.key === "Backspace") && selection()) { event.preventDefault(); deleteRoom(selection()); }
+  else if ((event.key === "Delete" || event.key === "Backspace") && selection()) {
+    event.preventDefault();
+    if (!event.target.closest("[data-feature]")) deleteRoom(selection());
+  }
 });
 render();
 new ResizeObserver(() => { renderPlan(); updateScale(); }).observe($("#plan"));

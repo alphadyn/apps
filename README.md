@@ -15,7 +15,7 @@ The landing page's Top apps section highlights these projects:
 1. [Market Map](market-map/) — See the S&P 500 in one market-cap-weighted treemap, colored by implied DCF upside and downside
 2. [Signal](signal/) — Explore Google News headlines, filter by ranked trends, manage shared removed keywords, and export captures as JSON
 3. [People](people/) — Build a professional profile, share your work, discover people, and join communities
-4. [Forma](forma/) — Design contemporary homes with 17 space types, editable floors and lots, whole-property site plans, and full-house 3D concepts
+4. [Atlas Store](atlas-store/) — Storefront mockup with catalog, cart, and checkout flow
 
 ## App catalog
 

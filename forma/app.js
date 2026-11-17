@@ -69,6 +69,7 @@ const UNIT_STORAGE_KEY = "forma-units-v1";
 let project = createProject();
 let activeFloor = project.floors[0].id;
 let selected = null;
+let selectedOpening = null;
 let selectedCorner = null;
 let shiftSharedBoundaries = false;
 let view = "2d";
@@ -173,6 +174,7 @@ function setScope(value) {
   scope = value; activePanel = value === "property" ? "property" : "plan"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; render();
 }
 function render() {
+  if (!(project.features || []).some(feature => feature.id === selectedOpening && feature.roomId === selected && feature.floorId === activeFloor) || scope !== "floor" || view !== "2d") selectedOpening = null;
   const stats = projectStats(project);
   $("#sidebar-name").textContent = project.name;
   $("#rename-project").textContent = project.name;
@@ -313,7 +315,7 @@ function renderPlan() {
     } else if (isOutdoor(item)) {
       markup += `<g clip-path="url(#room-clip-${roomIndex})">${plant(13, h - 13, 8)}${plant(w - 13, h - 13, 8)}</g>`;
     }
-    if (item.id === selected) {
+    if (item.id === selected && !selectedOpening) {
       boundaryHandles = `<g data-room="${escape(item.id)}" transform="translate(${x} ${y})">`;
       outline.forEach(([px, py], index) => {
         const [nx, ny] = outline[(index + 1) % outline.length];
@@ -333,8 +335,8 @@ function renderPlan() {
   for (const feature of (project.features || []).filter(f => f.floorId === activeFloor)) {
     const vertices = featureVertices(feature, featureHost(project, feature));
     const point = (x, y) => ({ x: ox + x * scale, y: oy + y * scale });
-    markup += `<g class="editable-opening">${featureMarkup(feature, vertices, point, true, unitSystem)}</g>`;
-    if (feature.roomId === selected && tool !== "pan") openingHandles += openingEditMarkup(feature, vertices, point, unitSystem);
+    markup += `<g class="editable-opening ${feature.id === selectedOpening ? "selected-opening" : ""}">${featureMarkup(feature, vertices, point, true, unitSystem, "Select")}</g>`;
+    if (feature.id === selectedOpening && tool !== "pan") openingHandles += openingEditMarkup(feature, vertices, point, unitSystem);
   }
   markup += openingHandles;
   for (const wall of exteriorRoomWalls(rooms).filter(w => w.room.railing)) {
@@ -351,6 +353,14 @@ function renderPlan() {
 function renderInspector() {
   if (scope === "property") { renderPropertyInspector(); return; }
   const item = selection();
+  const opening = (project.features || []).find(feature => feature.id === selectedOpening);
+  if (opening && item && view === "2d") {
+    $("#inspector-heading").textContent = opening.type === "door" ? "Door properties" : "Window properties";
+    $("#inspector-content").innerHTML = `<button class="back-overview" id="deselect-opening">${icon("back")}Back to room</button><div class="selection-heading"><span>${icon("door")}</span><div><strong>${escape(opening.name)}</strong><small>${escape(item.name)} · ${escape(opening.side)} wall</small></div></div><div class="opening-edit-help"><span class="property-label">MOVE & RESIZE</span><p>Drag the center handle to move along the wall. Drag either end to resize.</p><div class="property-field"><span class="property-label">WIDTH × HEIGHT</span><div class="property-value">${lengthText(opening.width)} × ${lengthText(opening.height)}</div></div><div class="property-field"><span class="property-label">WALL OFFSET</span><div class="property-value">${lengthText(opening.offset)}</div></div><details class="boundary-keyboard-help"><summary>Keyboard controls</summary><p>Use arrow keys along the wall to move by 0.1 m. Hold Shift for 0.5 m. Focus an end handle to resize. Press Escape to deselect.</p></details><button class="add-space-button" id="edit-selected-opening">${icon("sliders")}Edit specifications</button></div>`;
+    $("#deselect-opening").onclick = () => { selectedOpening = null; render(); };
+    $("#edit-selected-opening").onclick = () => architecturalFeatures(opening.id);
+    return;
+  }
   $("#inspector-heading").textContent = item ? "Space properties" : "Floor overview";
   const content = $("#inspector-content");
   if (!item) {
@@ -370,7 +380,7 @@ function renderInspector() {
   $("#shift-shared-boundaries").onchange = event => { shiftSharedBoundaries = event.target.checked; };
   if (roomHasFeatures) $(".outline-controls .dialog-note").textContent = "Doors and windows must still fit after resizing. Remove them before changing the room's shape.";
   if (roomHasFeatures) {
-    content.insertAdjacentHTML("beforeend", '<div class="opening-edit-help"><span class="property-label">DOORS & WINDOWS</span><p>Drag an opening along its wall to move it. Drag an end handle to resize. Click the opening for exact measurements or to change walls.</p><details class="boundary-keyboard-help"><summary>Keyboard controls</summary><p>Focus an opening or handle with Tab. Use arrow keys along the wall to adjust by 0.1 m, or Shift + arrow keys for 0.5 m. Press Enter for specifications.</p></details></div>');
+    content.insertAdjacentHTML("beforeend", '<div class="opening-edit-help"><span class="property-label">DOORS & WINDOWS</span><p>Click an opening to select it, then drag to move or use its end handles to resize. Choose Edit specifications for exact measurements.</p></div>');
   }
   if (isOutdoor(item)) {
     $("#room-form .area-readout").insertAdjacentHTML("beforebegin", `<label class="property-checkbox"><input type="checkbox" name="railing" id="room-railing" ${item.railing ? "checked" : ""}>Concept glass railing (${lengthText(1.1)})</label>`);
@@ -694,7 +704,7 @@ document.addEventListener("click", event => {
   const floorButton = event.target.closest("[data-floor]");
   if (floorButton) selectFloor(floorButton.dataset.floor);
   const roomButton = event.target.closest("[data-select-room]");
-  if (roomButton) { selected = roomButton.dataset.selectRoom; render(); }
+  if (roomButton) { selectedOpening = null; selected = roomButton.dataset.selectRoom; render(); }
   const directoryButton = event.target.closest("[data-directory-room]");
   if (directoryButton) { selectFloor(directoryButton.dataset.directoryFloor); selected = directoryButton.dataset.directoryRoom; render(); closeDialog(); }
   const panel = event.target.closest("[data-panel]");
@@ -731,6 +741,7 @@ $("#plan").addEventListener("pointerdown", event => {
     $("#drawing-surface").classList.add("orbiting");
   } else if (feature) {
     selected = feature.roomId;
+    selectedOpening = feature.id;
     selectedCorner = null;
     drag = {
       mode: "opening", id: feature.id, action: event.target.closest("[data-opening-action]")?.dataset.openingAction || "move",
@@ -746,6 +757,7 @@ $("#plan").addEventListener("pointerdown", event => {
       render();
     }
   } else if (target) {
+    selectedOpening = null;
     const previousSelected = selected;
     selected = target.dataset.room;
     const item = selection();
@@ -762,7 +774,7 @@ $("#plan").addEventListener("pointerdown", event => {
       drag = view === "2d" ? { mode: "room", id: selected, start: point, x: item.x, y: item.y, scale: drawing.scale, before: snapshot(), moved: false } : null;
     }
     render();
-  } else { selected = null; render(); }
+  } else { selectedOpening = null; selected = null; render(); }
   if (drag) { drag.pointerId = event.pointerId; $("#plan").setPointerCapture(event.pointerId); event.preventDefault(); }
 });
 $("#plan").addEventListener("pointermove", event => {
@@ -826,7 +838,10 @@ function endDrag(event, cancelled = false) {
     catch (error) { project = JSON.parse(previous.before); toast(error.message, true); }
   }
   else if (previous.mode === "opening" && !previous.started && previous.action === "move") {
-    render(); architecturalFeatures(previous.id); return;
+    render();
+    const root = [...$("#plan").querySelectorAll(".opening-controls")].find(el => el.dataset.feature === previous.id);
+    root?.querySelector('[data-opening-action="move"]')?.focus();
+    return;
   }
   else if (previous.mode === "orbit" && !previous.moved) {
     if (previous.featureId) { render(); architecturalFeatures(previous.featureId); return; }
@@ -852,6 +867,7 @@ $("#plan").addEventListener("keydown", event => {
     const distance = event.shiftKey ? .5 : .1;
     const [dx, dy] = arrows[event.key].map(value => value * distance);
     selected = feature.roomId;
+    selectedOpening = feature.id;
     change(() => { project = shiftOpening(project, feature.id, action, dx, dy); });
     const root = [...$("#plan").querySelectorAll(".opening-controls")].find(el => el.dataset.feature === feature.id);
     root?.querySelector(`[data-opening-action="${action}"]`)?.focus();
@@ -868,13 +884,19 @@ $("#plan").addEventListener("keydown", event => {
     return;
   }
   if ((event.key === "Enter" || event.key === " ") && featureId) {
-    event.preventDefault(); architecturalFeatures(featureId); return;
+    event.preventDefault();
+    if (feature && feature.type !== "gate" && view === "2d" && scope === "floor") {
+      selected = feature.roomId; selectedOpening = feature.id; render();
+      const root = [...$("#plan").querySelectorAll(".opening-controls")].find(el => el.dataset.feature === feature.id);
+      root?.querySelector('[data-opening-action="move"]')?.focus();
+    } else architecturalFeatures(featureId);
+    return;
   }
   if ((event.key === "Enter" || event.key === " ") && event.target.dataset.propertyFloor) {
     event.preventDefault(); selectFloor(event.target.dataset.propertyFloor); return;
   }
   if ((event.key === "Enter" || event.key === " ") && event.target.dataset.room) {
-    event.preventDefault(); selected = event.target.dataset.room; render();
+    event.preventDefault(); selectedOpening = null; selected = event.target.dataset.room; render();
     $("#room-name")?.focus();
   }
 });
@@ -922,7 +944,11 @@ document.addEventListener("keydown", event => {
   if (editing || $("#app-dialog").open) return;
   if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "z") { event.preventDefault(); history(event.shiftKey); }
   else if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") { event.preventDefault(); roomDirectory(); }
-  else if (event.key === "Escape") { selected = null; $(".sidebar").classList.remove("open"); render(); }
+  else if (event.key === "Escape") {
+    if (selectedOpening) selectedOpening = null;
+    else selected = null;
+    $(".sidebar").classList.remove("open"); render();
+  }
   else if (event.key.toLowerCase() === "v") setTool("select");
   else if (event.key.toLowerCase() === "h") setTool("pan");
   else if (event.key.toLowerCase() === "r") addDialog();

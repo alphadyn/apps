@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createProject, parseProject, validateProject } from "./model.js";
-import { featureHost, featureVertices } from "./architecture.js";
+import { featureHost, featureVertices, featureMarkup } from "./architecture.js";
 import { shiftOpening, openingEditMarkup } from "./opening-edit.js";
 
 const opening = changes => ({
@@ -118,4 +118,8 @@ test("plan controls expose accessible move and resize handles, unit-aware width,
   assert.match(metric, />2 m<\/text>/);
   assert.match(openingEditMarkup(feature, vertices, point, "imperial"), /ft/);
   assert.match(openingEditMarkup({ ...feature, side: "east" }, vertices, point), /ns-resize/);
+  const selected = featureMarkup(feature, vertices, point, true, "metric", "Select");
+  assert.match(selected, /aria-label="Select &lt;img/);
+  assert.match(featureMarkup(feature, vertices, point, true), /aria-label="Edit &lt;img/);
+  assert.match(metric, /Drag along the wall to move/);
 });

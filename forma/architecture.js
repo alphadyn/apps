@@ -102,7 +102,7 @@ export function validateFeatures(project, ids = new Set()) {
   }
 }
 
-export function featureMarkup(feature, vertices, point, plan = false, units = "metric") {
+export function featureMarkup(feature, vertices, point, plan = false, units = "metric", action = "Edit") {
   const coords = vertices.map(v => point(...v));
   const line = (a, b, color, width = 1) => `<path d="M${a.x} ${a.y}L${b.x} ${b.y}" fill="none" stroke="${color}" stroke-width="${width}"/>`;
   const fill = feature.glazing === "none" ? FEATURE_MATERIALS[feature.material] : "#9fc4c1";
@@ -140,7 +140,7 @@ export function featureMarkup(feature, vertices, point, plan = false, units = "m
       markup += line({ x: bottom.x * .55 + top.x * .45, y: bottom.y * .55 + top.y * .45 }, { x: bottom.x * .4 + top.x * .6, y: bottom.y * .4 + top.y * .6 }, "#384f47", 1.5);
     }
   }
-  return `<g class="architectural-feature" data-feature="${escape(feature.id)}" tabindex="0" role="button" aria-label="Edit ${escape(feature.name)}"><title>${escape(`${feature.name} · ${formatLength(feature.width, units)} × ${formatLength(feature.height, units)} · ${feature.style} · ${feature.material} · ${feature.glazing} glazing`)}</title>${markup}</g>`;
+  return `<g class="architectural-feature" data-feature="${escape(feature.id)}" tabindex="0" role="button" aria-label="${escape(action)} ${escape(feature.name)}"><title>${escape(`${feature.name} · ${formatLength(feature.width, units)} × ${formatLength(feature.height, units)} · ${feature.style} · ${feature.material} · ${feature.glazing} glazing`)}</title>${markup}</g>`;
 }
 
 export function railingMarkup(vertices, point) {

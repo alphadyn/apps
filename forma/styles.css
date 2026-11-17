@@ -1,8 +1,60 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=Manrope:wght@400;500;600;650;700;750;800&display=swap');
 
-.selected-opening .architectural-feature{filter:drop-shadow(0 0 3px #38885c)}
-
-.outline-controls,.opening-edit-help{margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}.outline-controls p,.opening-edit-help p{margin:8px 0 12px;color:var(--muted);font-size:11px;line-height:1.6}.boundary-keyboard-help{margin-bottom:16px;font-size:11px;color:var(--muted)}.boundary-keyboard-help summary{cursor:pointer;color:var(--mint)}.outline-controls #shared-boundary-help{margin-top:4px}.opening-controls [tabindex]:focus{outline:none;stroke:#e4a95c;stroke-width:3}.editable-opening .architectural-feature{cursor:move}
+.selected-opening .architectural-feature {
+  filter: drop-shadow(0 0 3px #38885c);
+}
+.editable-opening .architectural-feature { cursor: move; }
+.opening-controls [tabindex]:focus {
+  outline: none;
+  stroke: #e4a95c;
+  stroke-width: 3;
+}
+.outline-controls,
+.opening-edit-help {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.outline-controls p,
+.opening-edit-help p,
+.room-element-actions .inspector-help {
+  margin: 8px 0 12px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+.room-element-actions {
+  padding-bottom: 16px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+.room-element-actions .feature-add-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 10px 0 0;
+}
+.room-element-actions .button {
+  justify-content: center;
+  padding: 9px 6px;
+}
+.boundary-options { display: grid; gap: 10px; margin: 12px 0 0; }
+.outline-controls #shared-boundary-help { margin-top: 4px; padding-left: 22px; }
+.boundary-keyboard-help { margin-bottom: 16px; font-size: 11px; color: var(--muted); }
+.boundary-keyboard-help summary { cursor: pointer; color: var(--mint); }
+.boundary-keyboard-help summary:focus-visible { outline: 2px solid var(--mint); outline-offset: 4px; }
+.room-update-button { width: 100%; margin-top: 15px; }
+.opening-measurements { margin: 16px 0; }
+.opening-measurements > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 11px;
+}
+.opening-measurements dt { color: var(--muted); }
+.opening-measurements dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
 
 .fence-settings{border:1px solid #46574a;border-radius:6px;padding:14px;margin:18px 0}.fence-settings legend{font-size:10px;letter-spacing:1.6px;color:#a6c5af;padding:0 6px}.fence-settings .property-checkbox{margin-bottom:18px}
 

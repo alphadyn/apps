@@ -1,6 +1,20 @@
 # Forma
 
-A dependency-free, browser-based concept studio for contemporary homes. Open `forma/` from the portfolio, or serve the repository and visit `http://localhost:8000/forma/`.
+A dependency-free, browser-based concept studio for contemporary homes. Resize rooms, place doors and windows, and explore floor plans in 2D and 3D. No account needed.
+
+**[Open Forma](https://alphadyn.github.io/apps/forma/)** · [Local preview](http://localhost:8000/forma/)
+
+[![Forma home design studio: a space for possibility, with an illustrated floor plan.](preview.png)](https://alphadyn.github.io/apps/forma/)
+
+Serve the repository and open the local preview, or launch Forma from the portfolio.
+
+## Sharing in text messages
+
+Share **https://alphadyn.github.io/apps/forma/** in SMS, iMessage, or other messaging apps. The page includes static Open Graph and large-image card metadata, an absolute HTTPS preview-image URL, and a canonical URL so crawlers can build a preview without running the editor.
+
+The preview describes the app, not your current design. Projects stay in your browser; export a `.forma.json` file to share an editable design. The preview image is an illustration, not a screenshot of a saved project.
+
+Metadata changes appear on the public URL after deployment. Messaging apps and recipients' devices may cache earlier previews, and plain SMS or clients with link previews disabled may show only the URL. The preview-image version can be bumped when the image changes; it does not force clients to refresh a cached page preview.
 
 ## Designing
 

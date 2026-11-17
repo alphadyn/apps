@@ -60,6 +60,10 @@ builder also observes a cooldown (at least 20 seconds) before continuing to anot
 section. Retries and exhausted attempts are logged. If the requested
 cooldown exceeds two minutes, the build fails without writing a new snapshot
 rather than retrying before the server allows it.
+After the initial pass, feeds that exhausted their retries for HTTP 429 or 503
+are tried once more after a 60-second pause, using the same retry policy.
+If they still fail, the snapshot remains partial and the page reports them;
+Google's rate limits can persist beyond a build.
 The interface and JSON download preserve the snapshot's actual capture timestamp.
 Failed sections are recorded in `failed_feeds`, logged during the build, and displayed
 in the page. A build with no usable headlines fails instead of publishing an empty

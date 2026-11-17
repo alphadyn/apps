@@ -31,6 +31,7 @@ FEED_INTERVAL_SECONDS = 2
 MAX_ATTEMPTS = 3
 RETRY_BASE_SECONDS = 5
 MAX_RETRY_DELAY_SECONDS = 120
+DEFERRED_RETRY_DELAY_SECONDS = 60
 
 
 def retry_delay(error: HTTPError, attempt: int) -> float:
@@ -106,20 +107,49 @@ def fetch_feed(feed: dict[str, str]) -> list[dict[str, object]]:
 
 
 def build_snapshot() -> dict[str, object]:
-    news = []
-    failures = []
-    seen_links = set()
+    results = [None] * len(SOURCE_FEEDS)
+    failures: dict[int, dict[str, str]] = {}
+    deferred = []
     for index, feed in enumerate(SOURCE_FEEDS):
         if index:
             time.sleep(FEED_INTERVAL_SECONDS)
         try:
-            stories = fetch_feed(feed)
+            results[index] = fetch_feed(feed)
+        except HTTPError as error:
+            message = str(error)
+            print(f'{feed["section"]}: {message}', file=sys.stderr)
+            failures[index] = {**feed, "error": message}
+            if error.code in {429, 503}:
+                deferred.append(index)
         except (URLError, TimeoutError, OSError, ET.ParseError, ValueError) as error:
             message = str(error)
             print(f'{feed["section"]}: {message}', file=sys.stderr)
-            failures.append({**feed, "error": message})
-            continue
-        for story in stories:
+            failures[index] = {**feed, "error": message}
+
+    if deferred:
+        print(
+            f"Retrying {len(deferred)} rate-limited or unavailable feeds "
+            f"after {DEFERRED_RETRY_DELAY_SECONDS}s.",
+            file=sys.stderr,
+        )
+        time.sleep(DEFERRED_RETRY_DELAY_SECONDS)
+        for retry_index, index in enumerate(deferred):
+            if retry_index:
+                time.sleep(FEED_INTERVAL_SECONDS)
+            feed = SOURCE_FEEDS[index]
+            try:
+                results[index] = fetch_feed(feed)
+            except (URLError, TimeoutError, OSError, ET.ParseError, ValueError) as error:
+                message = str(error)
+                print(f'{feed["section"]}: deferred retry failed: {message}', file=sys.stderr)
+                failures[index] = {**feed, "error": message}
+            else:
+                del failures[index]
+
+    news = []
+    seen_links = set()
+    for stories in results:
+        for story in stories or []:
             if story["header_url"] not in seen_links:
                 seen_links.add(story["header_url"])
                 news.append(story)
@@ -128,7 +158,7 @@ def build_snapshot() -> dict[str, object]:
     return {
         "source_feeds": SOURCE_FEEDS,
         "captured_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "failed_feeds": failures,
+        "failed_feeds": [failures[index] for index in sorted(failures)],
         "news": news,
     }
 

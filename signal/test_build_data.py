@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
-from unittest.mock import call, patch
+from unittest.mock import MagicMock, call, patch
 from urllib.error import HTTPError, URLError
 
 import build_data
@@ -153,6 +153,81 @@ class SnapshotTests(unittest.TestCase):
         self.assertEqual(snapshot["failed_feeds"][0]["section"], "Nation")
         self.assertIn("upstream unavailable", snapshot["failed_feeds"][0]["error"])
         self.assertIn("Nation", log.getvalue())
+
+    def test_deferred_retry_recovers_rate_limited_feeds_in_source_order(self):
+        attempts = {}
+
+        def fetch(feed):
+            section = feed["section"]
+            attempts[section] = attempts.get(section, 0) + 1
+            if section in {"World", "Entertainment"} and attempts[section] == 1:
+                raise self.http_error()
+            return [{
+                "header_title": section,
+                "header_url": f"https://example.com/{section}",
+                "section": section,
+                "subtitles": [],
+            }, build_data.parse_feed(RSS, section)[0]]
+
+        with patch("build_data.fetch_feed", side_effect=fetch), \
+                contextlib.redirect_stderr(io.StringIO()):
+            snapshot = build_data.build_snapshot()
+
+        self.assertEqual(snapshot["failed_feeds"], [])
+        self.assertEqual(attempts["World"], 2)
+        self.assertEqual(attempts["Entertainment"], 2)
+        self.assertEqual(
+            [story["section"] for story in snapshot["news"]],
+            ["Top Stories", "Top Stories", "World", "Nation", "Business",
+             "Technology", "Entertainment", "Sports", "Science", "Health"],
+        )
+        self.assertEqual(self.sleep.call_args_list, [*[call(2)] * 8, call(60), call(2)])
+
+    def test_deferred_retry_reports_last_failure_without_retrying_other_errors(self):
+        attempts = {}
+
+        def fetch(feed):
+            section = feed["section"]
+            attempts[section] = attempts.get(section, 0) + 1
+            if section == "World":
+                if attempts[section] == 1:
+                    raise self.http_error()
+                raise URLError("still offline")
+            if section == "Nation":
+                raise self.http_error(404)
+            return build_data.parse_feed(RSS, section)
+
+        with patch("build_data.fetch_feed", side_effect=fetch), \
+                contextlib.redirect_stderr(io.StringIO()) as log:
+            snapshot = build_data.build_snapshot()
+        self.assertEqual(attempts["World"], 2)
+        self.assertEqual(attempts["Nation"], 1)
+        self.assertEqual([feed["section"] for feed in snapshot["failed_feeds"]], ["World", "Nation"])
+        self.assertIn("still offline", snapshot["failed_feeds"][0]["error"])
+        self.assertIn("deferred retry failed", log.getvalue())
+
+    def test_exhausted_http_retries_recover_on_deferred_pass(self):
+        requests = {}
+
+        def open_feed(request, timeout):
+            url = request.full_url
+            requests[url] = requests.get(url, 0) + 1
+            if url == build_data.SOURCE_FEEDS[1]["url"] and requests[url] <= 3:
+                raise self.http_error()
+            return response
+
+        with patch("build_data.urlopen", side_effect=open_feed) as open_url, \
+                contextlib.redirect_stderr(io.StringIO()):
+            response = MagicMock()
+            response.__enter__.return_value.read.return_value = RSS
+            snapshot = build_data.build_snapshot()
+
+        self.assertEqual(open_url.call_count, 12)
+        self.assertEqual(requests[build_data.SOURCE_FEEDS[1]["url"]], 4)
+        self.assertEqual(snapshot["failed_feeds"], [])
+        self.assertEqual(self.sleep.call_args_list, [
+            call(2), call(5), call(10), call(20), *[call(2)] * 7, call(60),
+        ])
 
     def test_total_failure_does_not_overwrite_existing_snapshot(self):
         with tempfile.TemporaryDirectory() as directory:

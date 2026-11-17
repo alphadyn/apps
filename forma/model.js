@@ -22,6 +22,28 @@ export const TYPES = {
 
 export const isOutdoor = item => TYPES[item.type].category === "Outdoor";
 export const defaultProperty = () => ({ width: 26, depth: 32, houseX: 8, houseY: 7, roadName: "Oak Lane", landscaping: true, driveway: true });
+export const roomOutline = item => item.outline || [[0, 0], [item.width, 0], [item.width, item.depth], [0, item.depth]];
+export const roomVertices = item => roomOutline(item).map(([x, y]) => [item.x + x, item.y + y]);
+export function roomArea(item) {
+  const points = roomOutline(item);
+  return Math.abs(points.reduce((sum, [x, y], index) => {
+    const next = points[(index + 1) % points.length];
+    return sum + x * next[1] - next[0] * y;
+  }, 0)) / 2;
+}
+export function roomCentroid(item) {
+  const points = roomOutline(item);
+  const area = points.reduce((sum, [x, y], index) => {
+    const next = points[(index + 1) % points.length];
+    return sum + x * next[1] - next[0] * y;
+  }, 0);
+  if (Math.abs(area) < 1e-8) return [item.width / 2, item.depth / 2];
+  const centroid = points.reduce(([cx, cy], [x, y], index) => {
+    const next = points[(index + 1) % points.length], cross = x * next[1] - next[0] * y;
+    return [cx + (x + next[0]) * cross, cy + (y + next[1]) * cross];
+  }, [0, 0]);
+  return centroid.map(value => value / (3 * area));
+}
 const room = (id, type, name, x, y, width, depth) => ({
   id, type, name, x, y, width, depth,
   material: ["terrace", "balcony"].includes(type) ? "deck" : ["bathroom", "utility", "laundry", "entry"].includes(type) ? "tile" : type === "garage" ? "concrete" : "oak",
@@ -52,7 +74,7 @@ export function createProject() {
   };
 }
 export function floorArea(floor) {
-  return floor.rooms.reduce((sum, item) => sum + item.width * item.depth, 0);
+  return floor.rooms.reduce((sum, item) => sum + roomArea(item), 0);
 }
 export function projectStats(project) {
   const rooms = project.floors.flatMap(floor => floor.rooms);
@@ -60,22 +82,52 @@ export function projectStats(project) {
 }
 export function bounds(rooms) {
   if (!rooms.length) return { x: 0, y: 0, width: 10, depth: 10 };
-  const x = Math.min(...rooms.map(r => r.x));
-  const y = Math.min(...rooms.map(r => r.y));
-  return { x, y, width: Math.max(...rooms.map(r => r.x + r.width)) - x, depth: Math.max(...rooms.map(r => r.y + r.depth)) - y };
+  const vertices = rooms.flatMap(roomVertices);
+  const x = Math.min(...vertices.map(([px]) => px));
+  const y = Math.min(...vertices.map(([, py]) => py));
+  return { x, y, width: Math.max(...vertices.map(([px]) => px)) - x, depth: Math.max(...vertices.map(([, py]) => py)) - y };
 }
 export function unionArea(rooms) {
-  const xs = [...new Set(rooms.flatMap(r => [r.x, r.x + r.width]))].sort((a, b) => a - b);
-  let area = 0;
-  for (let i = 1; i < xs.length; i++) {
-    const intervals = rooms.filter(r => r.x < xs[i] && r.x + r.width > xs[i - 1])
-      .map(r => [r.y, r.y + r.depth]).sort((a, b) => a[0] - b[0]);
+  if (!rooms.length) return 0;
+  const edges = rooms.flatMap(room => {
+    const vertices = roomVertices(room);
+    return vertices.map((a, index) => [a, vertices[(index + 1) % vertices.length]]);
+  }).filter(([[x1], [x2]]) => Math.abs(x2 - x1) > 1e-8);
+  const xs = rooms.flatMap(roomVertices).map(([x]) => x);
+  for (let i = 0; i < edges.length; i++) {
+    const [[ax, ay], [bx, by]] = edges[i];
+    for (const [[cx, cy], [dx, dy]] of edges.slice(i + 1)) {
+      const denominator = (bx - ax) * (dy - cy) - (by - ay) * (dx - cx);
+      if (Math.abs(denominator) < 1e-10) continue;
+      const t = ((cx - ax) * (dy - cy) - (cy - ay) * (dx - cx)) / denominator;
+      const u = ((cx - ax) * (by - ay) - (cy - ay) * (bx - ax)) / denominator;
+      if (t > 1e-8 && t < 1 - 1e-8 && u > 1e-8 && u < 1 - 1e-8) xs.push(ax + t * (bx - ax));
+    }
+  }
+  const breaks = [...new Set(xs)].sort((a, b) => a - b);
+  const coveredLength = x => {
+    const spans = rooms.flatMap(room => {
+      const vertices = roomVertices(room), ys = [];
+      for (let i = 0; i < vertices.length; i++) {
+        const [x1, y1] = vertices[i], [x2, y2] = vertices[(i + 1) % vertices.length];
+        if ((x1 < x && x2 > x) || (x2 < x && x1 > x)) ys.push(y1 + (y2 - y1) * (x - x1) / (x2 - x1));
+      }
+      ys.sort((a, b) => a - b);
+      const pairs = [];
+      for (let i = 1; i < ys.length; i += 2) pairs.push([ys[i - 1], ys[i]]);
+      return pairs;
+    }).sort((a, b) => a[0] - b[0]);
     let length = 0, end = -Infinity;
-    for (const [start, stop] of intervals) {
+    for (const [start, stop] of spans) {
       length += Math.max(0, stop - Math.max(start, end));
       end = Math.max(end, stop);
     }
-    area += (xs[i] - xs[i - 1]) * length;
+    return length;
+  };
+  let area = 0;
+  for (let i = 1; i < breaks.length; i++) {
+    const width = breaks[i] - breaks[i - 1], epsilon = Math.min(width * 1e-6, 1e-8);
+    if (width > 1e-8) area += width * (coveredLength(breaks[i - 1] + epsilon) + coveredLength(breaks[i] - epsilon)) / 2;
   }
   return area;
 }
@@ -83,7 +135,10 @@ export function propertyStats(project) {
   const rooms = project.floors.flatMap(f => f.rooms);
   const p = project.property;
   const footprint = unionArea(rooms.filter(r => !isOutdoor(r)));
-  const outsideRooms = rooms.filter(r => r.x + p.houseX < 0 || r.y + p.houseY < 0 || r.x + p.houseX + r.width > p.width || r.y + p.houseY + r.depth > p.depth);
+  const outsideRooms = rooms.filter(r => {
+    const b = bounds([r]);
+    return b.x + p.houseX < 0 || b.y + p.houseY < 0 || b.x + b.width + p.houseX > p.width || b.y + b.depth + p.houseY > p.depth;
+  });
   const height = project.floors.reduce((highest, f, index) => Math.max(highest, ...f.rooms.map(r => index * project.ceiling + (isOutdoor(r) ? r.railing ? 1.1 : .08 : project.ceiling))), 0);
   return { lotArea: p.width * p.depth, footprint, coverage: footprint / (p.width * p.depth) * 100, height, outsideRooms };
 }
@@ -101,29 +156,56 @@ export function validateProperty(property) {
   return property;
 }
 export function exteriorWalls(rooms, sides = ["east", "south"]) {
-  const walls = [];
-  for (const r of rooms) {
-    for (const axis of sides) {
-      const vertical = axis === "east" || axis === "west";
-      const positive = axis === "east" || axis === "south";
-      const start = vertical ? r.y : r.x;
-      const end = start + (vertical ? r.depth : r.width);
-      const extent = vertical ? r.width : r.depth;
-      const at = (vertical ? r.x : r.y) + (positive ? extent : 0);
-      let spans = [[start, end]];
-      for (const neighbor of rooms) {
-        if (neighbor === r) continue;
-        const low = vertical ? neighbor.x : neighbor.y;
-        const high = low + (vertical ? neighbor.width : neighbor.depth);
-        if (positive ? low > at + 1e-8 || high <= at + 1e-8 : low >= at - 1e-8 || high < at - 1e-8) continue;
-        const from = vertical ? neighbor.y : neighbor.x;
-        const to = from + (vertical ? neighbor.depth : neighbor.width);
-        spans = spans.flatMap(([a, b]) => to <= a || from >= b ? [[a, b]] : [[a, Math.min(b, from)], [Math.max(a, to), b]].filter(([x, y]) => y - x > 1e-8));
-      }
-      for (const [from, to] of spans) walls.push({ axis, at, from, to, room: r });
+  return exteriorRoomWalls(rooms).flatMap(({ a, b, room, normal }) => {
+    const dx = b[0] - a[0], dy = b[1] - a[1];
+    if (Math.abs(dx) < 1e-8) {
+      const axis = normal[0] > 0 ? "east" : "west";
+      return sides.includes(axis) ? [{ axis, at: a[0], from: Math.min(a[1], b[1]), to: Math.max(a[1], b[1]), room }] : [];
     }
-  }
-  return walls;
+    if (Math.abs(dy) < 1e-8) {
+      const axis = normal[1] > 0 ? "south" : "north";
+      return sides.includes(axis) ? [{ axis, at: a[1], from: Math.min(a[0], b[0]), to: Math.max(a[0], b[0]), room }] : [];
+    }
+    return [];
+  });
+}
+export function exteriorRoomWalls(rooms) {
+  const edges = rooms.flatMap(room => {
+    const points = roomVertices(room);
+    return points.map((a, index) => ({ a, b: points[(index + 1) % points.length], room, index }));
+  });
+  return edges.flatMap(edge => {
+    const [ax, ay] = edge.a, [bx, by] = edge.b, dx = bx - ax, dy = by - ay, length = Math.hypot(dx, dy);
+    if (length < 1e-8) return [];
+    const covered = [];
+    for (const other of edges) {
+      if (other.room === edge.room) continue;
+      const [cx, cy] = other.a, [ex, ey] = other.b;
+      if (Math.abs(dx * (cy - ay) - dy * (cx - ax)) > 1e-7 || Math.abs(dx * (ey - ay) - dy * (ex - ax)) > 1e-7) continue;
+      const first = ((cx - ax) * dx + (cy - ay) * dy) / (length * length);
+      const second = ((ex - ax) * dx + (ey - ay) * dy) / (length * length);
+      const from = Math.max(0, Math.min(first, second)), to = Math.min(1, Math.max(first, second));
+      if (to > from + 1e-8) covered.push([from, to]);
+    }
+    covered.sort((a, b) => a[0] - b[0]);
+    const spans = [];
+    let start = 0;
+    for (const [from, to] of covered) {
+      if (from > start + 1e-8) spans.push([start, from]);
+      start = Math.max(start, to);
+    }
+    if (start < 1 - 1e-8) spans.push([start, 1]);
+    const points = roomOutline(edge.room);
+    const signedArea = points.reduce((sum, [x, y], i) => sum + x * points[(i + 1) % points.length][1] - points[(i + 1) % points.length][0] * y, 0);
+    const normal = signedArea >= 0 ? [dy / length, -dx / length] : [-dy / length, dx / length];
+    return spans.map(([from, to]) => ({
+      room: edge.room,
+      index: edge.index,
+      a: [ax + dx * from, ay + dy * from],
+      b: [ax + dx * to, ay + dy * to],
+      normal,
+    }));
+  });
 }
 export function validateRoom(item) {
   if (!item || !Object.hasOwn(TYPES, item.type)) throw new Error("Choose a supported room type.");
@@ -134,6 +216,34 @@ export function validateRoom(item) {
   }
   for (const key of ["x", "y"]) {
     if (typeof item[key] !== "number" || !Number.isFinite(item[key]) || Math.abs(item[key]) > 200) throw new Error("Room positions must be within 200 meters of the origin.");
+  }
+  if (item.outline !== undefined) {
+    if (!Array.isArray(item.outline) || item.outline.length < 3 || item.outline.length > 12) throw new Error("A custom room outline needs between 3 and 12 corners.");
+    const points = item.outline;
+    for (const point of points) {
+      if (!Array.isArray(point) || point.length !== 2 || point.some(value => typeof value !== "number" || !Number.isFinite(value)) || point[0] < 0 || point[0] > item.width || point[1] < 0 || point[1] > item.depth) throw new Error("Room corners must stay within the room bounds.");
+    }
+    if (points.some((point, index) => {
+      const next = points[(index + 1) % points.length];
+      return Math.hypot(point[0] - next[0], point[1] - next[1]) < .5;
+    })) throw new Error("Room walls must be at least 0.5 meters long.");
+    const twiceArea = points.reduce((sum, [x, y], index) => {
+      const next = points[(index + 1) % points.length];
+      return sum + x * next[1] - next[0] * y;
+    }, 0);
+    if (Math.abs(twiceArea) < 2) throw new Error("Room outlines must enclose at least 1 square meter.");
+    const cross = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+    const onSegment = (a, b, p) => Math.abs(cross(a, b, p)) < 1e-8 && p[0] >= Math.min(a[0], b[0]) - 1e-8 && p[0] <= Math.max(a[0], b[0]) + 1e-8 && p[1] >= Math.min(a[1], b[1]) - 1e-8 && p[1] <= Math.max(a[1], b[1]) + 1e-8;
+    const intersects = (a, b, c, d) => {
+      const abC = cross(a, b, c), abD = cross(a, b, d), cdA = cross(c, d, a), cdB = cross(c, d, b);
+      return abC * abD < -1e-8 && cdA * cdB < -1e-8 || onSegment(a, b, c) || onSegment(a, b, d) || onSegment(c, d, a) || onSegment(c, d, b);
+    };
+    for (let i = 0; i < points.length; i++) {
+      for (let j = i + 1; j < points.length; j++) {
+        if (j === i + 1 || i === 0 && j === points.length - 1) continue;
+        if (intersects(points[i], points[(i + 1) % points.length], points[j], points[(j + 1) % points.length])) throw new Error("Room walls cannot cross.");
+      }
+    }
   }
   if (!["oak", "tile", "concrete", "deck"].includes(item.material)) throw new Error("Choose a supported floor finish.");
   if (item.railing !== undefined && (typeof item.railing !== "boolean" || !isOutdoor(item))) throw new Error("Railings are an on/off setting for terraces and balconies only.");

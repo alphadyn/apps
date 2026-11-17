@@ -6,11 +6,12 @@ A dependency-free, browser-based concept studio for contemporary homes. Open `fo
 
 - Begin with the furnished two-floor Courtyard House concept, or start a blank home through **Project settings → Start a new, blank project**.
 - Add 17 types of spaces: bedrooms, bathrooms, kitchens, living and dining rooms, staircases, offices, utility rooms, terraces, hallways, closets, pantries, laundries, garages, entries/foyers, storage rooms, and balconies. Hallways and closets are directly available in the sidebar; **Browse all spaces** or **Add a space** opens the full library.
-- Select rooms to edit names, dimensions, positions, and floor finishes. Drag rooms in 2D with half-meter snapping. Overlaps are allowed for exploratory composition.
+- Select rooms to edit names, dimensions, positions, and floor finishes. Drag rooms in 2D with half-meter snapping. Drag a selected wall or corner to reshape a room, and add or remove corners for custom outlines of up to 12 corners. Remove a room's door/window specifications before reshaping it; opening specifications currently support rectangular rooms.
 - Add up to eight floors, switch floors, and remove floors with undo support.
 - Explore the active floor in 2D or an axonometric 3D concept view with partial-height walls.
 - Pan, zoom, fit the plan, and toggle dimensions, furniture, labels, and the grid.
 - Undo and redo up to 60 project edits. Shortcuts are available at the bottom of the workspace.
+- Design edits stay pending until **Apply changes**; **Revert** discards everything since the last apply. Reloading also discards pending changes after a confirmation.
 - Settings include the project name, design language (project metadata), and ceiling height (reflected in the axonometric wall study).
 - Choose metric or imperial units in **Project settings**. Dimensions, areas, drawings, schedules, and editable measurements follow the selected units; project files continue to store measurements in meters.
 
@@ -50,7 +51,7 @@ Open **Doors, windows & gates** in the sidebar, **Doors & windows** in a selecte
 - Add a door or window and choose its room/floor; gates attach to a lot boundary.
 - Click an edge in the placement preview, or select north/east/south/west and enter an offset. North is the top plan edge; the street is south. Offsets run left to right on north/south walls, and top to bottom on east/west walls. Doors and windows follow their room when it moves; gates stay on the lot.
 - Specify width, height, window sill height, operation/style, timber/aluminum/steel/glass material, and glazing. Door styles include hinged, sliding, double, and pivot; windows include fixed, casement, and sliding; gates include swing, sliding, and double.
-- The preview updates without editing the project. **Save door/window/gate** applies the specification, shows the placement on the main plan, and saves locally. Closing or going back without saving discards form edits.
+- The preview updates without editing the project. **Save door/window/gate** adds the specification to the current draft and shows it on the main plan; choose **Apply changes** to persist it locally. Closing or going back without saving discards form edits.
 - The specification schedule lists all features with their host, dimensions, offset, sill, style, material, and glazing. Select an entry to edit or delete it. Click a specified feature on the main canvas (or focus it and press Enter) to reopen its editor. Dragging in 3D still orbits; only a click opens the editor.
 - Features appear in floor plans, the ground-floor site plan, and relevant visible 3D walls. Floor cutaways show openings on the retained far walls with vertically scaled heights, matching the partial-height wall study. Whole-house views show actual specified dimensions; internal openings are not visible through closed exterior walls. Gates appear in property views, not individual floor plans.
 - Rooms without specifications retain illustrative auto-generated openings. Specifying an opening replaces those decorations for that room; removing its last specification restores them. These defaults are not entries in the specification schedule.
@@ -109,14 +110,14 @@ Both floor cutaways and whole-house property views support orbit rotation:
 
 ## Saving and export
 
-Changes save to this browser's local storage. **Save project** explicitly retries saving. Save failures are shown in the workspace; download a JSON backup if browser storage is unavailable. **Export** downloads either the current SVG canvas view or a complete editable `.forma.json` project.
+Edits remain pending until you choose **Apply changes**, which saves the current design in this browser. **Revert** discards every change made since the last apply. Reloading the page also discards unapplied changes and prompts before leaving when a draft is pending. Undo and redo help refine pending edits; applying or reverting starts a fresh edit history. Save failures are shown in the workspace; download a JSON backup if browser storage is unavailable. **Export** downloads either the current SVG canvas view or a complete editable `.forma.json` project.
 
 ### Upload a saved design and continue
 
 1. Select **Open design** in the top bar (the upload icon on smaller screens), or **Project settings → Open project**.
 2. Choose a `.forma.json` / `.json` file, or drop one onto the upload area. Files must be at most 1 MB.
 3. Review the project name, file name, floor/space counts, floor area, and lot dimensions. The current workspace is unchanged during preview or if validation fails. A backup action lets you download the current design before replacing it.
-4. Select **Open & continue**. All floors, rooms, dimensions, materials, and property settings become editable and save locally as you work. The previous workspace can be restored with Undo until reload.
+4. Select **Open & continue**. The design becomes an editable draft. Choose **Apply changes** to save it to this browser or **Revert** to return to the last applied design.
 
 Import validates file size, identifiers, room dimensions, lot settings, and supported settings. Older projects without property settings are upgraded with a default 26 × 32 m lot without changing their floor plans. Images, SVG exports, PDFs, and external CAD files cannot be imported as editable designs.
 
@@ -124,7 +125,7 @@ The Forma logo reloads the locally saved workspace. No accounts or backend are r
 
 ## Scope
 
-This is a conceptual planning tool, **not construction or permit documentation**. Wall thickness, openings, furniture, and site landscaping are illustrative. Specified openings are checked for span, height, references, and mutual overlap, but the app does not check building regulations, structural safety, accessibility, circulation, general room collisions, or staircase compliance. Floor area is the sum of room rectangles across all floors, including terraces and stairs; overlapping areas count separately. Work with licensed professionals before construction.
+This is a conceptual planning tool, **not construction or permit documentation**. Wall thickness, openings, furniture, and site landscaping are illustrative. Specified openings are checked for span, height, references, and mutual overlap, but the app does not check building regulations, structural safety, accessibility, circulation, general room collisions, or staircase compliance. Floor area is the sum of room outlines across all floors, including terraces and stairs; overlapping areas count separately. Work with licensed professionals before construction.
 
 ## Validation
 

@@ -1,4 +1,4 @@
-import { bounds, isOutdoor, TYPES, exteriorWalls } from "./model.js";
+import { bounds, isOutdoor, TYPES, exteriorRoomWalls, roomVertices, roomCentroid } from "./model.js";
 import { createCamera, DEFAULT_CAMERA, sortFaces } from "./camera.js";
 import { featureVertices, featureMarkup, railingMarkup } from "./architecture.js";
 
@@ -22,12 +22,8 @@ export function renderFloor3D(rooms, { camera: angles = DEFAULT_CAMERA, ceiling 
   for (const room of rooms) {
     const { x, y, width: w, depth: d } = room;
     const h = isOutdoor(room) ? .13 : wallHeight;
-    add(rect(x, y, w, d), TYPES[room.type].color, room, room.id === selected ? 'style="stroke:#38885c;stroke-width:3"' : "");
-    const farX = camera.toward.x >= 0 ? x : x + w;
-    const farY = camera.toward.y >= 0 ? y : y + d;
-    add([[farX, y, 0], [farX, y + d, 0], [farX, y + d, h], [farX, y, h]], "#c1cbb7", room);
-    add([[x, farY, 0], [x + w, farY, 0], [x + w, farY, h], [x, farY, h]], "#e1e4d7", room);
-    if (furniture) {
+    add(roomVertices(room).map(([px, py]) => [px, py, 0]), TYPES[room.type].color, room, room.id === selected ? 'style="stroke:#38885c;stroke-width:3"' : "");
+    if (furniture && !room.outline) {
       if (room.type === "stairs") {
         for (let i = 1; i < 10; i++) add(rect(x + .1, y + d * i / 10, w - .2, d / 10, .03), i % 2 ? "#e5e7db" : "#cbd2bd", room);
       } else {
@@ -40,9 +36,14 @@ export function renderFloor3D(rooms, { camera: angles = DEFAULT_CAMERA, ceiling 
       }
     }
     if (labels) {
-      const location = [x + w * .55, y + d * .76, .02], p = point(location);
+      const [cx, cy] = roomCentroid(room), location = [x + cx, y + cy, .02], p = point(location);
       scene.push({ vertices: [location], room, markup: `<text x="${p.x}" y="${p.y}" text-anchor="middle" fill="#5a6c50" font-size="8" font-family="Arial,sans-serif" pointer-events="none">${escape(room.name.toUpperCase())}</text>` });
     }
+  }
+  for (const wall of exteriorRoomWalls(rooms).filter(edge => edge.normal[0] * camera.toward.x + edge.normal[1] * camera.toward.y < 0)) {
+    const h = isOutdoor(wall.room) ? .13 : wallHeight;
+    const vertices = [[...wall.a, 0], [...wall.b, 0], [...wall.b, h], [...wall.a, h]];
+    add(vertices, wall.normal[0] ? "#c1cbb7" : "#e1e4d7", wall.room);
   }
   for (const feature of features) {
     const host = rooms.find(r => r.id === feature.roomId);

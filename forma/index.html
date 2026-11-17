@@ -55,7 +55,13 @@
     <header class="topbar">
       <button class="icon-button mobile-menu" id="mobile-menu" aria-label="Toggle navigation"><span data-icon="menu"></span></button>
       <div class="breadcrumb"><span data-icon="house"></span><span class="slash">/</span><button id="rename-project">The Courtyard House</button><span class="project-badge">Concept</span></div>
-      <div class="header-actions"><span class="save-state" id="save-state"><i></i> All changes saved</span>      <button class="button open-design-button" id="open-design-button" aria-label="Open design" title="Upload a saved Forma design"><span data-icon="upload"></span><span class="open-design-label">Open design</span></button><button class="button subtle" id="save-button" title="Save project in this browser"><span data-icon="save"></span>Save project</button><button class="button export-button" id="export-button"><span data-icon="export"></span>Export<span data-icon="chevron"></span></button></div>
+      <div class="header-actions">
+        <span class="save-state" id="save-state" aria-live="polite"><i></i>All changes applied</span>
+        <button class="button open-design-button" id="open-design-button" aria-label="Open design" title="Upload a saved Forma design"><span data-icon="upload"></span><span class="button-label">Open design</span></button>
+        <button class="button subtle" id="revert-button" aria-label="Revert unapplied changes" title="Discard unapplied changes" disabled><span data-icon="undo"></span><span class="button-label">Revert</span></button>
+        <button class="button subtle" id="apply-button" aria-label="Apply changes" title="Apply changes and save them in this browser" disabled><span data-icon="save"></span><span class="button-label">Apply changes</span></button>
+        <button class="button export-button" id="export-button" aria-label="Export design"><span data-icon="export"></span><span class="button-label">Export</span><span data-icon="chevron"></span></button>
+      </div>
     </header>
 
     <main>

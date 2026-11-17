@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { TYPES, createProject, defaultProperty, floorArea, projectStats, propertyStats, validateProject, validateProperty, validateRoom, makeRoom, parseProject, readProjectFile, bounds, unionArea, exteriorWalls } from "./model.js";
+import { TYPES, createProject, defaultProperty, floorArea, projectStats, propertyStats, validateProject, validateProperty, validateRoom, makeRoom, parseProject, readProjectFile, bounds, unionArea, exteriorWalls, exteriorRoomWalls, roomArea } from "./model.js";
 
 test("sample home has editable essentials and accurate totals across both floors", () => {
   const p = createProject();
@@ -111,6 +111,20 @@ test("union area counts overlaps, duplicate floors and disconnected rooms exactl
   assert.equal(unionArea([a, a]), 16);
   assert.equal(unionArea([a, { x: 2, y: 2, width: 4, depth: 4 }]), 28);
   assert.equal(unionArea([a, { x: -5, y: -5, width: 2, depth: 2 }]), 20);
+});
+
+test("custom room outlines preserve polygon area, bounds, and exposed walls", () => {
+  const project = createProject(), custom = project.floors[0].rooms[0];
+  custom.outline = [[0, 0], [6, 0], [6, 2], [3, 5], [0, 5]];
+  assert.equal(validateRoom(custom), custom);
+  assert.equal(roomArea(custom), 25.5);
+  assert.equal(floorArea({ rooms: [custom] }), 25.5);
+  assert.deepEqual(bounds([custom]), { x: 0, y: 0, width: 6, depth: 5 });
+  assert.equal(exteriorRoomWalls([custom]).length, 5);
+  assert.deepEqual(exteriorWalls([custom], ["east"]), [{ axis: "east", at: 6, from: 0, to: 2, room: custom }]);
+  assert.equal(unionArea([custom, custom]), 25.5);
+  assert.deepEqual(parseProject(JSON.stringify(project)).floors[0].rooms[0].outline, custom.outline);
+  assert.throws(() => validateRoom({ ...custom, outline: [[0, 0], [6, 0], [0, 5], [6, 4]] }));
 });
 
 test("exterior walls omit shared and partially shared interior boundaries", () => {

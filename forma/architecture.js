@@ -77,6 +77,7 @@ export function validateFeatures(project, ids = new Set()) {
     if (!SIDES.includes(f.side) || !FEATURE_STYLES[f.type].includes(f.style) || !Object.hasOwn(FEATURE_MATERIALS, f.material) || !GLAZING.includes(f.glazing)) throw new Error("Choose supported feature specifications.");
     const host = featureHost(project, f);
     if (!host || (f.type !== "gate" && ["terrace", "balcony"].includes(host.type))) throw new Error("Doors and windows must be attached to an enclosed room.");
+    if (f.type !== "gate" && host.outline !== undefined) throw new Error("Remove custom room corners before adding doors or windows.");
     if (f.type === "gate" && (f.roomId !== undefined || f.floorId !== undefined)) throw new Error("Gates belong to the lot boundary, not a room or floor.");
     if (!Number.isFinite(f.offset) || f.offset < 0 || !Number.isFinite(f.width) || f.width < .3 || f.width > 12 || f.offset + f.width > wallLength(host, f.side) + 1e-8) throw new Error(`${f.name}: width and offset must fit along the selected wall or boundary.`);
     const maxHeight = f.type === "gate" ? 4 : project.ceiling;

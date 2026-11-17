@@ -1,4 +1,4 @@
-import { TYPES, bounds, isOutdoor, exteriorWalls, propertyStats } from "./model.js";
+import { TYPES, bounds, isOutdoor, exteriorWalls, exteriorRoomWalls, roomVertices, roomCentroid, propertyStats } from "./model.js";
 import { createCamera, DEFAULT_CAMERA, sortFaces } from "./camera.js";
 import { featureHost, featureVertices, featureMarkup, railingMarkup, boundaryFence, fenceSettings, fenceMarkup } from "./architecture.js";
 import { formatLength } from "./units.js";
@@ -42,7 +42,7 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
   const fence = fenceSettings(project), fenceSegments = boundaryFence(project);
   const projected = iso ? [
     ...world.map(([x, y]) => projectPoint(x, y)),
-    ...allRooms.flatMap(r => [[r.x + p.houseX, r.y + p.houseY], [r.x + r.width + p.houseX, r.y + p.houseY], [r.x + r.width + p.houseX, r.y + r.depth + p.houseY], [r.x + p.houseX, r.y + r.depth + p.houseY]].flatMap(([x, y]) => [projectPoint(x, y), projectPoint(x, y, height)])),
+    ...allRooms.flatMap(r => roomVertices(r).flatMap(([x, y]) => [projectPoint(x + p.houseX, y + p.houseY), projectPoint(x + p.houseX, y + p.houseY, height)])),
     ...(project.features || []).flatMap(feature => featureVertices(feature, featureHost(project, feature), feature.type === "gate" ? 0 : project.floors.findIndex(f => f.id === feature.floorId) * project.ceiling, feature.type === "gate" ? { x: 0, y: 0 } : { x: p.houseX, y: p.houseY }).map(v => projectPoint(...v))),
     ...fenceSegments.flatMap(segment => segment.vertices.map(v => projectPoint(...v))),
   ] : world.map(([x, y]) => ({ x, y }));
@@ -92,9 +92,9 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
       for (const r of f.rooms) {
         const x = r.x + p.houseX, y = r.y + p.houseY;
         const isDeck = isOutdoor(r);
-        const vertices = rect(x, y, r.width, r.depth, z + .08);
+        const vertices = roomVertices(r).map(([px, py]) => [px + p.houseX, py + p.houseY, z + .08]);
         let surface = polygon(vertices, isDeck ? "#b9b696" : "#cbd0bf");
-        if (isDeck) {
+        if (isDeck && !r.outline) {
           for (let step = .35; step < r.width; step += .35) surface += `<polyline points="${points([[x + step, y, z + .08], [x + step, y + r.depth, z + .08]])}" stroke="#9c9e7d" stroke-width=".5" fill="none"/>`;
         }
         scene.push({ vertices, markup: surface, floor: f, index });
@@ -135,14 +135,19 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
         }
         scene.push({ vertices, markup: surface, floor: f, index });
       }
-      for (const wall of exteriorWalls(f.rooms, ["north", "east", "south", "west"]).filter(w => w.room.railing)) {
-        const vertical = ["east", "west"].includes(wall.axis);
-        const edge = (along, up) => vertical ? [wall.at + p.houseX, along + p.houseY, up] : [along + p.houseX, wall.at + p.houseY, up];
-        const vertices = [edge(wall.from, z + .08), edge(wall.to, z + .08), edge(wall.to, z + 1.1), edge(wall.from, z + 1.1)];
+      for (const wall of exteriorRoomWalls(enclosed).filter(edge => Math.abs(edge.b[0] - edge.a[0]) > 1e-8 && Math.abs(edge.b[1] - edge.a[1]) > 1e-8 && edge.normal[0] * camera.toward.x + edge.normal[1] * camera.toward.y > 0)) {
+        const edge = (point, up) => [point[0] + p.houseX, point[1] + p.houseY, up];
+        const wallHeight = roof ? project.ceiling : Math.min(project.ceiling * .5, 1.5);
+        const vertices = [edge(wall.a, z + .08), edge(wall.b, z + .08), edge(wall.b, z + wallHeight), edge(wall.a, z + wallHeight)];
+        scene.push({ vertices, markup: polygon(vertices, "#d5dbce", 'data-exterior-wall="custom"'), floor: f, index });
+      }
+      for (const wall of exteriorRoomWalls(f.rooms).filter(w => w.room.railing)) {
+        const edge = (point, up) => [point[0] + p.houseX, point[1] + p.houseY, up];
+        const vertices = [edge(wall.a, z + .08), edge(wall.b, z + .08), edge(wall.b, z + 1.1), edge(wall.a, z + 1.1)];
         scene.push({ vertices, markup: railingMarkup(vertices, point), floor: f, index });
       }
       if (roof) {
-        for (const r of enclosed) addFace(rect(r.x + p.houseX, r.y + p.houseY, r.width, r.depth, z + project.ceiling), index === project.floors.length - 1 ? "#d9dece" : "#ecece0", `style="stroke:#a8b39c;stroke-width:.5" data-roof-level="${index}"`, f, index);
+        for (const r of enclosed) addFace(roomVertices(r).map(([x, y]) => [x + p.houseX, y + p.houseY, z + project.ceiling]), index === project.floors.length - 1 ? "#d9dece" : "#ecece0", `style="stroke:#a8b39c;stroke-width:.5" data-roof-level="${index}"`, f, index);
       }
     });
     for (const segment of fenceSegments) {
@@ -166,14 +171,15 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
     const ground = project.floors[0];
     for (const r of ground.rooms) {
       markup += `<g class="property-floor" data-property-floor="${escape(ground.id)}" data-room="${escape(r.id)}" role="button" tabindex="0" aria-label="Edit ${escape(r.name)}">`;
-      markup += polygon(rect(r.x + p.houseX, r.y + p.houseY, r.width, r.depth), TYPES[r.type].color, 'style="stroke:#67785b;stroke-width:1.4"');
-      if (labels) markup += worldText(r.x + p.houseX + r.width / 2, r.y + p.houseY + r.depth / 2, r.name.toUpperCase(), 0, `style="font-size:${Math.min(8, r.width * scale / (r.name.length * .65))}px"`);
+      markup += polygon(roomVertices(r).map(([x, y]) => [x + p.houseX, y + p.houseY]), TYPES[r.type].color, `style="stroke:#67785b;stroke-width:1.4" data-room="${escape(r.id)}"`);
+      const [cx, cy] = roomCentroid(r);
+      if (labels) markup += worldText(r.x + cx + p.houseX, r.y + cy + p.houseY, r.name.toUpperCase(), 0, `style="font-size:${Math.min(8, r.width * scale / (r.name.length * .65))}px"`);
       markup += "</g>";
     }
     project.floors.forEach((f, index) => {
       if (!index) return;
       markup += `<g data-site-upper-floor="${escape(f.id)}" pointer-events="none">`;
-      for (const r of f.rooms) markup += polygon(rect(r.x + p.houseX, r.y + p.houseY, r.width, r.depth), "none", 'style="stroke:#7d957d;stroke-dasharray:4 3;stroke-width:1"');
+      for (const r of f.rooms) markup += polygon(roomVertices(r).map(([x, y]) => [x + p.houseX, y + p.houseY]), "none", 'style="stroke:#7d957d;stroke-dasharray:4 3;stroke-width:1"');
       markup += "</g>";
     });
     for (const segment of fenceSegments) markup += fenceMarkup(segment.vertices, fence, point, true, units);

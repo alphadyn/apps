@@ -4,7 +4,7 @@ import { formatLength, inputLength, inputLengthLimit, lengthUnit, toMeters } fro
 export function architectureDialog({ getProject, showDialog, change, reveal, selectedRoomId, featureId, units = "metric" }) {
   const $ = selector => document.querySelector(selector);
   const option = (value, label, selected) => `<option value="${escape(value)}" ${value === selected ? "selected" : ""}>${escape(label)}</option>`;
-  const rooms = () => getProject().floors.flatMap(f => f.rooms.filter(r => !["terrace", "balcony"].includes(r.type)).map(r => ({ floor: f, room: r })));
+  const rooms = () => getProject().floors.flatMap(f => f.rooms.filter(r => !["terrace", "balcony"].includes(r.type) && !r.outline).map(r => ({ floor: f, room: r })));
   const wide = () => $("#app-dialog").classList.add("samples-dialog");
   function schedule() {
     const project = getProject(), features = project.features || [];

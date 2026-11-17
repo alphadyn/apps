@@ -1,4 +1,4 @@
-import { TYPES, isOutdoor, exteriorWalls, bounds } from "./model.js";
+import { TYPES, isOutdoor, exteriorRoomWalls, bounds, roomArea, roomVertices } from "./model.js";
 import { escape } from "./architecture.js";
 import { areaUnit, formatArea, formatLength, fromMeters, inputLengthLimit, toMeters } from "./units.js";
 
@@ -27,26 +27,33 @@ function elevation(project, side, units) {
   const content = [`<text x="${left}" y="119" fill="${COLORS.ink}" font-family="Arial,sans-serif" font-size="12" font-weight="600">${sideLabel(side).toUpperCase()}</text>`, `<path d="M${left - 15} ${ground}H${left + (max - min) * unit + 15}" stroke="${COLORS.ink}" stroke-width="1.5"/>`];
   for (let index = 0; index < project.floors.length; index++) {
     const floor = project.floors[index];
-    for (const wall of exteriorWalls(roomsFor(floor), [side])) {
-      const x = left + (wall.from - min) * unit;
-      const width = (wall.to - wall.from) * unit;
+    for (const wall of exteriorRoomWalls(roomsFor(floor)).filter(edge => {
+      const direction = { north: [0, -1], east: [1, 0], south: [0, 1], west: [-1, 0] }[side];
+      return edge.normal[0] * direction[0] + edge.normal[1] * direction[1] > 1e-8;
+    })) {
+      const verticalWall = Math.abs(wall.b[0] - wall.a[0]) < 1e-8;
+      const from = vertical ? Math.min(wall.a[1], wall.b[1]) : Math.min(wall.a[0], wall.b[0]);
+      const to = vertical ? Math.max(wall.a[1], wall.b[1]) : Math.max(wall.a[0], wall.b[0]);
+      const axisAligned = vertical ? verticalWall : Math.abs(wall.b[1] - wall.a[1]) < 1e-8;
+      const x = left + (from - min) * unit;
+      const width = (to - from) * unit;
       const base = ground - index * project.ceiling * unit;
       const top = base - project.ceiling * unit;
       content.push(`<rect x="${fmt(x)}" y="${fmt(top)}" width="${fmt(width)}" height="${fmt(base - top)}" fill="${COLORS.wall}" stroke="${COLORS.ink}" stroke-width="1"/>`);
-      const specified = (project.features || []).filter(item => item.roomId === wall.room.id && item.floorId === floor.id && item.side === side && item.type !== "gate");
+      const specified = axisAligned ? (project.features || []).filter(item => item.roomId === wall.room.id && item.floorId === floor.id && item.side === side && item.type !== "gate") : [];
       const roomHasFeatures = (project.features || []).some(item => item.roomId === wall.room.id);
       const openings = specified.length ? specified.map(feature => ({
         name: feature.name, type: feature.type, along: start(wall.room) + feature.offset,
         width: feature.width, height: feature.height, sill: feature.sill,
-      })) : !roomHasFeatures && side === "north" ? [{
+      })) : !roomHasFeatures && !wall.room.outline && axisAligned && side === "north" ? [{
         name: "Illustrative window", type: "window", along: start(wall.room) + wall.room.width * .25,
         width: Math.min(wall.room.width * .4, 2.25), height: 1.2, sill: .8,
-      }] : !roomHasFeatures && side === "south" && wall.room.type !== "stairs" ? [{
+      }] : !roomHasFeatures && !wall.room.outline && axisAligned && side === "south" && wall.room.type !== "stairs" ? [{
         name: "Illustrative door", type: "door", along: start(wall.room) + wall.room.width * .12,
         width: Math.min(.65, wall.room.width * .23, wall.room.depth * .25), height: Math.min(2.1, project.ceiling), sill: 0,
       }] : [];
       for (const opening of openings) {
-        if (opening.along < wall.from || opening.along + opening.width > wall.to) continue;
+        if (opening.along < from || opening.along + opening.width > to) continue;
         const openingX = left + (opening.along - min) * unit;
         const openingY = base - (opening.sill + opening.height) * unit;
         const openingHeight = opening.height * unit;
@@ -70,11 +77,9 @@ function section(project, axis, offset, units) {
   const min = axis === "x" ? projectBounds.x : projectBounds.y;
   const max = axis === "x" ? projectBounds.x + projectBounds.width : projectBounds.y + projectBounds.depth;
   if (offset < min || offset > max) throw new Error(`Section position must be between ${formatLength(min, units)} and ${formatLength(max, units)}.`);
-  const alongStart = axis === "x" ? room => room.x : room => room.y;
-  const alongEnd = axis === "x" ? room => room.x + room.width : room => room.y + room.depth;
-  const crossStart = axis === "x" ? room => room.y : room => room.x;
-  const crossEnd = axis === "x" ? room => room.y + room.depth : room => room.x + room.width;
-  const minAlong = Math.min(...rooms.map(alongStart)), maxAlong = Math.max(...rooms.map(alongEnd));
+  const alongIndex = axis === "x" ? 1 : 0;
+  const alongValues = rooms.flatMap(roomVertices).map(point => point[alongIndex]);
+  const minAlong = Math.min(...alongValues), maxAlong = Math.max(...alongValues);
   const totalHeight = project.floors.length * project.ceiling;
   const unit = Math.min(740 / Math.max(maxAlong - minAlong, 1), 330 / Math.max(totalHeight, 1), 48);
   const left = 96, ground = 448;
@@ -83,15 +88,32 @@ function section(project, axis, offset, units) {
     const floor = project.floors[index], base = ground - index * project.ceiling * unit, top = base - project.ceiling * unit;
     content.push(`<path d="M${left - 18} ${fmt(base)}H${left + (maxAlong - minAlong) * unit + 15}" stroke="${COLORS.line}" stroke-width="1" stroke-dasharray="4 4"/>`);
     content.push(`<text x="${left - 24}" y="${fmt(base - 5)}" text-anchor="end" fill="${COLORS.muted}" font-family="Arial,sans-serif" font-size="9">${escape(floor.name)}</text>`);
-    for (const room of roomsFor(floor).filter(item => crossStart(item) <= offset && crossEnd(item) >= offset)) {
-      const x = left + (alongStart(room) - minAlong) * unit, width = (alongEnd(room) - alongStart(room)) * unit;
+    for (const room of roomsFor(floor)) {
+      const spans = sectionSpans(room, axis, offset);
       const fill = TYPES[room.type].color;
-      content.push(`<rect x="${fmt(x)}" y="${fmt(top)}" width="${fmt(width)}" height="${fmt(base - top)}" fill="${fill}" fill-opacity=".72" stroke="${COLORS.ink}" stroke-width="1.2"/>`);
-      content.push(`<text x="${fmt(x + width / 2)}" y="${fmt((top + base) / 2)}" text-anchor="middle" fill="${COLORS.ink}" font-family="Arial,sans-serif" font-size="10">${escape(room.name)}</text>`);
+      for (const [from, to] of spans) {
+        const x = left + (from - minAlong) * unit, width = (to - from) * unit;
+        content.push(`<rect x="${fmt(x)}" y="${fmt(top)}" width="${fmt(width)}" height="${fmt(base - top)}" fill="${fill}" fill-opacity=".72" stroke="${COLORS.ink}" stroke-width="1.2"/>`);
+        content.push(`<text x="${fmt(x + width / 2)}" y="${fmt((top + base) / 2)}" text-anchor="middle" fill="${COLORS.ink}" font-family="Arial,sans-serif" font-size="10">${escape(room.name)}</text>`);
+      }
     }
   }
   content.push(`<text x="${left}" y="478" fill="${COLORS.muted}" font-family="Arial,sans-serif" font-size="10">${formatLength(maxAlong - minAlong, units)} · Section ${axis.toUpperCase()}–${axis.toUpperCase()}</text>`);
   return frame(project, "Building section", 900, 520, content.join(""));
+}
+
+function sectionSpans(room, axis, offset) {
+  const vertices = roomVertices(room), crossings = [];
+  for (let i = 0; i < vertices.length; i++) {
+    const a = vertices[i], b = vertices[(i + 1) % vertices.length];
+    const aCross = a[axis === "x" ? 0 : 1], bCross = b[axis === "x" ? 0 : 1];
+    if ((aCross <= offset && bCross > offset) || (bCross <= offset && aCross > offset)) {
+      const ratio = (offset - aCross) / (bCross - aCross);
+      crossings.push(a[axis === "x" ? 1 : 0] + (b[axis === "x" ? 1 : 0] - a[axis === "x" ? 1 : 0]) * ratio);
+    }
+  }
+  crossings.sort((a, b) => a - b);
+  return Array.from({ length: Math.floor(crossings.length / 2) }, (_, index) => [crossings[index * 2], crossings[index * 2 + 1]]);
 }
 
 export function roomSchedule(project, units = "metric") {
@@ -100,7 +122,7 @@ export function roomSchedule(project, units = "metric") {
     floor: floor.name,
     room: room.name,
     type: TYPES[room.type].name,
-    area: room.width * room.depth,
+    area: roomArea(room),
     dimensions: `${formatLength(room.width, units)} × ${formatLength(room.depth, units)}`,
     finish: room.material,
   })));

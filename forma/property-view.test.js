@@ -17,6 +17,16 @@ test("site-plan dimensions follow the selected measurement system", () => {
   assert.ok(markup.includes("104.99 ft"));
 });
 
+test("custom room outlines render in the property plan and exterior wall study", () => {
+  const project = createProject();
+  project.floors[0].rooms[0].outline = [[0, 0], [6, 0], [6, 2], [3, 5], [0, 5]];
+  const plan = renderPropertyView(project).markup;
+  assert.ok(plan.includes('data-room="living-1"'));
+  const model = renderPropertyView(project, { view: "3d" }).markup;
+  assert.ok(model.includes('data-exterior-wall="custom"'));
+  assert.doesNotMatch(model, /NaN|undefined|Infinity/);
+});
+
 test("full-house 3D stacks every floor with exterior windows and optional roofs", () => {
   const p = createProject();
   const normal = renderPropertyView(p, { view: "3d" }).markup;

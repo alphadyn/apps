@@ -1,4 +1,4 @@
-import { TYPES, createProject, floorArea, projectStats, propertyStats, bounds, isOutdoor, exteriorWalls, validateRoom, validateProject, validateProperty, makeRoom, parseProject, readProjectFile } from "./model.js";
+import { TYPES, createProject, floorArea, projectStats, propertyStats, bounds, isOutdoor, exteriorRoomWalls, roomOutline, roomArea, roomCentroid, validateRoom, validateProject, validateProperty, makeRoom, parseProject, readProjectFile } from "./model.js";
 import { renderPropertyView } from "./property-view.js";
 import { renderFloor3D } from "./floor-view.js";
 import { cameraFromDrag, createCamera, DEFAULT_CAMERA, normalizeCamera } from "./camera.js";
@@ -67,6 +67,7 @@ const UNIT_STORAGE_KEY = "forma-units-v1";
 let project = createProject();
 let activeFloor = project.floors[0].id;
 let selected = null;
+let selectedCorner = null;
 let view = "2d";
 let scope = "floor";
 let activePanel = "plan";
@@ -81,10 +82,11 @@ let undoStack = [];
 let redoStack = [];
 let drag = null;
 let saved = true;
+let appliedDesignSaved = true;
 let toastTimer;
 let restoreError;
-let unitPreferenceError;
 let unitSystem = "metric";
+let unitPreferenceError;
 try {
   const storedUnits = localStorage.getItem(UNIT_STORAGE_KEY);
   if (UNIT_SYSTEMS.includes(storedUnits)) unitSystem = storedUnits;
@@ -94,8 +96,7 @@ try {
 try {
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored) { project = parseProject(stored); activeFloor = project.floors[0].id; }
-} catch (error) { restoreError = `Could not restore your workspace: ${error.message} The sample is open; your stored project has not been overwritten.`; saved = false; }
-
+} catch (error) { restoreError = `Could not restore your workspace: ${error.message} The sample is open; your stored project has not been overwritten.`; saved = false; appliedDesignSaved = false; }
 const lengthText = value => `${format(fromMeters(value, unitSystem))} ${lengthUnit(unitSystem)}`;
 const areaText = value => {
   const [formatted] = formatAreaValue(value, unitSystem, 1).split(" ");
@@ -107,26 +108,44 @@ const inputLengthAttrs = (min, max, step) => `min="${inputLengthLimit(min, unitS
 const floor = () => project.floors.find(item => item.id === activeFloor);
 const selection = () => floor().rooms.find(item => item.id === selected);
 const snapshot = () => JSON.stringify(project);
+let appliedDesign = snapshot();
+function hasPendingChanges() { return snapshot() !== appliedDesign; }
 function toast(message, error = false) {
   if (!saved && !error) { message += " Not saved locally; export a project backup."; error = true; }
   const el = $("#toast"); clearTimeout(toastTimer);
   el.textContent = message; el.classList.toggle("error", error); el.hidden = false;
   toastTimer = setTimeout(() => { el.hidden = true; }, error ? 10000 : 4000);
 }
-function persist(notify = false) {
+function updateChangeActions() {
+  const pending = hasPendingChanges();
+  $("#apply-button").disabled = !pending && saved;
+  $("#revert-button").disabled = !pending;
+  $("#save-state").innerHTML = `<i></i>${!saved ? "Not saved locally" : pending ? "Changes not applied" : "All changes applied"}`;
+}
+function applyChanges() {
+  if (!hasPendingChanges() && saved) return;
   try {
-    localStorage.setItem(STORAGE_KEY, snapshot());
+    const current = snapshot();
+    localStorage.setItem(STORAGE_KEY, current);
+    appliedDesign = current;
     saved = true;
-    if (notify) toast("Project saved to this browser.");
-  } catch (error) { saved = false; toast(`Unable to save: ${error.message} Export a project file to keep your work.`, true); }
-  $("#save-state").innerHTML = `<i></i>${saved ? "All changes saved" : "Not saved locally"}`;
+    appliedDesignSaved = true;
+    undoStack = [];
+    redoStack = [];
+    toast("Changes applied and saved to this browser.");
+  } catch (error) {
+    saved = false;
+    toast(`Unable to apply changes: ${error.message} Export a project file to keep your work.`, true);
+  }
+  updateChangeActions();
+  render();
 }
 function commit(before) {
   if (before === snapshot()) { render(); return; }
   undoStack.push(before);
   if (undoStack.length > 60) undoStack.shift();
   redoStack = [];
-  persist(); render();
+  render();
 }
 function change(action) {
   const before = snapshot();
@@ -141,7 +160,7 @@ function history(redo = false) {
   project = JSON.parse(source.pop());
   if (!project.floors.some(item => item.id === activeFloor)) activeFloor = project.floors[0].id;
   if (!selection()) selected = null;
-  persist(); render();
+  render();
 }
 function selectFloor(id) {
   activeFloor = id; scope = "floor"; activePanel = "plan"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; render();
@@ -197,6 +216,7 @@ function render() {
   renderPlan(); renderInspector();
   updateScale();
   $(".meta-date").textContent = `${project.style.toUpperCase()} RESIDENTIAL`;
+  updateChangeActions();
 }
 function updateScale() {
   const screenScale = $("#plan").getScreenCTM()?.a || 1;
@@ -268,16 +288,18 @@ function renderPlan() {
     markup += plant(ox + b.x * scale - 20, oy + (b.y + b.depth) * scale - 10, 12);
   }
   markup += `<g filter="url(#plan-shadow)">`;
-  for (const item of rooms) {
+  for (const [roomIndex, item] of rooms.entries()) {
     const spec = TYPES[item.type];
     const x = ox + item.x * scale, y = oy + item.y * scale;
     const w = item.width * scale, h = item.depth * scale;
+    const outline = roomOutline(item), points = outline.map(([px, py]) => `${px * scale},${py * scale}`).join(" ");
     const labelSize = Math.min(10, Math.max(6, w / (item.name.length * .67)));
     const isStairs = item.type === "stairs";
-    markup += `<g class="room-shape ${item.id === selected ? "selected" : ""}" data-room="${escape(item.id)}" transform="translate(${x} ${y})" tabindex="0" role="button" aria-label="${escape(item.name)}, ${areaText(item.width * item.depth)}"><title>${escape(item.name)} · ${lengthText(item.width)} × ${lengthText(item.depth)}</title><rect class="room-outline" width="${w}" height="${h}" fill="${spec.color}" stroke="#58644b" stroke-width="4"/><rect x="2" y="2" width="${Math.max(0, w - 4)}" height="${Math.max(0, h - 4)}" fill="${item.material === "concrete" ? "#b9bdb42a" : `url(#${item.material})`}" pointer-events="none"/>`;
-    if ($("#layer-furniture").checked) markup += furniture(item.type, w, h);
-    if ($("#layer-labels").checked) markup += `<g class="room-label"><text x="${w / 2}" y="${h * (isStairs ? .87 : .81)}" text-anchor="middle" class="room-name" style="font-size:${labelSize}px;letter-spacing:${w < 90 ? .6 : 1.3}px">${escape(item.name.toUpperCase())}</text><text x="${w / 2}" y="${h * (isStairs ? .87 : .81) + 15}" text-anchor="middle" class="room-area" style="font-size:${w < 75 ? 7 : 9}px">${areaText(item.width * item.depth)}${w > 110 ? ` <tspan fill="#abb39b">/</tspan> ${lengthText(item.width)} × ${lengthText(item.depth)}` : ""}</text></g>`;
-    if (!isOutdoor(item) && !(project.features || []).some(f => f.roomId === item.id)) {
+    const [cx, cy] = roomCentroid(item);
+    markup += `<g class="room-shape ${item.id === selected ? "selected" : ""}" data-room="${escape(item.id)}" transform="translate(${x} ${y})" tabindex="0" role="button" aria-label="${escape(item.name)}, ${areaText(roomArea(item))}"><title>${escape(item.name)} · ${lengthText(item.width)} × ${lengthText(item.depth)}</title><defs><clipPath id="room-clip-${roomIndex}"><polygon points="${points}"/></clipPath></defs><polygon class="room-outline" points="${points}" fill="${spec.color}" stroke="#58644b" stroke-width="4"/><polygon points="${points}" fill="${item.material === "concrete" ? "#b9bdb42a" : `url(#${item.material})`}" pointer-events="none"/>`;
+    if ($("#layer-furniture").checked) markup += `<g clip-path="url(#room-clip-${roomIndex})">${furniture(item.type, w, h)}</g>`;
+    if ($("#layer-labels").checked) markup += `<g class="room-label"><text x="${cx * scale}" y="${cy * scale}" text-anchor="middle" class="room-name" style="font-size:${labelSize}px;letter-spacing:${w < 90 ? .6 : 1.3}px">${escape(item.name.toUpperCase())}</text><text x="${cx * scale}" y="${cy * scale + 15}" text-anchor="middle" class="room-area" style="font-size:${w < 75 ? 7 : 9}px">${areaText(roomArea(item))}${w > 110 ? ` <tspan fill="#abb39b">/</tspan> ${lengthText(item.width)} × ${lengthText(item.depth)}` : ""}</text></g>`;
+    if (!item.outline && !isOutdoor(item) && !(project.features || []).some(f => f.roomId === item.id)) {
       const windowWidth = Math.min(w * .4, 90);
       markup += `<path d="M${w * .25} 0h${windowWidth}" stroke="#f1f3e8" stroke-width="5"/><path d="M${w * .25} -1.6h${windowWidth}m${-windowWidth} 3.2h${windowWidth}" stroke="#91a28a" stroke-width=".7"/>`;
       if (item.type !== "stairs") {
@@ -285,19 +307,23 @@ function renderPlan() {
         markup += `<path d="M${w * .12} ${h}h${door}" stroke="${spec.color}" stroke-width="6"/><path d="M${w * .12} ${h}v${-door}a${door} ${door} 0 0 1 ${door} ${door}" fill="none" stroke="#8d997f" stroke-width=".8"/>`;
       }
     } else if (isOutdoor(item)) {
-      markup += plant(13, h - 13, 8) + plant(w - 13, h - 13, 8);
+      markup += `<g clip-path="url(#room-clip-${roomIndex})">${plant(13, h - 13, 8)}${plant(w - 13, h - 13, 8)}</g>`;
     }
-    for (const [hx, hy] of [[0, 0], [w, 0], [0, h], [w, h]]) markup += `<rect class="selection-handle" x="${hx - 3}" y="${hy - 3}" width="6" height="6"/>`;
+    if (item.id === selected) {
+      outline.forEach(([px, py], index) => {
+        const [nx, ny] = outline[(index + 1) % outline.length];
+        markup += `<line data-wall="${index}" x1="${px * scale}" y1="${py * scale}" x2="${nx * scale}" y2="${ny * scale}" stroke="transparent" stroke-width="12" style="cursor:move;pointer-events:stroke"/>`;
+        markup += `<circle data-corner="${index}" cx="${px * scale}" cy="${py * scale}" r="5" fill="${selectedCorner === index ? "#e4a95c" : "#f4f3e8"}" stroke="#38885c" stroke-width="2" tabindex="0" role="button" aria-label="Move corner ${index + 1}" style="cursor:move"/>`;
+      });
+    }
     markup += "</g>";
   }
   markup += "</g>";
   for (const feature of (project.features || []).filter(f => f.floorId === activeFloor)) {
     markup += featureMarkup(feature, featureVertices(feature, featureHost(project, feature)), (x, y) => ({ x: ox + x * scale, y: oy + y * scale }), true, unitSystem);
   }
-  for (const wall of exteriorWalls(rooms, ["north", "east", "south", "west"]).filter(w => w.room.railing)) {
-    const vertical = ["east", "west"].includes(wall.axis);
-    const a = vertical ? [wall.at, wall.from] : [wall.from, wall.at], b = vertical ? [wall.at, wall.to] : [wall.to, wall.at];
-    markup += `<path data-terrace-railing="true" d="M${ox + a[0] * scale} ${oy + a[1] * scale}L${ox + b[0] * scale} ${oy + b[1] * scale}" stroke="#688b7c" stroke-width="2" stroke-dasharray="8 3" pointer-events="none"/>`;
+  for (const wall of exteriorRoomWalls(rooms).filter(w => w.room.railing)) {
+    markup += `<path data-terrace-railing="true" d="M${ox + wall.a[0] * scale} ${oy + wall.a[1] * scale}L${ox + wall.b[0] * scale} ${oy + wall.b[1] * scale}" stroke="#688b7c" stroke-width="2" stroke-dasharray="8 3" pointer-events="none"/>`;
   }
   if (dimensions && rooms.length) {
     const left = ox + b.x * scale, top = oy + b.y * scale, right = left + b.width * scale, bottom = top + b.depth * scale;
@@ -313,20 +339,24 @@ function renderInspector() {
   $("#inspector-heading").textContent = item ? "Space properties" : "Floor overview";
   const content = $("#inspector-content");
   if (!item) {
-    content.innerHTML = `<span class="property-label">CURRENT FLOOR</span><div class="property-value">${escape(floor().name)}</div><p class="floor-description">A thoughtful balance of open spaces<br>and everyday essentials.</p><div class="inspector-divider"></div><div class="floor-totals"><div><strong>${areaText(floorArea(floor()))}</strong><p>Floor area</p></div><div><strong>${floor().rooms.length} <small>spaces</small></strong><p>On this floor</p></div></div><div class="inspector-divider"></div><div class="room-list-title"><span class="property-label">SPACES ON THIS FLOOR</span><span>${String(floor().rooms.length).padStart(2, "0")}</span></div><div>${floor().rooms.map(r => `<button class="overview-room" data-select-room="${escape(r.id)}">${icon(TYPES[r.type].icon)}<span>${escape(r.name)}</span><span class="room-list-area">${areaText(r.width * r.depth)}</span></button>`).join("")}</div><button class="add-space-button" id="inspector-add">${icon("plus")}Add a space</button>${project.floors.length > 1 ? `<button class="floor-delete" id="remove-floor">${icon("trash")}Remove this floor</button>` : ""}<div style="height:25px"></div>`;
+    content.innerHTML = `<span class="property-label">CURRENT FLOOR</span><div class="property-value">${escape(floor().name)}</div><p class="floor-description">A thoughtful balance of open spaces<br>and everyday essentials.</p><div class="inspector-divider"></div><div class="floor-totals"><div><strong>${areaText(floorArea(floor()))}</strong><p>Floor area</p></div><div><strong>${floor().rooms.length} <small>spaces</small></strong><p>On this floor</p></div></div><div class="inspector-divider"></div><div class="room-list-title"><span class="property-label">SPACES ON THIS FLOOR</span><span>${String(floor().rooms.length).padStart(2, "0")}</span></div><div>${floor().rooms.map(r => `<button class="overview-room" data-select-room="${escape(r.id)}">${icon(TYPES[r.type].icon)}<span>${escape(r.name)}</span><span class="room-list-area">${areaText(roomArea(r))}</span></button>`).join("")}</div><button class="add-space-button" id="inspector-add">${icon("plus")}Add a space</button>${project.floors.length > 1 ? `<button class="floor-delete" id="remove-floor">${icon("trash")}Remove this floor</button>` : ""}<div style="height:25px"></div>`;
     $("#inspector-add").onclick = addDialog;
     if ($("#remove-floor")) $("#remove-floor").onclick = deleteFloorDialog;
     return;
   }
   const spec = TYPES[item.type];
   const dimensionField = (name, label, value, min, max) => `<div class="property-field"><label for="room-${name}">${label}</label><div class="input-unit"><input id="room-${name}" name="${name}" type="number" value="${inputLength(value, unitSystem)}" ${inputLengthAttrs(min, max, ".1")} required><span>${lengthUnit(unitSystem)}</span></div></div>`;
-  content.innerHTML = `<button class="back-overview" id="deselect-room">${icon("back")}Back to floor overview</button><div class="selection-heading"><span>${icon(spec.icon)}</span><div><strong>${escape(spec.name)}</strong><small>${escape(spec.category)} space</small></div></div><form id="room-form"><div class="property-field"><label for="room-name">Space name</label><input id="room-name" name="name" value="${escape(item.name)}" maxlength="60" required></div><div class="field-row">${dimensionField("width", "Width", item.width, 1, 30)}${dimensionField("depth", "Depth", item.depth, 1, 30)}</div><div class="field-row">${dimensionField("x", "Position X", item.x, -200, 200)}${dimensionField("y", "Position Y", item.y, -200, 200)}</div><div class="property-field"><label for="room-material">Floor finish</label><select id="room-material" name="material">${[["oak", "Natural oak"], ["tile", "Limestone tile"], ["concrete", "Polished concrete"], ["deck", "Timber decking"]].map(([value, name]) => `<option value="${value}" ${item.material === value ? "selected" : ""}>${name}</option>`).join("")}</select></div><div class="area-readout"><span>Total space area</span><strong>${areaText(item.width * item.depth)}</strong></div><button class="button primary" style="width:100%;margin-top:15px" type="submit">Apply changes</button></form><div class="room-actions"><button id="duplicate-room">${icon("copy")}Duplicate</button><button class="danger" id="delete-room" aria-label="Delete space">${icon("trash")}</button></div>`;
-  $("#deselect-room").onclick = () => { selected = null; render(); };
+  const roomHasFeatures = (project.features || []).some(feature => feature.roomId === item.id);
+  const corners = roomOutline(item);
+  content.innerHTML = `<button class="back-overview" id="deselect-room">${icon("back")}Back to floor overview</button><div class="selection-heading"><span>${icon(spec.icon)}</span><div><strong>${escape(spec.name)}</strong><small>${escape(spec.category)} space</small></div></div><form id="room-form"><div class="property-field"><label for="room-name">Space name</label><input id="room-name" name="name" value="${escape(item.name)}" maxlength="60" required></div><div class="field-row">${dimensionField("width", "Width", item.width, 1, 30)}${dimensionField("depth", "Depth", item.depth, 1, 30)}</div><div class="field-row">${dimensionField("x", "Position X", item.x, -200, 200)}${dimensionField("y", "Position Y", item.y, -200, 200)}</div><div class="property-field"><label for="room-material">Floor finish</label><select id="room-material" name="material">${[["oak", "Natural oak"], ["tile", "Limestone tile"], ["concrete", "Polished concrete"], ["deck", "Timber decking"]].map(([value, name]) => `<option value="${value}" ${item.material === value ? "selected" : ""}>${name}</option>`).join("")}</select></div><div class="area-readout"><span>Total space area</span><strong>${areaText(roomArea(item))}</strong></div><button class="button primary" style="width:100%;margin-top:15px" type="submit">Apply changes</button></form><div class="outline-controls"><span class="property-label">WALLS & CORNERS</span><p>Drag wall edges or corners on the plan. Add corners for custom outlines.</p>${roomHasFeatures ? '<p class="dialog-note">Remove this room’s door and window specifications before changing its outline.</p>' : `<button class="add-space-button" id="add-corner" ${corners.length >= 12 ? "disabled" : ""}>${icon("plus")}Add corner</button><button class="add-space-button" id="remove-corner" ${selectedCorner === null || corners.length <= 3 ? "disabled" : ""}>${icon("trash")}Remove selected corner</button>`}</div><div class="room-actions"><button id="duplicate-room">${icon("copy")}Duplicate</button><button class="danger" id="delete-room" aria-label="Delete space">${icon("trash")}</button></div>`;
+  $("#deselect-room").onclick = () => { selected = null; selectedCorner = null; render(); };
   if (isOutdoor(item)) {
     $("#room-form .area-readout").insertAdjacentHTML("beforebegin", `<label class="property-checkbox"><input type="checkbox" name="railing" id="room-railing" ${item.railing ? "checked" : ""}>Concept glass railing (${lengthText(1.1)})</label>`);
-  } else {
+  } else if (!item.outline) {
     content.insertAdjacentHTML("beforeend", '<button class="add-space-button" id="room-openings">Doors & windows</button>');
     $("#room-openings").onclick = () => architecturalFeatures();
+  } else {
+    content.insertAdjacentHTML("beforeend", '<p class="dialog-note">Remove custom corners to add door or window specifications.</p>');
   }
   $("#room-form").onsubmit = event => {
     event.preventDefault();
@@ -334,14 +364,37 @@ function renderInspector() {
     const updated = { ...item, name: String(data.get("name")).trim(), material: data.get("material") };
     if (isOutdoor(item)) updated.railing = data.has("railing");
     for (const key of ["width", "depth", "x", "y"]) updated[key] = toMeters(Number(data.get(key)), unitSystem);
+    if (item.outline && (updated.width !== item.width || updated.depth !== item.depth)) {
+      updated.outline = item.outline.map(([x, y]) => [x * updated.width / item.width, y * updated.depth / item.depth]);
+    }
     try { validateRoom(updated); } catch (error) { toast(error.message, true); return; }
     if (change(() => Object.assign(item, updated))) toast("Space updated. A little closer to home.");
   };
+  if (!roomHasFeatures) {
+    $("#add-corner").onclick = () => {
+      if (corners.length >= 12) return;
+      let longest = 0;
+      for (let i = 1; i < corners.length; i++) {
+        const next = (i + 1) % corners.length;
+        if (Math.hypot(corners[i][0] - corners[next][0], corners[i][1] - corners[next][1]) > Math.hypot(corners[longest][0] - corners[(longest + 1) % corners.length][0], corners[longest][1] - corners[(longest + 1) % corners.length][1])) longest = i;
+      }
+      const next = (longest + 1) % corners.length;
+      selectedCorner = longest + 1;
+      change(() => { item.outline = [...corners.slice(0, longest + 1), [(corners[longest][0] + corners[next][0]) / 2, (corners[longest][1] + corners[next][1]) / 2], ...corners.slice(longest + 1)]; });
+    };
+    $("#remove-corner").onclick = () => {
+      if (selectedCorner === null || corners.length <= 3) return;
+      const removed = selectedCorner;
+      selectedCorner = null;
+      change(() => { item.outline = corners.filter((_, index) => index !== removed); });
+    };
+  }
   $("#delete-room").onclick = () => deleteRoom(item);
   $("#duplicate-room").onclick = () => {
     change(() => {
       const copy = makeRoom(item.type, floor().rooms);
       Object.assign(copy, { width: item.width, depth: item.depth, material: item.material, name: `${item.name.slice(0, 53)} copy`, x: Math.min(item.x + item.width + .5, 200), y: item.y });
+      if (item.outline) copy.outline = item.outline.map(point => [...point]);
       if (item.railing !== undefined) copy.railing = item.railing;
       floor().rooms.push(copy); selected = copy.id;
     });
@@ -407,6 +460,20 @@ function openDesign(next) {
     selected = null; zoom = 1; pan = { x: 0, y: 0 }; camera = { ...DEFAULT_CAMERA };
   });
 }
+function revertDialog() {
+  if (!hasPendingChanges()) return;
+  showDialog("Discard unapplied changes?", '<p class="dialog-description">Revert the design to its last applied version? All changes made since then will be discarded.</p><div class="dialog-actions"><button class="button" id="cancel-revert">Keep editing</button><button class="button primary" id="confirm-revert">Revert changes</button></div>', "REVERT YOUR DESIGN");
+  $("#cancel-revert").onclick = closeDialog;
+  $("#confirm-revert").onclick = () => {
+    project = JSON.parse(appliedDesign);
+    activeFloor = project.floors[0].id;
+    selected = null; scope = "floor"; activePanel = "plan"; view = "2d"; tool = "select";
+    zoom = 1; pan = { x: 0, y: 0 }; camera = { ...DEFAULT_CAMERA };
+    saved = appliedDesignSaved;
+    undoStack = []; redoStack = [];
+    closeDialog(); render(); toast("Unapplied changes reverted.");
+  };
+}
 function projectBackup() {
   download(new Blob([JSON.stringify(project, null, 2)], { type: "application/json" }), ".forma.json");
   toast("Current design backup downloaded.");
@@ -430,7 +497,7 @@ function sampleDetails(id) {
   const sample = SAMPLE_DESIGNS.find(item => item.id === id);
   if (!sample) { toast("This sample design is not available.", true); return; }
   const design = createSampleDesign(id), stats = projectStats(design), site = propertyStats(design);
-  showDialog(design.name, `<button class="back-overview" id="back-to-samples">${icon("back")}All sample designs</button><div class="sample-detail-grid"><div><div class="sample-preview-controls"><label for="sample-view">PREVIEW</label><select id="sample-view" aria-label="Sample preview view"><option value="3d">Full house in 3D</option><option value="2d">Property site plan</option>${design.floors.map(f => `<option value="${escape(f.id)}">${escape(f.name)} — cutaway</option>`).join("")}</select></div><div id="sample-detail-art">${sampleArtwork(design, `${design.name}, whole-house concept`)}</div></div><div class="sample-description"><span class="eyebrow">${escape(sample.tag)}</span><p>${escape(sample.story)}</p><ul>${sample.highlights.map(item => `<li>${escape(item)}</li>`).join("")}</ul><dl class="sample-measurements"><div><dt>Total floor area</dt><dd>${areaText(stats.area)}</dd></div><div><dt>Bedrooms / bathrooms</dt><dd>${stats.bedrooms} / ${stats.bathrooms}</dd></div><div><dt>Floors / spaces</dt><dd>${stats.floors} / ${stats.rooms}</dd></div><div><dt>Lot dimensions</dt><dd>${lengthText(design.property.width)} × ${lengthText(design.property.depth)}</dd></div><div><dt>Building footprint</dt><dd>${areaText(site.footprint)}</dd></div><div><dt>Design language</dt><dd>${escape(design.style)}</dd></div></dl></div></div><div class="sample-replacement"><p><strong>Make this design your own.</strong>Using a sample replaces <b>${escape(project.name)}</b> in this browser. Download a backup first to keep it. You can also undo the replacement until reload.</p><button class="button" id="sample-backup">${icon("save")}Back up current design</button></div><p class="dialog-note">Every room, finish, floor, and property setting is editable. Total floor area includes outdoor spaces and garages. Concept design only; consult a licensed professional before building.</p><div class="dialog-actions"><button class="button" id="cancel-sample">Keep current design</button><button class="button primary" id="use-sample">Use this design</button></div>`, "EXPLORE A SAMPLE HOME");
+  showDialog(design.name, `<button class="back-overview" id="back-to-samples">${icon("back")}All sample designs</button><div class="sample-detail-grid"><div><div class="sample-preview-controls"><label for="sample-view">PREVIEW</label><select id="sample-view" aria-label="Sample preview view"><option value="3d">Full house in 3D</option><option value="2d">Property site plan</option>${design.floors.map(f => `<option value="${escape(f.id)}">${escape(f.name)} — cutaway</option>`).join("")}</select></div><div id="sample-detail-art">${sampleArtwork(design, `${design.name}, whole-house concept`)}</div></div><div class="sample-description"><span class="eyebrow">${escape(sample.tag)}</span><p>${escape(sample.story)}</p><ul>${sample.highlights.map(item => `<li>${escape(item)}</li>`).join("")}</ul><dl class="sample-measurements"><div><dt>Total floor area</dt><dd>${areaText(stats.area)}</dd></div><div><dt>Bedrooms / bathrooms</dt><dd>${stats.bedrooms} / ${stats.bathrooms}</dd></div><div><dt>Floors / spaces</dt><dd>${stats.floors} / ${stats.rooms}</dd></div><div><dt>Lot dimensions</dt><dd>${lengthText(design.property.width)} × ${lengthText(design.property.depth)}</dd></div><div><dt>Building footprint</dt><dd>${areaText(site.footprint)}</dd></div><div><dt>Design language</dt><dd>${escape(design.style)}</dd></div></dl></div></div><div class="sample-replacement"><p><strong>Make this design your own.</strong>Using a sample replaces <b>${escape(project.name)}</b> in this browser. Download a backup first to keep it. Apply the sample to save it or revert to discard it.</p><button class="button" id="sample-backup">${icon("save")}Back up current design</button></div><p class="dialog-note">Every room, finish, floor, and property setting is editable. Total floor area includes outdoor spaces and garages. Concept design only; consult a licensed professional before building.</p><div class="dialog-actions"><button class="button" id="cancel-sample">Keep current design</button><button class="button primary" id="use-sample">Use this design</button></div>`, "EXPLORE A SAMPLE HOME");
   $("#app-dialog").classList.add("samples-dialog");
   $("#app-dialog").scrollTop = 0;
   $("#back-to-samples").onclick = sampleGallery;
@@ -531,7 +598,7 @@ function exportDialog() {
   };
 }
 function importProject() {
-  showDialog("Pick up where you left off.", `<p class="dialog-description">Upload a Forma project to continue editing its rooms, floors, materials, and property. Your current design stays open until you confirm.</p><div class="design-dropzone" id="design-dropzone">${icon("upload")}<strong>Drop your saved design here</strong><span>Forma .forma.json or .json · Up to 1 MB</span><button class="button" id="choose-design">Choose file</button><input id="design-file" type="file" accept=".forma.json,.json,application/json" hidden></div><p class="upload-error" id="upload-error" role="alert" hidden></p><p class="dialog-note" id="upload-status" role="status">Use Export → Download project to save an editable design file. SVG, image, PDF, and CAD files cannot be reopened for editing.</p><div id="design-preview" hidden></div><div class="upload-backup"><span>Want to keep the current design?</span><button id="backup-before-upload">Download a backup</button></div><p class="dialog-note">Opening a design replaces this browser's workspace. You can undo the replacement until you reload.</p><div class="dialog-actions"><button class="button" id="cancel-upload">Cancel</button><button class="button primary" id="continue-design" disabled>Open & continue</button></div>`, "OPEN A SAVED DESIGN");
+  showDialog("Pick up where you left off.", `<p class="dialog-description">Upload a Forma project to continue editing its rooms, floors, materials, and property. Your current design stays open until you confirm.</p><div class="design-dropzone" id="design-dropzone">${icon("upload")}<strong>Drop your saved design here</strong><span>Forma .forma.json or .json · Up to 1 MB</span><button class="button" id="choose-design">Choose file</button><input id="design-file" type="file" accept=".forma.json,.json,application/json" hidden></div><p class="upload-error" id="upload-error" role="alert" hidden></p><p class="dialog-note" id="upload-status" role="status">Use Export → Download project to save an editable design file. SVG, image, PDF, and CAD files cannot be reopened for editing.</p><div id="design-preview" hidden></div><div class="upload-backup"><span>Want to keep the current design?</span><button id="backup-before-upload">Download a backup</button></div><p class="dialog-note">Opening a design replaces the current draft. Apply changes to save it or Revert to return to the last applied design.</p><div class="dialog-actions"><button class="button" id="cancel-upload">Cancel</button><button class="button primary" id="continue-design" disabled>Open & continue</button></div>`, "OPEN A SAVED DESIGN");
   const input = $("#design-file"), zone = $("#design-dropzone"), confirm = $("#continue-design");
   let pending = null, request = 0;
   function showError(message) {
@@ -577,7 +644,7 @@ function importProject() {
   };
 }
 function roomDirectory() {
-  showDialog("A place for everything.", `<p class="dialog-description">${projectStats(project).rooms} spaces, each with a purpose. Select one to refine it.</p>${project.floors.map(f => `<h3 class="room-directory-floor">${escape(f.name.toUpperCase())}</h3>${f.rooms.map(r => `<button class="directory-room" data-directory-floor="${escape(f.id)}" data-directory-room="${escape(r.id)}">${icon(TYPES[r.type].icon)}${escape(r.name)}<small>${areaText(r.width * r.depth)}</small></button>`).join("") || '<p class="dialog-note">A blank canvas, ready for your ideas.</p>'}`).join("")}`, "ROOMS & SPACES");
+  showDialog("A place for everything.", `<p class="dialog-description">${projectStats(project).rooms} spaces, each with a purpose. Select one to refine it.</p>${project.floors.map(f => `<h3 class="room-directory-floor">${escape(f.name.toUpperCase())}</h3>${f.rooms.map(r => `<button class="directory-room" data-directory-floor="${escape(f.id)}" data-directory-room="${escape(r.id)}">${icon(TYPES[r.type].icon)}${escape(r.name)}<small>${areaText(roomArea(r))}</small></button>`).join("") || '<p class="dialog-note">A blank canvas, ready for your ideas.</p>'}`).join("")}`, "ROOMS & SPACES");
 }
 function materialsDialog() {
   const materials = [["#d6c6a9", "Natural oak", "Warm grain · Living & private spaces"], ["#d7ded4", "Limestone tile", "Quiet texture · Bathrooms & utility"], ["#b8bdb4", "Polished concrete", "A grounded, contemporary finish"], ["#aab694", "Timber decking", "Natural connection · Outdoor living"]];
@@ -646,9 +713,27 @@ $("#plan").addEventListener("pointerdown", event => {
       render();
     }
   } else if (target) {
+    const previousSelected = selected;
     selected = target.dataset.room;
     const item = selection();
-    drag = view === "2d" ? { mode: "room", id: selected, start: point, x: item.x, y: item.y, scale: drawing.scale, before: snapshot(), moved: false } : null;
+    if (previousSelected !== selected) selectedCorner = null;
+    const cornerHandle = event.target.closest("[data-corner]");
+    const wallHandle = event.target.closest("[data-wall]");
+    const hasFeatures = (project.features || []).some(feature => feature.roomId === item.id);
+    if ((cornerHandle || wallHandle) && hasFeatures) {
+      render();
+      toast("Remove this room’s door and window specifications before changing its outline.", true);
+      return;
+    }
+    if (cornerHandle) {
+      selectedCorner = Number(cornerHandle.dataset.corner);
+      drag = { mode: "corner", id: selected, index: selectedCorner, start: point, outline: roomOutline(item).map(position => [...position]), before: snapshot(), scale: drawing.scale, moved: false };
+    } else if (wallHandle) {
+      selectedCorner = null;
+      drag = { mode: "wall", id: selected, index: Number(wallHandle.dataset.wall), start: point, outline: roomOutline(item).map(position => [...position]), before: snapshot(), scale: drawing.scale, moved: false };
+    } else {
+      drag = view === "2d" ? { mode: "room", id: selected, start: point, x: item.x, y: item.y, scale: drawing.scale, before: snapshot(), moved: false } : null;
+    }
     render();
   } else { selected = null; render(); }
   if (drag) { drag.pointerId = event.pointerId; $("#plan").setPointerCapture(event.pointerId); event.preventDefault(); }
@@ -664,7 +749,7 @@ $("#plan").addEventListener("pointermove", event => {
   const point = svgPoint(event);
   const dx = (point.x - drag.start.x) / zoom, dy = (point.y - drag.start.y) / zoom;
   if (drag.mode === "pan") { pan = { x: drag.pan.x + dx * zoom, y: drag.pan.y + dy * zoom }; renderPlan(); }
-  else {
+  else if (drag.mode === "room") {
     const item = selection();
     if (!item) return;
     item.x = Math.min(200, Math.max(-200, Math.round((drag.x + dx / drag.scale) * 2) / 2));
@@ -673,6 +758,26 @@ $("#plan").addEventListener("pointermove", event => {
     const g = [...$("#plan").querySelectorAll("[data-room]")].find(el => el.dataset.room === item.id);
     if (item.railing || (project.features || []).some(f => f.roomId === item.id)) renderPlan();
     else if (g) g.setAttribute("transform", `translate(${drawing.x + item.x * drag.scale} ${drawing.y + item.y * drag.scale})`);
+  } else if (drag.mode === "corner" || drag.mode === "wall") {
+    const item = selection();
+    if (!item) return;
+    const outline = drag.outline.map(position => [...position]);
+    let dx = Math.round((point.x - drag.start.x) / (zoom * drag.scale) * 10) / 10;
+    let dy = Math.round((point.y - drag.start.y) / (zoom * drag.scale) * 10) / 10;
+    if (drag.mode === "corner") {
+      const corner = outline[drag.index];
+      outline[drag.index] = [Math.min(item.width, Math.max(0, corner[0] + dx)), Math.min(item.depth, Math.max(0, corner[1] + dy))];
+    } else {
+      const next = (drag.index + 1) % outline.length;
+      const a = outline[drag.index], b = outline[next];
+      dx = Math.min(item.width - Math.max(a[0], b[0]), Math.max(-Math.min(a[0], b[0]), dx));
+      dy = Math.min(item.depth - Math.max(a[1], b[1]), Math.max(-Math.min(a[1], b[1]), dy));
+      outline[drag.index] = [a[0] + dx, a[1] + dy];
+      outline[next] = [b[0] + dx, b[1] + dy];
+    }
+    item.outline = outline;
+    drag.moved = Math.hypot(dx, dy) > 0;
+    renderPlan();
   }
 });
 function endDrag(event, cancelled = false) {
@@ -682,10 +787,10 @@ function endDrag(event, cancelled = false) {
   $("#drawing-surface").classList.remove("orbiting");
   if ($("#plan").hasPointerCapture(event.pointerId)) $("#plan").releasePointerCapture(event.pointerId);
   if (cancelled) {
-    if (previous.mode === "room") project = JSON.parse(previous.before);
+    if (["room", "wall", "corner"].includes(previous.mode)) project = JSON.parse(previous.before);
     if (previous.mode === "orbit") camera = previous.camera;
     if (previous.mode === "pan") pan = previous.pan;
-  } else if (previous.mode === "room" && previous.moved) {
+  } else if (["room", "wall", "corner"].includes(previous.mode) && previous.moved) {
     try { validateProject(project); commit(previous.before); }
     catch (error) { project = JSON.parse(previous.before); toast(error.message, true); }
   }
@@ -713,7 +818,8 @@ $("#plan").addEventListener("keydown", event => {
     $("#room-name")?.focus();
   }
 });
-$("#save-button").onclick = () => persist(true);
+$("#apply-button").onclick = applyChanges;
+$("#revert-button").onclick = revertDialog;
 $("#open-design-button").onclick = importProject;
 $("#export-button").onclick = exportDialog;
 $("#rename-project").onclick = projectDialog;
@@ -748,7 +854,7 @@ $("#shortcuts-button").onclick = shortcutsDialog;
 $("#about-button").onclick = () => showDialog("A space for possibility.", '<p class="dialog-description">Forma is your personal contemporary home-design studio. Compose spaces, explore proportions, and imagine everyday life in a home that feels like you.</p><p class="dialog-description">Your project stays in this browser. Download a project file to keep a backup or continue in another browser. No account, no cloud, just room to create.</p><p class="dialog-note">The Forma logo returns to this workspace. Concept planning only. Walls, doors, windows, and furniture are illustrative; plans are not code-checked or construction-ready.</p>', "WELCOME TO FORMA");
 document.addEventListener("keydown", event => {
   const editing = ["INPUT", "SELECT", "TEXTAREA"].includes(event.target.tagName);
-  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") { event.preventDefault(); persist(true); return; }
+  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") { event.preventDefault(); applyChanges(); return; }
   if (editing || $("#app-dialog").open) return;
   if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "z") { event.preventDefault(); history(event.shiftKey); }
   else if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") { event.preventDefault(); roomDirectory(); }
@@ -761,5 +867,11 @@ document.addEventListener("keydown", event => {
 render();
 new ResizeObserver(() => { renderPlan(); updateScale(); }).observe($("#plan"));
 $(".meta-date").textContent = `${project.style.toUpperCase()} RESIDENTIAL`;
-if (restoreError) { $("#save-state").textContent = "Local restore failed"; toast(restoreError, true); }
-else if (unitPreferenceError) toast(unitPreferenceError, true);
+if (restoreError) $("#save-state").textContent = "Local restore failed";
+const startupErrors = [restoreError, unitPreferenceError].filter(Boolean);
+if (startupErrors.length) toast(startupErrors.join(" "), true);
+window.addEventListener("beforeunload", event => {
+  if (!hasPendingChanges()) return;
+  event.preventDefault();
+  event.returnValue = "";
+});

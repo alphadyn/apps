@@ -4,6 +4,8 @@ This repository is a portfolio-style collection of 20 active, independent projec
 
 The root landing page in [index.html](index.html) links directly to the deployed apps and gives a quick overview of the portfolio. It includes a Top apps section and a full catalog of all available apps and experiments.
 
+Its social link-preview image is generated from the Signika logo SVGs with `python3 -m scripts.generate_social_preview` (requires Pillow and resvg-py, installable with `python3 -m pip install Pillow resvg-py`). After changing the image, update the version in the landing page's Open Graph and Twitter image URLs to encourage cache refreshes; preview caching is controlled by each sharing platform.
+
 App header brand and icon controls are app-specific: some reload or return to an entry page, some reset a view, and some are decorative. Each application README documents its behavior.
 
 Deployment configuration and host-specific setup are documented in [DEPLOYMENT.md](DEPLOYMENT.md).

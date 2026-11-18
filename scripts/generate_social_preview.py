@@ -1,5 +1,8 @@
 from pathlib import Path
+from io import BytesIO
+import xml.etree.ElementTree as ET
 
+import resvg_py
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -20,6 +23,23 @@ def font(size, bold=False):
 
 def rounded(draw, box, radius, fill, outline=None, width=1):
     draw.rounded_rectangle(box, radius=radius, fill=fill, outline=outline, width=width)
+
+
+def brand_image(path, width, height, transparent_background=False):
+    svg = ET.parse(path)
+    if transparent_background:
+        root = svg.getroot()
+        background = root.find("{http://www.w3.org/2000/svg}rect")
+        if background is None or background.get("fill") != "#000000":
+            raise ValueError(f"Expected a black background rectangle in {path}")
+        root.remove(background)
+    png = resvg_py.svg_to_bytes(
+        svg_string=ET.tostring(svg.getroot(), encoding="unicode"),
+        width=width,
+        height=height,
+    )
+    with Image.open(BytesIO(png)) as rendered:
+        return rendered.convert("RGBA")
 
 
 image = Image.new("RGB", (W, H))
@@ -43,12 +63,13 @@ for y in range(18, H, 48):
 rounded(draw, (18, 18, W - 18, H - 18), 28, None, (141, 177, 201, 35), 1)
 
 # Brand lockup.
-rounded(draw, (66, 48, 116, 98), 15, (17, 24, 44, 255), (87, 112, 155, 180), 1)
-draw.polygon([(77, 85), (88, 59), (95, 59), (107, 85), (98, 85), (92, 69), (85, 85)], fill=(244, 247, 255, 255))
-draw.line([(80, 83), (87, 76), (93, 80), (100, 69), (105, 73)], fill=(110, 231, 210, 255), width=4, joint="curve")
-draw.ellipse((98, 67, 104, 73), fill=(138, 167, 255, 255))
-draw.text((130, 52), "ALPHADYN", font=font(17, True), fill=(244, 247, 255, 255))
-draw.text((131, 76), "APPLIED INTELLIGENCE", font=font(9, True), fill=(148, 169, 192, 255))
+mark = brand_image(ROOT / "alphadyn-signika-mark.svg", 64, 64)
+image.paste(mark, (66, 41), mark)
+wordmark = brand_image(ROOT / "alphadyn-signika-wordmark.svg", 160, 48, transparent_background=True)
+image.paste(wordmark, (140, 42), wordmark)
+apps_wordmark = brand_image(ROOT / "scripts" / "social-preview-apps.svg", 76, 48)
+image.paste(apps_wordmark, (300, 42), apps_wordmark)
+draw.text((148, 85), "APPLIED INTELLIGENCE", font=font(9, True), fill=(148, 169, 192, 255))
 draw.line((66, 119, 1134, 119), fill=(136, 164, 194, 55), width=1)
 
 # Headline and supporting copy.

@@ -37,6 +37,9 @@ const FEEDS = [
 const CACHE_MS = 5 * 60 * 1000;
 const MAX_AGE_MS = 24 * 60 * 60 * 1000;
 const MAX_STORIES_PER_FEED = 24;
+const GOOGLE_NEWS_ORIGIN = 'https://news.google.com';
+const GOOGLE_NEWS_RESOLVER = `${GOOGLE_NEWS_ORIGIN}/_/DotsSplashUi/data/batchexecute?rpcids=Fbv4je`;
+const resolvedGoogleUrls = new Map();
 const STOP_WORDS = new Set([
   'about', 'after', 'against', 'among', 'amid', 'been', 'before', 'being', 'between',
   'could', 'from', 'have', 'into', 'just', 'more', 'most', 'news', 'over', 'says',
@@ -107,6 +110,87 @@ export function parseRss(xml, fallbackSource) {
       };
     })
     .filter(Boolean);
+}
+
+export async function resolveGoogleNewsUrl(articleUrl, fetchRequest = fetch) {
+  const url = new URL(articleUrl);
+  const match = url.hostname === 'news.google.com'
+    && url.pathname.match(/^\/(?:rss\/)?(?:articles|read)\/([A-Za-z0-9_-]+)\/?$/);
+  if (url.protocol !== 'https:' || !match) {
+    throw new Error('Expected an HTTPS Google News article URL.');
+  }
+
+  const id = match[1];
+  const pageUrl = new URL(`/rss/articles/${id}`, GOOGLE_NEWS_ORIGIN);
+  pageUrl.search = new URLSearchParams({ hl: 'en-US', gl: 'US', ceid: 'US:en' });
+  const requestOptions = {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (compatible; AlphadynDailyBrief/1.0)',
+    },
+    redirect: 'manual',
+    signal: AbortSignal.timeout(12_000),
+  };
+  const page = await fetchRequest(pageUrl, requestOptions);
+  if ([301, 302, 303, 307, 308].includes(page.status)) {
+    const location = page.headers.get('location');
+    if (!location) throw new Error('Google News returned a redirect without an article URL.');
+    const destination = new URL(location, pageUrl);
+    if (!['http:', 'https:'].includes(destination.protocol)
+      || destination.hostname === 'news.google.com'
+      || destination.hostname === 'google.com'
+      || destination.hostname.endsWith('.google.com')) {
+      throw new Error('Google News returned an invalid article destination.');
+    }
+    return destination.href;
+  }
+  if (!page.ok) throw new Error(`Google News article lookup returned ${page.status}.`);
+
+  const html = await page.text();
+  const tags = html.match(/<[^>]*\bdata-n-a-id=["'][^"']+["'][^>]*>/g) || [];
+  const tag = tags.find((entry) => entry.match(/\bdata-n-a-id=["']([^"']+)["']/)?.[1] === id);
+  const timestamp = tag?.match(/\bdata-n-a-ts=["'](\d+)["']/)?.[1];
+  const signature = tag?.match(/\bdata-n-a-sg=["']([^"']+)["']/)?.[1];
+  if (!timestamp || !signature) {
+    throw new Error('Google News did not provide an article signature.');
+  }
+
+  const context = [
+    ['en-US', 'US', ['FINANCE_TOP_INDICES', 'WEB_TEST_1_0_0'], null, null,
+      1, 1, 'US:en', null, 180, null, null, null, null, null, 0, null, null,
+      [1608992183, 723341000]],
+    'en-US', 'US', 1, [2, 3, 4, 8], 1, 0, '655000234', 0, 0, null, 0,
+  ];
+  const args = ['garturlreq', context, id, Number(timestamp), signature];
+  const rpc = await fetchRequest(GOOGLE_NEWS_RESOLVER, {
+    ...requestOptions,
+    method: 'POST',
+    body: new URLSearchParams({
+      'f.req': JSON.stringify([[['Fbv4je', JSON.stringify(args), null, 'generic']]]),
+    }),
+  });
+  if (!rpc.ok) throw new Error(`Google News link resolver returned ${rpc.status}.`);
+
+  for (const line of (await rpc.text()).split('\n')) {
+    if (!line.startsWith('[[')) continue;
+    let rows;
+    try {
+      rows = JSON.parse(line);
+    } catch {
+      continue;
+    }
+    for (const row of rows) {
+      if (row[0] !== 'wrb.fr' || row[1] !== 'Fbv4je' || typeof row[2] !== 'string') continue;
+      const result = JSON.parse(row[2]);
+      if (result[0] !== 'garturlres' || typeof result[1] !== 'string') continue;
+      const destination = new URL(result[1]);
+      if (!['http:', 'https:'].includes(destination.protocol)
+        || destination.hostname === 'news.google.com') {
+        throw new Error('Google News returned an invalid article destination.');
+      }
+      return destination.href;
+    }
+  }
+  throw new Error('Google News returned no publisher article URL.');
 }
 
 function headlineWords(title) {
@@ -207,16 +291,58 @@ async function createBrief() {
     .sort((left, right) => (
       (Date.parse(right.publishedAt || '') || 0) - (Date.parse(left.publishedAt || '') || 0)
     ));
+  const digest = buildDigest(allStories);
+  const selectedGoogleStories = [...new Map(
+    digest.flatMap(({ lead, supporting }) => [lead, ...supporting.slice(0, 1)])
+      .filter((story) => {
+        try {
+          return new URL(story.url).hostname === 'news.google.com';
+        } catch {
+          return false;
+        }
+      })
+      .map((story) => [story.url, story]),
+  ).values()];
+  let nextStory = 0;
+  let unresolvedGoogleLinks = 0;
+  await Promise.all(Array.from(
+    { length: Math.min(3, selectedGoogleStories.length) },
+    async () => {
+      while (nextStory < selectedGoogleStories.length) {
+        const story = selectedGoogleStories[nextStory++];
+        const googleUrl = story.url;
+        const cachedUrl = resolvedGoogleUrls.get(googleUrl);
+        if (cachedUrl && cachedUrl.expiresAt > Date.now()) {
+          story.url = cachedUrl.url;
+          continue;
+        }
+        try {
+          story.url = await resolveGoogleNewsUrl(googleUrl);
+          resolvedGoogleUrls.set(googleUrl, {
+            url: story.url,
+            expiresAt: Date.now() + MAX_AGE_MS,
+          });
+          if (resolvedGoogleUrls.size > 500) {
+            resolvedGoogleUrls.delete(resolvedGoogleUrls.keys().next().value);
+          }
+        } catch (error) {
+          console.error('Could not resolve a Google News article link.', error);
+          unresolvedGoogleLinks += 1;
+        }
+      }
+    },
+  ));
 
   return {
     generatedAt: new Date().toISOString(),
     totalStories: allStories.length,
+    unresolvedGoogleLinks,
     sources: results.map(({ name, stories, error }) => ({
       name,
       count: stories.length,
       ...(error ? { error } : {}),
     })),
-    digest: buildDigest(allStories),
+    digest,
     stories: allStories,
   };
 }

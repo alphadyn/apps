@@ -4,6 +4,8 @@ const API_URL = window.location.hostname.endsWith('github.io')
   ? `${VERCEL_API}?origin=${encodeURIComponent(window.location.origin)}`
   : '/api/daily-brief';
 
+const DEFAULT_BRIEF_NOTE = 'A headline-based overview of developing coverage, not a substitute for reading the reporting.';
+
 const elements = {
   editionDate: document.getElementById('edition-date'),
   refreshButton: document.getElementById('refresh-button'),
@@ -11,6 +13,7 @@ const elements = {
   briefStatus: document.getElementById('brief-status'),
   statusLabel: document.getElementById('status-label'),
   briefContent: document.getElementById('brief-content'),
+  briefNote: document.getElementById('brief-note'),
   sourceTotal: document.getElementById('source-total'),
   sourceList: document.getElementById('source-list'),
   sourceFootnote: document.getElementById('source-footnote'),
@@ -112,7 +115,7 @@ function createArticleLink(story) {
   return link;
 }
 
-function renderDigest(digest, generatedAt) {
+function renderDigest(digest, generatedAt, unresolvedGoogleLinks) {
   elements.briefContent.replaceChildren();
   const heading = document.createElement('h2');
   heading.textContent = 'The stories leading today’s coverage.';
@@ -160,6 +163,9 @@ function renderDigest(digest, generatedAt) {
   }
 
   elements.briefContent.append(heading, list);
+  elements.briefNote.textContent = unresolvedGoogleLinks
+    ? `${DEFAULT_BRIEF_NOTE} ${unresolvedGoogleLinks} Google News ${unresolvedGoogleLinks === 1 ? 'article link' : 'article links'} could not be resolved to a publisher; those headlines still link to Google News.`
+    : DEFAULT_BRIEF_NOTE;
   elements.briefContent.setAttribute('aria-busy', 'false');
   elements.briefStatus.dataset.state = 'ready';
   elements.statusLabel.textContent = `UPDATED ${new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(new Date(generatedAt))}`;
@@ -178,7 +184,7 @@ async function loadBriefing() {
       throw new Error('The news service returned an unexpected response.');
     }
     renderSources(data.sources);
-    renderDigest(data.digest, data.generatedAt);
+    renderDigest(data.digest, data.generatedAt, data.unresolvedGoogleLinks || 0);
   } catch (error) {
     setError(error instanceof Error ? error.message : 'An unexpected error occurred.');
   } finally {

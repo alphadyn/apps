@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildDigest, parseRss } from '../api/daily-brief.js';
+import { buildDigest, parseRss, resolveGoogleNewsUrl } from '../api/daily-brief.js';
 
 test('parseRss decodes headlines and keeps source attribution and safe links', () => {
   const xml = `<?xml version="1.0"?>
@@ -49,4 +49,65 @@ test('parseRss handles missing dates and falls back to the feed name', () => {
 
   assert.equal(stories[0].source, 'CNN');
   assert.equal(stories[0].publishedAt, null);
+});
+
+test('resolveGoogleNewsUrl replaces an RSS wrapper URL with its publisher article', async () => {
+  const id = 'CBMiW0FVX3lxTE1FNVg3ME1zb05FTlVhMmw5SXQ4eGlxRF9hYUo3bGhVNlMyTjEyeFBMT29tMDM1WjY4QUxONVVjSkp4VFVlZFZrNkNxU0ZDR0c1LWU3cmE1c0lDeTQ';
+  const calls = [];
+  const fetchRequest = async (url, options) => {
+    calls.push({ url: String(url), options });
+    if (calls.length === 1) {
+      return {
+        ok: true,
+        url: String(url),
+        text: async () => `<div data-n-a-id="${id}" data-n-a-ts="1795026330" data-n-a-sg="signature">`,
+      };
+    }
+    return {
+      ok: true,
+      text: async () => JSON.stringify([[
+        'wrb.fr',
+        'Fbv4je',
+        JSON.stringify(['garturlres', 'https://publisher.example/article']),
+      ]]),
+    };
+  };
+
+  const resolved = await resolveGoogleNewsUrl(
+    `https://news.google.com/rss/articles/${id}?oc=5`,
+    fetchRequest,
+  );
+
+  assert.equal(resolved, 'https://publisher.example/article');
+  assert.equal(calls.length, 2);
+  assert.equal(calls[1].options.method, 'POST');
+  assert.match(calls[1].options.body.toString(), /garturlreq/);
+});
+
+test('resolveGoogleNewsUrl rejects non-Google News links without fetching', async () => {
+  let fetched = false;
+  await assert.rejects(
+    resolveGoogleNewsUrl('https://publisher.example/article', async () => {
+      fetched = true;
+    }),
+    /Expected an HTTPS Google News article URL/,
+  );
+  assert.equal(fetched, false);
+});
+
+test('resolveGoogleNewsUrl returns direct redirects without requesting the destination', async () => {
+  let requests = 0;
+  const resolved = await resolveGoogleNewsUrl(
+    'https://news.google.com/rss/articles/CBMiW0FVX3lxTE1FNVg3ME1zb05FTlVhMmw5SXQ4eGlxRF9hYUo3bGhVNlMyTjEyeFBMT29tMDM1WjY4QUxONVVjSkp4VFVlZFZrNkNxU0ZDR0c1LWU3cmE1c0lDeTQ',
+    async () => {
+      requests += 1;
+      return {
+        status: 302,
+        headers: new Headers({ location: 'https://publisher.example/article' }),
+        ok: false,
+      };
+    },
+  );
+  assert.equal(resolved, 'https://publisher.example/article');
+  assert.equal(requests, 1);
 });

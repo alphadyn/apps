@@ -1,6 +1,6 @@
 # Alphadyn AI Apps and Experiments
 
-This repository is a portfolio-style collection of 20 active, independent projects: interactive demos, data visualizations, browser apps, and Python utilities. Each project is designed to be opened, adapted, or expanded on its own. The collection is intentionally mixed: some apps are static browser experiences, while others use Supabase, Flask, or Vercel APIs.
+This repository is a portfolio-style collection of 19 active, independent projects: interactive demos, data visualizations, browser apps, and Python utilities. Each project is designed to be opened, adapted, or expanded on its own. The collection is intentionally mixed: some apps are static browser experiences, while others use Supabase, Flask, or Vercel APIs.
 
 The root landing page in [index.html](index.html) links directly to the deployed apps and gives a quick overview of the portfolio. It includes a Top apps section and a full catalog of all available apps and experiments.
 
@@ -31,7 +31,6 @@ Projects are listed alphabetically, matching the catalog on the landing page. Se
 - [Forma](forma/) ([Open app](https://alphadyn.github.io/apps/forma/)) — Browser-based home concept studio with 17 space types, right-angle and shared-wall resizing, directly selectable doors and windows, 2D floor plans, whole-property 3D views, local saving, and SVG/JSON export. No account needed.
 - [Fractals](fractals/) ([Open app](https://alphadyn.github.io/apps/fractals/)) — Interactive fractal visualizer.
 - [Lexhaven Legal Docketing](lexhaven-legal-docketing/) ([Open app](https://alphadyn.github.io/apps/lexhaven-legal-docketing/)) — Matter and deadline tracking app.
-- [Market Curve Lab](market-curve-lab/) ([Open app](https://alphadyn.github.io/apps/market-curve-lab/)) — Rank all 500 S&P 500 companies by market cap, search stocks, and inspect selected-ticker all-time performance, trendlines, and concavity.
 - [Market Insights](market-insights/) ([Open app](https://alphadyn.github.io/apps/market-insights/)) — Screen S&P 500 stocks and selected funds with valuation and earnings bounds, ten performance periods, sortable results, and interactive price-history charts.
 - [Market Map](market-map/) ([Open app](https://alphadyn.github.io/apps/market-map/)) — View every S&P 500 company in a viewport-filling market-cap treemap colored by implied DCF upside or downside.
 - [Maze Studio](maze-studio/) ([Open app](https://alphadyn.github.io/apps/maze-studio/)) — Generate random mazes with custom dimensions, exactly one solution, and an on-demand solution overlay.
@@ -78,18 +77,6 @@ python3 -m http.server 8000
 ```
 
 Then visit <http://localhost:8000/nexus/>.
-
-### Market Curve Lab
-
-The [Market Curve Lab](market-curve-lab/) web app builds a market-cap ranking of all 500 S&P 500 companies and lets you search any listed equity by ticker or company name. It computes adjusted all-time performance, linear and quadratic trendlines, and recent concavity for the selected ticker; histories are fetched on demand instead of requesting all 500 at startup. Start it with:
-
-```bash
-cd market-curve-lab
-python3 -m pip install -r requirements.txt
-python3 app.py
-```
-
-Open <http://127.0.0.1:5001>, type a ticker or company name, and choose a matching stock. The complete S&P 500 is listed in market-cap order; ranking data is cached for six hours, and selected-ticker histories for one hour. The dashboard shows the closest-fitting model by R² and classifies recent performance curvature as concave up or down.
 
 ### Contact Card Generator, Pulse, Signal, and Daily Brief
 

@@ -108,22 +108,6 @@ the publicly readable Supabase API and the public key in
 `python3 pulse/build_share_pages.py` from the repository root. Generated pages
 are not committed; a fresh set is included with each Pages artifact.
 
-[`../market-curve-lab/api/pulse-share.js`](../market-curve-lab/api/pulse-share.js)
-is a legacy Vercel preview endpoint for older links, not used for new shares.
-
-The Vercel project needs these environment variables:
-
-| Variable | Value |
-| --- | --- |
-| `SUPABASE_URL` | your project URL, e.g. `https://xxxx.supabase.co` |
-| `SUPABASE_ANON_KEY` | the same public anon key used in `supabase-config.js` |
-| `APP_BASE_URL` | optional; where the app itself is hosted (defaults to the GitHub Pages URL) |
-
-Per-post link cards at the exact GitHub Pages `?post=` URL would require a
-dynamic host; GitHub Pages cannot vary its HTML in response to query strings.
-The legacy function lives in `market-curve-lab/` because that folder is the
-root directory of this repository's existing Vercel project.
-
 ### Making your first admin
 
 New accounts always start with the `user` role — there's no seed admin,
@@ -169,7 +153,6 @@ rule has to hold up even against a client that skips `app.js` entirely:
 - `supabase-schema.sql` — table definitions, RLS policies, and the vote-casting RPC functions. Run this once per Supabase project.
 - [build_share_pages.py](build_share_pages.py), [requirements-build.txt](requirements-build.txt) — generate the GitHub Pages per-post preview pages.
 - [storage-attachments-migration.sql](storage-attachments-migration.sql), [migrate_attachments_to_storage.py](migrate_attachments_to_storage.py) — enable file storage and migrate existing inline attachments.
-- [../market-curve-lab/api/pulse-share.js](../market-curve-lab/api/pulse-share.js) — legacy Vercel preview endpoint for older shares.
 
 ## Test
 

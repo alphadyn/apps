@@ -17,8 +17,290 @@ function setup(accountId = "clinician", storage = new Map()) {
     sessionStorage: { getItem: () => accountId }
   });
   vm.runInContext(script, context);
-  return { api: context.window.__ehrApp, storage };
+  return { api: context.window.__ehrApp, storage, context };
 }
+
+const sessionKey = "northstar-ehr-demo-account";
+const acknowledgmentKey = "northstar-ehr-warning-acknowledged";
+const automaticSignInKey = "northstar-ehr-automatic-sign-in";
+
+function setupLogin(session = new Map(), storage = new Map([[automaticSignInKey, "signed-out"]])) {
+  const { context } = setup(session.get(sessionKey) ?? null, storage);
+  const elements = new Map();
+  for (const id of [
+    "loginScreen", "warningScreen", "appShell", "loginForm", "signOutBtn",
+    "warningSignOutBtn", "acknowledgeWarningsBtn", "warningTitle", "warningError",
+    "loginError", "loginUsername", "roleSwitchStatus", "accountRoleStatus", "main-content", "encounterStatus"
+  ]) {
+    elements.set(id, {
+      hidden: id === "warningScreen" || id === "appShell",
+      textContent: "",
+      listeners: {},
+      addEventListener(type, handler) { this.listeners[type] = handler; },
+      focus() { context.focusedElement = id; }
+    });
+  }
+  context.document = { getElementById: (id) => elements.get(id) };
+  context.sessionStorage = {
+    getItem: (key) => session.get(key) ?? null,
+    setItem: (key, value) => session.set(key, value),
+    removeItem: (key) => session.delete(key)
+  };
+  context.renderCount = 0;
+  context.attachCount = 0;
+  vm.runInContext(`
+    renderOrderFields = () => {};
+    renderDocumentFields = () => {};
+    attachEvents = () => { attachCount++; };
+    render = () => { renderCount++; };
+    bootstrap();
+  `, context);
+  return {
+    context, elements, session, storage,
+    login(username = "elena.ruiz", password = "northstar") {
+      const fields = {
+        username: { value: username },
+        password: { value: password, focus() { context.focusedElement = "password"; } }
+      };
+      elements.get("loginForm").listeners.submit({
+        preventDefault() {},
+        currentTarget: { elements: { namedItem: (name) => fields[name] }, reset() {} }
+      });
+    },
+    click(id) { elements.get(id).listeners.click(); }
+  };
+}
+
+test("valid sign-in requires acknowledgment before rendering the workspace", () => {
+  const app = setupLogin();
+  assert.equal(app.elements.get("loginScreen").hidden, false);
+  app.login();
+  assert.equal(app.elements.get("loginScreen").hidden, true);
+  assert.equal(app.elements.get("warningScreen").hidden, false);
+  assert.equal(app.elements.get("appShell").hidden, true);
+  assert.equal(app.context.focusedElement, "warningTitle");
+  assert.equal(app.context.renderCount, 0);
+  app.click("acknowledgeWarningsBtn");
+  assert.equal(app.elements.get("warningScreen").hidden, true);
+  assert.equal(app.elements.get("appShell").hidden, false);
+  assert.equal(app.session.get(acknowledgmentKey), "clinician");
+  assert.equal(app.context.focusedElement, "main-content");
+  assert.equal(app.context.renderCount, 1);
+  assert.equal(app.context.attachCount, 1);
+});
+
+test("first load automatically signs in Joe Spartan with Provider permissions only", () => {
+  const app = setupLogin(new Map(), new Map());
+  assert.equal(app.session.get(sessionKey), "joe-spartan");
+  assert.equal(app.storage.get(automaticSignInKey), "joe-spartan");
+  assert.equal(app.elements.get("warningScreen").hidden, false);
+  assert.equal(app.elements.get("loginScreen").hidden, true);
+  assert.equal(app.elements.get("appShell").hidden, true);
+  assert.equal(vm.runInContext("currentUser.label", app.context), "Joe Spartan, MD");
+  assert.equal(vm.runInContext("currentUser.role", app.context), "clinician");
+  assert.equal(vm.runInContext("accountRoles[automaticAccountId].join(',')", app.context), "clinician");
+  assert.equal(app.context.window.__ehrApp.setCurrentRole("admin").role, "clinician");
+  app.click("acknowledgeWarningsBtn");
+  assert.equal(app.elements.get("appShell").hidden, false);
+  assert.equal(app.context.window.__ehrApp.getVisibleSections("overview").roleManagementSection, false);
+});
+
+test("Joe is included in the directory and merged into previously saved directories", () => {
+  const storage = new Map([[storageKey, JSON.stringify({
+    staffDirectory: [{ id: "staff-custom", name: "Custom Provider", role: "Provider" }]
+  })]]);
+  const { context } = setup("joe-spartan", storage);
+  assert.equal(vm.runInContext("staffDirectory.find(staff => staff.id === 'staff-joe-spartan').name", context), "Joe Spartan, MD");
+  assert.equal(vm.runInContext("staffDirectory.some(staff => staff.id === 'staff-custom')", context), true);
+  const portrait = vm.runInContext("renderStaffAvatar(staffDirectory.find(staff => staff.id === 'staff-joe-spartan'))", context);
+  assert.match(portrait, /src="assets\/joe-spartan.jpg"/);
+  assert.match(portrait, /alt="Joe Spartan, MD profile portrait \(stock photo\)"/);
+  assert.ok(readFileSync(new URL("./assets/joe-spartan.jpg", import.meta.url)).length > 0);
+  const initials = vm.runInContext("renderStaffAvatar({ id: 'staff-custom', name: 'Custom Provider' })", context);
+  assert.match(initials, /aria-hidden="true">CP<\/div>/);
+  assert.doesNotMatch(initials, /<img/);
+});
+
+test("every built-in clinical staff member has a distinct local portrait in saved and fresh directories", () => {
+  const fresh = setup();
+  const savedDirectory = vm.runInContext("JSON.stringify(staffDirectory)", fresh.context);
+  const storage = new Map([[storageKey, JSON.stringify({
+    staffDirectory: JSON.parse(savedDirectory)
+  })]]);
+  for (const { context } of [fresh, setup("clinician", storage)]) {
+    const portraits = vm.runInContext(`
+      staffDirectory
+        .filter(staff => ["Provider", "Nurse", "PA", "Midlevel"].includes(staff.role))
+        .map(staff => ({ id: staff.id, src: staffPortraits.get(staff.id), html: renderStaffAvatar(staff) }))
+    `, context);
+    assert.equal(portraits.length, 11);
+    assert.equal(new Set(portraits.map(portrait => portrait.src)).size, portraits.length);
+    for (const { id, src, html } of portraits) {
+      assert.match(src, /^assets\/[a-z-]+\.jpg$/, id);
+      assert.ok(html.includes(`src="${src}"`), id);
+      assert.match(html, /profile portrait \(stock photo\)/, id);
+      const image = readFileSync(new URL(`./${src}`, import.meta.url));
+      assert.equal(image.readUInt16BE(0), 0xffd8, `${id}: JPEG header`);
+      assert.equal(image.readUInt16BE(image.length - 2), 0xffd9, `${id}: JPEG footer`);
+    }
+    const adminAvatar = vm.runInContext("renderStaffAvatar(staffDirectory.find(staff => staff.id === 'staff-alex-morgan'))", context);
+    assert.match(adminAvatar, /aria-hidden="true">AM<\/div>/);
+    assert.doesNotMatch(adminAvatar, /<img/);
+  }
+});
+
+test("portrait alt text escapes saved profile names", () => {
+  const { context } = setup();
+  const html = vm.runInContext(`renderStaffAvatar({ id: "staff-joe-spartan", name: 'Joe "Spartan" <MD>' })`, context);
+  assert.match(html, /alt="Joe &quot;Spartan&quot; &lt;MD&gt; profile portrait \(stock photo\)"/);
+});
+
+test("physician profile names use MD without changing stored names or care-team links", () => {
+  const { context } = setup();
+  for (const [name, role, expected] of [
+    ["Dr. Elena Ruiz", "Provider", "Elena Ruiz, MD"],
+    ["Joe Spartan, MD", "Provider", "Joe Spartan, MD"],
+    ["Dr. Joe Spartan, MD", "Provider", "Joe Spartan, MD"],
+    ["New Physician", "Provider", "New Physician, MD"],
+    ["Jordan Lee", "Nurse", "Jordan Lee"],
+    ["Riley Bennett", "PA", "Riley Bennett"],
+    ["Jamie Brooks", "Midlevel", "Jamie Brooks"],
+    ["Alex Morgan", "Administrator", "Alex Morgan"]
+  ]) {
+    context.profileNameCase = { name, role };
+    assert.equal(vm.runInContext("formatStaffProfileName(profileNameCase)", context), expected);
+    assert.equal(context.profileNameCase.name, name);
+  }
+  const originalAssignments = vm.runInContext("JSON.stringify(patients.map(patient => patient.clinical.attending))", context);
+  const html = vm.runInContext("renderStaffAvatar(staffDirectory.find(staff => staff.id === 'staff-elena-ruiz'))", context);
+  assert.match(html, /alt="Elena Ruiz, MD profile portrait/);
+  assert.doesNotMatch(html, /Dr\./);
+  assert.equal(vm.runInContext("staffDirectory.find(staff => staff.id === 'staff-elena-ruiz').name", context), "Dr. Elena Ruiz");
+  assert.equal(vm.runInContext("JSON.stringify(patients.map(patient => patient.clinical.attending))", context), originalAssignments);
+});
+
+test("Joe stays signed in across refresh and browser restart until explicit sign-out", () => {
+  const first = setupLogin(new Map(), new Map());
+  first.click("acknowledgeWarningsBtn");
+  const refreshed = setupLogin(first.session, first.storage);
+  assert.equal(refreshed.elements.get("appShell").hidden, false);
+  const restarted = setupLogin(new Map(), first.storage);
+  assert.equal(restarted.session.get(sessionKey), "joe-spartan");
+  assert.equal(restarted.elements.get("warningScreen").hidden, false);
+  restarted.click("warningSignOutBtn");
+  assert.equal(restarted.storage.get(automaticSignInKey), "signed-out");
+  const afterLogout = setupLogin(new Map(), restarted.storage);
+  assert.equal(afterLogout.elements.get("loginScreen").hidden, false);
+  assert.equal(afterLogout.session.has(sessionKey), false);
+});
+
+test("Joe can explicitly sign in after logout and re-enable persistent sign-in", () => {
+  const app = setupLogin();
+  app.login("joe.spartan");
+  assert.equal(app.session.get(sessionKey), "joe-spartan");
+  assert.equal(app.storage.get(automaticSignInKey), "joe-spartan");
+  assert.equal(app.elements.get("warningScreen").hidden, false);
+  app.click("acknowledgeWarningsBtn");
+  app.click("signOutBtn");
+  assert.equal(app.storage.get(automaticSignInKey), "signed-out");
+  assert.equal(app.session.has(sessionKey), false);
+  assert.equal(app.session.has(acknowledgmentKey), false);
+});
+
+test("a stale Joe tab session cannot bypass an explicit sign-out on reload", () => {
+  const app = setupLogin(new Map([[sessionKey, "joe-spartan"]]));
+  assert.equal(app.elements.get("loginScreen").hidden, false);
+  assert.equal(app.elements.get("warningScreen").hidden, true);
+  assert.equal(app.elements.get("appShell").hidden, true);
+});
+
+test("automatic sign-in preserves existing sessions and switching accounts disables Joe persistence", () => {
+  const storage = new Map();
+  const existing = setupLogin(new Map([[sessionKey, "nurse"]]), storage);
+  assert.equal(existing.session.get(sessionKey), "nurse");
+  assert.equal(vm.runInContext("currentUser.accountId", existing.context), "nurse");
+  const app = setupLogin(new Map(), new Map());
+  app.click("warningSignOutBtn");
+  app.login("elena.ruiz");
+  assert.equal(app.storage.get(automaticSignInKey), "signed-out");
+  const restarted = setupLogin(new Map(), app.storage);
+  assert.equal(restarted.elements.get("loginScreen").hidden, false);
+});
+
+test("failed sign-out is surfaced without pretending the session ended", () => {
+  const app = setupLogin(new Map(), new Map());
+  const warnings = [];
+  app.context.console = { warn: (...args) => warnings.push(args) };
+  app.context.localStorage.setItem = () => { throw new Error("Storage blocked"); };
+  app.click("warningSignOutBtn");
+  assert.equal(app.elements.get("warningScreen").hidden, false);
+  assert.match(app.elements.get("warningError").textContent, /Unable to sign out/);
+  assert.equal(app.session.get(sessionKey), "joe-spartan");
+  assert.equal(warnings.length, 1);
+});
+
+test("invalid credentials do not open the warning screen or workspace", () => {
+  const app = setupLogin();
+  app.login("elena.ruiz", "invalid");
+  assert.match(app.elements.get("loginError").textContent, /doesn't match/);
+  assert.equal(app.elements.get("loginScreen").hidden, false);
+  assert.equal(app.elements.get("warningScreen").hidden, true);
+  assert.equal(app.elements.get("appShell").hidden, true);
+  assert.equal(app.session.has(sessionKey), false);
+});
+
+test("refresh resumes only an acknowledged session for the same account", () => {
+  for (const acknowledgment of [null, "nurse", "clinician"]) {
+    const session = new Map([[sessionKey, "clinician"]]);
+    if (acknowledgment) session.set(acknowledgmentKey, acknowledgment);
+    const app = setupLogin(session);
+    const acknowledged = acknowledgment === "clinician";
+    assert.equal(app.elements.get("warningScreen").hidden, acknowledged);
+    assert.equal(app.elements.get("appShell").hidden, !acknowledged);
+    assert.equal(app.context.renderCount, acknowledged ? 1 : 0);
+  }
+});
+
+test("sign-out from either screen clears acknowledgment and the next login shows warnings", () => {
+  for (const acknowledge of [false, true]) {
+    const app = setupLogin();
+    app.login();
+    if (acknowledge) app.click("acknowledgeWarningsBtn");
+    app.click(acknowledge ? "signOutBtn" : "warningSignOutBtn");
+    assert.equal(app.session.has(sessionKey), false);
+    assert.equal(app.session.has(acknowledgmentKey), false);
+    assert.equal(app.elements.get("warningScreen").hidden, true);
+    assert.equal(app.elements.get("appShell").hidden, true);
+    assert.equal(app.elements.get("loginScreen").hidden, false);
+    assert.equal(app.context.focusedElement, "loginUsername");
+    app.login("jordan.lee");
+    assert.equal(app.elements.get("warningScreen").hidden, false);
+    assert.equal(app.elements.get("appShell").hidden, true);
+    app.click("acknowledgeWarningsBtn");
+    assert.equal(app.context.attachCount, 1);
+  }
+});
+
+test("a stale acknowledgment cannot bypass warnings on a fresh sign-in", () => {
+  const app = setupLogin(new Map([[acknowledgmentKey, "clinician"]]));
+  app.login();
+  assert.equal(app.session.has(acknowledgmentKey), false);
+  assert.equal(app.elements.get("warningScreen").hidden, false);
+});
+
+test("storage failure leaves warnings visible with an actionable error", () => {
+  const app = setupLogin();
+  app.login();
+  const warnings = [];
+  app.context.console = { warn: (...args) => warnings.push(args) };
+  app.context.sessionStorage.setItem = () => { throw new Error("Storage blocked"); };
+  app.click("acknowledgeWarningsBtn");
+  assert.equal(app.elements.get("warningScreen").hidden, false);
+  assert.equal(app.elements.get("appShell").hidden, true);
+  assert.match(app.elements.get("warningError").textContent, /storage settings/);
+  assert.equal(warnings.length, 1);
+  assert.equal(app.context.renderCount, 0);
+});
 
 test("Overview excludes individual patient workspaces", () => {
   const { api } = setup();

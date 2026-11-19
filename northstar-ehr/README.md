@@ -30,7 +30,8 @@ Select the Northstar brand in the login panel or sidebar to reload the app's ent
 - Per-patient imaging and radiology records with modality, body site, indication, report, status, and radiologist; selected charts display attributed, openly licensed radiology examples clearly marked as reference images, not patient scans
 - Workflow-specific structured drafts for ED, history and physical, admission, SOAP/progress, consult, nursing, procedure, discharge, and referral documents
 - Patient workflow assignment to a department, care location, attending provider, and nurse; clinician and nurse workflow roles, an admin review role, and an activity audit trail
-- Client-side demo sign-in; not real authentication or server-enforced authorization
+- Client-side demo sign-in with a consolidated warning screen requiring acknowledgment on each sign-in; not real authentication or server-enforced authorization
+- Joe Spartan, MD is automatically signed in as a Provider on first load, with sign-in remembered across browser restarts until explicit sign-out. After signing out, use `joe.spartan` / `northstar` to sign in again.
 - Appointment management, care tasks, follow-up planning, patient summary export, and billing context
 - Local browser persistence for the demonstration dataset
 
@@ -78,7 +79,7 @@ Run the repository-wide test suite from the project root:
 
 This is a public, browser-only prototype with fictional sample patients and illustrative imaging text. **Its client-side demo sign-in is not real authentication, and there is no server-enforced authorization or HIPAA safeguard.** Data is stored in browser local storage and is not protected, backed up, or shared with a care team. Admin-managed roles are browser-local demonstration settings, not trusted access control. Do not enter, import, or export real patient information or use this application to make or document clinical decisions. Orders and notes are not sent to clinical systems, and medications are not prescribed.
 
-Signing out ends the tab's demo session only; it does not protect or clear locally stored data.
+Joe Spartan's automatic sign-in is remembered in this browser until explicit sign-out; other sample accounts use tab-local sessions. Signing out disables automatic sign-in and ends the tab's demo session; it does not protect or clear locally stored data.
 
 The proposed secure backend, profiles, permission model, encryption, and release requirements are documented in [SECURITY_ARCHITECTURE.md](./docs/SECURITY_ARCHITECTURE.md); it is a design only, not implemented or certified. Production use requires an approved and operated secure system, organizational risk analysis, contractual/vendor review including applicable BAAs, security controls, validated workflows, and privacy, clinical, legal, and compliance approval. Encryption alone does not establish HIPAA compliance.
 
@@ -89,3 +90,23 @@ The following images are downloaded from Wikimedia Commons and shown only as ext
 - Thyroid ultrasound: [Drahreg01, *SD-Sono002.jpg*](https://commons.wikimedia.org/wiki/File:SD-Sono002.jpg), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
 - Shoulder MRI: [Hellerhoff, *Post Dislocated shoulder MRI 01.png*](https://commons.wikimedia.org/wiki/File:Post_Dislocated_shoulder_MRI_01.png), [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)
 - Brain CT: Department of Radiology, Uppsala University Hospital, uploaded by Mikael Häggström, [*Computed tomography of human brain - large.png*](https://commons.wikimedia.org/wiki/File:Computed_tomography_of_human_brain_-_large.png), [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)
+
+### Staff portrait attribution
+
+All 11 built-in clinical staff members (physicians, nurses, PA, and nurse practitioner) have locally stored stock portraits in their directory cards and staff profiles. Portraits are matched by stable staff ID, so they also appear in previously saved directories. Administrators and newly added directory entries retain initial avatars.
+
+These portraits are used under the [Pexels License](https://www.pexels.com/license/). The models represent fictional profiles, not real clinicians with the displayed names.
+
+| Profile | Photo source |
+| --- | --- |
+| Joe Spartan, MD | [Ivan S, *A Smiling Doctor with His Arms Crossed*](https://www.pexels.com/photo/a-smiling-doctor-with-his-arms-crossed-4989148/) |
+| Dr. Elena Ruiz | [Antoni Shkraba, *A Doctor Looking at the Camera*](https://www.pexels.com/photo/a-doctor-looking-at-the-camera-6749781/) |
+| Dr. Amir Hassan | [cottonbro studio, *A Portrait of a Doctor*](https://www.pexels.com/photo/a-portrait-of-a-doctor-5722163/) |
+| Dr. Priya Singh | [*Confident Female Doctor in White Coat Portrait*](https://www.pexels.com/photo/confident-female-doctor-in-white-coat-portrait-38618416/) |
+| Jordan Lee | [RDNE Stock project, *Nurse Wearing a Scrub Suit Smiling*](https://www.pexels.com/photo/nurse-wearing-a-scrub-suit-smiling-6129506/) |
+| Casey Nguyen | [Klaus Nielsen, *Female doctor in medical mask and blue uniform*](https://www.pexels.com/photo/female-doctor-in-medical-mask-and-blue-uniform-6303586/) |
+| Sam Carter | [RDNE Stock project, *Male Doctor in White Lab Coat*](https://www.pexels.com/photo/male-doctor-in-white-lab-coat-6129652/) |
+| Riley Bennett | [Oys Photography, *Doctor*](https://www.pexels.com/photo/doctor-19438561/) |
+| Jamie Brooks | [Antoni Shkraba, *A Doctor in a White Coat*](https://www.pexels.com/photo/a-doctor-in-a-white-coat-5214964/) |
+| Dr. Morgan Ellis | [Tima Miroshnichenko, *Close-up Photo of a Male Doctor*](https://www.pexels.com/photo/close-up-photo-of-a-male-doctor-5452268/) |
+| Dr. Taylor Reed | [RDNE Stock project, *Male Doctor in White Coat*](https://www.pexels.com/photo/male-doctor-in-white-coat-6129573/) |

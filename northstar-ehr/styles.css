@@ -197,31 +197,38 @@ textarea {
   color: var(--muted);
 }
 
-.login-demo-note {
-  display: flex;
-  align-items: flex-start;
-  gap: 9px;
-  margin: 20px 0 0;
-  padding: 11px 12px;
-  border: 1px solid #dbe7f3;
-  border-radius: 10px;
-  background: #f5f9fd;
-  color: #53677f;
-  font-size: 0.8rem;
-  line-height: 1.5;
+.warning-card {
+  width: min(100%, 760px);
+  padding: clamp(24px, 5vw, 48px);
+  border: 1px solid #e8c996;
+  border-top: 5px solid var(--amber);
+  border-radius: 18px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
 }
 
-.login-demo-note span {
-  display: grid;
-  flex: 0 0 18px;
-  width: 18px;
-  height: 18px;
-  place-items: center;
-  border-radius: 50%;
-  background: #e2efff;
-  color: #1d5fae;
-  font-size: 0.72rem;
-  font-weight: 750;
+.warning-card h1 {
+  margin: 8px 0;
+  font-size: clamp(1.6rem, 4vw, 2rem);
+}
+
+.warning-card .eyebrow {
+  color: var(--amber);
+}
+
+.warning-list {
+  padding-left: 22px;
+}
+
+.warning-list li {
+  margin: 16px 0;
+}
+
+.warning-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
 }
 
 .login-form {
@@ -793,17 +800,6 @@ textarea {
   padding: 12px;
 }
 
-.demo-badge {
-  border: 1px solid #bfdbfe;
-  border-radius: 999px;
-  padding: 7px 10px;
-  background: #eff6ff;
-  color: #1d4ed8;
-  font-size: 0.76rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
@@ -1095,6 +1091,16 @@ button.stat-card {
 .patient-avatar {
   background: #eaf8f1;
   color: #14744e;
+}
+
+.staff-photo {
+  object-fit: cover;
+  object-position: center 20%;
+}
+
+.profile-header .staff-photo {
+  width: 88px;
+  height: 88px;
 }
 
 .staff-add-panel {
@@ -1765,13 +1771,6 @@ textarea {
   font-weight: 600;
 }
 
-.demo-notice {
-  margin-bottom: 0;
-  color: #bfdbfe !important;
-  font-size: 0.72rem;
-  line-height: 1.4;
-}
-
 .clinical-workspace {
   display: flex;
   flex-direction: column;
@@ -2181,8 +2180,7 @@ textarea:focus-visible {
     padding: 10px 12px;
   }
 
-  .quick-action-card .eyebrow,
-  .quick-action-card .demo-notice {
+  .quick-action-card .eyebrow {
     display: none;
   }
 
@@ -2605,12 +2603,6 @@ h4.collapse-head .collapse-toggle {
     gap: 8px;
   }
 
-  .demo-badge {
-    min-height: 36px;
-    display: inline-flex;
-    align-items: center;
-  }
-
   .panel-header {
     align-items: flex-start;
     flex-wrap: wrap;
@@ -2751,14 +2743,6 @@ h4.collapse-head .collapse-toggle {
 .inbox-search input {
   width: 100%;
   margin-top: 5px;
-}
-
-.inbox-safety-note {
-  margin: 0 0 14px;
-  padding: 9px 11px;
-  border: 1px solid #e6edf5;
-  border-radius: 9px;
-  background: #f8fafc;
 }
 
 .inbox-status:empty {

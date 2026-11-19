@@ -1,5 +1,8 @@
 const storageKey = "northstar-ehr-state-v3";
 const demoSessionKey = "northstar-ehr-demo-account";
+const warningAcknowledgmentKey = "northstar-ehr-warning-acknowledged";
+const automaticSignInKey = "northstar-ehr-automatic-sign-in";
+const automaticAccountId = "joe-spartan";
 const INBOX_FILTERS = [
   { key: "all", label: "All", kind: null },
   { key: "message", label: "Messages", kind: "Message" },
@@ -8,6 +11,7 @@ const INBOX_FILTERS = [
 ];
 
 const demoAccounts = [
+  { id: automaticAccountId, username: "joe.spartan", password: "northstar", displayName: "Joe Spartan, MD", role: "clinician", authorizedRoles: ["clinician"] },
   { id: "clinician", username: "elena.ruiz", password: "northstar", displayName: "Elena Ruiz", role: "clinician", authorizedRoles: ["clinician", "admin"] },
   { id: "nurse", username: "jordan.lee", password: "northstar", displayName: "Jordan Lee", role: "nurse", authorizedRoles: ["nurse"] },
   { id: "admin", username: "alex.morgan", password: "northstar", displayName: "Alex Morgan", role: "admin", authorizedRoles: ["admin"] }
@@ -349,6 +353,7 @@ const locations = departments.flatMap((department) => department.locations.map((
 })));
 
 const defaultStaffDirectory = [
+  { id: "staff-joe-spartan", name: "Joe Spartan, MD", title: "Physician", role: "Provider", department: "Medicine", location: "Main campus", email: "joe.spartan@example.test", status: "Active" },
   { id: "staff-elena-ruiz", name: "Dr. Elena Ruiz", title: "Physician · Internal Medicine", role: "Provider", department: "Medicine", location: "Ward 2 · 214", email: "elena.ruiz@example.test", status: "Active" },
   { id: "staff-amir-hassan", name: "Dr. Amir Hassan", title: "Physician · Surgery", role: "Provider", department: "Surgery", location: "Recovery 1", email: "amir.hassan@example.test", status: "Active" },
   { id: "staff-priya-singh", name: "Dr. Priya Singh", title: "Physician · Obstetrics & Gynecology", role: "Provider", department: "Obstetrics & Gynecology", location: "Labor & Delivery", email: "priya.singh@example.test", status: "Active" },
@@ -361,6 +366,20 @@ const defaultStaffDirectory = [
   { id: "staff-taylor-reed", name: "Dr. Taylor Reed", title: "Radiologist", role: "Provider", department: "Radiology", location: "Radiology", email: "taylor.reed@example.test", status: "Active" },
   { id: "staff-alex-morgan", name: "Alex Morgan", title: "System Administrator", role: "Administrator", department: "Administration", location: "Administration", email: "alex.morgan@example.test", status: "Active" }
 ];
+
+const staffPortraits = new Map([
+  ["staff-joe-spartan", "assets/joe-spartan.jpg"],
+  ["staff-elena-ruiz", "assets/elena-ruiz.jpg"],
+  ["staff-amir-hassan", "assets/amir-hassan.jpg"],
+  ["staff-priya-singh", "assets/priya-singh.jpg"],
+  ["staff-jordan-lee", "assets/jordan-lee.jpg"],
+  ["staff-casey-nguyen", "assets/casey-nguyen.jpg"],
+  ["staff-sam-carter", "assets/sam-carter.jpg"],
+  ["staff-riley-bennett", "assets/riley-bennett.jpg"],
+  ["staff-jamie-brooks", "assets/jamie-brooks.jpg"],
+  ["staff-morgan-ellis", "assets/morgan-ellis.jpg"],
+  ["staff-taylor-reed", "assets/taylor-reed.jpg"]
+]);
 
 allInitialPatients.forEach((patient, index) => {
   const providerName = patient.provider || "Unassigned";
@@ -1067,6 +1086,7 @@ function loadCurrentUser(account) {
 function loadDemoSession() {
   try {
     const accountId = typeof sessionStorage !== "undefined" ? sessionStorage.getItem(demoSessionKey) : null;
+    if (accountId === automaticAccountId && localStorage.getItem(automaticSignInKey) === "signed-out") return null;
     return demoAccounts.find((account) => account.id === accountId) || null;
   } catch (error) {
     console.warn("Unable to load demo session", error);
@@ -2047,8 +2067,8 @@ function renderRoleSummary() {
 
   roleValue.textContent = currentUser.label;
   roleHelp.textContent = hasPermission(currentUser.role, "roles:manage")
-    ? "Switch among your authorized roles, or manage account roles in Overview. Demo permissions only."
-    : "Switch only among roles authorized by an Admin. Demo permissions only.";
+    ? "Switch among your authorized roles, or manage account roles in Overview."
+    : "Switch only among roles authorized by an Admin.";
   const roleSelector = document.getElementById("roleSelector");
   const authorizedRoles = accountRoles[currentUser.accountId] || [currentUser.role];
   document.getElementById("authorizedRolesValue").textContent = `Authorized roles: ${formatRoleList(authorizedRoles)}`;
@@ -2320,7 +2340,6 @@ function renderPatientDetail() {
               </figure>` : ""}
           </article>`).join("")
         : '<p class="empty-state">No imaging or radiology records for this patient.</p>'}
-      <p class="form-caution">Fictional demonstration records only; reports are not diagnostic and are not for clinical use.</p>
     </div>
 
     <div class="mini-card detail-notes">
@@ -2557,7 +2576,7 @@ function renderInboxView(container) {
         <div>
           <p class="eyebrow">Messages · results · follow-up</p>
           <h3>In Basket</h3>
-          <p class="muted-copy">Triage fictional team messages, sample results, and care-plan tasks.</p>
+          <p class="muted-copy">Triage team messages, results, and care-plan tasks.</p>
         </div>
         <div class="inbox-header-actions">
           <span class="pill">${unreadCount} unread</span>
@@ -2573,7 +2592,6 @@ function renderInboxView(container) {
       <label class="inbox-search" for="inboxSearch">Search this inbox
         <input id="inboxSearch" type="search" value="${escapeHtml(inboxSearch)}" placeholder="Patient, MRN, subject, or detail..." />
       </label>
-      <p class="form-caution inbox-safety-note">Demonstration only: messages and results are fictional. Nothing is routed to a care team, and results are not clinically interpreted.</p>
       <p id="inboxStatus" class="status-message inbox-status" role="status" aria-live="polite"></p>
       <div class="inbox-list">
         ${visibleItems.length ? visibleItems.map((item) => {
@@ -2675,7 +2693,7 @@ function renderNursingView(container) {
             ${nurses.map((nurse) => `<option value="${escapeHtml(nurse.name)}">${escapeHtml(nurse.name)} · ${escapeHtml(nurse.department)}</option>`).join("")}
           </select>
         </label>
-        <p class="form-caution">Review assignment, location, allergies, and charted observations in the fictional demo chart.</p>
+        <p class="form-caution">Review assignment, location, allergies, and charted observations.</p>
       </div>
       <div class="table-wrap">
         ${caredFor.length ? `<table class="data-table">
@@ -2733,7 +2751,7 @@ function renderLocationsView(container) {
   container.innerHTML = `
     <div class="panel">
       <div class="panel-header"><div><p class="eyebrow">Facility operations</p><h3>Locations & beds</h3></div><span class="pill">${locations.length + unlisted.length} locations</span></div>
-      <p class="muted-copy">Occupancy is derived from the fictional patient assignment list; capacity values are illustrative only.</p>
+      <p class="muted-copy">Occupancy is derived from the patient assignment list.</p>
       <div class="table-wrap"><table class="data-table">
         <thead><tr><th>Location</th><th>Department</th><th>Type</th><th>Admitted patients</th><th>Occupancy</th><th>Assigned patients</th></tr></thead>
         <tbody>${[...locationRows, ...unlisted].map((location) => `
@@ -2745,15 +2763,29 @@ function renderLocationsView(container) {
     </div>`;
 }
 
+function formatStaffProfileName(staff) {
+  if (staff.role !== "Provider") return staff.name;
+  const name = staff.name.replace(/^Dr\.\s+/i, "");
+  return /,\s*MD$/i.test(name) ? name : `${name}, MD`;
+}
+
+function renderStaffAvatar(staff) {
+  const portrait = staffPortraits.get(staff.id);
+  if (portrait) {
+    return `<img class="staff-avatar staff-photo" src="${escapeHtml(portrait)}" alt="${escapeHtml(formatStaffProfileName(staff))} profile portrait (stock photo)" width="88" height="88" />`;
+  }
+  return `<div class="staff-avatar" aria-hidden="true">${escapeHtml(staff.name.split(/\s+/).map((part) => part[0]).slice(0, 2).join(""))}</div>`;
+}
+
 function renderStaffView(container) {
   const staffCards = staffDirectory
     .slice()
-    .sort((left, right) => left.name.localeCompare(right.name))
+    .sort((left, right) => formatStaffProfileName(left).localeCompare(formatStaffProfileName(right)))
     .map((staff) => `
       <article class="directory-card">
-        <div class="staff-avatar" aria-hidden="true">${escapeHtml(staff.name.split(/\s+/).map((part) => part[0]).slice(0, 2).join(""))}</div>
+        ${renderStaffAvatar(staff)}
         <span class="record-category">${escapeHtml(staff.role)} · ${escapeHtml(staff.status)}</span>
-        <h4>${escapeHtml(staff.name)}</h4>
+        <h4>${escapeHtml(formatStaffProfileName(staff))}</h4>
         <p>${escapeHtml(staff.title)}</p>
         <p>${escapeHtml(staff.department)} · ${escapeHtml(staff.location)}</p>
         <p>${escapeHtml(staff.email || "No contact email recorded")}</p>
@@ -2769,11 +2801,11 @@ function renderStaffView(container) {
             <div class="row"><label>Name<input name="name" required /></label><label>Title / credentials<input name="title" placeholder="e.g., Registered Nurse" required /></label></div>
             <div class="row"><label>Personnel type<select name="role"><option>Provider</option><option>PA</option><option>Nurse</option><option>Midlevel</option><option>Administrator</option></select></label>
               <label>Department<select name="department">${departments.map((department) => `<option>${escapeHtml(department.name)}</option>`).join("")}<option>Administration</option></select></label></div>
-            <div class="row"><label>Location<input name="location" placeholder="Unit or work area" required /></label><label>Demo contact email<input name="email" type="email" placeholder="name@example.test" /></label></div>
-            <button class="primary-btn" type="submit">Add to demo directory</button>
-            <p class="form-caution">Profiles are fictional directory records only. Adding a profile does not create an account or grant access.</p>
+            <div class="row"><label>Location<input name="location" placeholder="Unit or work area" required /></label><label>Contact email<input name="email" type="email" placeholder="name@example.test" /></label></div>
+            <button class="primary-btn" type="submit">Add to directory</button>
+            <p class="form-caution">Adding a profile does not create an account or grant access.</p>
           </form>
-        </details>` : '<p class="form-caution">Sign in with an Admin account to add a fictional staff directory entry. This does not create a sign-in account.</p>'}
+        </details>` : '<p class="form-caution">Sign in with an Admin account to add a staff directory entry. This does not create a sign-in account.</p>'}
       <div class="directory-grid">${staffCards}</div>
     </div>`;
 }
@@ -2796,7 +2828,7 @@ function renderProfilesView(container) {
     <label class="profile-selector">Select a profile
       <select id="profileSelector">
         ${profileType === "staff"
-          ? staffDirectory.map((staff) => `<option value="staff:${escapeHtml(staff.id)}">${escapeHtml(staff.name)} · ${escapeHtml(staff.role)}</option>`).join("")
+          ? staffDirectory.map((staff) => `<option value="staff:${escapeHtml(staff.id)}">${escapeHtml(formatStaffProfileName(staff))} · ${escapeHtml(staff.role)}</option>`).join("")
           : patients.map((patient) => `<option value="patient:${escapeHtml(patient.id)}">${escapeHtml(patient.name)} · ${escapeHtml(patient.mrn)}</option>`).join("")}
       </select>
     </label>`;
@@ -2808,7 +2840,7 @@ function renderProfilesView(container) {
   const profileBody = isPatient ? `
     <div class="profile-header">
       <div class="staff-avatar patient-avatar" aria-hidden="true">${escapeHtml(profile.name.split(/\s+/).map((part) => part[0]).slice(0, 2).join(""))}</div>
-      <div><p class="eyebrow">Patient profile · fictional data</p><h3>${escapeHtml(profile.name)}</h3><p>${escapeHtml(profile.mrn)} · ${escapeHtml(profile.age)} years · ${escapeHtml(profile.sex)}</p></div>
+      <div><p class="eyebrow">Patient profile</p><h3>${escapeHtml(profile.name)}</h3><p>${escapeHtml(profile.mrn)} · ${escapeHtml(profile.age)} years · ${escapeHtml(profile.sex)}</p></div>
       <button class="primary-btn" type="button" data-open-patient="${escapeHtml(profile.id)}">Open full chart</button>
     </div>
     <div class="profile-facts">
@@ -2822,21 +2854,20 @@ function renderProfilesView(container) {
       <article><span>Open orders / notes</span><strong>${profile.orders.filter((order) => !["Completed", "Cancelled"].includes(order.status)).length} open orders · ${profile.documents.length} notes</strong></article>
     </div>` : `
     <div class="profile-header">
-      <div class="staff-avatar" aria-hidden="true">${escapeHtml(profile.name.split(/\s+/).map((part) => part[0]).slice(0, 2).join(""))}</div>
-      <div><p class="eyebrow">Staff profile · directory only</p><h3>${escapeHtml(profile.name)}</h3><p>${escapeHtml(profile.title)} · ${escapeHtml(profile.status)}</p></div>
+      ${renderStaffAvatar(profile)}
+      <div><p class="eyebrow">Staff profile · directory only</p><h3>${escapeHtml(formatStaffProfileName(profile))}</h3><p>${escapeHtml(profile.title)} · ${escapeHtml(profile.status)}</p></div>
     </div>
     <div class="profile-facts">
       <article><span>Personnel type</span><strong>${escapeHtml(profile.role)}</strong></article>
       <article><span>Department</span><strong>${escapeHtml(profile.department)}</strong></article>
       <article><span>Work location</span><strong>${escapeHtml(profile.location)}</strong></article>
-      <article><span>Demo contact</span><strong>${escapeHtml(profile.email || "Not recorded")}</strong></article>
+      <article><span>Contact</span><strong>${escapeHtml(profile.email || "Not recorded")}</strong></article>
       <article><span>Patients on care team</span><strong>${patients.filter((patient) => patient.clinical.attending === profile.name || patient.clinical.assignedNurse === profile.name).length}</strong></article>
       <article><span>System access</span><strong>Directory profile only · no account linked</strong></article>
     </div>`;
   container.innerHTML = `<div class="panel profile-panel">
     <div class="panel-header"><div><p class="eyebrow">Identity & care team</p><h3>Profiles</h3></div>${selector}</div>
     ${profileBody}
-    <p class="form-caution">All content is fictional and stored in this browser demo. Profiles are not verified identities or access credentials.</p>
   </div>`;
   container.querySelector("#profileSelector").value = `${selectedProfile.type}:${selectedProfile.id}`;
 }
@@ -3533,8 +3564,33 @@ function attachEvents() {
 function bootstrap() {
   document.getElementById("loginForm").addEventListener("submit", handleLoginSubmit);
   document.getElementById("signOutBtn").addEventListener("click", signOut);
+  document.getElementById("warningSignOutBtn").addEventListener("click", signOut);
+  document.getElementById("acknowledgeWarningsBtn").addEventListener("click", acknowledgeWarnings);
+  if (!activeDemoAccount) {
+    try {
+      if (localStorage.getItem(automaticSignInKey) !== "signed-out") {
+        const account = demoAccounts.find((item) => item.id === automaticAccountId);
+        localStorage.setItem(automaticSignInKey, account.id);
+        sessionStorage.removeItem(warningAcknowledgmentKey);
+        sessionStorage.setItem(demoSessionKey, account.id);
+        activeDemoAccount = account;
+        currentUser = loadCurrentUser(account);
+        currentView = "overview";
+      }
+    } catch (error) {
+      console.warn("Unable to start automatic sign-in", error);
+      document.getElementById("loginError").textContent = "Unable to sign in automatically. Check your browser storage settings and try again.";
+    }
+  }
   if (activeDemoAccount) {
-    showWorkspace();
+    let acknowledged = false;
+    try {
+      acknowledged = sessionStorage.getItem(warningAcknowledgmentKey) === activeDemoAccount.id;
+    } catch (error) {
+      console.warn("Unable to load warning acknowledgment", error);
+    }
+    if (acknowledged) showWorkspace();
+    else showWarnings();
   }
 }
 
@@ -3557,6 +3613,8 @@ function handleLoginSubmit(event) {
   }
 
   try {
+    localStorage.setItem(automaticSignInKey, account.id === automaticAccountId ? account.id : "signed-out");
+    sessionStorage.removeItem(warningAcknowledgmentKey);
     sessionStorage.setItem(demoSessionKey, account.id);
   } catch (storageError) {
     console.warn("Unable to save demo session", storageError);
@@ -3572,11 +3630,32 @@ function handleLoginSubmit(event) {
   if (currentUser.role === "nurse") nursingFilter = currentUser.label;
   error.textContent = "";
   form.reset();
+  showWarnings();
+}
+
+function showWarnings() {
+  document.getElementById("loginScreen").hidden = true;
+  document.getElementById("appShell").hidden = true;
+  document.getElementById("warningScreen").hidden = false;
+  document.getElementById("warningError").textContent = "";
+  document.getElementById("warningTitle").focus();
+}
+
+function acknowledgeWarnings() {
+  if (!activeDemoAccount) return;
+  try {
+    sessionStorage.setItem(warningAcknowledgmentKey, activeDemoAccount.id);
+  } catch (error) {
+    console.warn("Unable to save warning acknowledgment", error);
+    document.getElementById("warningError").textContent = "Unable to save your acknowledgment. Check your browser storage settings and try again.";
+    return;
+  }
   showWorkspace();
 }
 
 function showWorkspace() {
   document.getElementById("loginScreen").hidden = true;
+  document.getElementById("warningScreen").hidden = true;
   document.getElementById("appShell").hidden = false;
   renderOrderFields();
   renderDocumentFields();
@@ -3585,16 +3664,23 @@ function showWorkspace() {
     workspaceEventsAttached = true;
   }
   render();
+  document.getElementById("main-content").focus();
 }
 
 function signOut() {
   try {
+    localStorage.setItem(automaticSignInKey, "signed-out");
     sessionStorage.removeItem(demoSessionKey);
+    sessionStorage.removeItem(warningAcknowledgmentKey);
   } catch (error) {
     console.warn("Unable to clear demo session", error);
+    const statusId = document.getElementById("warningScreen").hidden ? "roleSwitchStatus" : "warningError";
+    document.getElementById(statusId).textContent = "Unable to sign out. Check your browser storage settings and try again.";
+    return;
   }
   activeDemoAccount = null;
   document.getElementById("appShell").hidden = true;
+  document.getElementById("warningScreen").hidden = true;
   document.getElementById("loginScreen").hidden = false;
   document.getElementById("loginError").textContent = "";
   document.getElementById("loginUsername").focus();

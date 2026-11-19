@@ -45,11 +45,10 @@
             <p class="eyebrow">Welcome back</p>
             <h2 id="loginTitle">Sign in to Northstar</h2>
             <p class="login-intro">Enter your account details to continue.</p>
-            <p class="login-demo-note"><span aria-hidden="true">i</span> Demonstration environment · fictional data only · not for clinical use</p>
           </div>
           <form id="loginForm" class="login-form">
             <label for="loginUsername">Username</label>
-            <input id="loginUsername" name="username" type="text" autocomplete="username" value="elena.ruiz" required />
+            <input id="loginUsername" name="username" type="text" autocomplete="username" value="joe.spartan" required />
             <label for="loginPassword">Password</label>
             <input id="loginPassword" name="password" type="password" autocomplete="current-password" value="northstar" required />
             <p id="loginError" class="login-error" role="alert" aria-live="polite"></p>
@@ -58,6 +57,25 @@
           <p class="login-card-footer">Northstar EHR <span aria-hidden="true">·</span> Clinical operations</p>
         </section>
       </div>
+    </main>
+    <main id="warningScreen" class="login-screen" hidden aria-labelledby="warningTitle">
+      <section class="warning-card">
+        <p class="eyebrow">Before you continue</p>
+        <h1 id="warningTitle" tabindex="-1">Demonstration environment</h1>
+        <p>Review these important limitations before entering Northstar EHR.</p>
+        <ul class="warning-list">
+          <li><strong>Fictional data only.</strong> Patient records, staff profiles, messages, results, reports, and capacity values are fictional or illustrative. Do not enter, import, or export real patient information.</li>
+          <li><strong>Not for clinical use.</strong> Do not use this app to make or document clinical decisions. Reports are not diagnostic, and results are not clinically interpreted. Reference images are educational examples, not patient scans.</li>
+          <li><strong>No live clinical services.</strong> Orders, notes, prescriptions, messages, and results are not sent to clinical systems or care teams. Documents remain drafts without legally valid electronic signatures.</li>
+          <li><strong>Not a secure clinical system.</strong> Sign-in and roles are browser-local demonstrations, not real authentication or server-enforced authorization. Profiles are not verified identities or access credentials. This app does not provide HIPAA safeguards.</li>
+          <li><strong>Browser-local storage.</strong> Changes stay in this browser; they are not protected, backed up, or shared with a care team. Joe Spartan's automatic sign-in persists until explicit sign-out. Signing out disables automatic sign-in but does not clear or protect stored data.</li>
+        </ul>
+        <p id="warningError" class="login-error" role="alert"></p>
+        <div class="warning-actions">
+          <button id="acknowledgeWarningsBtn" class="primary-btn" type="button">I understand - continue</button>
+          <button id="warningSignOutBtn" class="ghost-btn" type="button">Sign out</button>
+        </div>
+      </section>
     </main>
     <div id="appShell" class="app-shell" hidden>
       <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -106,14 +124,13 @@
         <div class="sidebar-card quick-action-card">
           <p class="eyebrow">Quick action</p>
           <button id="quickEncounterBtn" class="primary-btn" type="button">＋ &nbsp; Open encounter</button>
-          <p class="demo-notice">Demonstration workspace · fictional patient data · not for clinical use</p>
         </div>
 
         <div class="sidebar-card role-card">
           <h3>Signed-in account</h3>
           <p id="roleValue">Provider</p>
           <span id="authorizedRolesValue" class="role-help"></span>
-          <span id="roleHelp" class="role-help">Demo-only permissions. Admins manage account roles from Overview.</span>
+          <span id="roleHelp" class="role-help">Admins manage account roles from Overview.</span>
           <label for="roleSelector" class="role-label">Active role</label>
           <select id="roleSelector" aria-describedby="roleHelp"></select>
           <span id="roleSwitchStatus" class="role-switch-status" role="status" aria-live="polite"></span>
@@ -121,7 +138,7 @@
         </div>
       </aside>
 
-      <main id="main-content" class="main-panel">
+      <main id="main-content" class="main-panel" tabindex="-1">
         <header class="topbar">
           <div>
             <p class="eyebrow">Clinical operations</p>
@@ -133,7 +150,6 @@
               <input id="patientSearch" type="search" role="combobox" aria-autocomplete="list" aria-controls="globalSearchResults" aria-expanded="false" aria-label="Search patients, staff, departments, and locations" placeholder="Search people, departments, locations..." />
             </label>
             <div id="globalSearchResults" class="global-search-results" role="listbox" aria-label="Search results" hidden></div>
-            <span class="demo-badge">Demo data</span>
             <div class="data-exchange" role="group" aria-label="Import and export">
               <select id="exchangeFormat" aria-label="Export format" title="Export format">
                 <option value="json">Northstar JSON</option>
@@ -198,7 +214,7 @@
           </div>
           <p class="muted-copy">Authorize one or more roles per account. Users switch roles with the sidebar’s Active role selector.</p>
           <div id="accountRoles" class="account-role-grid"></div>
-          <p class="form-caution">Browser-local demo permissions only, not server-enforced authorization. Directory profiles do not create sign-in accounts.</p>
+          <p class="form-caution">Directory profiles do not create sign-in accounts.</p>
         </section>
 
         <section id="extendedSection" class="view-section hidden-section" aria-live="polite">

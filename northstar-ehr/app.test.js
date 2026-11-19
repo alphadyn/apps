@@ -24,6 +24,86 @@ const sessionKey = "northstar-ehr-demo-account";
 const acknowledgmentKey = "northstar-ehr-warning-acknowledged";
 const automaticSignInKey = "northstar-ehr-automatic-sign-in";
 
+function setupNavigation(mobile = false, storage = new Map()) {
+  const { context } = setup("clinician", storage);
+  const elements = new Map();
+  for (const id of ["appShell", "workspaceSidebar", "main-content", "navigationToggle", "navigationBackdrop", "closeNavigationBtn", "navigationStatus"]) {
+    elements.set(id, {
+      dataset: {},
+      attributes: {},
+      inert: false,
+      hidden: false,
+      textContent: "",
+      setAttribute(name, value) { this.attributes[name] = value; },
+      removeAttribute(name) { delete this.attributes[name]; },
+      contains(element) { return element === this; },
+      focus() { context.document.activeElement = this; }
+    });
+  }
+  context.document = {
+    getElementById: (id) => elements.get(id),
+    body: { classList: { toggle(name, enabled) { context.drawerLocked = enabled; } } },
+    activeElement: null
+  };
+  context.mobileViewport = mobile;
+  context.window.matchMedia = () => ({ matches: context.mobileViewport });
+  return { context, elements, storage };
+}
+
+test("desktop navigation collapses, persists, and restores without changing the current view", () => {
+  const { context, elements, storage } = setupNavigation();
+  vm.runInContext("syncNavigationLayout()", context);
+  assert.equal(elements.get("appShell").dataset.navigationOpen, "true");
+  assert.equal(elements.get("main-content").inert, false);
+  vm.runInContext("setNavigationOpen(false)", context);
+  assert.equal(elements.get("workspaceSidebar").inert, true);
+  assert.equal(elements.get("navigationToggle").attributes["aria-expanded"], "false");
+  assert.equal(elements.get("navigationToggle").attributes["aria-label"], "Show navigation");
+  assert.equal(JSON.parse(storage.get(storageKey)).sidebarCollapsed, true);
+  const restored = setupNavigation(false, storage);
+  vm.runInContext("syncNavigationLayout()", restored.context);
+  assert.equal(restored.elements.get("appShell").dataset.navigationOpen, "false");
+  vm.runInContext("setNavigationOpen(true)", restored.context);
+  assert.equal(restored.elements.get("workspaceSidebar").inert, false);
+  assert.equal(JSON.parse(storage.get(storageKey)).sidebarCollapsed, false);
+  assert.equal(JSON.parse(storage.get(storageKey)).currentView, "overview");
+});
+
+test("mobile navigation contains the workspace, restores focus, and preserves desktop preference", () => {
+  const storage = new Map([[storageKey, JSON.stringify({ sidebarCollapsed: true })]]);
+  const { context, elements } = setupNavigation(true, storage);
+  vm.runInContext("syncNavigationLayout()", context);
+  assert.equal(elements.get("appShell").dataset.navigationOpen, "false");
+  vm.runInContext("setNavigationOpen(true)", context);
+  assert.equal(elements.get("navigationBackdrop").hidden, false);
+  assert.equal(elements.get("main-content").inert, true);
+  assert.equal(elements.get("workspaceSidebar").attributes.role, "dialog");
+  assert.equal(elements.get("workspaceSidebar").attributes["aria-modal"], "true");
+  assert.equal(context.drawerLocked, true);
+  assert.equal(context.document.activeElement, elements.get("closeNavigationBtn"));
+  vm.runInContext("closeMobileNavigation()", context);
+  assert.equal(elements.get("navigationBackdrop").hidden, true);
+  assert.equal(elements.get("main-content").inert, false);
+  assert.equal(elements.get("workspaceSidebar").attributes["aria-modal"], undefined);
+  assert.equal(context.drawerLocked, false);
+  assert.equal(context.document.activeElement, elements.get("navigationToggle"));
+  assert.equal(JSON.parse(storage.get(storageKey)).sidebarCollapsed, true);
+  context.mobileViewport = false;
+  vm.runInContext("syncNavigationLayout()", context);
+  assert.equal(elements.get("appShell").dataset.navigationOpen, "false");
+});
+
+test("navigation preference storage errors are visible without changing the layout", () => {
+  const { context, elements } = setupNavigation();
+  const warnings = [];
+  context.console = { warn: (...args) => warnings.push(args) };
+  context.localStorage.setItem = () => { throw new Error("Storage blocked"); };
+  vm.runInContext("syncNavigationLayout(); setNavigationOpen(false)", context);
+  assert.equal(elements.get("appShell").dataset.navigationOpen, "true");
+  assert.match(elements.get("navigationStatus").textContent, /Unable to save navigation settings/);
+  assert.equal(warnings.length, 1);
+});
+
 function setupLogin(session = new Map(), storage = new Map([[automaticSignInKey, "signed-out"]])) {
   const { context } = setup(session.get(sessionKey) ?? null, storage);
   const elements = new Map();

@@ -79,29 +79,40 @@
     </main>
     <div id="appShell" class="app-shell" hidden>
       <a class="skip-link" href="#main-content">Skip to main content</a>
-      <aside class="sidebar" aria-label="Workspace navigation and settings">
-        <a class="brand-block" href="./" aria-label="Northstar EHR home">
-          <div class="brand-icon" aria-hidden="true">✦</div>
-          <div>
-            <h1>Northstar EHR</h1>
-            <p>Clinical Operations</p>
-          </div>
-        </a>
+      <button id="navigationBackdrop" class="navigation-backdrop" type="button" aria-label="Close navigation" tabindex="-1" hidden></button>
+      <aside id="workspaceSidebar" class="sidebar" aria-label="Workspace navigation and settings">
+        <div class="sidebar-heading">
+          <a class="brand-block" href="./" aria-label="Northstar EHR home">
+            <div class="brand-icon" aria-hidden="true">✦</div>
+            <div>
+              <h1>Northstar <span class="brand-edition">EHR</span></h1>
+              <p>Connected clinical care</p>
+            </div>
+          </a>
+          <button id="closeNavigationBtn" class="icon-button sidebar-close" type="button" aria-label="Close navigation">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6" /></svg>
+          </button>
+        </div>
+
+        <div class="sidebar-card quick-action-card">
+          <button id="quickEncounterBtn" class="primary-btn" type="button"><span aria-hidden="true">＋</span> Open encounter</button>
+        </div>
 
         <nav class="nav-links" aria-label="Main navigation">
           <div class="nav-group">
-            <p class="nav-group-title">Workspace</p>
+            <p class="nav-group-title">Your workspace</p>
             <button class="nav-link active" type="button" data-view="overview">Overview</button>
             <button class="nav-link inbox-nav-link" type="button" data-view="inbox">In Basket <span id="inboxUnreadCount" class="nav-count" aria-label="unread inbox items" hidden>0</span></button>
           </div>
           <details id="patientsMenu" class="nav-group patients-menu">
-            <summary>Patients</summary>
+            <summary><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m20 0v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /><circle cx="9" cy="7" r="4" /></svg>Patients &amp; care<svg class="menu-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg></summary>
             <div class="nav-submenu">
               <button class="nav-link" type="button" data-view="patients">Worklist &amp; charts</button>
               <button class="nav-link" type="button" data-view="patient-profiles">Patient profiles</button>
               <button class="nav-link" type="button" data-view="admissions">Admissions</button>
               <button class="nav-link" type="button" data-view="nursing">Nursing station</button>
               <button class="nav-link" type="button" data-view="appointments">Appointments</button>
+              <p class="nav-subgroup-title">Clinical workspace</p>
               <button class="nav-link" type="button" data-view="clinical">ED & Inpatient</button>
               <button class="nav-link" type="button" data-view="orders">Orders</button>
               <button class="nav-link" type="button" data-view="documents">Notes & Documents</button>
@@ -121,18 +132,16 @@
           </div>
         </nav>
 
-        <div class="sidebar-card quick-action-card">
-          <p class="eyebrow">Quick action</p>
-          <button id="quickEncounterBtn" class="primary-btn" type="button">＋ &nbsp; Open encounter</button>
-        </div>
-
         <div class="sidebar-card role-card">
-          <h3>Signed-in account</h3>
+          <h3>Your account</h3>
           <p id="roleValue">Provider</p>
-          <span id="authorizedRolesValue" class="role-help"></span>
-          <span id="roleHelp" class="role-help">Admins manage account roles from Overview.</span>
-          <label for="roleSelector" class="role-label">Active role</label>
-          <select id="roleSelector" aria-describedby="roleHelp"></select>
+          <details class="account-settings">
+            <summary>Role &amp; permissions</summary>
+            <span id="authorizedRolesValue" class="role-help"></span>
+            <span id="roleHelp" class="role-help">Admins manage account roles from Overview.</span>
+            <label for="roleSelector" class="role-label">Active role</label>
+            <select id="roleSelector" aria-describedby="roleHelp"></select>
+          </details>
           <span id="roleSwitchStatus" class="role-switch-status" role="status" aria-live="polite"></span>
           <button id="signOutBtn" class="sign-out-btn" type="button">Sign out</button>
         </div>
@@ -140,9 +149,15 @@
 
       <main id="main-content" class="main-panel" tabindex="-1">
         <header class="topbar">
-          <div>
-            <p class="eyebrow">Clinical operations</p>
-            <h2>Care team workspace</h2>
+          <div class="workspace-heading">
+            <button id="navigationToggle" class="icon-button navigation-toggle" type="button" aria-label="Toggle navigation" aria-controls="workspaceSidebar" aria-expanded="true">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3" /><path d="M9 4v16m4-10h4m-4 4h4" /></svg>
+            </button>
+            <div>
+              <p class="eyebrow">Clinical workspace</p>
+              <h2>Care team workspace</h2>
+              <p id="navigationStatus" class="navigation-status" role="status" aria-live="polite"></p>
+            </div>
           </div>
           <div class="topbar-actions">
             <label class="search-box" for="patientSearch">
@@ -150,23 +165,27 @@
               <input id="patientSearch" type="search" role="combobox" aria-autocomplete="list" aria-controls="globalSearchResults" aria-expanded="false" aria-label="Search patients, staff, departments, and locations" placeholder="Search people, departments, locations..." />
             </label>
             <div id="globalSearchResults" class="global-search-results" role="listbox" aria-label="Search results" hidden></div>
-            <div class="data-exchange" role="group" aria-label="Import and export">
-              <select id="exchangeFormat" aria-label="Export format" title="Export format">
-                <option value="json">Northstar JSON</option>
-                <optgroup label="FHIR">
-                  <option value="fhir">FHIR R4 (Epic)</option>
-                  <option value="fhir5">FHIR R5</option>
-                </optgroup>
-                <option value="csv">CSV roster</option>
-              </select>
-              <select id="exchangeScope" aria-label="Export scope" title="Export scope">
-                <option value="selected">Selected patient</option>
-                <option value="all">All patients</option>
-              </select>
-              <button class="ghost-btn" id="exportBtn" type="button">Export</button>
-              <button class="ghost-btn" id="importBtn" type="button">Import</button>
-              <input id="importFile" type="file" accept=".json,.csv,application/json,text/csv" hidden />
-            </div>
+            <details class="exchange-menu">
+              <summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 15v5h14v-5" /></svg>Data tools</summary>
+              <div class="data-exchange" role="group" aria-label="Import and export">
+                <p class="exchange-menu-heading">Import &amp; export</p>
+                <select id="exchangeFormat" aria-label="Export format" title="Export format">
+                  <option value="json">Northstar JSON</option>
+                  <optgroup label="FHIR">
+                    <option value="fhir">FHIR R4 (Epic)</option>
+                    <option value="fhir5">FHIR R5</option>
+                  </optgroup>
+                  <option value="csv">CSV roster</option>
+                </select>
+                <select id="exchangeScope" aria-label="Export scope" title="Export scope">
+                  <option value="selected">Selected patient</option>
+                  <option value="all">All patients</option>
+                </select>
+                <button class="ghost-btn" id="exportBtn" type="button">Export</button>
+                <button class="ghost-btn" id="importBtn" type="button">Import</button>
+                <input id="importFile" type="file" accept=".json,.csv,application/json,text/csv" hidden />
+              </div>
+            </details>
           </div>
         </header>
 

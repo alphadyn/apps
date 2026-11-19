@@ -1,19 +1,118 @@
 :root {
-  --bg: #f3f6fa;
+  --bg: #f2f5fa;
   --panel: #fff;
   --border: #dfe6ef;
   --text: #17263d;
   --muted: #64748b;
-  --accent: #245fbd;
-  --accent-soft: #edf4ff;
+  --accent: #216763;
+  --accent-soft: #edf7f5;
   --green: #187653;
   --amber: #a85f12;
   --purple: #6d51b5;
   --shadow: 0 12px 30px rgba(20, 35, 60, 0.07);
 }
 
+.sidebar-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sidebar .brand-icon {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #429d96, #296f7c);
+}
+
+.sidebar .brand-block p {
+  color: #a4b9c3;
+  font-size: 0.72rem;
+}
+
+.brand-edition {
+  margin-left: 6px;
+  color: #84cbc1;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.icon-button {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.icon-button:hover {
+  background: var(--accent-soft);
+  border-color: #9dc9c2;
+}
+
+.icon-button:focus-visible,
+.patients-menu > summary:focus-visible,
+.account-settings > summary:focus-visible,
+.exchange-menu > summary:focus-visible {
+  outline: 3px solid #65b7ac;
+  outline-offset: 3px;
+}
+
+.icon-button svg,
+.nav-icon,
+.menu-chevron,
+.exchange-menu > summary svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sidebar-close {
+  display: none;
+  color: #d7e8ee;
+  border-color: #46606c;
+  background: transparent;
+}
+
+.sidebar-close:hover {
+  background: #294453;
+}
+
 * {
   box-sizing: border-box;
+}
+
+.sidebar .quick-action-card {
+  display: block;
+  flex: 0 0 auto;
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+
+.quick-action-card .primary-btn {
+  width: 100%;
+  min-height: 42px;
+  background: #347d79;
+  font-size: 0.84rem;
+  box-shadow: 0 3px 8px #081c2c33;
+}
+
+.quick-action-card .primary-btn span {
+  margin-right: 7px;
 }
 
 body {
@@ -25,6 +124,31 @@ body {
   color: var(--text);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+}
+
+.account-settings {
+  font-size: 0.75rem;
+  color: #c4d6df;
+}
+
+.account-settings summary {
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.account-settings[open] {
+  display: grid;
+}
+
+.account-settings .role-help,
+.account-settings .role-label {
+  display: block;
+  margin-top: 8px;
+}
+
+.account-settings select {
+  width: 100%;
+  margin-top: 6px;
 }
 
 button,
@@ -289,8 +413,20 @@ textarea {
 
 .app-shell {
   display: grid;
-  grid-template-columns: 264px minmax(0, 1fr);
+  grid-template-columns: 276px minmax(0, 1fr);
   min-height: 100vh;
+}
+
+.app-shell[data-navigation-open="false"] {
+  grid-template-columns: 0 minmax(0, 1fr);
+}
+
+.app-shell[data-navigation-open="false"] .sidebar {
+  visibility: hidden;
+}
+
+.navigation-backdrop {
+  display: none;
 }
 
 .sidebar {
@@ -298,13 +434,14 @@ textarea {
   top: 0;
   align-self: start;
   height: 100vh;
-  overflow-y: auto;
-  background: linear-gradient(180deg, #172740 0%, #111e32 100%);
+  min-width: 0;
+  overflow: hidden;
+  background: linear-gradient(165deg, #152e3b 0%, #10212e 100%);
   color: #f8fafc;
-  padding: 24px 18px;
+  padding: 24px 16px 16px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
   border-right: 1px solid rgba(148, 163, 184, 0.14);
 }
 
@@ -343,6 +480,12 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #45616e transparent;
+  padding: 0 4px 4px 0;
 }
 
 .nav-group {
@@ -355,15 +498,37 @@ textarea {
 }
 
 .patients-menu > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 10px 12px;
   min-height: 42px;
   color: #cbd5e1;
   cursor: pointer;
   border-radius: 9px;
+  list-style: none;
+  font-size: 0.86rem;
+  font-weight: 600;
 }
+
+.patients-menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.menu-chevron {
+  width: 15px;
+  height: 15px;
+  margin-left: auto;
+  transition: transform 140ms ease;
+}
+
+.patients-menu[open] .menu-chevron {
+  transform: rotate(90deg);
+}
+
 .patients-menu[data-active="true"] > summary {
   color: #fff;
-  background: rgba(59, 130, 246, 0.16);
+  background: rgba(99, 185, 172, 0.1);
 }
 
 .patients-menu > summary:hover {
@@ -373,7 +538,29 @@ textarea {
 .nav-submenu {
   display: grid;
   gap: 3px;
+  padding: 6px 0 0 12px;
+  margin-left: 20px;
+  border-left: 1px solid #35515e;
+}
+
+.nav-subgroup-title {
+  margin: 12px 0 5px;
   padding-left: 12px;
+  color: #9ab5bd;
+  font-size: 0.65rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.nav-submenu .nav-link {
+  font-size: 0.8rem;
+  min-height: 36px;
+  padding: 7px 10px;
+}
+
+.nav-icon {
+  flex: 0 0 20px;
+  color: #92b3bf;
 }
 
 .overview-welcome {
@@ -392,10 +579,10 @@ textarea {
 }
 
 .overview-summary > div {
-  padding: 16px;
+  padding: 20px;
   border: 1px solid var(--border);
   border-radius: 12px;
-  background: var(--bg);
+  background: linear-gradient(140deg, #f8fbfd, #f0f7f6);
 }
 
 .overview-summary strong {
@@ -439,7 +626,7 @@ textarea {
 
 .authorized-role-options {
   display: grid;
-  gap: 8px;
+  gap: 10px;
   min-width: 0;
   margin: 0;
   border: 0;
@@ -471,7 +658,10 @@ textarea {
 }
 
 .account-role-form > button {
-  margin-top: auto;
+  margin-top: 0;
+  flex: 0 0 auto;
+  max-height: 38vh;
+  overflow-y: auto;
   align-self: flex-start;
 }
 
@@ -502,14 +692,18 @@ textarea {
   color: #cbd5e1;
   background: transparent;
   cursor: pointer;
-  font-size: 0.88rem;
+  font-size: 0.75rem;
   transition: background 140ms ease, color 140ms ease, box-shadow 140ms ease;
 }
 
 .nav-link.active {
-  box-shadow: inset 3px 0 0 #72b4ff;
-  background: rgba(67, 132, 218, 0.2);
+  box-shadow: inset 3px 0 0 #84d6c6;
+  background: #244b55;
   color: #fff;
+}
+
+.nav-link.active .nav-icon {
+  color: #a3ebdc;
 }
 
 .nav-link:hover {
@@ -571,7 +765,10 @@ textarea {
 
 .role-card h3 {
   margin: 0;
-  font-size: 0.95rem;
+  color: #a7bdc8;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 .role-card > p {
@@ -635,7 +832,7 @@ textarea {
 }
 
 .primary-btn {
-  background: linear-gradient(135deg, #245fbd, #3179d1);
+  background: linear-gradient(135deg, #216763, #32837c);
   color: white;
 }
 
@@ -656,12 +853,12 @@ textarea {
 }
 
 .ghost-btn:hover:not(:disabled) {
-  background: #dceaff;
+  background: #dcefeb;
 }
 
 .main-panel {
   min-width: 0;
-  padding: clamp(24px, 3vw, 40px);
+  padding: clamp(20px, 2.5vw, 36px);
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -674,8 +871,90 @@ textarea {
   flex-wrap: wrap;
   gap: 16px 24px;
   min-height: 62px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid rgba(203, 213, 225, 0.7);
+  padding: 0 0 22px;
+  border-bottom: 1px solid #dfe7ed;
+}
+
+.workspace-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.workspace-heading .eyebrow {
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: #687e90;
+}
+
+.navigation-status {
+  max-width: 360px;
+  margin: 8px 0 0;
+  color: #b42318;
+  font-size: 0.8rem;
+}
+
+.navigation-status:empty {
+  display: none;
+}
+
+.exchange-menu {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.exchange-menu > summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  color: #3c5267;
+  list-style: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 650;
+}
+
+.exchange-menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.exchange-menu[open] > summary {
+  border-color: #8ebeb6;
+  background: var(--accent-soft);
+}
+
+.exchange-menu .data-exchange {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  z-index: 8;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: min(340px, calc(100vw - 32px));
+  padding: 18px;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 14px 40px #19344a26;
+}
+
+.exchange-menu-heading {
+  grid-column: 1 / -1;
+  margin: 0 0 4px;
+  font-size: 0.83rem;
+  font-weight: 700;
+}
+
+.exchange-menu .data-exchange select {
+  width: 100%;
+  min-width: 0;
 }
 
 .eyebrow {
@@ -810,8 +1089,8 @@ textarea {
   min-height: 132px;
   border: 1px solid var(--border);
   border-top: 3px solid currentColor;
-  border-radius: 13px;
-  padding: 17px 18px;
+  border-radius: 16px;
+  padding: 20px;
   background: var(--panel);
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.025);
   transition: box-shadow 140ms ease, transform 140ms ease;
@@ -910,9 +1189,9 @@ button.stat-card {
 .panel {
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 18px;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+  border-radius: 18px;
+  padding: clamp(18px, 2vw, 26px);
+  box-shadow: 0 4px 20px rgba(25, 50, 70, 0.035);
   min-width: 0;
 }
 
@@ -920,7 +1199,7 @@ button.stat-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 14px;
+  margin-bottom: 20px;
   gap: 12px;
 }
 
@@ -1024,8 +1303,9 @@ button.stat-card {
   min-width: 0;
   border: 1px solid var(--border);
   border-radius: 14px;
-  padding: 16px;
-  background: #fbfdff;
+  padding: 20px;
+  background: linear-gradient(155deg, #fff 60%, #f5faf9);
+  box-shadow: 0 2px 8px #18394a05;
 }
 
 .directory-card h4 {
@@ -1045,6 +1325,10 @@ button.stat-card {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 10px;
   margin: 14px 0;
+}
+
+.profile-panel .profile-facts {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .directory-facts > div,
@@ -1129,7 +1413,7 @@ button.stat-card {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 16px 0;
+  padding: 22px 0;
   border-bottom: 1px solid var(--border);
 }
 
@@ -2086,6 +2370,10 @@ textarea:focus-visible {
 }
 
 @media (max-width: 1080px) {
+  .profile-panel .profile-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .stats-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2134,85 +2422,45 @@ textarea:focus-visible {
     padding: clamp(26px, 7vw, 40px);
   }
 
-  .app-shell {
+  .app-shell,
+  .app-shell[data-navigation-open="false"] {
     grid-template-columns: minmax(0, 1fr);
   }
 
   .sidebar {
-    min-width: 0;
-    position: static;
-    height: auto;
-    overflow: visible;
-    gap: 12px;
-    padding: 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 31;
+    width: min(320px, calc(100vw - 48px));
+    height: 100vh;
+    height: 100dvh;
+    padding: max(20px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+    box-shadow: 12px 0 40px #0e233a30;
   }
 
-  .nav-links {
-    width: 100%;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 4px;
+  .sidebar-close {
+    display: inline-grid;
   }
 
-  .nav-group {
-    display: contents;
+  .nav-link,
+  .nav-submenu .nav-link,
+  .patients-menu > summary,
+  .account-settings > summary {
+    min-height: 44px;
   }
 
-  .patients-menu { display: block; flex: 0 0 100%; }
-  .patients-menu .nav-submenu { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
-
-  .nav-group-title {
-    display: none;
+  .navigation-backdrop:not([hidden]) {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    border: 0;
+    background: #0c233c80;
+    backdrop-filter: blur(3px);
   }
 
-  .nav-link {
-    flex: 0 0 auto;
-    white-space: nowrap;
-  }
-
-  .quick-action-card {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-  }
-
-  .quick-action-card .eyebrow {
-    display: none;
-  }
-
-  .role-card {
-    margin-top: 0;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    column-gap: 12px;
-  }
-
-  .role-card h3,
-  .role-help {
-    display: none;
-  }
-
-  .role-label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
+  body.nav-drawer-open {
     overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    clip-path: inset(50%);
-  }
-
-  .role-card select {
-    min-width: 125px;
-  }
-
-  .role-switch-status {
-    grid-column: 1 / -1;
   }
 
   .topbar,
@@ -2223,6 +2471,14 @@ textarea:focus-visible {
 
   .topbar-actions {
     width: 100%;
+  }
+
+  .exchange-menu {
+    position: static;
+  }
+
+  .exchange-menu .data-exchange {
+    max-width: 100%;
   }
 
   .global-search-results {
@@ -2275,6 +2531,10 @@ textarea:focus-visible {
 }
 
 @media (max-width: 520px) {
+  .profile-panel .profile-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .main-panel {
     min-width: 0;
     padding: 16px 12px 24px;
@@ -2430,10 +2690,6 @@ h4.collapse-head .collapse-toggle {
     padding-bottom: 12px;
   }
 
-  html {
-    scroll-padding-top: 190px;
-  }
-
   .login-screen {
     min-height: 100vh;
     min-height: 100svh;
@@ -2443,104 +2699,6 @@ h4.collapse-head .collapse-toggle {
   .app-shell {
     min-height: 100vh;
     min-height: 100svh;
-  }
-
-  .sidebar {
-    display: grid;
-    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
-    align-items: center;
-    column-gap: 10px;
-    position: sticky;
-    top: 0;
-    z-index: 5;
-    padding: 12px max(14px, env(safe-area-inset-left)) 10px;
-    background: #14213a;
-    box-shadow: 0 5px 14px rgba(15, 23, 42, 0.15);
-  }
-
-  .sidebar > .brand-block,
-  .sidebar > .nav-links {
-    grid-column: 1 / -1;
-  }
-
-  .sidebar > .brand-block {
-    gap: 10px;
-  }
-
-  .sidebar > .brand-block .brand-icon {
-    width: 42px;
-    height: 42px;
-  }
-
-  .sidebar > .brand-block p {
-    font-size: 0.82rem;
-  }
-
-  .nav-links {
-    gap: 6px;
-    scroll-snap-type: x proximity;
-    scrollbar-width: thin;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .nav-link {
-    min-height: 44px;
-    scroll-snap-align: start;
-  }
-
-  .quick-action-card {
-    grid-column: 1;
-    min-width: 0;
-    justify-content: center;
-    padding: 0;
-    border: 0;
-    background: transparent;
-  }
-
-  .quick-action-card .primary-btn {
-    width: 100%;
-    min-height: 44px;
-    padding: 10px 8px;
-    font-size: 0.86rem;
-    white-space: nowrap;
-  }
-
-  .role-card {
-    grid-column: 2;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
-    min-width: 0;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    background: transparent;
-  }
-
-  .role-card > p {
-    display: none;
-  }
-
-  .role-card select {
-    flex: 1 1 auto;
-    min-height: 44px;
-    min-width: 0;
-    padding: 8px;
-  }
-
-  .role-card .sign-out-btn {
-    flex: 0 0 auto;
-  }
-
-  .role-card:has(.role-switch-status:not(:empty)) {
-    flex-wrap: wrap;
-  }
-
-  .role-card .role-switch-status:not(:empty) {
-    flex: 0 0 100%;
-    order: 1;
   }
 
   .sign-out-btn {
@@ -2568,12 +2726,6 @@ h4.collapse-head .collapse-toggle {
   select,
   textarea {
     font-size: 16px;
-  }
-
-  .data-exchange {
-    display: grid;
-    width: 100%;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .data-exchange select,
@@ -2634,15 +2786,6 @@ h4.collapse-head .collapse-toggle {
 }
 
 @media (max-width: 360px) {
-  .sidebar {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .quick-action-card,
-  .role-card {
-    grid-column: 1 / -1;
-  }
-
   .quick-action-card {
     justify-content: flex-start;
   }

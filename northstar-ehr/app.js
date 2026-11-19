@@ -1139,6 +1139,8 @@ let currentView = loadCurrentView();
 if (currentView === "profiles" && selectedProfile.type === "patient") currentView = "patient-profiles";
 let nursingFilter = loadWorkspacePreference("nursingFilter", currentUser.role === "nurse" ? currentUser.label : "all");
 let workspaceEventsAttached = false;
+let sidebarCollapsed = loadWorkspacePreference("sidebarCollapsed", false) === true;
+let mobileNavigationOpen = false;
 
 function saveState() {
   const storage = safeLocalStorage();
@@ -1153,7 +1155,8 @@ function saveState() {
     auditTrail,
     inboxItems,
     inboxFilter,
-    currentView
+    currentView,
+    sidebarCollapsed
   }));
 }
 
@@ -1531,6 +1534,125 @@ function renderNavigation() {
   inboxBadge.textContent = String(unreadCount);
   inboxBadge.hidden = unreadCount === 0;
   inboxBadge.setAttribute("aria-label", `${unreadCount} unread inbox ${unreadCount === 1 ? "item" : "items"}`);
+}
+
+function isMobileNavigation() {
+  return window.matchMedia?.("(max-width: 760px)").matches || false;
+}
+
+function syncNavigationLayout() {
+  const mobile = isMobileNavigation();
+  const open = mobile ? mobileNavigationOpen : !sidebarCollapsed;
+  document.getElementById("appShell").dataset.navigationOpen = String(open);
+  const sidebar = document.getElementById("workspaceSidebar");
+  sidebar.inert = !open;
+  if (mobile && open) {
+    sidebar.setAttribute("role", "dialog");
+    sidebar.setAttribute("aria-modal", "true");
+  } else {
+    sidebar.removeAttribute("role");
+    sidebar.removeAttribute("aria-modal");
+  }
+  document.getElementById("main-content").inert = mobile && open;
+  document.getElementById("navigationToggle").setAttribute("aria-expanded", String(open));
+  document.getElementById("navigationToggle").setAttribute("aria-label", open ? "Hide navigation" : "Show navigation");
+  document.getElementById("navigationBackdrop").hidden = !mobile || !open;
+  document.body.classList.toggle("nav-drawer-open", mobile && open);
+  if (!open && sidebar.contains(document.activeElement)) {
+    document.getElementById("navigationToggle").focus();
+  }
+}
+
+function setNavigationOpen(open) {
+  if (isMobileNavigation()) {
+    mobileNavigationOpen = open;
+  } else {
+    const previous = sidebarCollapsed;
+    sidebarCollapsed = !open;
+    try {
+      saveState();
+    } catch (error) {
+      sidebarCollapsed = previous;
+      console.warn("Unable to save navigation preference", error);
+      document.getElementById("navigationStatus").textContent = "Unable to save navigation settings. Check your browser storage settings and try again.";
+      return;
+    }
+  }
+  document.getElementById("navigationStatus").textContent = "";
+  syncNavigationLayout();
+  if (isMobileNavigation() && open) {
+    document.getElementById("closeNavigationBtn").focus();
+  } else if (!open) {
+    document.getElementById("navigationToggle").focus();
+  }
+}
+
+function closeMobileNavigation() {
+  if (isMobileNavigation() && mobileNavigationOpen) setNavigationOpen(false);
+}
+
+function initializeWorkspaceNavigation() {
+  const iconPaths = {
+    overview: "M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z",
+    inbox: "M4 4h16v16H4zM4 13h5l2 3h2l2-3h5",
+    patients: "M9 3H4v18h16V3h-5M9 3v4h6V3zM8 12h8m-8 4h5",
+    "patient-profiles": "M20 21v-2a7 7 0 0 0-14 0v2M13 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8",
+    admissions: "M3 21V5h18v16M7 5V2m10 3V2M3 10h18M8 14h2m4 0h2m-8 4h2m4 0h2",
+    nursing: "M12 3 3 7v5c0 5 9 9 9 9s9-4 9-9V7zM12 8v8m-4-4h8",
+    appointments: "M4 5h16v16H4zM8 2v6m8-6v6M4 11h16m-12 4h3m2 3h3",
+    clinical: "M3 12h4l3-8 4 16 3-8h4",
+    orders: "M9 3H4v18h16V3h-5M9 3v4h6V3zM8 13h8m-4-4v8",
+    documents: "M14 2H5v20h14V7zM14 2v6h5M8 12h8m-8 4h8",
+    labs: "M9 3h6m-5 0v7l-6 9v2h16v-2l-6-9V3M7 16h10",
+    departments: "M9 21V3h12v18H3V9h6m4-2h4m-4 4h4m-4 4h4M6 13v4",
+    locations: "M12 22S3 14 3 9a9 9 0 0 1 18 0c0 5-9 13-9 13M12 6a3 3 0 1 0 0 6 3 3 0 0 0 0-6",
+    staff: "M3 21v-2a5 5 0 0 1 10 0v2m3-15a4 4 0 0 1 0 8m5 7v-2a5 5 0 0 0-4-5M8 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8",
+    profiles: "M3 4h18v16H3zM7 9h3v3H7zm7 0h4m-4 4h4M6 16h6",
+    billing: "M5 3h14v19l-4-2-3 2-3-2-4 2zM9 7h6m-6 4h6m-6 4h3"
+  };
+  document.querySelectorAll(".nav-link").forEach((link) => {
+    link.insertAdjacentHTML("afterbegin", `<svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="${iconPaths[link.dataset.view]}" /></svg>`);
+  });
+  document.getElementById("navigationToggle").addEventListener("click", () => {
+    setNavigationOpen(isMobileNavigation() ? !mobileNavigationOpen : sidebarCollapsed);
+  });
+  document.getElementById("closeNavigationBtn").addEventListener("click", () => setNavigationOpen(false));
+  document.getElementById("navigationBackdrop").addEventListener("click", () => setNavigationOpen(false));
+  window.matchMedia("(max-width: 760px)").addEventListener("change", () => {
+    mobileNavigationOpen = false;
+    syncNavigationLayout();
+  });
+  const sidebar = document.getElementById("workspaceSidebar");
+  document.addEventListener("keydown", (event) => {
+    if (isMobileNavigation() && mobileNavigationOpen) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setNavigationOpen(false);
+      } else if (event.key === "Tab") {
+        const controls = [...sidebar.querySelectorAll("a[href], button:not([disabled]), select:not([disabled]), summary")]
+          .filter((element) => element.getClientRects().length > 0);
+        const first = controls[0];
+        const last = controls.at(-1);
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    }
+    const exchangeMenu = document.querySelector(".exchange-menu");
+    if (event.key === "Escape" && exchangeMenu.open) {
+      exchangeMenu.open = false;
+      exchangeMenu.querySelector("summary").focus();
+    }
+  });
+  document.addEventListener("click", (event) => {
+    const exchangeMenu = document.querySelector(".exchange-menu");
+    if (!exchangeMenu.contains(event.target)) exchangeMenu.open = false;
+  });
+  syncNavigationLayout();
 }
 
 function scrollToWorkspaceTop() {
@@ -3266,6 +3388,7 @@ function handleDocumentSubmit(event) {
 }
 
 function attachEvents() {
+  initializeWorkspaceNavigation();
   document.getElementById("patientSearch").addEventListener("input", renderGlobalSearch);
   document.getElementById("patientSearch").addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
@@ -3408,6 +3531,7 @@ function attachEvents() {
 
   document.querySelectorAll(".nav-link").forEach((link) => {
     link.addEventListener("click", () => {
+      closeMobileNavigation();
       setCurrentView(link.dataset.view);
       render();
       scrollToWorkspaceTop();
@@ -3415,6 +3539,7 @@ function attachEvents() {
   });
 
   document.getElementById("quickEncounterBtn").addEventListener("click", () => {
+    closeMobileNavigation();
     setCurrentView("clinical");
     render();
     scrollToWorkspaceTop();
@@ -3678,6 +3803,7 @@ function signOut() {
     document.getElementById(statusId).textContent = "Unable to sign out. Check your browser storage settings and try again.";
     return;
   }
+  closeMobileNavigation();
   activeDemoAccount = null;
   document.getElementById("appShell").hidden = true;
   document.getElementById("warningScreen").hidden = true;

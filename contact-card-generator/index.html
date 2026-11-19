@@ -4,27 +4,27 @@
     <script defer src="../analytics.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Contact Card Generator — vCard, QR &amp; Text/SMS</title>
-    <meta name="description" content="Create a shareable vCard in seconds. Download it, share a QR code, or send contact details by text/SMS." />
+    <title>Contact Card Generator — Digital Business Card, vCard &amp; QR</title>
+    <meta name="description" content="Create a digital business card in seconds. Download a vCard, share a QR code, or send contact details by text—all in your browser." />
     <link rel="canonical" href="https://alphadyn.github.io/apps/contact-card-generator/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Alphadyn AI" />
     <meta property="og:url" content="https://alphadyn.github.io/apps/contact-card-generator/" />
-    <meta property="og:title" content="Contact Card Generator — vCard, QR &amp; Text/SMS" />
-    <meta property="og:description" content="Create a shareable vCard in seconds. Download it, share a QR code, or send contact details by text/SMS." />
-    <meta property="og:image" content="https://alphadyn.github.io/apps/contact-card-generator/ui-preview.png" />
-    <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/contact-card-generator/ui-preview.png" />
+    <meta property="og:title" content="Contact Card Generator — Digital Business Card, vCard &amp; QR" />
+    <meta property="og:description" content="Create a digital business card in seconds. Download a vCard, share a QR code, or send contact details by text—all in your browser." />
+    <meta property="og:image" content="https://alphadyn.github.io/apps/contact-card-generator/ui-preview.png?v=2" />
+    <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/contact-card-generator/ui-preview.png?v=2" />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="820" />
-    <meta property="og:image:alt" content="Contact card form with options to share a vCard by QR code or text/SMS." />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Digital business card preview with a shareable vCard, QR code, and contact details." />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Contact Card Generator — vCard, QR &amp; Text/SMS" />
-    <meta name="twitter:description" content="Create a shareable vCard in seconds. Download it, share a QR code, or send contact details by text/SMS." />
-    <meta name="twitter:image" content="https://alphadyn.github.io/apps/contact-card-generator/ui-preview.png" />
-    <meta name="twitter:image:alt" content="Contact card form with options to share a vCard by QR code or text/SMS." />
+    <meta name="twitter:title" content="Contact Card Generator — Digital Business Card, vCard &amp; QR" />
+    <meta name="twitter:description" content="Create a digital business card in seconds. Download a vCard, share a QR code, or send contact details by text—all in your browser." />
+    <meta name="twitter:image" content="https://alphadyn.github.io/apps/contact-card-generator/ui-preview.png?v=2" />
+    <meta name="twitter:image:alt" content="Digital business card preview with a shareable vCard, QR code, and contact details." />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=3" />
   </head>
   <body>
     <div class="page-shell">
@@ -176,13 +176,21 @@
           </div>
           <div class="empty-state" id="emptyState">
             <div class="sample-card" aria-hidden="true">
-              <span class="sample-avatar">AB</span>
-              <span class="sample-name">Alex Bennett</span>
-              <span class="sample-role">Designer at Studio North</span>
+              <div class="sample-card-top">
+                <span class="sample-avatar">AB</span>
+                <div class="sample-identity">
+                  <span class="sample-name">Alex Bennett</span>
+                  <span class="sample-role">Designer at Studio North</span>
+                </div>
+              </div>
               <span class="sample-divider"></span>
-              <span class="sample-contact">alex@example.com</span>
-              <span class="sample-contact">+1 (555) 010-2040</span>
-              <span class="sample-badge">LET'S CONNECT</span>
+              <div class="sample-card-bottom">
+                <div class="sample-contacts">
+                  <span class="sample-contact">alex@example.com</span>
+                  <span class="sample-contact">+1 (555) 010-2040</span>
+                </div>
+                <span class="sample-badge">LET'S CONNECT</span>
+              </div>
             </div>
             <p class="example-caption">An example of what you can share</p>
             <h3>Make it yours</h3>

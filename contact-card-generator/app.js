@@ -3,6 +3,17 @@
 const form = document.getElementById("contactForm");
 const resultPanel = document.getElementById("resultPanel");
 const emptyState = document.getElementById("emptyState");
+const cardInitials = document.getElementById("cardInitials");
+const cardPhoto = document.getElementById("cardPhoto");
+const cardName = document.getElementById("cardName");
+const cardRole = document.getElementById("cardRole");
+const cardContactHint = document.getElementById("cardContactHint");
+const cardContacts = [
+  document.getElementById("cardEmail"),
+  document.getElementById("cardMobile"),
+  document.getElementById("cardWorkPhone"),
+  document.getElementById("cardWebsite"),
+];
 const vcfPreview = document.getElementById("vcfPreview");
 const previewName = document.getElementById("previewName");
 const qrCodeEl = document.getElementById("qrCode");
@@ -32,6 +43,45 @@ function escapeVcfValue(value) {
 
 function getFieldValue(id) {
   return document.getElementById(id).value.trim();
+}
+
+function updateCardPreview() {
+  const firstName = getFieldValue("firstName");
+  const middleName = getFieldValue("middleName");
+  const lastName = getFieldValue("lastName");
+  const organization = getFieldValue("organization");
+  const jobTitle = getFieldValue("jobTitle");
+  const contacts = [
+    getFieldValue("email"),
+    getFieldValue("phoneMobile"),
+    getFieldValue("phoneWork"),
+    getFieldValue("website"),
+  ];
+  const fullName = [firstName, middleName, lastName].filter(Boolean).join(" ");
+  const initials = [firstName, middleName, lastName]
+    .filter(Boolean)
+    .map((name) => name[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+  const role = [jobTitle, organization].filter(Boolean).join(" at ");
+
+  cardInitials.textContent = initials || "YC";
+  cardPhoto.hidden = !currentPhotoBase64;
+  cardInitials.hidden = Boolean(currentPhotoBase64);
+  if (currentPhotoBase64) {
+    cardPhoto.src = `data:image/jpeg;base64,${currentPhotoBase64}`;
+  } else {
+    cardPhoto.removeAttribute("src");
+  }
+  cardName.textContent = fullName || "Your name";
+  cardRole.textContent = role || "Title at Organization";
+
+  cardContacts.forEach((element, index) => {
+    element.textContent = contacts[index];
+    element.hidden = !contacts[index];
+  });
+  cardContactHint.hidden = contacts.some(Boolean);
 }
 
 // Folds a property line to 75 octets per line per RFC 2426, with continuation lines indented by one space.
@@ -191,6 +241,7 @@ photoInput.addEventListener("change", async () => {
     photoPreview.src = `data:image/jpeg;base64,${currentPhotoBase64}`;
     photoPreview.hidden = false;
     removePhotoBtn.hidden = false;
+    updateCardPreview();
   } catch (error) {
     window.alert("Could not read that image file. Please try a different one.");
     photoInput.value = "";
@@ -203,6 +254,16 @@ removePhotoBtn.addEventListener("click", () => {
   photoPreview.src = "";
   photoPreview.hidden = true;
   removePhotoBtn.hidden = true;
+  updateCardPreview();
+});
+
+form.addEventListener("input", () => {
+  updateCardPreview();
+  if (!resultPanel.hidden) {
+    resultPanel.hidden = true;
+    emptyState.hidden = false;
+    currentVcf = "";
+  }
 });
 
 form.addEventListener("submit", (event) => {
@@ -261,7 +322,10 @@ form.addEventListener("reset", () => {
   photoPreview.src = "";
   photoPreview.hidden = true;
   removePhotoBtn.hidden = true;
+  setTimeout(updateCardPreview, 0);
 });
+
+updateCardPreview();
 
 downloadVcfBtn.addEventListener("click", () => {
   if (!currentVcf) return;

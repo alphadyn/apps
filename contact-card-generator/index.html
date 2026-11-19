@@ -174,25 +174,33 @@
             <h2>Your next introduction</h2>
             <p>A small card. A lasting connection.</p>
           </div>
-          <div class="empty-state" id="emptyState">
-            <div class="sample-card" aria-hidden="true">
+          <div class="live-preview">
+            <div class="sample-card" aria-label="Live contact card preview">
               <div class="sample-card-top">
-                <span class="sample-avatar">AB</span>
+                <span class="sample-avatar">
+                  <span id="cardInitials">YC</span>
+                  <img id="cardPhoto" class="sample-avatar-photo" alt="" hidden />
+                </span>
                 <div class="sample-identity">
-                  <span class="sample-name">Alex Bennett</span>
-                  <span class="sample-role">Designer at Studio North</span>
+                  <span class="sample-name" id="cardName">Your name</span>
+                  <span class="sample-role" id="cardRole">Title at Organization</span>
                 </div>
               </div>
               <span class="sample-divider"></span>
               <div class="sample-card-bottom">
                 <div class="sample-contacts">
-                  <span class="sample-contact">alex@example.com</span>
-                  <span class="sample-contact">+1 (555) 010-2040</span>
+                  <span class="sample-contact" id="cardEmail" hidden></span>
+                  <span class="sample-contact" id="cardMobile" hidden></span>
+                  <span class="sample-contact" id="cardWorkPhone" hidden></span>
+                  <span class="sample-contact" id="cardWebsite" hidden></span>
+                  <span class="sample-contact" id="cardContactHint">Add email or phone</span>
                 </div>
                 <span class="sample-badge">LET'S CONNECT</span>
               </div>
             </div>
-            <p class="example-caption">An example of what you can share</p>
+            <p class="example-caption">Live preview — updates as you type</p>
+          </div>
+          <div class="empty-state" id="emptyState">
             <h3>Make it yours</h3>
             <p>Fill in your details and select <strong>Generate contact card</strong> to get your downloads.</p>
             <ul class="export-benefits">

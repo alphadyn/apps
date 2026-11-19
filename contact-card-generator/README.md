@@ -13,6 +13,7 @@ Select the header logo to reload the app's entry page. The current form and gene
 ## Features
 
 - Enter first, middle, and last name, organization, job title, phone numbers (mobile and work), email, website, address, birthday, and notes
+- See the contact card preview update as you enter details
 - Upload a profile picture, which is resized and embedded directly in the vCard as a `PHOTO` property
 - Generates vCard 3.0 output with escaped contact fields and folded property lines
 - Preview the raw vCard content before downloading
@@ -39,7 +40,7 @@ http://localhost:8000/
 
 ## How to use
 
-1. Fill in as many contact fields as you'd like (at least one is required).
+1. Fill in as many contact fields as you'd like (at least one is required); the contact card preview updates as you type.
 2. Click "Generate contact card".
 3. Review the generated QR code in the export panel. Expand "View vCard source" to inspect the raw contact text.
 4. Click "Download .vcf file" to save the contact card, or "Download QR code" to save a scannable image of it.

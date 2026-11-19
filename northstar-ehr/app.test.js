@@ -29,6 +29,7 @@ test("Overview excludes individual patient workspaces", () => {
   assert.equal(sections.roleManagementSection, false);
   assert.equal(sections.operationsOverviewSection, true);
   assert.equal(api.getVisibleSections("patients").recordsSection, true);
+  assert.equal(api.getVisibleSections("inbox").extendedSection, true);
 });
 
 test("only Admins can change authorized account roles", () => {

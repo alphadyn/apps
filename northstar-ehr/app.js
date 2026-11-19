@@ -1,5 +1,11 @@
 const storageKey = "northstar-ehr-state-v3";
 const demoSessionKey = "northstar-ehr-demo-account";
+const INBOX_FILTERS = [
+  { key: "all", label: "All", kind: null },
+  { key: "message", label: "Messages", kind: "Message" },
+  { key: "result", label: "Results", kind: "Result" },
+  { key: "task", label: "Tasks", kind: "Task" }
+];
 
 const demoAccounts = [
   { id: "clinician", username: "elena.ruiz", password: "northstar", displayName: "Elena Ruiz", role: "clinician", authorizedRoles: ["clinician", "admin"] },
@@ -1106,6 +1112,9 @@ let activeDemoAccount = loadDemoSession();
 let accountRoles = loadAccountRoles();
 let currentUser = loadCurrentUser(activeDemoAccount);
 let auditTrail = loadAuditTrail();
+let inboxItems = loadInboxItems(patients);
+let inboxFilter = normalizeInboxFilter(loadWorkspacePreference("inboxFilter", "all"));
+let inboxSearch = "";
 let currentView = loadCurrentView();
 if (currentView === "profiles" && selectedProfile.type === "patient") currentView = "patient-profiles";
 let nursingFilter = loadWorkspacePreference("nursingFilter", currentUser.role === "nurse" ? currentUser.label : "all");
@@ -1122,8 +1131,95 @@ function saveState() {
     currentUser,
     accountRoles,
     auditTrail,
+    inboxItems,
+    inboxFilter,
     currentView
   }));
+}
+
+function createDemoInboxItems(patientRecords) {
+  return patientRecords.slice(0, 5).flatMap((patient, index) => {
+    const time = ["Today · 09:15", "Today · 10:42", "Yesterday · 16:20", "Yesterday · 14:05", "Monday · 11:30"][index];
+    const items = [
+      {
+        id: `inbox-message-${patient.id}`,
+        patientId: patient.id,
+        patientName: patient.name,
+        mrn: patient.mrn,
+        kind: "Message",
+        source: "Care team",
+        title: "Care team handoff",
+        summary: "A fictional workflow handoff is waiting for review in this demonstration inbox.",
+        receivedAt: time,
+        priority: "Routine",
+        status: "Unread"
+      }
+    ];
+    if (patient.labs?.length) {
+      items.push({
+        id: `inbox-result-${patient.id}`,
+        patientId: patient.id,
+        patientName: patient.name,
+        mrn: patient.mrn,
+        kind: "Result",
+        source: "Laboratory",
+        title: "Result available",
+        summary: `${patient.labs[0]} · Fictional sample result surfaced for chart review. No clinical interpretation is provided.`,
+        receivedAt: time,
+        priority: patient.priority === "Urgent" ? "High" : "Routine",
+        status: "Unread"
+      });
+    }
+    const task = patient.carePlan?.tasks?.find((item) => item.status !== "Done");
+    if (task) {
+      items.push({
+        id: `inbox-task-${patient.id}`,
+        patientId: patient.id,
+        patientName: patient.name,
+        mrn: patient.mrn,
+        kind: "Task",
+        source: "Care plan",
+        title: task.label,
+        summary: "Fictional follow-up task from this sample chart.",
+        receivedAt: time,
+        priority: patient.priority === "Urgent" ? "High" : "Routine",
+        status: task.status === "Done" ? "Done" : "Open",
+        taskLabel: task.label
+      });
+    }
+    return items;
+  });
+}
+
+function loadInboxItems(patientRecords) {
+  const saved = loadWorkspacePreference("inboxItems", null);
+  if (!Array.isArray(saved)) return createDemoInboxItems(patientRecords);
+  const validKinds = new Set(["Message", "Result", "Task"]);
+  const validStatuses = new Set(["Unread", "Read", "Reviewed", "Open", "Done"]);
+  const normalized = saved.flatMap((item) => {
+    if (!item || typeof item !== "object") return [];
+    const patient = patientRecords.find((record) => String(record.id) === String(item.patientId));
+    if (!patient || !validKinds.has(item.kind) || !validStatuses.has(item.status)) return [];
+    return [{
+      ...item,
+      id: String(item.id || `inbox-${patient.id}-${item.kind.toLowerCase()}`),
+      patientId: patient.id,
+      patientName: patient.name,
+      mrn: patient.mrn,
+      source: String(item.source || "Care team"),
+      title: String(item.title || "Inbox item"),
+      summary: String(item.summary || ""),
+      receivedAt: String(item.receivedAt || "Date not recorded"),
+      priority: item.priority === "High" ? "High" : "Routine"
+    }];
+  });
+  return normalized.length ? normalized : createDemoInboxItems(patientRecords);
+}
+
+function normalizeInboxFilter(filter) {
+  const legacyKeys = { messages: "message", results: "result", tasks: "task" };
+  const key = legacyKeys[filter] || filter;
+  return INBOX_FILTERS.some((item) => item.key === key) ? key : "all";
 }
 
 function loadCurrentView() {
@@ -1382,7 +1478,7 @@ function getDetailCardsForView(patient, openTasks) {
 }
 
 function getVisibleSections(view) {
-  const extendedViews = ["admissions", "nursing", "departments", "locations", "staff", "profiles", "patient-profiles"];
+  const extendedViews = ["inbox", "admissions", "nursing", "departments", "locations", "staff", "profiles", "patient-profiles"];
   return {
     overviewSection: view === "overview",
     operationsOverviewSection: view === "overview",
@@ -1409,7 +1505,12 @@ function renderNavigation() {
   if (patientView) patientsMenu.open = true;
   const heading = document.querySelector(".topbar h2");
   const activeLink = [...document.querySelectorAll(".nav-link")].find((item) => item.dataset.view === currentView);
-  heading.textContent = activeLink?.textContent || "Overview";
+  heading.textContent = activeLink?.dataset.view === "inbox" ? "In Basket" : activeLink?.textContent || "Overview";
+  const unreadCount = inboxItems.filter((item) => item.status === "Unread").length;
+  const inboxBadge = document.getElementById("inboxUnreadCount");
+  inboxBadge.textContent = String(unreadCount);
+  inboxBadge.hidden = unreadCount === 0;
+  inboxBadge.setAttribute("aria-label", `${unreadCount} unread inbox ${unreadCount === 1 ? "item" : "items"}`);
 }
 
 function scrollToWorkspaceTop() {
@@ -2433,6 +2534,127 @@ function renderAdmissionsView(container) {
   renderAdmissionTable(container.querySelector("#admissionsTable"), admittedPatients);
 }
 
+function renderInboxView(container) {
+  const unreadCount = inboxItems.filter((item) => item.status === "Unread").length;
+  const categoryCounts = inboxItems.reduce((counts, item) => {
+    counts.all += 1;
+    const category = INBOX_FILTERS.find((filter) => filter.kind === item.kind);
+    if (category) counts[category.key] += 1;
+    return counts;
+  }, Object.fromEntries(INBOX_FILTERS.map((filter) => [filter.key, 0])));
+  inboxFilter = normalizeInboxFilter(inboxFilter);
+  const activeFilter = INBOX_FILTERS.find((filter) => filter.key === inboxFilter);
+  const term = inboxSearch.trim().toLowerCase();
+  const visibleItems = inboxItems.filter((item) => {
+    const matchesCategory = !activeFilter.kind || item.kind === activeFilter.kind;
+    const matchesSearch = !term || `${item.patientName} ${item.mrn} ${item.title} ${item.summary} ${item.source}`.toLowerCase().includes(term);
+    return matchesCategory && matchesSearch;
+  });
+  const canCompleteTasks = hasPermission(currentUser.role, "task:complete");
+  container.innerHTML = `
+    <div class="panel inbox-panel">
+      <div class="panel-header inbox-header">
+        <div>
+          <p class="eyebrow">Messages · results · follow-up</p>
+          <h3>In Basket</h3>
+          <p class="muted-copy">Triage fictional team messages, sample results, and care-plan tasks.</p>
+        </div>
+        <div class="inbox-header-actions">
+          <span class="pill">${unreadCount} unread</span>
+          <button class="ghost-btn" type="button" data-inbox-action="mark-all-read" ${unreadCount ? "" : "disabled"}>Mark all as read</button>
+        </div>
+      </div>
+      <div class="inbox-filters" role="group" aria-label="Filter inbox by type">
+        ${INBOX_FILTERS.map((filter) => `
+          <button class="inbox-filter ${inboxFilter === filter.key ? "active" : ""}" type="button" data-inbox-filter="${filter.key}" aria-pressed="${inboxFilter === filter.key}">
+            ${filter.label}<span>${categoryCounts[filter.key]}</span>
+          </button>`).join("")}
+      </div>
+      <label class="inbox-search" for="inboxSearch">Search this inbox
+        <input id="inboxSearch" type="search" value="${escapeHtml(inboxSearch)}" placeholder="Patient, MRN, subject, or detail..." />
+      </label>
+      <p class="form-caution inbox-safety-note">Demonstration only: messages and results are fictional. Nothing is routed to a care team, and results are not clinically interpreted.</p>
+      <p id="inboxStatus" class="status-message inbox-status" role="status" aria-live="polite"></p>
+      <div class="inbox-list">
+        ${visibleItems.length ? visibleItems.map((item) => {
+          const unread = item.status === "Unread";
+          const taskDone = item.kind === "Task" && item.status === "Done";
+          return `
+            <article class="inbox-item ${unread ? "is-unread" : ""} ${taskDone ? "is-done" : ""}">
+              <div class="inbox-item-main">
+                <div class="inbox-item-meta">
+                  <span class="inbox-kind inbox-kind-${item.kind.toLowerCase()}">${escapeHtml(item.kind)}</span>
+                  <span class="inbox-source">${escapeHtml(item.source)}</span>
+                  ${item.priority === "High" ? '<span class="inbox-priority">Priority</span>' : ""}
+                  <span class="inbox-item-time">${escapeHtml(item.receivedAt)}</span>
+                </div>
+                <h4>${escapeHtml(item.title)}</h4>
+                <p class="inbox-patient"><button class="inline-link" type="button" data-open-patient="${escapeHtml(item.patientId)}">${escapeHtml(item.patientName)}</button><span>${escapeHtml(item.mrn)}</span></p>
+                <p class="inbox-summary">${escapeHtml(item.summary)}</p>
+              </div>
+              <div class="inbox-item-actions">
+                <span class="inbox-status-chip ${unread ? "unread" : taskDone ? "done" : ""}">${escapeHtml(item.status)}</span>
+                ${item.kind === "Task"
+                  ? `<button class="primary-btn action-btn" type="button" data-inbox-action="complete-task" data-inbox-id="${escapeHtml(item.id)}" ${taskDone || !canCompleteTasks ? "disabled" : ""}>${taskDone ? "Completed" : "Complete task"}</button>`
+                  : `<button class="ghost-btn action-btn" type="button" data-inbox-action="toggle-read" data-inbox-id="${escapeHtml(item.id)}">${unread ? "Mark read" : "Mark unread"}</button>`}
+              </div>
+            </article>`;
+        }).join("") : '<p class="empty-state">No inbox items match this filter.</p>'}
+      </div>
+    </div>`;
+}
+
+function announceInboxStatus(message) {
+  const status = document.getElementById("inboxStatus");
+  if (status) status.textContent = message;
+}
+
+function handleInboxAction(action, itemId) {
+  if (action === "mark-all-read") {
+    const updatedCount = inboxItems.filter((item) => item.status === "Unread").length;
+    inboxItems.forEach((item) => {
+      if (item.status === "Unread") item.status = item.kind === "Result" ? "Reviewed" : "Read";
+    });
+    if (updatedCount) recordAudit("inbox:mark-all-read", "Multiple patients", `Marked ${updatedCount} fictional inbox items as read.`);
+    saveState();
+    render();
+    announceInboxStatus(updatedCount ? `Marked ${updatedCount} items as read.` : "There are no unread items.");
+    return;
+  }
+
+  const item = inboxItems.find((entry) => entry.id === itemId);
+  if (!item) return;
+  if (action === "toggle-read") {
+    const wasUnread = item.status === "Unread";
+    item.status = wasUnread ? (item.kind === "Result" ? "Reviewed" : "Read") : "Unread";
+    recordAudit(wasUnread ? "inbox:item:read" : "inbox:item:unread", item.patientName, `${wasUnread ? "Marked read" : "Marked unread"}: ${item.title}.`);
+    saveState();
+    render();
+    announceInboxStatus(wasUnread ? "Inbox item marked read." : "Inbox item marked unread.");
+    return;
+  }
+
+  if (action === "complete-task") {
+    const permission = evaluatePermission(currentUser.role, "task:complete", item.patientName);
+    if (!permission.allowed) {
+      appendAuditEntry(permission.audit);
+      saveState();
+      render();
+      announceInboxStatus(permission.message);
+      return;
+    }
+    if (item.status === "Done") return;
+    item.status = "Done";
+    const patient = patients.find((entry) => entry.id === item.patientId);
+    const task = patient?.carePlan?.tasks?.find((entry) => entry.label === item.taskLabel);
+    if (task) task.status = "Done";
+    recordAudit("inbox:task:complete", item.patientName, `Completed the demo inbox task: ${item.title}.`);
+    saveState();
+    render();
+    announceInboxStatus("Demo task marked complete.");
+  }
+}
+
 function renderNursingView(container) {
   const nurses = staffDirectory.filter((staff) => staff.role === "Nurse" && staff.status === "Active");
   if (nursingFilter !== "all" && !nurses.some((nurse) => nurse.name === nursingFilter)) nursingFilter = "all";
@@ -2623,6 +2845,7 @@ function renderExtendedWorkspace() {
   const container = document.getElementById("extendedContent");
   if (!container) return;
   switch (currentView) {
+    case "inbox": renderInboxView(container); break;
     case "admissions": renderAdmissionsView(container); break;
     case "nursing": renderNursingView(container); break;
     case "departments": renderDepartmentsView(container); break;
@@ -3077,6 +3300,18 @@ function attachEvents() {
     }
   });
   document.getElementById("extendedContent").addEventListener("click", (event) => {
+    const inboxAction = event.target.closest("[data-inbox-action]");
+    if (inboxAction) {
+      handleInboxAction(inboxAction.dataset.inboxAction, inboxAction.dataset.inboxId);
+      return;
+    }
+    const inboxFilterButton = event.target.closest("[data-inbox-filter]");
+    if (inboxFilterButton) {
+      inboxFilter = normalizeInboxFilter(inboxFilterButton.dataset.inboxFilter);
+      saveState();
+      render();
+      return;
+    }
     const patientButton = event.target.closest("[data-open-patient]");
     if (patientButton) {
       openPatientChart(patientButton.dataset.openPatient);
@@ -3089,6 +3324,15 @@ function attachEvents() {
       render();
       scrollToWorkspaceTop();
     }
+  });
+  document.getElementById("extendedContent").addEventListener("input", (event) => {
+    if (event.target.id !== "inboxSearch") return;
+    const cursor = event.target.selectionStart;
+    inboxSearch = event.target.value;
+    renderInboxView(document.getElementById("extendedContent"));
+    const search = document.getElementById("inboxSearch");
+    search.focus();
+    search.setSelectionRange(cursor, cursor);
   });
   document.getElementById("extendedContent").addEventListener("change", (event) => {
     if (event.target.id === "nursingNurseFilter") {

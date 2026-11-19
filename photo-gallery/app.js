@@ -28,16 +28,61 @@ const PHOTO_IDS = [
   "photo-1454496522488-7a8e488e8606",
   "photo-1464278533981-50106e6176b1",
   "photo-1469474968028-56623f02e42e",
+  "photo-1449824913935-59a10b8d2000",
+  "photo-1477959858617-67f85cf4f1df",
+  "photo-1519501025264-65ba15a82390",
+  "photo-1514565131-fce0801e5785",
+  "photo-1511818966892-d7d671e672a2",
+  "photo-1487958449943-2429e8be8625",
+  "photo-1518005020951-eccb494ad742",
+  "photo-1494526585095-c41746248156",
+  "photo-1488646953014-85cb44e25828",
+  "photo-1502602898657-3e91760cbb34",
+  "photo-1516483638261-f4dbaf036963",
+  "photo-1523906834658-6e24ef2386f9",
+  "photo-1533105079780-92b9be482077",
+  "photo-1534447677768-be436bb09401",
+  "photo-1462331940025-496dfbfc7564",
+  "photo-1446776811953-b23d57bd21aa",
+  "photo-1419242902214-272b3f66ee7a",
+  "photo-1531366936337-7c912a4589a7",
+  "photo-1546182990-dffeafbe841d",
+  "photo-1549366021-9f761d450615",
+  "photo-1552728089-57bdde30beb3",
+  "photo-1452570053594-1b985d6ea890",
+  "photo-1561731216-c3a4d99437d5",
+  "photo-1552083375-1447ce886485",
+  "photo-1490750967868-88aa4486c946",
+  "photo-1490730141103-6cac27aaab94",
+  "photo-1457089328109-e5d9bd499191",
+  "photo-1462275646964-a0e3386b89fa",
+  "photo-1519681393784-d120267933ba",
+  "photo-1509316785289-025f5b846b35",
+  "photo-1473580044384-7ba9967e16a0",
+  "photo-1468581264429-2548ef9eb732",
+  "photo-1433086966358-54859d0ed716",
+  "photo-1519904981063-b0cf448d479e",
+  "photo-1504608524841-42fe6f032b4b",
+  "photo-1473448912268-2022ce9509d8",
+  "photo-1502082553048-f009c37129b9",
+  "photo-1493246507139-91e8fad9978e",
+  "photo-1475924156734-496f6cac6ec1",
+  "photo-1518098268026-4e89f1a2cd8e",
+];
+
+const PHOTO_CATALOG = [
+  ...PHOTO_IDS.map((id) => ({ id, source: "unsplash" })),
+  ...PICSUM_PHOTOS.map((photo) => ({ ...photo, source: "picsum" })),
 ];
 
 function selectPhotos() {
-  const photoIds = [...PHOTO_IDS];
-  for (let i = photoIds.length - 1; i > 0; i--) {
+  const photos = [...PHOTO_CATALOG];
+  for (let i = photos.length - 1; i > 0; i--) {
     const randomIndex = Math.floor(Math.random() * (i + 1));
-    [photoIds[i], photoIds[randomIndex]] = [photoIds[randomIndex], photoIds[i]];
+    [photos[i], photos[randomIndex]] = [photos[randomIndex], photos[i]];
   }
 
-  return photoIds.slice(0, PHOTO_COUNT);
+  return photos.slice(0, PHOTO_COUNT);
 }
 
 const track = document.getElementById("carousel-track");
@@ -57,31 +102,41 @@ let timerId = null;
 let gesture = null;
 let pendingTap = null;
 
-function createPhotoImage(id, { alt, width, loading = "lazy" }) {
+function photoUrl(photo, width) {
+  if (photo.source === "picsum") {
+    const imageWidth = Math.min(width, photo.width);
+    const imageHeight = Math.max(1, Math.round(imageWidth * photo.height / photo.width));
+    return `https://picsum.photos/id/${photo.id}/${imageWidth}/${imageHeight}`;
+  }
+  return `${IMAGE_SOURCE}/${photo.id}?auto=format&fit=crop&w=${width}&q=80`;
+}
+
+function createPhotoImage(photo, { alt, width, loading = "lazy" }) {
   const img = document.createElement("img");
   img.alt = alt;
   img.loading = loading;
   img.draggable = false;
   img.addEventListener("error", () => {
+    console.error("Unable to load gallery photo:", img.src);
     img.src = FALLBACK_IMAGE;
   }, { once: true });
-  img.src = `${IMAGE_SOURCE}/${id}?auto=format&fit=crop&w=${width}&q=80`;
+  img.src = photoUrl(photo, width);
   return img;
 }
 
-function buildSlides(photoIds) {
-  return photoIds.map((id, index) => {
-    const label = `Photo ${index + 1} of ${photoIds.length}`;
+function buildSlides(photos) {
+  return photos.map((photo, index) => {
+    const label = `Photo ${index + 1} of ${photos.length}`;
     const slide = document.createElement("div");
     slide.className = "slide";
-    slide.appendChild(createPhotoImage(id, { alt: label, width: 1200, loading: index === 0 ? "eager" : "lazy" }));
+    slide.appendChild(createPhotoImage(photo, { alt: label, width: 1200, loading: index === 0 ? "eager" : "lazy" }));
     track.appendChild(slide);
 
     const thumb = document.createElement("button");
     thumb.type = "button";
     thumb.className = "thumb";
     thumb.setAttribute("aria-label", `Go to ${label}`);
-    thumb.appendChild(createPhotoImage(id, { alt: "", width: 160 }));
+    thumb.appendChild(createPhotoImage(photo, { alt: "", width: 160 }));
     thumb.addEventListener("click", () => goTo(index));
     thumbnails.appendChild(thumb);
 

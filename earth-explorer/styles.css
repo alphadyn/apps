@@ -168,15 +168,28 @@ h1 {
   display: block;
 }
 
-#globeContainer:fullscreen {
+#globeContainer:fullscreen,
+#globeContainer:-webkit-full-screen,
+#globeContainer.is-fullscreen {
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   aspect-ratio: auto;
   border-radius: 0;
   background: var(--bg);
 }
 
+#globeContainer.is-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+}
+
 #globeContainer::backdrop {
+  background: var(--bg);
+}
+
+#globeContainer:-webkit-full-screen::backdrop {
   background: var(--bg);
 }
 

@@ -6,6 +6,8 @@ import { setupLocationSearch } from "./location-search.js?v=1";
 const EARTH_RADIUS_KM = 6371;
 const GLOBE_RADIUS = 2;
 const INITIAL_CAMERA_DISTANCE = 6;
+const DEFAULT_VIEW_LAT = 3.907667;
+const DEFAULT_VIEW_LON = 15.483643;
 const MAX_CAMERA_DISTANCE = 10;
 const ZOOM_STEP = 2;
 const MAX_ZOOM_LEVELS = 16;
@@ -99,7 +101,7 @@ const initialCameraDistance = sharedView ? distanceForZoomLevel(sharedView.zoom)
 if (sharedView) {
   camera.position.copy(latLonToVector3(sharedView.lat, sharedView.lon, initialCameraDistance));
 } else {
-  camera.position.set(0, 0, INITIAL_CAMERA_DISTANCE);
+  camera.position.copy(latLonToVector3(DEFAULT_VIEW_LAT, DEFAULT_VIEW_LON, INITIAL_CAMERA_DISTANCE));
 }
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
@@ -244,7 +246,13 @@ shareViewBtn.addEventListener("click", async () => {
 resetViewBtn.addEventListener("click", () => {
   zoomFocusDirection = null;
   applyingZoom = true;
+  controls.enableDamping = false;
+  controls.update();
   controls.reset();
+  controls.target.set(0, 0, 0);
+  camera.position.copy(latLonToVector3(DEFAULT_VIEW_LAT, DEFAULT_VIEW_LON, INITIAL_CAMERA_DISTANCE));
+  controls.update();
+  controls.enableDamping = true;
   applyingZoom = false;
   zoomTargetDistance = camera.position.distanceTo(controls.target);
   lastCameraDistance = zoomTargetDistance;
@@ -253,25 +261,46 @@ resetViewBtn.addEventListener("click", () => {
 controls.addEventListener("change", updateZoomButtons);
 updateZoomButtons();
 
-fullscreenBtn.disabled = !container.requestFullscreen || !document.exitFullscreen;
-fullscreenBtn.addEventListener("click", async () => {
-  try {
-    if (document.fullscreenElement === container) {
-      await document.exitFullscreen();
-    } else {
-      await container.requestFullscreen();
-    }
-  } catch (error) {
-    console.warn("Unable to toggle fullscreen:", error);
-  }
-});
+function isGlobeFullscreen() {
+  return document.fullscreenElement === container || container.classList.contains("is-fullscreen");
+}
 
-document.addEventListener("fullscreenchange", () => {
-  const isFullscreen = document.fullscreenElement === container;
+function updateFullscreenButton() {
+  const isFullscreen = isGlobeFullscreen();
   fullscreenBtn.setAttribute("aria-pressed", String(isFullscreen));
   fullscreenBtn.setAttribute("aria-label", isFullscreen ? "Exit fullscreen" : "Enter fullscreen");
   fullscreenBtn.title = isFullscreen ? "Exit fullscreen" : "Enter fullscreen";
   resizeRendererToDisplaySize();
+}
+
+fullscreenBtn.addEventListener("click", async () => {
+  try {
+    if (isGlobeFullscreen()) {
+      if (document.fullscreenElement === container && document.exitFullscreen) {
+        await document.exitFullscreen();
+      } else {
+        container.classList.remove("is-fullscreen");
+        updateFullscreenButton();
+      }
+    } else if (container.requestFullscreen && document.exitFullscreen) {
+      await container.requestFullscreen();
+    } else {
+      container.classList.add("is-fullscreen");
+      updateFullscreenButton();
+    }
+  } catch (error) {
+    console.warn("Unable to toggle native fullscreen; using the viewport fallback:", error);
+    container.classList.add("is-fullscreen");
+    updateFullscreenButton();
+  }
+});
+
+document.addEventListener("fullscreenchange", updateFullscreenButton);
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && container.classList.contains("is-fullscreen")) {
+    container.classList.remove("is-fullscreen");
+    updateFullscreenButton();
+  }
 });
 
 scene.add(new THREE.AmbientLight(0xffffff, 0.55));

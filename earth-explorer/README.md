@@ -15,7 +15,8 @@ distance between any two points you click.
   Nominatim service. Submit a search and choose a result to smoothly center the globe,
   zoom to the location's extent, and show its coordinates in Inspect Point mode.
 - **3D rotating globe** built with [Three.js](https://threejs.org/), textured with a real
-  earth image, drag in any direction to orbit around the globe's fixed center,
+  earth image, initially centered on Africa;
+  drag in any direction to orbit around the globe's fixed center,
   and scroll/pinch-to-zoom via `OrbitControls`
 - **Zoom controls** with 16 surface-relative zoom-in steps from the default view to
   the closest level, plus a reset button to restore the original view. The closest camera distance is
@@ -25,7 +26,8 @@ distance between any two points you click.
   native share sheet supports image sharing. Opening the link restores that globe view.
 - **Double-tap / double-click zoom** smoothly rotates the view to center the tapped or
   clicked location while zooming in, keeping the globe's center fixed; a fullscreen
-  toggle is also available (press Esc to exit)
+  toggle is also available, with a viewport-sized fallback on iPhones and other browsers
+  without native fullscreen (press Esc or tap the button again to exit)
 - **Optional national borders** overlaid on the globe surface, loaded from a public GeoJSON dataset
 - **Street map on the globe**: enable **Streets** to project CARTO Voyager basemap tiles
   based on OpenStreetMap onto the Earth's curved surface. Tiles follow globe rotation
@@ -70,11 +72,12 @@ Click the app icon in the header to reload the entry page and return the globe t
    the surface distance. Clicking again after two points are set starts a new measurement.
 3. Use **Reset Points** to clear the current measurement.
 4. Use **+**, **−**, or the scroll wheel/pinch gesture to zoom. The circular arrow resets
-  the zoom and globe orientation. Use the checkboxes below the globe to show or hide
+  the zoom and globe orientation, returning to the view centered on Africa. Use the checkboxes below the globe to show or hide
   national borders, coordinate grid, or streets. More grid lines and mapped place names appear as you zoom in.
 5. Double-tap (on touchscreens) or double-click a location to rotate it into the center and
    zoom in without selecting a point. Use the fullscreen button in the upper-right corner
-   of the globe to expand it; click again or press Esc to exit.
+   of the globe to expand it; click again or press Esc to exit. When native fullscreen
+   is unavailable, including in some iPhone browsers, the globe expands to the viewport.
 6. Enter a city, address, or landmark in **Find a Location**, then press Enter or **Search**.
    Choose a result to center and zoom the globe. Enable **Streets** for mapped roads and labels.
 7. Select the share button in the globe controls to copy a link to the current view.

@@ -40,6 +40,10 @@ function buildPhotoList() {
 const PHOTOS = buildPhotoList();
 
 const ROTATE_INTERVAL_MS = 4000;
+const SWIPE_THRESHOLD = 50;
+const TAP_SLOP = 12;
+const DOUBLE_TAP_DELAY = 300;
+const DOUBLE_TAP_DISTANCE = 32;
 
 const track = document.getElementById("carousel-track");
 const thumbnails = document.getElementById("thumbnails");
@@ -48,21 +52,13 @@ const prevBtn = document.getElementById("prev-btn");
 const nextBtn = document.getElementById("next-btn");
 const playBtn = document.getElementById("play-btn");
 const carousel = document.getElementById("carousel");
-const maximizeBtn = document.getElementById("maximize-btn");
-const fullscreenModal = document.getElementById("fullscreen-modal");
-const fullscreenImg = document.getElementById("fullscreen-img");
-const closeModalBtn = document.getElementById("close-modal-btn");
-const fullscreenCaption = document.getElementById("fullscreen-caption");
+const controls = document.getElementById("gallery-controls");
 
 let current = 0;
 let playing = true;
 let timerId = null;
-let swipeStartX = 0;
-let swipeStartY = 0;
-let wasPlayingBeforeMaximize = true;
-let carouselSwipePointerId = null;
-let fullscreenSwipePointerId = null;
-const SWIPE_THRESHOLD = 50;
+let gesture = null;
+let pendingTap = null;
 
 function setPhotoImage(img, src) {
   img.onerror = () => {
@@ -78,80 +74,23 @@ function loadPhotoImages() {
   });
 }
 
-function isButtonInteraction(target) {
-  return target instanceof Element && target.closest("button");
-}
-
-function handleSwipeStart(clientX, clientY) {
-  swipeStartX = clientX;
-  swipeStartY = clientY;
-}
-
-function handleSwipeEnd(clientX, clientY) {
-  const deltaX = clientX - swipeStartX;
-  const deltaY = clientY - swipeStartY;
-
-  if (Math.abs(deltaX) < SWIPE_THRESHOLD && Math.abs(deltaY) < SWIPE_THRESHOLD) {
-    return;
-  }
-
-  // If vertical swipe is more significant than horizontal, don't handle
-  if (Math.abs(deltaY) > Math.abs(deltaX)) {
-    return;
-  }
-
-  if (deltaX < 0) {
-    next();
-  } else {
-    prev();
-  }
-}
-
-function handleFullscreenSwipeStart(clientX, clientY) {
-  swipeStartX = clientX;
-  swipeStartY = clientY;
-}
-
-function handleFullscreenSwipeEnd(clientX, clientY) {
-  const deltaX = clientX - swipeStartX;
-  const deltaY = clientY - swipeStartY;
-
-  if (Math.abs(deltaX) < SWIPE_THRESHOLD && Math.abs(deltaY) < SWIPE_THRESHOLD) {
-    return;
-  }
-
-  // Vertical swipe (up or down) closes the modal
-  if (Math.abs(deltaY) > Math.abs(deltaX)) {
-    closeMaximized();
-    return;
-  }
-
-  // Horizontal swipe navigates through photos
-  if (deltaX < 0) {
-    next();
-    updateFullscreenImage();
-  } else {
-    prev();
-    updateFullscreenImage();
-  }
-}
-
 function buildSlides() {
   PHOTOS.forEach((photo, index) => {
     const slide = document.createElement("div");
     slide.className = "slide" + (index === 0 ? " active" : "");
-    slide.dataset.index = String(index);
 
     const img = document.createElement("img");
     img.src = FALLBACK_IMAGE;
     img.dataset.photoSrc = photo.src;
     img.alt = photo.caption;
+    img.draggable = false;
     img.loading = index === 0 ? "eager" : "lazy";
 
     slide.appendChild(img);
     track.appendChild(slide);
 
     const thumb = document.createElement("button");
+    thumb.type = "button";
     thumb.className = "thumb" + (index === 0 ? " active" : "");
     thumb.setAttribute("aria-label", `Go to ${photo.caption}`);
     const thumbImg = document.createElement("img");
@@ -165,11 +104,14 @@ function buildSlides() {
 }
 
 function render() {
-  document.querySelectorAll(".slide").forEach((slide, index) => {
-    slide.classList.toggle("active", index === current);
-  });
-  document.querySelectorAll(".thumb").forEach((thumb, index) => {
-    thumb.classList.toggle("active", index === current);
+  PHOTOS.forEach((_, index) => {
+    const active = index === current;
+    const slide = track.children[index];
+    const thumb = thumbnails.children[index];
+    slide.classList.toggle("active", active);
+    slide.setAttribute("aria-hidden", String(!active));
+    thumb.classList.toggle("active", active);
+    thumb.setAttribute("aria-current", String(active));
   });
   caption.textContent = PHOTOS[current].caption;
 }
@@ -210,132 +152,101 @@ function togglePlay() {
   restartTimer();
 }
 
-function openMaximized() {
-  wasPlayingBeforeMaximize = playing;
-  if (playing) {
-    togglePlay();
+function toggleControls() {
+  if (!controls.hidden && controls.contains(document.activeElement)) {
+    carousel.focus();
   }
-  setPhotoImage(fullscreenImg, PHOTOS[current].src);
-  fullscreenCaption.textContent = PHOTOS[current].caption;
-  fullscreenModal.classList.add("active");
-  document.body.style.overflow = "hidden";
+  controls.hidden = !controls.hidden;
 }
 
-function updateFullscreenImage() {
-  setPhotoImage(fullscreenImg, PHOTOS[current].src);
-  fullscreenCaption.textContent = PHOTOS[current].caption;
+function cancelPendingTap() {
+  if (pendingTap) {
+    clearTimeout(pendingTap.timerId);
+    pendingTap = null;
+  }
 }
 
-function closeMaximized() {
-  fullscreenModal.classList.remove("active");
-  document.body.style.overflow = "auto";
-  if (wasPlayingBeforeMaximize && !playing) {
-    togglePlay();
+function handleTouchTap(x, y) {
+  if (pendingTap) {
+    const nearby = Math.hypot(x - pendingTap.x, y - pendingTap.y) <= DOUBLE_TAP_DISTANCE;
+    cancelPendingTap();
+    if (nearby) {
+      togglePlay();
+      return;
+    }
+    toggleControls();
   }
+  // Wait briefly so a double tap changes playback without flashing the controls.
+  pendingTap = {
+    x,
+    y,
+    timerId: setTimeout(() => {
+      pendingTap = null;
+      toggleControls();
+    }, DOUBLE_TAP_DELAY),
+  };
 }
 
 prevBtn.addEventListener("click", prev);
 nextBtn.addEventListener("click", next);
 playBtn.addEventListener("click", togglePlay);
-maximizeBtn.addEventListener("click", openMaximized);
-closeModalBtn.addEventListener("click", closeMaximized);
+controls.addEventListener("pointerdown", cancelPendingTap);
 
-fullscreenModal.addEventListener("click", (event) => {
-  if (event.target === fullscreenModal) {
-    closeMaximized();
+track.addEventListener("pointerdown", (event) => {
+  if (!event.isPrimary || event.button !== 0) return;
+  gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, moved: false };
+  track.setPointerCapture(event.pointerId);
+});
+
+track.addEventListener("pointermove", (event) => {
+  if (gesture?.id !== event.pointerId) return;
+  if (Math.hypot(event.clientX - gesture.x, event.clientY - gesture.y) > TAP_SLOP) {
+    gesture.moved = true;
+    cancelPendingTap();
   }
 });
 
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && fullscreenModal.classList.contains("active")) {
-    closeMaximized();
-  }
-});
+track.addEventListener("pointerup", (event) => {
+  if (gesture?.id !== event.pointerId) return;
+  const { x, y, moved } = gesture;
+  gesture = null;
+  const dx = event.clientX - x;
+  const dy = event.clientY - y;
 
-carousel.addEventListener(
-  "pointerdown",
-  (event) => {
-    if (event.pointerType === "mouse" && event.button !== 0) {
-      return;
-    }
-    if (isButtonInteraction(event.target)) {
-      return;
-    }
-    carouselSwipePointerId = event.pointerId;
-    carousel.setPointerCapture(event.pointerId);
-    handleSwipeStart(event.clientX, event.clientY);
-  },
-  { passive: true }
-);
-
-carousel.addEventListener(
-  "pointerup",
-  (event) => {
-    if (carouselSwipePointerId !== event.pointerId) {
-      return;
-    }
-    carouselSwipePointerId = null;
-    handleSwipeEnd(event.clientX, event.clientY);
-    if (carousel.hasPointerCapture(event.pointerId)) {
-      carousel.releasePointerCapture(event.pointerId);
-    }
-  },
-  { passive: true }
-);
-
-carousel.addEventListener("pointercancel", () => {
-  carouselSwipePointerId = null;
-});
-
-// Fullscreen modal swipe handlers
-fullscreenModal.addEventListener(
-  "pointerdown",
-  (event) => {
-    if (event.pointerType === "mouse" && event.button !== 0) {
-      return;
-    }
-    if (isButtonInteraction(event.target)) {
-      return;
-    }
-    fullscreenSwipePointerId = event.pointerId;
-    fullscreenModal.setPointerCapture(event.pointerId);
-    handleFullscreenSwipeStart(event.clientX, event.clientY);
-  },
-  { passive: true }
-);
-
-fullscreenModal.addEventListener(
-  "pointerup",
-  (event) => {
-    if (fullscreenSwipePointerId !== event.pointerId) {
-      return;
-    }
-    fullscreenSwipePointerId = null;
-    handleFullscreenSwipeEnd(event.clientX, event.clientY);
-    if (fullscreenModal.hasPointerCapture(event.pointerId)) {
-      fullscreenModal.releasePointerCapture(event.pointerId);
-    }
-  },
-  { passive: true }
-);
-
-fullscreenModal.addEventListener("pointercancel", () => {
-  fullscreenSwipePointerId = null;
-});
-
-document.addEventListener("keydown", (event) => {
-  if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
-    return;
-  }
-
-  if (event.key === "ArrowLeft") {
-    prev();
+  if (Math.abs(dx) >= SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy)) {
+    cancelPendingTap();
+    dx < 0 ? next() : prev();
+  } else if (moved || Math.hypot(dx, dy) > TAP_SLOP) {
+    cancelPendingTap();
+  } else if (event.pointerType === "touch") {
+    handleTouchTap(event.clientX, event.clientY);
   } else {
-    next();
+    cancelPendingTap();
+    toggleControls();
   }
+});
 
-  if (fullscreenModal.classList.contains("active")) {
-    updateFullscreenImage();
+function cancelGesture(event) {
+  if (gesture?.id !== event.pointerId) return;
+  gesture = null;
+  cancelPendingTap();
+}
+
+track.addEventListener("pointercancel", cancelGesture);
+track.addEventListener("lostpointercapture", cancelGesture);
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+    event.preventDefault();
+    event.key === "ArrowLeft" ? prev() : next();
+  } else if (event.key === "Escape" && !controls.hidden) {
+    cancelPendingTap();
+    toggleControls();
+  } else if (event.target === carousel && (event.key === "Enter" || event.key === " ")) {
+    event.preventDefault();
+    if (event.repeat) return;
+    cancelPendingTap();
+    toggleControls();
   }
 });
 

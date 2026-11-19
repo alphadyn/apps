@@ -32,7 +32,7 @@ No build tools or installation are required. An internet connection is required 
 1. Open `index.html` in any modern browser.
 2. Refresh the page to get a brand-new set of 10 photos.
 3. The gallery rotates automatically every 4 seconds.
-4. Tap or click the photo area once to show the controls. Tap the photo again or use the close button to hide them. With keyboard focus on the gallery, Enter or Space toggles the controls; Escape closes them.
+4. Tap or click the photo area to show the controls, and again to hide them. With keyboard focus on the gallery, Enter or Space toggles the controls; Escape hides them.
 5. Use the arrow buttons, thumbnails, Left/Right keys, or a horizontal swipe to navigate manually.
 6. On phones and tablets, double-tap the photo area to pause or resume the slideshow. The play/pause button works on every device.
 

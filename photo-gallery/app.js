@@ -46,7 +46,6 @@ const caption = document.getElementById("caption");
 const prevBtn = document.getElementById("prev-btn");
 const nextBtn = document.getElementById("next-btn");
 const playBtn = document.getElementById("play-btn");
-const closeBtn = document.getElementById("close-btn");
 const playIcon = document.getElementById("play-icon");
 const pauseIcon = document.getElementById("pause-icon");
 const carousel = document.getElementById("carousel");
@@ -167,7 +166,6 @@ function handleTouchTap(x, y) {
 prevBtn.addEventListener("click", () => step(-1));
 nextBtn.addEventListener("click", () => step(1));
 playBtn.addEventListener("click", togglePlay);
-closeBtn.addEventListener("click", () => setControlsVisible(false));
 controls.addEventListener("pointerdown", cancelPendingTap);
 
 track.addEventListener("pointerdown", (event) => {

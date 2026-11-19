@@ -67,7 +67,7 @@ body {
 
 .control-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(44px, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   gap: 4px;
   margin-bottom: 4px;
@@ -107,10 +107,6 @@ body {
 
 .play-btn {
   background: #303238;
-}
-
-.close-btn {
-  justify-self: end;
 }
 
 @media (hover: hover) {

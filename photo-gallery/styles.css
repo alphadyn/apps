@@ -14,10 +14,14 @@ body {
   overflow: hidden;
 }
 
-.carousel {
+.gallery {
   position: fixed;
   inset: 0;
   overflow: hidden;
+}
+
+[hidden] {
+  display: none !important;
 }
 
 .carousel-track,
@@ -50,54 +54,90 @@ body {
 
 .carousel-overlay {
   position: absolute;
-  inset: auto 0 0;
+  inset: auto max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
   z-index: 1;
-  padding: 20px max(16px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
-  background: linear-gradient(transparent, rgb(0 0 0 / 90%) 65%);
-  text-align: center;
+  max-width: 584px;
+  margin-inline: auto;
+  padding: 6px 8px 8px;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 16px;
+  background: rgb(18 19 21 / 94%);
+  box-shadow: 0 8px 32px rgb(0 0 0 / 40%);
 }
 
-.overlay-controls {
+.control-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(44px, 1fr);
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.transport {
   display: flex;
-  justify-content: center;
-  gap: 12px;
+  gap: 2px;
 }
 
 .control-btn {
+  display: grid;
+  place-items: center;
   width: 44px;
   height: 44px;
+  padding: 0;
   border: 0;
-  border-radius: 50%;
-  background: rgb(0 0 0 / 75%);
+  border-radius: 10px;
+  background: transparent;
   color: inherit;
   cursor: pointer;
-  font-size: 1.1rem;
   touch-action: manipulation;
 }
 
-.control-btn:hover {
-  background: #393939;
+.control-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.icon-line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.play-btn {
+  background: #303238;
+}
+
+.close-btn {
+  justify-self: end;
+}
+
+@media (hover: hover) {
+  .control-btn:hover {
+    background: #44474f;
+  }
 }
 
 .caption {
-  display: block;
-  margin: 6px 0;
-  font-size: 0.85rem;
+  padding-inline-start: 4px;
+  color: #cecfd4;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .thumbnails {
   display: flex;
-  gap: 8px;
-  width: max-content;
-  max-width: 100%;
-  margin-inline: auto;
+  gap: 5px;
   padding: 2px 2px 4px;
   overflow-x: auto;
+  scrollbar-width: thin;
 }
 
 .thumb {
   flex: 0 0 auto;
-  width: 64px;
+  width: 52px;
   height: 44px;
   overflow: hidden;
   padding: 0;
@@ -116,8 +156,8 @@ body {
   object-fit: cover;
 }
 
-.thumb.active {
-  border-color: #ff8a3d;
+.thumb[aria-current="true"] {
+  border-color: #fff;
   opacity: 1;
 }
 
@@ -126,7 +166,7 @@ button:focus-visible {
   outline-offset: -2px;
 }
 
-.carousel:focus-visible::after {
+.gallery:focus-visible::after {
   position: absolute;
   inset: 0;
   z-index: 2;

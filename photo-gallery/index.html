@@ -25,25 +25,41 @@
   <meta name="twitter:image" content="https://alphadyn.github.io/apps/photo-gallery/social-preview.png" />
   <meta name="twitter:image:alt" content="A pastel sunset over a turquoise beach, featured in Photo Gallery." />
   <link rel="stylesheet" href="styles.css" />
+  <script defer src="app.js"></script>
 </head>
 <body>
   <main>
-    <section class="carousel" id="carousel" aria-roledescription="carousel" aria-label="Photo gallery"
+    <section class="gallery" id="carousel" aria-roledescription="carousel" aria-label="Photo gallery"
       aria-describedby="gallery-instructions" tabindex="0">
-      <p id="gallery-instructions" hidden>Tap, click, or press Enter to show or hide controls. Double-tap to play or pause. Use the arrow keys or swipe left or right to change photos.</p>
+      <p id="gallery-instructions" hidden>
+        Tap, click, or press Enter to show or hide controls. Double-tap to play or pause.
+        Use the arrow keys or swipe left or right to change photos.
+      </p>
       <div class="carousel-track" id="carousel-track"></div>
       <div class="carousel-overlay" id="gallery-controls" hidden>
-        <div class="overlay-controls" role="group" aria-label="Slideshow controls">
-          <button class="control-btn" id="prev-btn" type="button" aria-label="Previous photo">&#10094;</button>
-          <button class="control-btn" id="play-btn" type="button" aria-label="Pause rotation">&#10073;&#10073;</button>
-          <button class="control-btn" id="next-btn" type="button" aria-label="Next photo">&#10095;</button>
+        <div class="control-row">
+          <span class="caption" id="caption"></span>
+          <div class="transport" role="group" aria-label="Slideshow controls">
+            <button class="control-btn" id="prev-btn" type="button" aria-label="Previous photo">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path class="icon-line" d="m15 6-6 6 6 6"/></svg>
+            </button>
+            <button class="control-btn play-btn" id="play-btn" type="button" aria-label="Pause rotation">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path id="pause-icon" class="icon-line" d="M9 6v12m6-12v12"/>
+                <path id="play-icon" fill="currentColor" d="m9 5 11 7-11 7z" hidden/>
+              </svg>
+            </button>
+            <button class="control-btn" id="next-btn" type="button" aria-label="Next photo">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path class="icon-line" d="m9 6 6 6-6 6"/></svg>
+            </button>
+          </div>
+          <button class="control-btn close-btn" id="close-btn" type="button" aria-label="Hide controls">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path class="icon-line" d="m6 6 12 12M18 6 6 18"/></svg>
+          </button>
         </div>
-        <span class="caption" id="caption"></span>
         <nav class="thumbnails" id="thumbnails" aria-label="Photo thumbnails"></nav>
       </div>
     </section>
   </main>
-
-  <script src="app.js"></script>
 </body>
 </html>

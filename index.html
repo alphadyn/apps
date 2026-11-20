@@ -5,14 +5,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Alphadyn Apps</title>
-  <meta name="description" content="Explore 20 interactive apps and experiments from Alphadyn AI, including Market Map, Signal, People, and Atlas Store.">
+  <meta name="description" content="Explore 19 interactive apps and experiments from Alphadyn AI, including Market Map, Signal, People, and Atlas Store.">
   <meta name="theme-color" content="#0b1020">
   <link rel="canonical" href="https://alphadyn.github.io/apps/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Alphadyn AI">
   <meta property="og:url" content="https://alphadyn.github.io/apps/">
   <meta property="og:title" content="Alphadyn Apps">
-  <meta property="og:description" content="Explore 20 interactive apps and experiments from Alphadyn AI, featuring Market Map, Signal, People, and Atlas Store.">
+  <meta property="og:description" content="Explore 19 interactive apps and experiments from Alphadyn AI, featuring Market Map, Signal, People, and Atlas Store.">
   <meta property="og:image" content="https://alphadyn.github.io/apps/social-preview.png?v=3">
   <meta property="og:image:secure_url" content="https://alphadyn.github.io/apps/social-preview.png?v=3">
   <meta property="og:image:type" content="image/png">
@@ -21,7 +21,7 @@
   <meta property="og:image:alt" content="Alphadyn Apps preview with the white and gold A logo, featuring Market Map, Signal, People, and Atlas Store.">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Alphadyn Apps">
-  <meta name="twitter:description" content="Explore 20 interactive apps and experiments from Alphadyn AI, featuring Market Map, Signal, People, and Atlas Store.">
+  <meta name="twitter:description" content="Explore 19 interactive apps and experiments from Alphadyn AI, featuring Market Map, Signal, People, and Atlas Store.">
   <meta name="twitter:image" content="https://alphadyn.github.io/apps/social-preview.png?v=3">
   <meta name="twitter:image:alt" content="Alphadyn Apps preview with the white and gold A logo, featuring Market Map, Signal, People, and Atlas Store.">
   <link rel="icon" href="alphadyn-signika-mark.svg" type="image/svg+xml">
@@ -39,6 +39,10 @@
     .intro { position: relative; z-index: 1; max-width: 490px; color: var(--muted); font-size: 1.04rem; line-height: 1.75; }
     .intro a { color: var(--accent); text-decoration-color: rgba(110, 231, 210, .45); text-underline-offset: 4px; }
     .intro a:hover { text-decoration-color: currentColor; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+    .hero-actions a { display: inline-flex; align-items: center; min-height: 42px; padding: 9px 15px; border: 1px solid rgba(138, 167, 255, .3); border-radius: 9px; color: var(--text); font-size: .88rem; font-weight: 650; text-decoration: none; transition: background .18s ease, border-color .18s ease; }
+    .hero-actions a:first-child { border-color: rgba(110, 231, 210, .45); background: rgba(110, 231, 210, .1); color: var(--accent); }
+    .hero-actions a:hover, .hero-actions a:focus-visible { border-color: var(--accent); background: rgba(110, 231, 210, .14); outline: none; }
     .featured { margin-bottom: 64px; }
     .section-heading { display: flex; justify-content: space-between; align-items: end; gap: 20px; margin-bottom: 22px; }
     .section-heading h2 { display: flex; align-items: center; gap: 12px; margin: 0; font-size: 1.65rem; letter-spacing: -.035em; }
@@ -71,7 +75,11 @@
         </div>
       </div>
       <div class="intro">
-        A curated collection of interactive tools, analytical dashboards, creative experiments, and focused utilities. Open a project to explore it, or read the documentation on <a href="https://github.com/alphadyn">GitHub</a>.
+        A collection of 19 interactive tools, analytical dashboards, creative experiments, and focused utilities. Open a project to explore it, or visit the repository for setup guides and project details.
+        <nav class="hero-actions" aria-label="Explore the collection">
+          <a href="#app-catalog">Explore all apps</a>
+          <a href="https://github.com/alphadyn/apps">Repository &amp; README</a>
+        </nav>
       </div>
     </header>
     <section class="featured" aria-labelledby="featured-heading">
@@ -88,7 +96,7 @@
         <a class="app" href="https://alphadyn.github.io/apps/atlas-store/"><img class="app-brand-image" src="atlas-store/app-icon.svg" alt="" /><strong>Commerce</strong><h2>Atlas Store</h2><p>Branded online store with product tiles, encrypted cart storage, and checkout. Select the store brand to return to its entry page.</p></a>
       </div>
     </section>
-    <section class="catalog-section" aria-labelledby="catalog-heading">
+    <section class="catalog-section" id="app-catalog" aria-labelledby="catalog-heading">
       <div class="section-heading">
         <div>
           <h2 id="catalog-heading">App catalog <span class="section-count">19 apps</span></h2>

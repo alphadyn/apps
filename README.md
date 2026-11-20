@@ -1,8 +1,10 @@
 # Alphadyn AI Apps and Experiments
 
+[Explore the live app catalog](https://alphadyn.github.io/apps/) · [View this repository on GitHub](https://github.com/alphadyn/apps)
+
 This repository is a portfolio-style collection of 19 active, independent projects: interactive demos, data visualizations, browser apps, and Python utilities. Each project is designed to be opened, adapted, or expanded on its own. The collection is intentionally mixed: some apps are static browser experiences, while others use Supabase, Flask, or Vercel APIs.
 
-The root landing page in [index.html](index.html) links directly to the deployed apps and gives a quick overview of the portfolio. It includes a Top apps section and a full catalog of all available apps and experiments.
+The [landing page](index.html) links directly to the deployed apps and gives a quick overview of the portfolio. It includes four featured projects and an alphabetical catalog of all 19 apps and experiments.
 
 Its social link-preview image is generated from the Signika logo SVGs with `python3 -m scripts.generate_social_preview` (requires Pillow and resvg-py, installable with `python3 -m pip install Pillow resvg-py`). After changing the image, update the version in the landing page's Open Graph and Twitter image URLs to encourage cache refreshes; preview caching is controlled by each sharing platform.
 
@@ -45,28 +47,13 @@ Projects are listed alphabetically, matching the catalog on the landing page. Se
 
 ## Quick start
 
-Most projects are static sites and can be opened directly in a browser. A simple local server is the safest way to run them consistently:
+Most projects are static sites and can be opened directly in a browser. To preview the catalog and its apps locally, start a server from the repository root:
 
 ```bash
-cd project_folder
 python3 -m http.server 8000
 ```
 
-Then visit http://localhost:8000.
-
-Examples:
-
-```bash
-cd earth-explorer
-python3 -m http.server 8000
-
-cd experiences
-python3 -m http.server 8000
-
-cd atlas-store
-python3 -m http.server 8000
-
-```
+Then visit <http://localhost:8000/> for the catalog, or open a project path such as <http://localhost:8000/market-map/>. Some apps need additional setup or generated data; see their project-specific guides below and the [deployment notes](DEPLOYMENT.md).
 
 ### Nexus
 

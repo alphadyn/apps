@@ -616,3 +616,178 @@ test("Elena defaults to Provider and Admin with only the active role's permissio
   assert.equal(api.setCurrentRole("clinician").role, "clinician");
   assert.equal(api.getVisibleSections("overview").roleManagementSection, false);
 });
+
+test("patient timeline keeps all events and groups records from admission through planned care", () => {
+  const { api } = setup();
+  const admissionAt = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const beforeAdmission = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+  const afterAdmission = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+  const future = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+  const futureFollowUp = new Date(Date.now() + 96 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  const sourcePatient = api.normalizePatient({
+    id: 900,
+    name: "Timeline Test",
+    mrn: "T-900",
+    age: 45,
+    sex: "Female",
+    diagnosis: "Test diagnosis",
+    status: "Admitted",
+    priority: "Routine",
+    provider: "Test Provider",
+    allergies: [],
+    medications: [],
+    labs: ["Undated marker"],
+    labRecords: [],
+    appointments: [{
+      id: "appointment-future",
+      scheduledAt: future,
+      time: "Future visit",
+      title: "Future appointment",
+      location: "Clinic",
+      status: "Scheduled"
+    }],
+    vitalReadings: [{ id: "vital-recent", recordedAt: afterAdmission, source: "Triage", values: { hr: 82 } }],
+    events: [
+      { id: "event-before-admission", type: "Encounter", title: "Before admission", timestamp: beforeAdmission },
+      ...Array.from({ length: 20 }, (_, index) => ({
+        id: `event-${index}`,
+        type: "Encounter",
+        title: `Recorded event ${index}`,
+        timestamp: afterAdmission
+      }))
+    ],
+    documents: [{
+      id: "document-recent",
+      type: "Admission note",
+      title: "Admission note",
+      status: "Draft",
+      createdAt: afterAdmission,
+      time: "Today"
+    }],
+    orders: [{
+      id: "order-pending",
+      category: "Laboratory",
+      title: "Pending lab",
+      status: "Pending",
+      priority: "Routine",
+      createdAt: afterAdmission,
+      time: "Today"
+    }],
+    imaging: [{
+      id: "imaging-recent",
+      study: "Chest study",
+      modality: "X-ray",
+      bodySite: "Chest",
+      status: "Final",
+      performedAt: afterAdmission,
+      report: "No acute finding"
+    }],
+    carePlan: {
+      followUpDate: futureFollowUp,
+      tasks: [
+        { id: "task-complete", label: "Completed task", status: "Done", completedAt: afterAdmission },
+        { id: "task-planned", label: "Planned task", status: "Open", dueDate: future.slice(0, 10) }
+      ]
+    },
+    clinical: {
+      stage: "Admission",
+      admissionAt,
+      department: "Medicine",
+      location: "Ward 1",
+      attending: "Test Provider"
+    }
+  });
+
+  const timeline = api.buildPatientTimeline(sourcePatient);
+  assert.ok(timeline.length > 14);
+  assert.equal(timeline.filter((item) => item.title.startsWith("Recorded event ")).length, 20);
+  assert.equal(timeline.some((item) => item.id === "event-before-admission"), false);
+  assert.equal(timeline.find((item) => item.id === "timeline-admission-900").phase, "previous");
+  assert.equal(timeline.find((item) => item.id === "timeline-current-status-900").phase, "current");
+  assert.equal(timeline.find((item) => item.id === "timeline-order-pending").phase, "planned");
+  assert.equal(timeline.find((item) => item.id === "timeline-appointment-future").targetId, "patient-appointment-appointment-future");
+  assert.equal(timeline.find((item) => item.id === "timeline-document-recent").targetView, "documents");
+  assert.equal(timeline.find((item) => item.id === "timeline-imaging-recent").targetId, "patient-imaging-imaging-recent");
+  assert.equal(timeline.find((item) => item.id === "timeline-task-task-complete").phase, "previous");
+  assert.equal(timeline.find((item) => item.id === "timeline-task-task-planned").phase, "planned");
+  assert.equal(timeline.find((item) => item.title === "Undated marker").phase, "undated");
+  assert.equal(timeline.find((item) => item.id === "timeline-follow-up-900").phase, "planned");
+});
+
+test("timeline does not invent an admission date and new admissions record their start", () => {
+  const { api, context } = setup();
+  const patient = api.normalizePatient({
+    id: 901,
+    name: "Admission Test",
+    mrn: "T-901",
+    age: 50,
+    sex: "Male",
+    diagnosis: "Test diagnosis",
+    status: "Stable",
+    priority: "Routine",
+    provider: "Test Provider",
+    allergies: [],
+    medications: [],
+    clinical: {
+      stage: "Admission",
+      department: "Medicine",
+      location: "Ward 2",
+      attending: "Test Provider"
+    }
+  });
+  const admissionMarker = api.buildPatientTimeline(patient).find((item) => item.type === "Admission");
+  assert.equal(admissionMarker.title, "Admission date not recorded");
+  assert.equal(admissionMarker.timestamp, "");
+
+  const enteringPatient = api.normalizePatient({
+    ...patient,
+    clinical: { ...patient.clinical, stage: "Intake", disposition: "", admissionAt: "" }
+  });
+  const department = vm.runInContext("departments[0].name", context);
+  const result = api.updateWorkflowForPatient(enteringPatient, {
+    stage: "Admission",
+    disposition: "Admit to ward",
+    department,
+    location: "Ward 3",
+    arrivalMode: "Direct admission"
+  }, "clinician");
+  assert.equal(result.allowed, true);
+  assert.ok(enteringPatient.clinical.admissionAt);
+  assert.equal(
+    api.buildPatientTimeline(enteringPatient).find((item) => item.type === "Admission").title,
+    "Admission started"
+  );
+});
+
+test("appointment status changes are retained as patient timeline events", () => {
+  const { api, context } = setup();
+  const patient = api.normalizePatient({
+    id: 902,
+    name: "Appointment Test",
+    mrn: "T-902",
+    age: 38,
+    sex: "Female",
+    diagnosis: "Test diagnosis",
+    status: "Stable",
+    priority: "Routine",
+    provider: "Test Provider",
+    allergies: [],
+    medications: [],
+    appointments: [{
+      id: "appointment-test",
+      scheduledAt: new Date(Date.now() - 86400000).toISOString(),
+      time: "Yesterday",
+      title: "Test follow-up",
+      location: "Clinic",
+      status: "Scheduled"
+    }]
+  });
+  context.appointmentPatient = patient;
+  vm.runInContext("patients.push(appointmentPatient)", context);
+  const result = api.updateAppointmentStatus(patient.id, "appointment-test", "Completed", "clinician");
+  assert.equal(result.allowed, true);
+  const event = patient.events[0];
+  assert.equal(event.type, "Appointment");
+  assert.equal(event.title, "Appointment completed");
+  assert.ok(event.timestamp);
+});

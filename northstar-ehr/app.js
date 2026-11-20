@@ -664,7 +664,6 @@ function addPatientEvent(patient, type, title, details = "", timestamp = new Dat
     timestamp
   };
   patient.events.unshift(event);
-  patient.events = patient.events.slice(0, 120);
   return event;
 }
 
@@ -686,6 +685,20 @@ function toTimelineDate(value) {
     now.setDate(now.getDate() - 1);
     return now;
   }
+  const daysAgoMatch = raw.match(/^(\d+)\s+days?\s+ago\b/i);
+  if (daysAgoMatch) {
+    now.setDate(now.getDate() - Number(daysAgoMatch[1]));
+    return now;
+  }
+  const dateOnlyMatch = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (dateOnlyMatch) {
+    const date = new Date(Number(dateOnlyMatch[1]), Number(dateOnlyMatch[2]) - 1, Number(dateOnlyMatch[3]));
+    return date.getFullYear() === Number(dateOnlyMatch[1]) &&
+      date.getMonth() === Number(dateOnlyMatch[2]) - 1 &&
+      date.getDate() === Number(dateOnlyMatch[3])
+      ? date
+      : null;
+  }
   const parsed = new Date(raw);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
@@ -693,6 +706,9 @@ function toTimelineDate(value) {
 function formatTimelineDate(value) {
   const date = toTimelineDate(value);
   if (!date) return value || "Date not recorded";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(String(value).trim())) {
+    return date.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
+  }
   return date.toLocaleString([], {
     month: "short",
     day: "numeric",
@@ -708,15 +724,67 @@ function recordVitals(patient, values, source) {
   patient.vitals = snapshot;
   patient.clinical.vitals = { ...patient.clinical.vitals, ...values };
   const recordedAt = new Date().toISOString();
-  patient.vitalReadings.unshift({ values: snapshot, recordedAt, source });
-  patient.vitalReadings = patient.vitalReadings.slice(0, 12);
+  patient.vitalReadings.unshift({ id: createRecordId("vital"), values: snapshot, recordedAt, source });
   addPatientEvent(patient, "Vitals", "Vital signs recorded", source, recordedAt);
 }
 
 function buildPatientTimeline(patient) {
   const items = [];
+  const now = Date.now();
+  const admissionAt = patient.clinical?.admissionAt || "";
+  const admissionTime = toTimelineDate(admissionAt)?.getTime() ?? null;
+  const admitted = patient.clinical?.stage === "Admission" ||
+    ["Admit to ward", "Admit to ICU"].includes(patient.clinical?.disposition);
+
+  const addItem = (item) => {
+    const time = toTimelineDate(item.timestamp)?.getTime() ?? null;
+    let phase = item.phase;
+    if (!phase) {
+      if (item.planned && (!item.scheduleBased || time === null || time > now)) {
+        phase = "planned";
+      } else if (item.current || (item.planned && item.scheduleBased && time !== null && time <= now)) {
+        phase = "current";
+      } else if (time !== null && time > now) {
+        phase = "planned";
+      } else if (time !== null) {
+        phase = "previous";
+      } else {
+        phase = "undated";
+      }
+    }
+
+    if (admissionTime !== null && time !== null && time < admissionTime) return;
+    items.push({ ...item, phase, sortTime: time, fallbackTime: item.fallbackTime || "Date not recorded" });
+  };
+
+  if (admissionAt) {
+    addItem({
+      id: `timeline-admission-${patient.id}`,
+      type: "Admission",
+      title: "Admission started",
+      details: "Patient admission recorded in the encounter workflow.",
+      detailRows: [["Admission date", formatTimelineDate(admissionAt)]],
+      timestamp: admissionAt,
+      phase: "previous",
+      targetView: "clinical",
+      targetId: "workflowForm"
+    });
+  } else if (admitted) {
+    addItem({
+      id: `timeline-admission-${patient.id}`,
+      type: "Admission",
+      title: "Admission date not recorded",
+      details: "The chart is marked as admitted, but no admission timestamp is available.",
+      detailRows: [["Admission date", "Not recorded"]],
+      timestamp: "",
+      fallbackTime: "Date not recorded",
+      targetView: "clinical",
+      targetId: "workflowForm"
+    });
+  }
+
   if (patient.diagnosis) {
-    items.push({
+    addItem({
       id: `timeline-diagnosis-${patient.id}`,
       type: "Diagnosis",
       title: patient.diagnosis,
@@ -727,13 +795,17 @@ function buildPatientTimeline(patient) {
         ["Provider", patient.provider]
       ],
       timestamp: "",
-      fallbackTime: "Date not recorded"
+      fallbackTime: "Current chart problem",
+      phase: "current",
+      targetView: "patients",
+      targetId: "patient-status-dashboard"
     });
   }
+
   (patient.labs || [])
     .filter((lab) => !/fictional demonstration values/i.test(lab))
     .forEach((lab, index) => {
-      items.push({
+      addItem({
         id: `timeline-lab-${patient.id}-${index}`,
         type: "Laboratory",
         title: lab,
@@ -743,50 +815,117 @@ function buildPatientTimeline(patient) {
           ["Recorded", patient.labRecords?.[index]?.recordedAt || "Date not recorded"]
         ],
         timestamp: patient.labRecords?.[index]?.recordedAt || "",
-        fallbackTime: patient.labRecords?.[index]?.recordedAt || "Date not recorded"
+        fallbackTime: patient.labRecords?.[index]?.recordedAt || "Date not recorded",
+        targetView: "labs",
+        targetId: `patient-lab-${patient.id}-${index}`
       });
     });
-  (patient.carePlan?.tasks || [])
-    .filter((task) => task.status !== "Done")
-    .forEach((task, index) => {
-      items.push({
-        id: `timeline-task-${patient.id}-${index}`,
-        type: "Care plan",
-        title: task.label,
-        details: "Open care task",
-          detailRows: [
-            ["Status", task.status],
-            ["Due date", task.dueDate || patient.carePlan?.followUpDate || "Not recorded"]
-          ],
-          timestamp: task.createdAt || "",
-          fallbackTime: "Date not recorded"
-        });
+
+  (patient.carePlan?.tasks || []).forEach((task, index) => {
+    const taskId = task.id || `${patient.id}-${index}`;
+    const dueDate = task.dueDate || patient.carePlan?.followUpDate || "";
+    const dueTime = toTimelineDate(dueDate)?.getTime() ?? null;
+    addItem({
+      id: `timeline-task-${taskId}`,
+      type: "Care plan",
+      title: task.label,
+      details: task.status === "Done" ? "Completed care task" : "Care plan task",
+      detailRows: [
+        ["Status", task.status],
+        ["Due date", dueDate || "Not recorded"],
+        ...(task.createdAt ? [["Created", formatTimelineDate(task.createdAt)]] : []),
+        ...(task.completedAt ? [["Completed", formatTimelineDate(task.completedAt)]] : [])
+      ],
+      timestamp: task.status === "Done" ? task.completedAt : task.createdAt || dueDate,
+      fallbackTime: task.status === "Done" && !task.completedAt
+        ? "Completion date not recorded"
+        : dueDate ? `Due ${formatTimelineDate(dueDate)}` : "Date not recorded",
+      phase: task.status === "Done" && task.completedAt ? "previous" : undefined,
+      planned: task.status !== "Done" && dueTime !== null && dueTime > now,
+      current: task.status !== "Done" && (dueTime === null || dueTime <= now),
+      targetView: "patients",
+      targetId: `patient-care-task-${taskId}`
     });
-    patient.events.forEach((event) => {
-      items.push({
-        ...event,
-        detailRows: [["Event details", event.details || "No additional details recorded"]],
-        timestamp: event.timestamp,
-        fallbackTime: "Date not recorded"
-      });
-    });
-    patient.documents.forEach((document) => {
-      items.push({
-        id: `timeline-${document.id}`,
-        type: "Document",
-        title: document.title,
-        details: `${document.type} · ${document.status}`,
-        detailRows: [
-          ["Type", document.type],
-          ["Status", document.status],
-          ["Summary", document.sections?.summary || document.summary || "No summary recorded"]
-        ],
-        timestamp: document.createdAt || document.time,
-        fallbackTime: document.time
-      });
   });
-  patient.orders.forEach((order) => {
-    items.push({
+
+  const followUpDate = patient.carePlan?.followUpDate || "";
+  if (followUpDate) {
+    const hasDatedFollowUp =
+      (patient.appointments || []).some((appointment) =>
+        appointment.scheduledAt && appointment.scheduledAt.slice(0, 10) === followUpDate.slice(0, 10)
+      ) ||
+      (patient.carePlan?.tasks || []).some((task) =>
+        task.dueDate && task.dueDate.slice(0, 10) === followUpDate.slice(0, 10)
+      );
+    if (!hasDatedFollowUp) {
+      const followUpTime = toTimelineDate(followUpDate);
+      addItem({
+        id: `timeline-follow-up-${patient.id}`,
+        type: "Care plan",
+        title: "Care plan follow-up",
+        details: "Follow-up date recorded on the care plan.",
+        detailRows: [["Follow-up date", followUpDate]],
+        timestamp: followUpDate,
+        fallbackTime: `Follow-up ${formatTimelineDate(followUpDate)}`,
+        current: followUpTime?.toDateString() === new Date(now).toDateString(),
+        targetView: "clinical",
+        targetId: "workflowForm"
+      });
+    }
+  }
+
+  (patient.events || []).forEach((event) => {
+    if (admissionAt && event.timestamp === admissionAt &&
+        (event.type === "Admission" || /^patient admitted\b|^admission started\b/i.test(event.title || ""))) return;
+    const reading = event.type === "Vitals"
+      ? patient.vitalReadings?.find((item) => item.recordedAt && item.recordedAt === event.timestamp)
+      : null;
+    addItem({
+      ...event,
+      detailRows: [["Event details", event.details || "No additional details recorded"]],
+      timestamp: event.timestamp,
+      fallbackTime: "Date not recorded",
+      targetView: "patients",
+      targetId: reading ? `patient-vital-${reading.id}` : `patient-timeline-row-${event.id}`
+    });
+  });
+
+  (patient.vitalReadings || []).forEach((reading) => {
+    if (!reading.recordedAt || (patient.events || []).some((event) =>
+      event.type === "Vitals" && event.timestamp === reading.recordedAt
+    )) return;
+    addItem({
+      id: `timeline-${reading.id}`,
+      type: "Vitals",
+      title: "Vital signs recorded",
+      details: reading.source || "Recorded vitals",
+      detailRows: Object.entries(reading.values || {}).map(([label, value]) => [label, value]),
+      timestamp: reading.recordedAt,
+      targetView: "patients",
+      targetId: `patient-vital-${reading.id}`
+    });
+  });
+
+  (patient.documents || []).forEach((document) => {
+    addItem({
+      id: `timeline-${document.id}`,
+      type: "Document",
+      title: document.title,
+      details: `${document.type} · ${document.status}`,
+      detailRows: [
+        ["Type", document.type],
+        ["Status", document.status],
+        ["Summary", document.sections?.summary || document.summary || "No summary recorded"]
+      ],
+      timestamp: document.createdAt || document.time,
+      fallbackTime: document.time,
+      targetView: "documents",
+      targetId: `patient-document-${document.id}`
+    });
+  });
+
+  (patient.orders || []).forEach((order) => {
+    addItem({
       id: `timeline-${order.id}`,
       type: order.category,
       title: order.title,
@@ -799,11 +938,15 @@ function buildPatientTimeline(patient) {
         ...(order.fields || []).map((field) => [field.label, field.value])
       ],
       timestamp: order.createdAt || order.time,
-      fallbackTime: order.time
+      fallbackTime: order.time,
+      planned: ["Pending", "Acknowledged"].includes(order.status),
+      targetView: "orders",
+      targetId: `patient-order-${order.id}`
     });
   });
-  patient.imaging.forEach((record) => {
-    items.push({
+
+  (patient.imaging || []).forEach((record) => {
+    addItem({
       id: `timeline-${record.id}`,
       type: "Imaging",
       title: record.study,
@@ -816,12 +959,19 @@ function buildPatientTimeline(patient) {
         ["Report", record.report],
         ["Radiologist", record.radiologist]
       ],
-      timestamp: record.performedAt,
-      fallbackTime: record.performedAt
+      timestamp: record.performedAt === "Date not recorded" ? record.createdAt : record.performedAt,
+      fallbackTime: record.performedAt,
+      planned: ["Ordered", "Requested", "Scheduled"].includes(record.status),
+      current: ["In progress", "Preliminary"].includes(record.status),
+      targetView: "patients",
+      targetId: `patient-imaging-${record.id}`
     });
   });
-  patient.appointments.forEach((appointment) => {
-    items.push({
+
+  (patient.appointments || []).forEach((appointment) => {
+    const scheduledTime = toTimelineDate(appointment.scheduledAt)?.getTime() ?? null;
+    const completed = ["Completed", "Cancelled"].includes(appointment.status);
+    addItem({
       id: `timeline-${appointment.id}`,
       type: "Appointment",
       title: appointment.title,
@@ -831,25 +981,60 @@ function buildPatientTimeline(patient) {
         ["Location", appointment.location],
         ["Scheduled time", appointment.time]
       ],
-      timestamp: appointment.updatedAt,
-      fallbackTime: `Scheduled time ${appointment.time}`
+      timestamp: completed ? appointment.updatedAt : appointment.scheduledAt,
+      fallbackTime: completed && !appointment.updatedAt
+        ? `${appointment.status} · date not recorded`
+        : appointment.scheduledAt
+          ? appointment.time
+          : `Scheduled time ${appointment.time} · date not recorded`,
+      planned: appointment.status === "Scheduled" && (scheduledTime === null || scheduledTime > now),
+      scheduleBased: true,
+      current: appointment.status === "In Progress" ||
+        (appointment.status === "Scheduled" && scheduledTime !== null && scheduledTime <= now),
+      targetView: "appointments",
+      targetId: `patient-appointment-${appointment.id}`
     });
   });
 
-  return items
-    .map((item, index) => ({ ...item, sortTime: toTimelineDate(item.timestamp)?.getTime() ?? -index }))
-    .sort((left, right) => right.sortTime - left.sortTime)
-    .slice(0, 14);
+  addItem({
+    id: `timeline-current-status-${patient.id}`,
+    type: "Current status",
+    title: patient.status,
+    details: `${patient.clinical?.stage || "Current encounter"} · ${patient.clinical?.department || "Department not recorded"} · ${patient.room || "Location not recorded"}`,
+    detailRows: [
+      ["Encounter stage", patient.clinical?.stage || "Not recorded"],
+      ["Department", patient.clinical?.department || "Not recorded"],
+      ["Location", patient.room || "Not recorded"],
+      ["Attending", patient.clinical?.attending || patient.provider || "Not recorded"]
+    ],
+    timestamp: "",
+    fallbackTime: "Current chart status",
+    phase: "current",
+    targetView: "patients",
+    targetId: "patient-status-dashboard"
+  });
+
+  const phaseOrder = { previous: 0, current: 1, planned: 2, undated: 3 };
+  return items.sort((left, right) => {
+    const phaseDifference = phaseOrder[left.phase] - phaseOrder[right.phase];
+    if (phaseDifference) return phaseDifference;
+    if (left.sortTime === null || right.sortTime === null) return 0;
+    return left.sortTime - right.sortTime;
+  });
 }
 
 function normalizeTask(task) {
   if (typeof task === "string") {
-    return { label: task, status: "Open" };
+    return { id: createRecordId("task"), label: task, status: "Open", createdAt: "", dueDate: "", completedAt: "" };
   }
 
   return {
-    label: task.label,
-    status: task.status || "Open"
+    id: task.id || createRecordId("task"),
+    label: task.label || "Care plan task",
+    status: task.status || "Open",
+    createdAt: task.createdAt || "",
+    dueDate: task.dueDate || "",
+    completedAt: task.completedAt || ""
   };
 }
 
@@ -857,6 +1042,7 @@ function normalizeAppointment(appointment) {
   return {
     id: appointment.id || createAppointmentId(),
     createdAt: appointment.createdAt || "",
+    scheduledAt: appointment.scheduledAt || appointment.scheduledDate || appointment.date || "",
     time: appointment.time,
     title: appointment.title,
     location: appointment.location,
@@ -885,6 +1071,10 @@ function normalizePatient(patient) {
   const defaultLocation = seededAdmission ? sampleAdmission.location : patient.room || "ED Triage";
   const assignedNurse = clinical.assignedNurse ||
     (seededAdmission ? sampleAdmission.nurse : "");
+  const recordedAdmissionAt = clinical.admissionAt || patient.admissionAt ||
+    (patient.events || []).find((event) =>
+      event.type === "Admission" || /^patient admitted\b|^admission started\b/i.test(event.title || "")
+    )?.timestamp || "";
   return {
     ...patient,
     room: clinical.location || defaultLocation,
@@ -896,6 +1086,7 @@ function normalizePatient(patient) {
       recordedAt: patient.vitalsRecordedAt || "",
       source: "Current chart"
     }]).map((reading) => ({
+      id: reading.id || createRecordId("vital"),
       values: { ...(reading.values || {}) },
       recordedAt: reading.recordedAt || "",
       source: reading.source || "Recorded vitals"
@@ -921,7 +1112,8 @@ function normalizePatient(patient) {
       attending: clinical.attending || patient.provider || "",
       disposition: clinical.disposition || (seededAdmission ? sampleAdmission.disposition : ""),
       destination: clinical.destination || "",
-      followUpDate: clinical.followUpDate || patient.carePlan?.followUpDate || ""
+      followUpDate: clinical.followUpDate || patient.carePlan?.followUpDate || "",
+      admissionAt: recordedAdmissionAt
     },
     orders: (patient.orders || []).map((order) => ({
       id: order.id || createRecordId("order"),
@@ -1778,9 +1970,16 @@ function applyEncounterToPatient(patient, encounter) {
 
   if (encounter.followup) {
     patient.carePlan.followUpDate = encounter.followup;
-    patient.carePlan.tasks.unshift({ label: `Complete ${note.title.toLowerCase()} follow-up`, status: "Open" });
+    patient.carePlan.tasks.unshift({
+      id: createRecordId("task"),
+      label: `Complete ${note.title.toLowerCase()} follow-up`,
+      status: "Open",
+      createdAt,
+      dueDate: encounter.followup
+    });
     patient.appointments.unshift(
       normalizeAppointment({
+        scheduledAt: encounter.followup,
         time: formatDisplayDate(encounter.followup),
         title: `Follow-up: ${note.title}`,
         location: patient.room,
@@ -1819,6 +2018,13 @@ function updateWorkflowForPatient(patient, updates, role = currentUser.role) {
   const allowedDepartments = departments.map((department) => department.name);
   const allowedNurses = staffDirectory.filter((staff) => staff.role === "Nurse").map((staff) => staff.name);
   const allowedAttending = staffDirectory.filter((staff) => ["Provider", "PA", "Midlevel"].includes(staff.role)).map((staff) => staff.name);
+  const wasAdmitted = patient.clinical.stage === "Admission" ||
+    ["Admit to ward", "Admit to ICU"].includes(patient.clinical.disposition);
+  const willBeAdmitted = updates.stage === "Admission" ||
+    ["Admit to ward", "Admit to ICU"].includes(updates.disposition || "");
+  const admissionAt = patient.clinical.admissionAt || (
+    !wasAdmitted && willBeAdmitted ? new Date().toISOString() : ""
+  );
   if (!allowedStages.includes(updates.stage) ||
       !allowedDispositions.includes(updates.disposition || "") ||
       (!allowedDepartments.includes(updates.department) && updates.department !== patient.clinical.department) ||
@@ -1842,6 +2048,7 @@ function updateWorkflowForPatient(patient, updates, role = currentUser.role) {
     disposition: updates.disposition || "",
     destination: (updates.destination || "").trim(),
     followUpDate: updates.followUpDate || "",
+    admissionAt,
     vitals: { ...patient.clinical.vitals }
   };
   ["bp", "hr", "rr", "temp", "spO2"].forEach((key) => {
@@ -1991,6 +2198,7 @@ function updateAppointmentStatus(patientId, appointmentId, nextStatus, role = cu
 
   appointment.status = nextStatus;
   appointment.updatedAt = new Date().toISOString();
+  addPatientEvent(patient, "Appointment", `Appointment ${nextStatus.toLowerCase()}`, appointment.title, appointment.updatedAt);
   if (nextStatus === "Completed") {
     patient.chartCompleted = true;
     patient.status = "Stable";
@@ -2017,7 +2225,8 @@ function markTaskDone(patient, role = currentUser.role) {
   const nextOpenTask = patient.carePlan.tasks.find((task) => task.status !== "Done");
   if (!nextOpenTask) return { allowed: true, changed: false };
   nextOpenTask.status = "Done";
-  addPatientEvent(patient, "Care plan", "Care task completed", nextOpenTask.label);
+  nextOpenTask.completedAt = new Date().toISOString();
+  addPatientEvent(patient, "Care plan", "Care task completed", nextOpenTask.label, nextOpenTask.completedAt);
   appendAuditEntry({
     action: "task:complete",
     patientName: patient.name,
@@ -2286,7 +2495,7 @@ function renderPatientStatusDashboard(patient) {
   const allergyText = patient.allergies.length ? patient.allergies.join(", ") : "None listed";
 
   return `
-    <section class="patient-status-dashboard" aria-label="Patient medical status dashboard">
+    <section id="patient-status-dashboard" class="patient-status-dashboard" aria-label="Patient medical status dashboard">
       <div class="status-overview">
         <div>
           <p class="eyebrow">Current medical status</p>
@@ -2319,12 +2528,12 @@ function renderPatientStatusDashboard(patient) {
               </article>`).join("")}
           </div>
           <p class="dashboard-footnote">Latest charted values · unrecorded values shown as —${latestReading?.recordedAt ? ` · ${escapeHtml(formatTimelineDate(latestReading.recordedAt))}` : " · time not recorded"}${latestReading?.source ? ` · ${escapeHtml(latestReading.source)}` : ""}</p>
-          ${patient.vitalReadings.length > 1 ? `
+          ${patient.vitalReadings.length ? `
             <details class="vital-history">
-              <summary>View recent readings</summary>
+              <summary>View recorded readings</summary>
               <div class="vital-history-list">
-                ${patient.vitalReadings.slice(0, 6).map((reading) => `
-                  <div class="vital-history-row">
+                ${patient.vitalReadings.map((reading) => `
+                  <div class="vital-history-row" id="patient-vital-${escapeHtml(reading.id)}">
                     <time>${escapeHtml(formatTimelineDate(reading.recordedAt))}</time>
                     <span>${escapeHtml(reading.values.bp ? `BP ${reading.values.bp}` : "")}
                     ${escapeHtml(reading.values.hr !== undefined ? ` · HR ${reading.values.hr}` : "")}
@@ -2368,6 +2577,14 @@ function renderPatientStatusDashboard(patient) {
 
 function renderPatientTimeline(patient) {
   const items = buildPatientTimeline(patient);
+  const phases = [
+    ["previous", "Previous events"],
+    ["current", "Current"],
+    ["planned", "Planned"],
+    ["undated", "Date not recorded"]
+  ];
+  const admissionAt = patient.clinical.admissionAt;
+  const hasUndated = items.some((item) => item.phase === "undated");
   return `
     <section class="patient-timeline" aria-labelledby="patientTimelineHeading">
       <div class="timeline-heading">
@@ -2375,35 +2592,89 @@ function renderPatientTimeline(patient) {
           <p class="eyebrow">Longitudinal record</p>
           <h4 id="patientTimelineHeading">Patient timeline</h4>
         </div>
-        <span class="dashboard-meta">${items.length} recent events</span>
+        <span class="dashboard-meta">${items.length} events</span>
       </div>
-      ${items.length ? `<ol class="timeline-list">
-        ${items.map((item) => `
-          <li class="timeline-item">
-            <details class="timeline-entry">
-              <summary class="timeline-summary">
-                <span class="timeline-marker timeline-${escapeHtml(item.type.toLowerCase().replace(/[^a-z0-9]+/g, "-"))}" aria-hidden="true"></span>
-                <span class="timeline-content">
-                  <span class="timeline-event-heading">
-                    <strong>${escapeHtml(item.title)}</strong>
-                    <span class="timeline-type">${escapeHtml(item.type)}</span>
-                  </span>
-                  <time>${escapeHtml(formatTimelineDate(item.timestamp || item.fallbackTime))}</time>
-                </span>
-              </summary>
-              <div class="timeline-expanded">
-                ${item.details ? `<p class="timeline-description">${escapeHtml(item.details)}</p>` : ""}
-                ${item.detailRows?.length ? `<dl class="timeline-detail-list">
-                  ${item.detailRows.filter(([, value]) => value !== undefined && value !== null && value !== "").map(([label, value]) => `
-                    <div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>
-                  `).join("")}
-                </dl>` : ""}
-              </div>
-            </details>
-          </li>`).join("")}
-      </ol>` : '<p class="empty-state">Patient-related events will appear here as the chart is updated.</p>'}
+      <p class="timeline-context">
+        ${admissionAt
+          ? `Admission recorded ${escapeHtml(formatTimelineDate(admissionAt))}.`
+          : "Admission date not recorded. Showing all available charted events."}
+        ${hasUndated ? "Events without a recorded date cannot be placed relative to admission." : ""}
+      </p>
+      ${items.length ? phases.map(([phase, label]) => {
+        const phaseItems = items.filter((item) => item.phase === phase);
+        if (!phaseItems.length) return "";
+        return `
+          <section class="timeline-group" aria-label="${label}">
+            <h5>${label}<span>${phaseItems.length}</span></h5>
+            <ol class="timeline-list">
+              ${phaseItems.map((item) => `
+                <li class="timeline-item" id="patient-timeline-row-${escapeHtml(item.id)}">
+                  <details class="timeline-entry">
+                    <summary class="timeline-summary">
+                      <span class="timeline-marker timeline-${escapeHtml(item.type.toLowerCase().replace(/[^a-z0-9]+/g, "-"))}" aria-hidden="true"></span>
+                      <span class="timeline-content">
+                        <span class="timeline-event-heading">
+                          <strong>${escapeHtml(item.title)}</strong>
+                          <span class="timeline-type">${escapeHtml(item.type)}</span>
+                        </span>
+                        <time>${escapeHtml(formatTimelineDate(item.timestamp || item.fallbackTime))}</time>
+                        ${item.details ? `<span class="timeline-preview">${escapeHtml(item.details)}</span>` : ""}
+                      </span>
+                    </summary>
+                    <div class="timeline-expanded">
+                      ${item.details ? `<p class="timeline-description">${escapeHtml(item.details)}</p>` : ""}
+                      ${item.detailRows?.length ? `<dl class="timeline-detail-list">
+                        ${item.detailRows.filter(([, value]) => value !== undefined && value !== null && value !== "").map(([label, value]) => `
+                          <div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>
+                        `).join("")}
+                      </dl>` : ""}
+                    </div>
+                  </details>
+                  <button class="text-btn timeline-record-link" type="button"
+                    data-timeline-view="${escapeHtml(item.targetView)}"
+                    data-timeline-target="${escapeHtml(item.targetId)}"
+                    aria-label="Open record for ${escapeHtml(item.title)}">Open record</button>
+                </li>`).join("")}
+            </ol>
+          </section>`;
+      }).join("") : '<p class="empty-state">Patient-related events will appear here as the chart is updated.</p>'}
     </section>
   `;
+}
+
+function openTimelineRecord(button) {
+  const view = button.dataset.timelineView;
+  const targetId = button.dataset.timelineTarget;
+  if (!view || !targetId) {
+    document.getElementById("encounterStatus").textContent = "This timeline item has no linked chart record.";
+    return;
+  }
+
+  setCurrentView(view);
+  render();
+  const target = document.getElementById(targetId);
+  if (!target) {
+    document.getElementById("encounterStatus").textContent = "The linked chart record could not be found.";
+    return;
+  }
+
+  const recordDetails = target.closest("details") || target.querySelector("details");
+  recordDetails?.setAttribute("open", "");
+  let ancestor = target.parentElement;
+  while (ancestor) {
+    if (ancestor.classList?.contains("collapsible") && ancestor.classList.contains("collapsed")) {
+      ancestor.querySelector(":scope > .collapse-head > .collapse-toggle")?.click();
+    }
+    ancestor = ancestor.parentElement;
+  }
+  target.setAttribute("tabindex", "-1");
+  target.classList.add("timeline-target-highlight");
+  target.focus({ preventScroll: true });
+  target.scrollIntoView({
+    behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+    block: "center"
+  });
+  window.setTimeout(() => target.classList.remove("timeline-target-highlight"), 2200);
 }
 
 function renderPatientDetail() {
@@ -2433,8 +2704,21 @@ function renderPatientDetail() {
             <article class="mini-card">
               <h4>${card.title}</h4>
               <ul>
-                ${card.items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+                ${card.items.map((item, index) => `
+                  <li ${card.title === "Lab markers" ? `id="patient-lab-${escapeHtml(patient.id)}-${index}"` : ""}>${escapeHtml(item)}</li>
+                `).join("")}
               </ul>
+              ${card.action === "task" && patient.carePlan.tasks.length ? `
+                <div class="care-plan-task-list">
+                  <strong>Task records</strong>
+                  <ul>
+                    ${patient.carePlan.tasks.map((task) => `
+                      <li id="patient-care-task-${escapeHtml(task.id)}">
+                        <span>${escapeHtml(task.label)}</span>
+                        <small>${escapeHtml(task.status)}${task.dueDate ? ` · Due ${escapeHtml(formatDisplayDate(task.dueDate))}` : ""}</small>
+                      </li>`).join("")}
+                  </ul>
+                </div>` : ""}
               ${card.action === "task" ? `<button class="ghost-btn action-btn" id="completeTaskBtn" type="button" ${canCompleteTask ? "" : "disabled"}>Complete next task</button>` : ""}
             </article>
           `
@@ -2462,7 +2746,7 @@ function renderPatientDetail() {
       </div>
       ${patient.imaging.length
         ? patient.imaging.map((record) => `
-          <article class="imaging-record">
+          <article class="imaging-record" id="patient-imaging-${escapeHtml(record.id)}">
             <div class="record-card-header">
               <div>
                 <span class="record-category">${escapeHtml(record.modality)} · ${escapeHtml(record.bodySite)}</span>
@@ -2503,7 +2787,7 @@ function renderAppointments() {
   container.innerHTML = patient.appointments
     .map(
       (appointment) => `
-        <div class="list-item appointment-item ${appointment.status.toLowerCase().replace(/\s+/g, "-")}">
+        <div class="list-item appointment-item ${appointment.status.toLowerCase().replace(/\s+/g, "-")}" id="patient-appointment-${escapeHtml(appointment.id)}">
           <div>
             <strong>${escapeHtml(appointment.time)} • ${escapeHtml(appointment.title)}</strong>
             <span>${escapeHtml(appointment.location)} • ${escapeHtml(appointment.status)}</span>
@@ -3144,7 +3428,7 @@ function renderOrders() {
     ? patient.orders.map((order) => {
       const nextStatus = order.status === "Pending" ? "Acknowledged" : order.status === "Acknowledged" ? "Completed" : "";
       return `
-        <article class="record-card">
+        <article class="record-card" id="patient-order-${escapeHtml(order.id)}">
           <div class="record-card-header">
             <div>
               <span class="record-category">${escapeHtml(order.category)} · ${escapeHtml(order.priority)}</span>
@@ -3172,7 +3456,7 @@ function renderDocuments() {
     `${patient.documents.length} ${patient.documents.length === 1 ? "document" : "documents"}`;
   container.innerHTML = patient.documents.length
     ? patient.documents.map((document) => `
-      <article class="record-card document-card">
+      <article class="record-card document-card" id="patient-document-${escapeHtml(document.id)}">
         <div class="record-card-header">
           <div>
             <span class="record-category">${escapeHtml(document.type)}</span>
@@ -3262,7 +3546,8 @@ const SECTION_SUMMARIES = {
   },
   timeline: () => {
     const items = buildPatientTimeline(getSelectedPatient());
-    return items.length ? `${items.length} events · Latest: ${items[0].title}` : "No events yet";
+    const planned = items.filter((item) => item.phase === "planned").length;
+    return items.length ? `${items.length} events · ${planned} planned` : "No events yet";
   },
   card: (target) => summarizeList([...target.querySelectorAll(":scope > ul > li")].map((item) => item.textContent.trim()))
 };
@@ -3276,7 +3561,7 @@ const COLLAPSIBLES = [
   ["#auditSection", ".panel-header", true, "audit"],
   [".vitals-dashboard", ".clinical-dashboard-heading", true, "vitals"],
   [".imaging-dashboard", ".clinical-dashboard-heading", true, "imaging"],
-  [".patient-timeline", ".timeline-heading", true, "timeline"],
+  [".patient-timeline", ".timeline-heading", false, "timeline"],
   [".detail-grid > .mini-card", "h4", true, "card"]
 ];
 const collapsedKeys = new Set();
@@ -3671,6 +3956,11 @@ function attachEvents() {
   });
 
   document.getElementById("patientDetail").addEventListener("click", (event) => {
+    const recordButton = event.target.closest("[data-timeline-target]");
+    if (recordButton) {
+      openTimelineRecord(recordButton);
+      return;
+    }
     if (event.target.id !== "completeTaskBtn") return;
 
     const result = markTaskDone(getSelectedPatient());
@@ -3883,6 +4173,7 @@ function signOut() {
 
 const appApi = {
   applyEncounterToPatient,
+  buildPatientTimeline,
   buildExportPayload,
   calculateDashboardStats,
   createEncounterForPatient,

@@ -182,6 +182,35 @@ test("staff directory search filters staff details and reports empty results", (
   assert.match(resultsPanel.innerHTML, /Joe Spartan/);
 });
 
+test("patient worklist search includes care team and location details", () => {
+  const { context } = setup();
+  const searchField = { value: "Dr. Elena Ruiz" };
+  const list = { innerHTML: "" };
+  const count = { textContent: "" };
+  const activeFilterBar = { classList: { toggle() {} } };
+  const activeFilterLabel = { textContent: "" };
+  const elements = new Map([
+    ["patientListSearch", searchField],
+    ["activeFilterBar", activeFilterBar],
+    ["activeFilterLabel", activeFilterLabel],
+    ["patientList", list],
+    ["patientListCount", count]
+  ]);
+  context.document = { getElementById: (id) => elements.get(id) };
+
+  vm.runInContext("renderPatientList()", context);
+
+  assert.equal(count.textContent, "6 records");
+  assert.match(list.innerHTML, /Maya Thompson/);
+  assert.match(list.innerHTML, /patient-card-priority/);
+  assert.match(list.innerHTML, /aria-pressed=/);
+
+  searchField.value = "not a patient";
+  vm.runInContext("renderPatientList()", context);
+  assert.equal(count.textContent, "0 records");
+  assert.match(list.innerHTML, /No patients matched/);
+});
+
 function setupLogin(session = new Map(), storage = new Map([[automaticSignInKey, "signed-out"]])) {
   const { context } = setup(session.get(sessionKey) ?? null, storage);
   const elements = new Map();

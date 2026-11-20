@@ -2225,11 +2225,12 @@ function getFilterDetail(patient) {
 
 function renderPatientList() {
   const searchField = document.getElementById("patientListSearch");
-  const searchTerm = searchField ? searchField.value.toLowerCase() : "";
+  const searchTerm = searchField ? searchField.value.trim().toLowerCase() : "";
   const statFilter = activeStatFilter ? STAT_FILTERS[activeStatFilter] : null;
   const filtered = patients.filter((patient) =>
     (!statFilter || statFilter.test(patient)) &&
-    `${patient.name} ${patient.mrn} ${patient.priority} ${patient.status} ${patient.diagnosis}`.toLowerCase().includes(searchTerm)
+    `${patient.name} ${patient.mrn} ${patient.priority} ${patient.status} ${patient.diagnosis} ${patient.clinical.stage} ${patient.clinical.chiefComplaint} ${patient.clinical.department} ${patient.clinical.location} ${patient.clinical.attending} ${patient.clinical.assignedNurse} ${patient.provider}`
+      .toLowerCase().includes(searchTerm)
   );
   document.getElementById("activeFilterBar").classList.toggle("hidden-section", !statFilter);
   if (statFilter) document.getElementById("activeFilterLabel").textContent = `Filter: ${statFilter.label}`;
@@ -2238,7 +2239,7 @@ function renderPatientList() {
   document.getElementById("patientListCount").textContent =
     `${filtered.length} ${filtered.length === 1 ? "record" : "records"}`;
   if (!filtered.length) {
-    list.innerHTML = '<p class="mini-card">No patients matched your search.</p>';
+    list.innerHTML = '<p class="patient-list-empty">No patients matched. Try a name, MRN, diagnosis, care team, or location.</p>';
     return;
   }
 
@@ -2246,11 +2247,11 @@ function renderPatientList() {
     .map((patient) => {
       const active = patient.id === selectedPatientId ? "active" : "";
       return `
-        <button class="patient-card ${active}" data-id="${escapeHtml(patient.id)}">
+        <button class="patient-card ${active}" type="button" data-id="${escapeHtml(patient.id)}" aria-pressed="${patient.id === selectedPatientId}">
           <strong>${escapeHtml(patient.name)}</strong>
-          <span>${escapeHtml(patient.mrn)} • ${escapeHtml(patient.priority)}</span>
-          <span>${escapeHtml(patient.diagnosis)}</span>
-          <span>${escapeHtml(patient.status)}</span>
+          <span class="patient-card-meta"><span>${escapeHtml(patient.mrn)}</span><span class="patient-card-priority ${patient.priority === "Urgent" ? "urgent" : ""}">${escapeHtml(patient.priority)}</span></span>
+          <span class="patient-card-diagnosis">${escapeHtml(patient.diagnosis)}</span>
+          <span class="patient-card-status">${escapeHtml(patient.status)}</span>
           ${statFilter ? `<span class="filter-detail">${escapeHtml(getFilterDetail(patient))}</span>` : ""}
         </button>
       `;

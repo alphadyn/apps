@@ -20,7 +20,7 @@
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://alphadyn.github.io/apps/northstar-ehr/social-preview.png" />
-    <link rel="stylesheet" href="styles.css?v=6" />
+    <link rel="stylesheet" href="styles.css?v=7" />
   </head>
   <body>
     <main id="loginScreen" class="login-screen">
@@ -107,16 +107,21 @@
           <details id="patientsMenu" class="nav-group patients-menu">
             <summary><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m20 0v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /><circle cx="9" cy="7" r="4" /></svg>Patients &amp; care<svg class="menu-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg></summary>
             <div class="nav-submenu">
-              <button class="nav-link" type="button" data-view="patients">Worklist &amp; charts</button>
-              <button class="nav-link" type="button" data-view="patient-profiles">Patient profiles</button>
-              <button class="nav-link" type="button" data-view="admissions">Admissions</button>
-              <button class="nav-link" type="button" data-view="nursing">Nursing station</button>
-              <button class="nav-link" type="button" data-view="appointments">Appointments</button>
-              <p class="nav-subgroup-title">Clinical workspace</p>
-              <button class="nav-link" type="button" data-view="clinical">ED & Inpatient</button>
-              <button class="nav-link" type="button" data-view="orders">Orders</button>
-              <button class="nav-link" type="button" data-view="documents">Notes & Documents</button>
-              <button class="nav-link" type="button" data-view="labs">Labs & Meds</button>
+              <div class="nav-subgroup">
+                <p class="nav-subgroup-title">Patient care</p>
+                <button class="nav-link" type="button" data-view="patients">Worklist &amp; charts</button>
+                <button class="nav-link" type="button" data-view="patient-profiles">Patient profiles</button>
+                <button class="nav-link" type="button" data-view="admissions">Admissions</button>
+                <button class="nav-link" type="button" data-view="nursing">Nursing station</button>
+                <button class="nav-link" type="button" data-view="appointments">Appointments</button>
+              </div>
+              <div class="nav-subgroup">
+                <p class="nav-subgroup-title">Clinical tools</p>
+                <button class="nav-link" type="button" data-view="clinical">ED &amp; Inpatient</button>
+                <button class="nav-link" type="button" data-view="orders">Orders</button>
+                <button class="nav-link" type="button" data-view="documents">Notes &amp; Documents</button>
+                <button class="nav-link" type="button" data-view="labs">Labs &amp; Meds</button>
+              </div>
             </div>
           </details>
           <div class="nav-group">
@@ -407,7 +412,7 @@
               <button id="clearFilterBtn" class="ghost-btn" type="button">Clear filter</button>
             </div>
             <label class="patient-list-search" for="patientListSearch">Filter patient worklist
-              <input id="patientListSearch" type="search" placeholder="Name, MRN, diagnosis, status..." />
+              <input id="patientListSearch" type="search" placeholder="Name, MRN, diagnosis, care team, location..." />
             </label>
             <div id="patientList" class="patient-list"></div>
           </div>
@@ -495,6 +500,6 @@
     </div>
 
     <script src="interop.js"></script>
-    <script src="app.js?v=6"></script>
+    <script src="app.js?v=7"></script>
   </body>
 </html>

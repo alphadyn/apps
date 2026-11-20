@@ -2617,7 +2617,26 @@ function openPatientChart(patientId) {
 
 function renderGlobalSearch() {
   const input = document.getElementById("patientSearch");
+  const searchBox = input.closest(".search-box");
   const resultsPanel = document.getElementById("globalSearchResults");
+  if (currentView === "staff") {
+    searchBox.classList.add("staff-directory-search");
+    input.placeholder = "Search staff by name, role, department...";
+    input.setAttribute("aria-label", "Search staff directory");
+    input.setAttribute("role", "searchbox");
+    input.removeAttribute("aria-autocomplete");
+    input.removeAttribute("aria-controls");
+    input.removeAttribute("aria-expanded");
+    resultsPanel.hidden = true;
+    resultsPanel.innerHTML = "";
+    return;
+  }
+  searchBox.classList.remove("staff-directory-search");
+  input.placeholder = "Search people, departments, locations...";
+  input.setAttribute("aria-label", "Search patients, staff, departments, and locations");
+  input.setAttribute("role", "combobox");
+  input.setAttribute("aria-autocomplete", "list");
+  input.setAttribute("aria-controls", "globalSearchResults");
   const term = input.value.trim().toLowerCase();
   if (!term) {
     resultsPanel.hidden = true;
@@ -2917,29 +2936,40 @@ function renderStaffAvatar(staff) {
 }
 
 function renderStaffView(container) {
-  const staffCards = staffDirectory
-    .slice()
-    .sort((left, right) => formatStaffProfileName(left).localeCompare(formatStaffProfileName(right)))
-    .map((staff) => `
+  const searchInput = typeof document === "undefined" ? null : document.getElementById("patientSearch");
+  const searchTerm = searchInput?.value.trim().toLowerCase() || "";
+  const filteredStaff = staffDirectory
+    .filter((staff) =>
+      `${formatStaffProfileName(staff)} ${staff.name} ${staff.title} ${staff.role} ${staff.status} ${staff.department} ${staff.location} ${staff.email || ""}`
+        .toLowerCase().includes(searchTerm)
+    )
+    .sort((left, right) => formatStaffProfileName(left).localeCompare(formatStaffProfileName(right)));
+  const staffCards = filteredStaff.map((staff) => `
       <article class="directory-card">
         ${renderStaffAvatar(staff)}
         <div class="directory-card-content">
-          <div class="staff-card-labels">
-            <span class="staff-card-role">${escapeHtml(staff.role)}</span>
-            <span class="staff-card-status">${escapeHtml(staff.status)}</span>
+          <div class="staff-card-heading">
+            <h4>${escapeHtml(formatStaffProfileName(staff))}</h4>
+            <div class="staff-card-labels">
+              <span class="staff-card-role">${escapeHtml(staff.role)}</span>
+              <span class="staff-card-status">${escapeHtml(staff.status)}</span>
+            </div>
           </div>
-          <h4>${escapeHtml(formatStaffProfileName(staff))}</h4>
-          <p>${escapeHtml(staff.title)}</p>
-          <p>${escapeHtml(staff.department)} · ${escapeHtml(staff.location)}</p>
-          <p class="staff-card-email">${escapeHtml(staff.email || "No contact email recorded")}</p>
-          <button class="ghost-btn action-btn" type="button" data-open-staff-profile="${escapeHtml(staff.id)}" aria-label="View profile for ${escapeHtml(formatStaffProfileName(staff))}">View profile</button>
+          <p class="staff-card-title">${escapeHtml(staff.title)}</p>
+          <p class="staff-card-meta">${escapeHtml(staff.department)} · ${escapeHtml(staff.location)}</p>
+          ${staff.email
+            ? `<a class="staff-card-email" href="mailto:${escapeHtml(staff.email)}">${escapeHtml(staff.email)}</a>`
+            : '<span class="staff-card-email">No contact email recorded</span>'}
         </div>
+        <button class="ghost-btn action-btn" type="button" data-open-staff-profile="${escapeHtml(staff.id)}" aria-label="View profile for ${escapeHtml(formatStaffProfileName(staff))}">View profile</button>
       </article>`).join("");
   container.innerHTML = `
     <div class="panel">
       <div class="panel-header staff-directory-header">
-        <div><p class="eyebrow">People &amp; workforce</p><h3>Staff directory</h3></div>
-        <span class="pill">${staffDirectory.length} profiles</span>
+        <p class="eyebrow">People &amp; workforce</p>
+        <span class="pill" aria-live="polite">${searchTerm
+          ? `${filteredStaff.length} ${filteredStaff.length === 1 ? "match" : "matches"}`
+          : `${staffDirectory.length} profiles`}</span>
         ${currentUser.role === "admin" ? `
           <details class="staff-add-panel">
             <summary>Add staff profile</summary>
@@ -2953,7 +2983,9 @@ function renderStaffView(container) {
             </form>
           </details>` : ""}
       </div>
-      <div class="directory-grid">${staffCards}</div>
+      ${filteredStaff.length
+        ? `<div class="directory-grid">${staffCards}</div>`
+        : '<p class="empty-state">No staff matched your search. Try another name, role, department, or location.</p>'}
     </div>`;
 }
 
@@ -3414,11 +3446,15 @@ function handleDocumentSubmit(event) {
 
 function attachEvents() {
   initializeWorkspaceNavigation();
-  document.getElementById("patientSearch").addEventListener("input", renderGlobalSearch);
+  document.getElementById("patientSearch").addEventListener("input", () => {
+    if (currentView === "staff") renderStaffView(document.getElementById("extendedContent"));
+    else renderGlobalSearch();
+  });
   document.getElementById("patientSearch").addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       event.currentTarget.value = "";
-      renderGlobalSearch();
+      if (currentView === "staff") renderStaffView(document.getElementById("extendedContent"));
+      else renderGlobalSearch();
     } else if (event.key === "ArrowDown") {
       const firstResult = document.querySelector("#globalSearchResults .global-search-result");
       if (firstResult) {

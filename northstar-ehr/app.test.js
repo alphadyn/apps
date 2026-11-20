@@ -130,11 +130,56 @@ test("staff directory cards show concise details and keep profile actions access
 
   assert.match(context.directoryContainer.innerHTML, /12 profiles/);
   assert.match(context.directoryContainer.innerHTML, /class="staff-card-role"/);
+  assert.match(context.directoryContainer.innerHTML, /class="staff-card-title"/);
+  assert.match(context.directoryContainer.innerHTML, /class="staff-card-meta"/);
+  assert.match(context.directoryContainer.innerHTML, /class="staff-card-heading"/);
+  assert.match(context.directoryContainer.innerHTML, /href="mailto:joe\.spartan@example\.test"/);
   assert.match(context.directoryContainer.innerHTML, /aria-label="View profile for Joe Spartan, MD"/);
+  assert.doesNotMatch(context.directoryContainer.innerHTML, /<h3>Staff directory<\/h3>/);
   assert.doesNotMatch(context.directoryContainer.innerHTML, /Sign in with an Admin account/);
 
   vm.runInContext('currentUser = normalizeCurrentUser({ accountId: "admin" }); renderStaffView(directoryContainer)', context);
   assert.match(context.directoryContainer.innerHTML, /id="staffForm"/);
+});
+
+test("staff directory search filters staff details and reports empty results", () => {
+  const { context } = setup();
+  context.directoryContainer = { innerHTML: "" };
+  const searchInput = {
+    value: "radiology",
+    attributes: {},
+    setAttribute(name, value) { this.attributes[name] = value; },
+    removeAttribute(name) { delete this.attributes[name]; }
+  };
+  const resultsPanel = { hidden: false, innerHTML: "old global results" };
+  context.document = {
+    getElementById: (id) => id === "patientSearch" ? searchInput : resultsPanel
+  };
+
+  vm.runInContext('currentView = "staff"; renderGlobalSearch()', context);
+  assert.equal(resultsPanel.hidden, true);
+  assert.equal(resultsPanel.innerHTML, "");
+  assert.equal(searchInput.attributes.role, "searchbox");
+  assert.equal(searchInput.attributes["aria-label"], "Search staff directory");
+  assert.equal(searchInput.attributes["aria-controls"], undefined);
+
+  vm.runInContext("renderStaffView(directoryContainer)", context);
+
+  assert.match(context.directoryContainer.innerHTML, /2 matches/);
+  assert.match(context.directoryContainer.innerHTML, /Morgan Ellis, MD/);
+  assert.match(context.directoryContainer.innerHTML, /Taylor Reed, MD/);
+  assert.doesNotMatch(context.directoryContainer.innerHTML, /Joe Spartan, MD/);
+
+  searchInput.value = "no matching staff";
+  vm.runInContext("renderStaffView(directoryContainer)", context);
+  assert.match(context.directoryContainer.innerHTML, /0 matches/);
+  assert.match(context.directoryContainer.innerHTML, /No staff matched your search/);
+
+  searchInput.value = "Joe";
+  vm.runInContext('currentView = "overview"; renderGlobalSearch()', context);
+  assert.equal(searchInput.attributes.role, "combobox");
+  assert.equal(resultsPanel.hidden, false);
+  assert.match(resultsPanel.innerHTML, /Joe Spartan/);
 });
 
 function setupLogin(session = new Map(), storage = new Map([[automaticSignInKey, "signed-out"]])) {

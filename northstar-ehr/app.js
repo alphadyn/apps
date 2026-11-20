@@ -655,13 +655,14 @@ function createRecordId(prefix) {
   return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
 }
 
-function addPatientEvent(patient, type, title, details = "", timestamp = new Date().toISOString()) {
+function addPatientEvent(patient, type, title, details = "", timestamp = new Date().toISOString(), target = {}) {
   const event = {
     id: createRecordId("event"),
     type,
     title,
     details,
-    timestamp
+    timestamp,
+    ...target
   };
   patient.events.unshift(event);
   return event;
@@ -724,8 +725,12 @@ function recordVitals(patient, values, source) {
   patient.vitals = snapshot;
   patient.clinical.vitals = { ...patient.clinical.vitals, ...values };
   const recordedAt = new Date().toISOString();
-  patient.vitalReadings.unshift({ id: createRecordId("vital"), values: snapshot, recordedAt, source });
-  addPatientEvent(patient, "Vitals", "Vital signs recorded", source, recordedAt);
+  const reading = { id: createRecordId("vital"), values: snapshot, recordedAt, source };
+  patient.vitalReadings.unshift(reading);
+  addPatientEvent(patient, "Vitals", "Vital signs recorded", source, recordedAt, {
+    targetView: "patients",
+    targetId: `patient-vital-${reading.id}`
+  });
 }
 
 function buildPatientTimeline(patient) {
@@ -885,8 +890,8 @@ function buildPatientTimeline(patient) {
       detailRows: [["Event details", event.details || "No additional details recorded"]],
       timestamp: event.timestamp,
       fallbackTime: "Date not recorded",
-      targetView: "patients",
-      targetId: reading ? `patient-vital-${reading.id}` : `patient-timeline-row-${event.id}`
+      targetView: event.targetView || "patients",
+      targetId: event.targetId || (reading ? `patient-vital-${reading.id}` : `patient-timeline-row-${event.id}`)
     });
   });
 
@@ -1096,7 +1101,9 @@ function normalizePatient(patient) {
       type: event.type || "Encounter",
       title: event.title || "Patient event",
       details: event.details || "",
-      timestamp: event.timestamp || ""
+      timestamp: event.timestamp || "",
+      targetView: event.targetView || "",
+      targetId: event.targetId || ""
     })),
     clinical: {
       arrivalMode: clinical.arrivalMode || "Walk-in",
@@ -1952,7 +1959,7 @@ function applyEncounterToPatient(patient, encounter) {
 
   patient.notes.unshift(note);
   const createdAt = new Date().toISOString();
-  patient.documents.unshift({
+  const document = {
     id: createRecordId("document"),
     title: note.title,
     type: encounter.type || "Clinical encounter",
@@ -1960,7 +1967,8 @@ function applyEncounterToPatient(patient, encounter) {
     time: note.time,
     createdAt,
     sections: { summary: note.summary, vitals: encounter.vitals || "", plan: encounter.followup ? `Follow-up: ${encounter.followup}` : "" }
-  });
+  };
+  patient.documents.unshift(document);
   patient.chartCompleted = true;
   patient.medicationReviewed = true;
   patient.lastVisit = "Today";
@@ -1988,7 +1996,10 @@ function applyEncounterToPatient(patient, encounter) {
     );
   }
 
-  addPatientEvent(patient, "Encounter", "Clinical encounter documented", `${note.title} · ${note.type}`);
+  addPatientEvent(patient, "Encounter", "Clinical encounter documented", `${note.title} · ${note.type}`, createdAt, {
+    targetView: "documents",
+    targetId: `patient-document-${document.id}`
+  });
   return note;
 }
 
@@ -2077,7 +2088,9 @@ function updateWorkflowForPatient(patient, updates, role = currentUser.role) {
     patient,
     "Encounter",
     `Encounter updated · ${patient.clinical.stage}`,
-    [patient.clinical.disposition, patient.clinical.location, patient.clinical.destination].filter(Boolean).join(" · ")
+    [patient.clinical.disposition, patient.clinical.location, patient.clinical.destination].filter(Boolean).join(" · "),
+    new Date().toISOString(),
+    { targetView: "clinical", targetId: "workflowForm" }
   );
   appendAuditEntry({
     action: "workflow:update",
@@ -2133,7 +2146,10 @@ function updateOrderStatus(patient, orderId, status, role = currentUser.role) {
   if (!order) return { allowed: false, message: "Order not found." };
   order.status = status;
   order.updatedAt = new Date().toISOString();
-  addPatientEvent(patient, order.category, `${order.category} order ${status.toLowerCase()}`, order.title, order.updatedAt);
+  addPatientEvent(patient, order.category, `${order.category} order ${status.toLowerCase()}`, order.title, order.updatedAt, {
+    targetView: "orders",
+    targetId: `patient-order-${order.id}`
+  });
   appendAuditEntry({
     action: "order:update",
     patientName: patient.name,
@@ -2198,7 +2214,10 @@ function updateAppointmentStatus(patientId, appointmentId, nextStatus, role = cu
 
   appointment.status = nextStatus;
   appointment.updatedAt = new Date().toISOString();
-  addPatientEvent(patient, "Appointment", `Appointment ${nextStatus.toLowerCase()}`, appointment.title, appointment.updatedAt);
+  addPatientEvent(patient, "Appointment", `Appointment ${nextStatus.toLowerCase()}`, appointment.title, appointment.updatedAt, {
+    targetView: "appointments",
+    targetId: `patient-appointment-${appointment.id}`
+  });
   if (nextStatus === "Completed") {
     patient.chartCompleted = true;
     patient.status = "Stable";
@@ -2226,7 +2245,10 @@ function markTaskDone(patient, role = currentUser.role) {
   if (!nextOpenTask) return { allowed: true, changed: false };
   nextOpenTask.status = "Done";
   nextOpenTask.completedAt = new Date().toISOString();
-  addPatientEvent(patient, "Care plan", "Care task completed", nextOpenTask.label, nextOpenTask.completedAt);
+  addPatientEvent(patient, "Care plan", "Care task completed", nextOpenTask.label, nextOpenTask.completedAt, {
+    targetView: "patients",
+    targetId: `patient-care-task-${nextOpenTask.id}`
+  });
   appendAuditEntry({
     action: "task:complete",
     patientName: patient.name,
@@ -2583,6 +2605,10 @@ function renderPatientTimeline(patient) {
     ["planned", "Planned"],
     ["undated", "Date not recorded"]
   ];
+  const groupedItems = Object.fromEntries(phases.map(([phase]) => [
+    phase,
+    items.filter((item) => item.phase === phase)
+  ]));
   const admissionAt = patient.clinical.admissionAt;
   const hasUndated = items.some((item) => item.phase === "undated");
   return `
@@ -2601,7 +2627,7 @@ function renderPatientTimeline(patient) {
         ${hasUndated ? "Events without a recorded date cannot be placed relative to admission." : ""}
       </p>
       ${items.length ? phases.map(([phase, label]) => {
-        const phaseItems = items.filter((item) => item.phase === phase);
+        const phaseItems = groupedItems[phase];
         if (!phaseItems.length) return "";
         return `
           <section class="timeline-group" aria-label="${label}">
@@ -2622,7 +2648,6 @@ function renderPatientTimeline(patient) {
                       </span>
                     </summary>
                     <div class="timeline-expanded">
-                      ${item.details ? `<p class="timeline-description">${escapeHtml(item.details)}</p>` : ""}
                       ${item.detailRows?.length ? `<dl class="timeline-detail-list">
                         ${item.detailRows.filter(([, value]) => value !== undefined && value !== null && value !== "").map(([label, value]) => `
                           <div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>

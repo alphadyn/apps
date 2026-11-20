@@ -790,4 +790,9 @@ test("appointment status changes are retained as patient timeline events", () =>
   assert.equal(event.type, "Appointment");
   assert.equal(event.title, "Appointment completed");
   assert.ok(event.timestamp);
+  assert.equal(event.targetView, "appointments");
+  assert.equal(event.targetId, "patient-appointment-appointment-test");
+  const timelineEvent = api.buildPatientTimeline(patient).find((item) => item.id === event.id);
+  assert.equal(timelineEvent.targetView, "appointments");
+  assert.equal(timelineEvent.targetId, "patient-appointment-appointment-test");
 });

@@ -8,6 +8,14 @@ A responsive electronic health record demonstration covering patient charts, eme
 
 Select the Northstar brand in the login panel or sidebar to reload the app's entry page. Demo data remains in browser storage.
 
+## Brand and link preview
+
+The app uses a teal Northstar mark across its SVG favicon, multi-size `favicon.ico`, and 180 × 180 Apple touch icon. Open Graph and Twitter metadata point to the 1200 × 630 social preview image below, with matching fictional-demo descriptions and accessible image text.
+
+![Northstar EHR clinical operations demo link preview](./social-preview.png)
+
+The deployed URL is `https://alphadyn.github.io/apps/northstar-ehr/`.
+
 ## Features
 
 - Modern clinical workspace with icon-based navigation, a collapsible desktop sidebar, a keyboard-accessible mobile drawer, compact account settings, and an on-demand Data tools menu
@@ -23,7 +31,7 @@ Select the Northstar brand in the login panel or sidebar to reload the app's ent
 - Unified search across patients, staff, departments, and care locations; patient and staff results open their profiles
 - Patient profile pages and staff directory profiles with care-team and encounter context
 - Patient status dashboard with current encounter status, allergy visibility, vital-sign history, imaging/report counts, and latest radiology summary
-- Chronological patient timeline combining clinical notes, workflow updates, vitals, orders, imaging, and appointment activity; click or keyboard-expand an event to view its recorded details
+- Admission-aware patient timeline grouping previous, current, planned, and undated records, with direct links from events to their chart records
 - Encounter progression for intake, triage, ED evaluation, consultation, admission, discharge, and closure
 - Intake and triage capture for arrival mode, chief complaint, acuity, nursing note, vital signs, pain score, and location
 - Disposition tracking for ward/ICU admission, home discharge, PCP or specialist referral, and transfer

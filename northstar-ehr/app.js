@@ -368,7 +368,7 @@ const defaultStaffDirectory = [
 ];
 
 const staffPortraits = new Map([
-  ["staff-joe-spartan", "assets/joe-spartan.jpg"],
+  ["staff-joe-spartan", "assets/joe-spartan.jpg?v=3"],
   ["staff-elena-ruiz", "assets/elena-ruiz.jpg"],
   ["staff-amir-hassan", "assets/amir-hassan.jpg"],
   ["staff-priya-singh", "assets/priya-singh.jpg"],
@@ -377,7 +377,7 @@ const staffPortraits = new Map([
   ["staff-sam-carter", "assets/sam-carter.jpg"],
   ["staff-riley-bennett", "assets/riley-bennett.jpg"],
   ["staff-jamie-brooks", "assets/jamie-brooks.jpg"],
-  ["staff-morgan-ellis", "assets/morgan-ellis.jpg"],
+  ["staff-morgan-ellis", "assets/morgan-ellis.jpg?v=3"],
   ["staff-taylor-reed", "assets/taylor-reed.jpg"]
 ]);
 
@@ -2923,28 +2923,36 @@ function renderStaffView(container) {
     .map((staff) => `
       <article class="directory-card">
         ${renderStaffAvatar(staff)}
-        <span class="record-category">${escapeHtml(staff.role)} · ${escapeHtml(staff.status)}</span>
-        <h4>${escapeHtml(formatStaffProfileName(staff))}</h4>
-        <p>${escapeHtml(staff.title)}</p>
-        <p>${escapeHtml(staff.department)} · ${escapeHtml(staff.location)}</p>
-        <p>${escapeHtml(staff.email || "No contact email recorded")}</p>
-        <button class="ghost-btn action-btn" type="button" data-open-staff-profile="${escapeHtml(staff.id)}">View profile</button>
+        <div class="directory-card-content">
+          <div class="staff-card-labels">
+            <span class="staff-card-role">${escapeHtml(staff.role)}</span>
+            <span class="staff-card-status">${escapeHtml(staff.status)}</span>
+          </div>
+          <h4>${escapeHtml(formatStaffProfileName(staff))}</h4>
+          <p>${escapeHtml(staff.title)}</p>
+          <p>${escapeHtml(staff.department)} · ${escapeHtml(staff.location)}</p>
+          <p class="staff-card-email">${escapeHtml(staff.email || "No contact email recorded")}</p>
+          <button class="ghost-btn action-btn" type="button" data-open-staff-profile="${escapeHtml(staff.id)}" aria-label="View profile for ${escapeHtml(formatStaffProfileName(staff))}">View profile</button>
+        </div>
       </article>`).join("");
   container.innerHTML = `
     <div class="panel">
-      <div class="panel-header"><div><p class="eyebrow">People & workforce</p><h3>Staff directory</h3></div><span class="pill">${staffDirectory.length} profiles</span></div>
-      ${currentUser.role === "admin" ? `
-        <details class="staff-add-panel">
-          <summary>Add staff profile</summary>
-          <form id="staffForm" class="clinical-form">
-            <div class="row"><label>Name<input name="name" required /></label><label>Title / credentials<input name="title" placeholder="e.g., Registered Nurse" required /></label></div>
-            <div class="row"><label>Personnel type<select name="role"><option>Provider</option><option>PA</option><option>Nurse</option><option>Midlevel</option><option>Administrator</option></select></label>
-              <label>Department<select name="department">${departments.map((department) => `<option>${escapeHtml(department.name)}</option>`).join("")}<option>Administration</option></select></label></div>
-            <div class="row"><label>Location<input name="location" placeholder="Unit or work area" required /></label><label>Contact email<input name="email" type="email" placeholder="name@example.test" /></label></div>
-            <button class="primary-btn" type="submit">Add to directory</button>
-            <p class="form-caution">Adding a profile does not create an account or grant access.</p>
-          </form>
-        </details>` : '<p class="form-caution">Sign in with an Admin account to add a staff directory entry. This does not create a sign-in account.</p>'}
+      <div class="panel-header staff-directory-header">
+        <div><p class="eyebrow">People &amp; workforce</p><h3>Staff directory</h3></div>
+        <span class="pill">${staffDirectory.length} profiles</span>
+        ${currentUser.role === "admin" ? `
+          <details class="staff-add-panel">
+            <summary>Add staff profile</summary>
+            <form id="staffForm" class="clinical-form">
+              <div class="row"><label>Name<input name="name" required /></label><label>Title / credentials<input name="title" placeholder="e.g., Registered Nurse" required /></label></div>
+              <div class="row"><label>Personnel type<select name="role"><option>Provider</option><option>PA</option><option>Nurse</option><option>Midlevel</option><option>Administrator</option></select></label>
+                <label>Department<select name="department">${departments.map((department) => `<option>${escapeHtml(department.name)}</option>`).join("")}<option>Administration</option></select></label></div>
+              <div class="row"><label>Location<input name="location" placeholder="Unit or work area" required /></label><label>Contact email<input name="email" type="email" placeholder="name@example.test" /></label></div>
+              <button class="primary-btn" type="submit">Add to directory</button>
+              <p class="form-caution">Adding a profile does not create an account or grant access.</p>
+            </form>
+          </details>` : ""}
+      </div>
       <div class="directory-grid">${staffCards}</div>
     </div>`;
 }
@@ -2964,7 +2972,7 @@ function renderProfilesView(container) {
     ? patients.find((patient) => Number(patient.id) === Number(selectedProfile.id))
     : staffDirectory.find((staff) => staff.id === selectedProfile.id);
   const selector = `
-    <label class="profile-selector">Select a profile
+    <label class="profile-selector" for="profileSelector">${profileType === "staff" ? "Select staff member" : "Select patient"}
       <select id="profileSelector">
         ${profileType === "staff"
           ? staffDirectory.map((staff) => `<option value="staff:${escapeHtml(staff.id)}">${escapeHtml(formatStaffProfileName(staff))} · ${escapeHtml(staff.role)}</option>`).join("")
@@ -2992,9 +3000,9 @@ function renderProfilesView(container) {
       <article><span>Latest observations</span><strong>BP ${escapeHtml(profile.vitals.bp || "—")} · HR ${escapeHtml(profile.vitals.hr || "—")} · Temp ${escapeHtml(profile.vitals.temp || "—")} · SpO₂ ${escapeHtml(profile.vitals.spO2 || "—")}</strong></article>
       <article><span>Open orders / notes</span><strong>${profile.orders.filter((order) => !["Completed", "Cancelled"].includes(order.status)).length} open orders · ${profile.documents.length} notes</strong></article>
     </div>` : `
-    <div class="profile-header">
+    <div class="profile-header staff-profile-header">
       ${renderStaffAvatar(profile)}
-      <div><p class="eyebrow">Staff profile · directory only</p><h3>${escapeHtml(formatStaffProfileName(profile))}</h3><p>${escapeHtml(profile.title)} · ${escapeHtml(profile.status)}</p></div>
+      <div><p class="eyebrow">Staff profile</p><h3>${escapeHtml(formatStaffProfileName(profile))}</h3><p>${escapeHtml(profile.title)} · ${escapeHtml(profile.status)}</p></div>
     </div>
     <div class="profile-facts">
       <article><span>Personnel type</span><strong>${escapeHtml(profile.role)}</strong></article>
@@ -3005,7 +3013,7 @@ function renderProfilesView(container) {
       <article><span>System access</span><strong>Directory profile only · no account linked</strong></article>
     </div>`;
   container.innerHTML = `<div class="panel profile-panel">
-    <div class="panel-header"><div><p class="eyebrow">Identity & care team</p><h3>Profiles</h3></div>${selector}</div>
+    <div class="panel-header"><div><p class="eyebrow">${isPatient ? "Identity & care team" : "People & workforce"}</p><h3>${isPatient ? "Patient profile" : "Staff profile"}</h3></div>${selector}</div>
     ${profileBody}
   </div>`;
   container.querySelector("#profileSelector").value = `${selectedProfile.type}:${selectedProfile.id}`;

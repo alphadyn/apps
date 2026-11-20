@@ -100,7 +100,7 @@ These portraits are used under the [Pexels License](https://www.pexels.com/licen
 
 | Profile | Photo source |
 | --- | --- |
-| Joe Spartan, MD | [Ivan S, *A Smiling Doctor with His Arms Crossed*](https://www.pexels.com/photo/a-smiling-doctor-with-his-arms-crossed-4989148/) |
+| Joe Spartan, MD | [Ab Pixels, *Professional Portrait of a Young Man in Suit*](https://www.pexels.com/photo/professional-portrait-of-a-young-man-in-suit-33844626/) |
 | Dr. Elena Ruiz | [Antoni Shkraba, *A Doctor Looking at the Camera*](https://www.pexels.com/photo/a-doctor-looking-at-the-camera-6749781/) |
 | Dr. Amir Hassan | [cottonbro studio, *A Portrait of a Doctor*](https://www.pexels.com/photo/a-portrait-of-a-doctor-5722163/) |
 | Dr. Priya Singh | [*Confident Female Doctor in White Coat Portrait*](https://www.pexels.com/photo/confident-female-doctor-in-white-coat-portrait-38618416/) |
@@ -109,5 +109,5 @@ These portraits are used under the [Pexels License](https://www.pexels.com/licen
 | Sam Carter | [RDNE Stock project, *Male Doctor in White Lab Coat*](https://www.pexels.com/photo/male-doctor-in-white-lab-coat-6129652/) |
 | Riley Bennett | [Oys Photography, *Doctor*](https://www.pexels.com/photo/doctor-19438561/) |
 | Jamie Brooks | [Antoni Shkraba, *A Doctor in a White Coat*](https://www.pexels.com/photo/a-doctor-in-a-white-coat-5214964/) |
-| Dr. Morgan Ellis | [Tima Miroshnichenko, *Close-up Photo of a Male Doctor*](https://www.pexels.com/photo/close-up-photo-of-a-male-doctor-5452268/) |
+| Dr. Morgan Ellis | [Noland Live, *Portrait of a Man Wearing a Black Suit*](https://www.pexels.com/photo/portrait-of-a-man-wearing-a-black-suit-23964497/) |
 | Dr. Taylor Reed | [RDNE Stock project, *Male Doctor in White Coat*](https://www.pexels.com/photo/male-doctor-in-white-coat-6129573/) |

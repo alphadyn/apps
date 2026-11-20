@@ -1337,29 +1337,89 @@ button.stat-card {
 
 .directory-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 14px;
   margin-top: 16px;
 }
 
 .directory-card {
   min-width: 0;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  align-items: start;
+  gap: 0 14px;
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 20px;
-  background: linear-gradient(155deg, #fff 60%, #f5faf9);
-  box-shadow: 0 2px 8px #18394a05;
+  border-radius: 12px;
+  padding: 16px;
+  background: #fff;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.directory-card:hover {
+  border-color: #b6d2cf;
+  box-shadow: 0 4px 14px rgba(25, 50, 70, 0.06);
+}
+
+.directory-card > .staff-avatar {
+  width: 56px;
+  height: 56px;
+  margin: 0;
+  border-radius: 50%;
+}
+
+.directory-card-content {
+  min-width: 0;
 }
 
 .directory-card h4 {
-  margin: 5px 0;
-  font-size: 1rem;
+  margin: 7px 0 2px;
+  font-size: 0.98rem;
+  line-height: 1.3;
 }
 
 .directory-card p {
-  margin: 6px 0;
+  margin: 4px 0;
   color: var(--muted);
-  font-size: 0.86rem;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.staff-card-labels {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.staff-card-role,
+.staff-card-status {
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.staff-card-role {
+  background: #e8f4f2;
+  color: #216763;
+}
+
+.staff-card-status {
+  background: #f1f5f9;
+  color: #526170;
+}
+
+.directory-card .staff-card-email {
+  margin-top: 7px;
+  color: #526170;
+}
+
+.directory-card .action-btn {
+  margin-top: 7px;
+  padding: 7px 10px;
+  font-size: 0.8rem;
 }
 
 .directory-facts,
@@ -1426,43 +1486,93 @@ button.stat-card {
 }
 
 .profile-header .staff-photo {
-  width: 88px;
-  height: 88px;
+  border-radius: 50%;
 }
 
 .staff-add-panel {
-  margin: 14px 0;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px 14px;
-  background: #f9fbfe;
+  position: relative;
+  margin-left: auto;
 }
 
 .staff-add-panel summary {
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #fff;
   color: var(--accent);
+  font-size: 0.84rem;
   font-weight: 700;
   cursor: pointer;
+  list-style: none;
+  white-space: nowrap;
+}
+
+.staff-add-panel summary::-webkit-details-marker {
+  display: none;
+}
+
+.staff-add-panel summary::before {
+  content: "+";
+  margin-right: 7px;
+  font-size: 1rem;
+}
+
+.staff-add-panel[open] {
+  z-index: 2;
 }
 
 .staff-add-panel form {
-  margin-top: 14px;
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: min(620px, calc(100vw - 48px));
+  max-height: min(70vh, 620px);
+  overflow-y: auto;
+  margin: 0;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 14px 36px rgba(15, 35, 50, 0.16);
+}
+
+.staff-directory-header {
+  flex-wrap: wrap;
+}
+
+.staff-directory-header > :first-child {
+  margin-right: auto;
 }
 
 .profile-selector {
-  min-width: min(100%, 300px);
+  width: min(100%, 360px);
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.profile-panel .panel-header {
+  align-items: end;
+  margin-bottom: 12px;
 }
 
 .profile-header {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 22px 0;
+  padding: 16px 0;
   border-bottom: 1px solid var(--border);
 }
 
 .profile-header .staff-avatar {
+  width: 88px;
+  height: 88px;
   flex: 0 0 auto;
   margin: 0;
+}
+
+.staff-profile-header .staff-avatar {
+  border-radius: 50%;
 }
 
 .profile-header h3 {
@@ -2542,6 +2652,16 @@ textarea:focus-visible {
 
   .profile-header .primary-btn {
     margin-left: 0;
+  }
+
+  .staff-profile-header {
+    align-items: center;
+    flex-direction: row;
+  }
+
+  .directory-card .action-btn,
+  .staff-add-panel summary {
+    min-height: 44px;
   }
 
   .row {

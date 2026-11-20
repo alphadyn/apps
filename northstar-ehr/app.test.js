@@ -123,6 +123,20 @@ test("each demo account resolves to its own staff profile", () => {
   }
 });
 
+test("staff directory cards show concise details and keep profile actions accessible", () => {
+  const { context } = setup();
+  context.directoryContainer = { innerHTML: "" };
+  vm.runInContext("renderStaffView(directoryContainer)", context);
+
+  assert.match(context.directoryContainer.innerHTML, /12 profiles/);
+  assert.match(context.directoryContainer.innerHTML, /class="staff-card-role"/);
+  assert.match(context.directoryContainer.innerHTML, /aria-label="View profile for Joe Spartan, MD"/);
+  assert.doesNotMatch(context.directoryContainer.innerHTML, /Sign in with an Admin account/);
+
+  vm.runInContext('currentUser = normalizeCurrentUser({ accountId: "admin" }); renderStaffView(directoryContainer)', context);
+  assert.match(context.directoryContainer.innerHTML, /id="staffForm"/);
+});
+
 function setupLogin(session = new Map(), storage = new Map([[automaticSignInKey, "signed-out"]])) {
   const { context } = setup(session.get(sessionKey) ?? null, storage);
   const elements = new Map();
@@ -212,7 +226,7 @@ test("Joe is included in the directory and merged into previously saved director
   assert.equal(vm.runInContext("staffDirectory.find(staff => staff.id === 'staff-joe-spartan').name", context), "Joe Spartan, MD");
   assert.equal(vm.runInContext("staffDirectory.some(staff => staff.id === 'staff-custom')", context), true);
   const portrait = vm.runInContext("renderStaffAvatar(staffDirectory.find(staff => staff.id === 'staff-joe-spartan'))", context);
-  assert.match(portrait, /src="assets\/joe-spartan.jpg"/);
+  assert.match(portrait, /src="assets\/joe-spartan.jpg\?v=3"/);
   assert.match(portrait, /alt="Joe Spartan, MD profile portrait \(stock photo\)"/);
   assert.ok(readFileSync(new URL("./assets/joe-spartan.jpg", import.meta.url)).length > 0);
   const initials = vm.runInContext("renderStaffAvatar({ id: 'staff-custom', name: 'Custom Provider' })", context);
@@ -220,7 +234,7 @@ test("Joe is included in the directory and merged into previously saved director
   assert.doesNotMatch(initials, /<img/);
 });
 
-test("every built-in clinical staff member has a distinct local portrait in saved and fresh directories", () => {
+test("every built-in clinical staff member has a local portrait in saved and fresh directories", () => {
   const fresh = setup();
   const savedDirectory = vm.runInContext("JSON.stringify(staffDirectory)", fresh.context);
   const storage = new Map([[storageKey, JSON.stringify({
@@ -235,13 +249,21 @@ test("every built-in clinical staff member has a distinct local portrait in save
     assert.equal(portraits.length, 11);
     assert.equal(new Set(portraits.map(portrait => portrait.src)).size, portraits.length);
     for (const { id, src, html } of portraits) {
-      assert.match(src, /^assets\/[a-z-]+\.jpg$/, id);
+      assert.match(src, /^assets\/[a-z-]+\.jpg(?:\?v=\d+)?$/, id);
       assert.ok(html.includes(`src="${src}"`), id);
       assert.match(html, /profile portrait \(stock photo\)/, id);
-      const image = readFileSync(new URL(`./${src}`, import.meta.url));
+      const image = readFileSync(new URL(`./${src.split("?")[0]}`, import.meta.url));
       assert.equal(image.readUInt16BE(0), 0xffd8, `${id}: JPEG header`);
       assert.equal(image.readUInt16BE(image.length - 2), 0xffd9, `${id}: JPEG footer`);
     }
+    assert.match(
+      vm.runInContext("staffPortraits.get('staff-morgan-ellis')", context),
+      /^assets\/morgan-ellis\.jpg\?v=3$/
+    );
+    assert.notDeepEqual(
+      readFileSync(new URL("./assets/morgan-ellis.jpg", import.meta.url)),
+      readFileSync(new URL("./assets/joe-spartan.jpg", import.meta.url))
+    );
     const adminAvatar = vm.runInContext("renderStaffAvatar(staffDirectory.find(staff => staff.id === 'staff-alex-morgan'))", context);
     assert.match(adminAvatar, /aria-hidden="true">AM<\/div>/);
     assert.doesNotMatch(adminAvatar, /<img/);

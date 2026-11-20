@@ -2195,6 +2195,11 @@ function renderRoleSummary() {
   if (!roleValue || !roleHelp) return;
 
   roleValue.textContent = currentUser.label;
+  const accountAvatar = document.getElementById("accountAvatar");
+  const staffProfile = getCurrentUserStaffProfile();
+  accountAvatar.innerHTML = staffProfile
+    ? renderStaffAvatar(staffProfile)
+    : `<div class="staff-avatar" aria-hidden="true">${escapeHtml(currentUser.label.split(/\s+/).map((part) => part[0]).slice(0, 2).join(""))}</div>`;
   roleHelp.textContent = hasPermission(currentUser.role, "roles:manage")
     ? "Switch among your authorized roles, or manage account roles in Overview."
     : "Switch only among roles authorized by an Admin.";

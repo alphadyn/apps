@@ -116,6 +116,10 @@ test("each demo account resolves to its own staff profile", () => {
   for (const [accountId, expectedProfileId] of accountProfiles) {
     vm.runInContext(`currentUser = normalizeCurrentUser({ accountId: "${accountId}" })`, context);
     assert.equal(vm.runInContext("getCurrentUserStaffProfile()?.id", context), expectedProfileId);
+    assert.match(
+      vm.runInContext("renderStaffAvatar(getCurrentUserStaffProfile())", context),
+      /class="staff-avatar staff-photo"/
+    );
   }
 });
 

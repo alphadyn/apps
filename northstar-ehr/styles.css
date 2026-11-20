@@ -771,10 +771,25 @@ textarea {
   letter-spacing: 0.1em;
 }
 
-.role-card > p {
+.account-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.account-identity > p {
   margin: 0;
   color: #f8fafc;
   font-weight: 650;
+}
+
+.account-avatar .staff-avatar {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  margin: 0;
+  border-radius: 50%;
 }
 
 .role-help {

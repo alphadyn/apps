@@ -11,10 +11,10 @@ const INBOX_FILTERS = [
 ];
 
 const demoAccounts = [
-  { id: automaticAccountId, username: "joe.spartan", password: "northstar", displayName: "Joe Spartan, MD", role: "clinician", authorizedRoles: ["clinician"] },
-  { id: "clinician", username: "elena.ruiz", password: "northstar", displayName: "Elena Ruiz", role: "clinician", authorizedRoles: ["clinician", "admin"] },
-  { id: "nurse", username: "jordan.lee", password: "northstar", displayName: "Jordan Lee", role: "nurse", authorizedRoles: ["nurse"] },
-  { id: "admin", username: "alex.morgan", password: "northstar", displayName: "Alex Morgan", role: "admin", authorizedRoles: ["admin"] }
+  { id: automaticAccountId, username: "joe.spartan", password: "northstar", displayName: "Joe Spartan, MD", role: "clinician", authorizedRoles: ["clinician"], staffProfileId: "staff-joe-spartan" },
+  { id: "clinician", username: "elena.ruiz", password: "northstar", displayName: "Elena Ruiz", role: "clinician", authorizedRoles: ["clinician", "admin"], staffProfileId: "staff-elena-ruiz" },
+  { id: "nurse", username: "jordan.lee", password: "northstar", displayName: "Jordan Lee", role: "nurse", authorizedRoles: ["nurse"], staffProfileId: "staff-jordan-lee" },
+  { id: "admin", username: "alex.morgan", password: "northstar", displayName: "Alex Morgan", role: "admin", authorizedRoles: ["admin"], staffProfileId: "staff-alex-morgan" }
 ];
 
 const rolePermissions = {
@@ -1379,6 +1379,13 @@ function setCurrentView(view) {
   saveState();
 }
 
+function openStaffProfile(staffId) {
+  selectedProfile = { type: "staff", id: staffId };
+  setCurrentView("profiles");
+  render();
+  scrollToWorkspaceTop();
+}
+
 function getDetailCardsForView(patient, openTasks) {
   const cardsByView = {
     overview: [
@@ -2198,6 +2205,11 @@ function renderRoleSummary() {
     `<option value="${role}">${escapeHtml(getRoleLabel(role))}</option>`).join("");
   roleSelector.value = currentUser.role;
   roleSelector.disabled = authorizedRoles.length < 2;
+}
+
+function getCurrentUserStaffProfile() {
+  const account = demoAccounts.find((demoAccount) => demoAccount.id === currentUser.accountId);
+  return account ? staffDirectory.find((staff) => staff.id === account.staffProfileId) : undefined;
 }
 
 function getFilterDetail(patient) {
@@ -3428,8 +3440,8 @@ function attachEvents() {
       selectedProfile = { type: "patient", id: selectedPatientId };
       setCurrentView("patient-profiles");
     } else if (searchType === "staff") {
-      selectedProfile = { type: "staff", id: searchId };
-      setCurrentView("profiles");
+      openStaffProfile(searchId);
+      return;
     } else {
       setCurrentView(searchType === "department" ? "departments" : "locations");
     }
@@ -3473,10 +3485,7 @@ function attachEvents() {
     }
     const staffButton = event.target.closest("[data-open-staff-profile]");
     if (staffButton) {
-      selectedProfile = { type: "staff", id: staffButton.dataset.openStaffProfile };
-      setCurrentView("profiles");
-      render();
-      scrollToWorkspaceTop();
+      openStaffProfile(staffButton.dataset.openStaffProfile);
     }
   });
   document.getElementById("extendedContent").addEventListener("input", (event) => {
@@ -3561,6 +3570,16 @@ function attachEvents() {
     document.getElementById("roleSwitchStatus").textContent = nextUser.role === role
       ? `Active role: ${getRoleLabel(role)}.`
       : "That role is not authorized for your account.";
+  });
+
+  document.getElementById("viewProfileBtn").addEventListener("click", () => {
+    const profile = getCurrentUserStaffProfile();
+    if (!profile) {
+      document.getElementById("roleSwitchStatus").textContent = "No staff profile is linked to this account.";
+      return;
+    }
+    closeMobileNavigation();
+    openStaffProfile(profile.id);
   });
 
   document.getElementById("encounterForm").addEventListener("submit", handleEncounterSubmit);

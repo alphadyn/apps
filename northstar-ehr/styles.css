@@ -788,6 +788,37 @@ textarea {
   font-size: 0.8rem;
 }
 
+.account-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 2px;
+}
+
+.account-profile-btn {
+  padding: 7px 10px;
+  border: 1px solid rgba(148, 197, 194, 0.28);
+  border-radius: 8px;
+  background: rgba(148, 197, 194, 0.1);
+  color: #b7e5df;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.account-profile-btn:hover {
+  background: rgba(148, 197, 194, 0.2);
+  color: #e6fffb;
+}
+
+.account-profile-btn:focus-visible,
+.sign-out-btn:focus-visible {
+  outline: 3px solid #65b7ac;
+  outline-offset: 3px;
+}
+
 .role-label {
   color: #e2e8f0;
   font-size: 0.85rem;
@@ -805,16 +836,13 @@ textarea {
 }
 
 .sign-out-btn {
-  align-self: flex-start;
-  padding: 5px 0;
+  padding: 7px 2px;
   border: 0;
   background: transparent;
-  color: #bfdbfe;
+  color: #cbd5e1;
   cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 650;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  font: inherit;
+  font-size: 0.8rem;
 }
 
 .sign-out-btn:hover {
@@ -2703,7 +2731,12 @@ h4.collapse-head .collapse-toggle {
 
   .sign-out-btn {
     min-height: 44px;
-    padding: 8px 0;
+    padding: 8px 2px;
+  }
+
+  .account-profile-btn {
+    min-height: 44px;
+    padding: 8px 10px;
   }
 
   .topbar {

@@ -104,6 +104,21 @@ test("navigation preference storage errors are visible without changing the layo
   assert.equal(warnings.length, 1);
 });
 
+test("each demo account resolves to its own staff profile", () => {
+  const { context } = setup();
+  const accountProfiles = [
+    ["joe-spartan", "staff-joe-spartan"],
+    ["clinician", "staff-elena-ruiz"],
+    ["nurse", "staff-jordan-lee"],
+    ["admin", "staff-alex-morgan"]
+  ];
+
+  for (const [accountId, expectedProfileId] of accountProfiles) {
+    vm.runInContext(`currentUser = normalizeCurrentUser({ accountId: "${accountId}" })`, context);
+    assert.equal(vm.runInContext("getCurrentUserStaffProfile()?.id", context), expectedProfileId);
+  }
+});
+
 function setupLogin(session = new Map(), storage = new Map([[automaticSignInKey, "signed-out"]])) {
   const { context } = setup(session.get(sessionKey) ?? null, storage);
   const elements = new Map();

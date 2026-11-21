@@ -2020,6 +2020,65 @@ function createEncounterForPatient(patient, encounter, role = currentUser.role) 
   return { allowed: true, note };
 }
 
+function registerPatientForTriage(input, role = currentUser.role) {
+  const permission = evaluatePermission(role, "workflow:update", "System");
+  if (!permission.allowed) return permission;
+  const name = String(input.name || "").trim();
+  const mrn = String(input.mrn || "").trim();
+  const ageText = String(input.age ?? "").trim();
+  const age = Number(ageText);
+  const sex = String(input.sex || "");
+  if (!name || name.length > 120 || !mrn || mrn.length > 50 ||
+      !/^\d+$/.test(ageText) || !Number.isInteger(age) || age < 0 || age > 130 ||
+      !["Female", "Male", "Other", "Not recorded"].includes(sex)) {
+    return { allowed: false, message: "Enter a name, MRN, age from 0 to 130, and sex." };
+  }
+  if (patients.some((patient) => String(patient.mrn).trim().toLowerCase() === mrn.toLowerCase())) {
+    return { allowed: false, message: "That MRN already exists. Open the existing patient record instead." };
+  }
+  const id = Math.max(0, ...patients.map((patient) => Number(patient.id)).filter(Number.isSafeInteger)) + 1;
+  if (!Number.isSafeInteger(id)) return { allowed: false, message: "Unable to assign a patient identifier." };
+  const patient = normalizePatient({
+    id, name, mrn, age, sex,
+    status: "Intake",
+    priority: "Not assessed",
+    diagnosis: "Not recorded",
+    lastVisit: "Today",
+    provider: "",
+    room: "ED Triage",
+    allergies: [],
+    medications: [],
+    vitals: {},
+    vitalReadings: [],
+    labs: [],
+    notes: [],
+    appointments: [],
+    billing: { balance: 0, insurance: "Not recorded" },
+    chartCompleted: false,
+    medicationReviewed: false,
+    clinical: { stage: "Intake", department: "Emergency Department", location: "ED Triage" }
+  });
+  addPatientEvent(patient, "Encounter", "Patient registered", "Ready for intake and triage", new Date().toISOString(), {
+    targetView: "clinical", targetId: "workflowForm"
+  });
+  const previous = { selectedPatientId, selectedProfile, currentView, auditTrail: auditTrail.slice() };
+  patients.push(patient);
+  selectedPatientId = patient.id;
+  selectedProfile = { type: "patient", id: patient.id };
+  currentView = "clinical";
+  recordAudit("patient:register", patient.name, `Registered fictional patient ${patient.mrn} for intake.`);
+  try {
+    if (!safeLocalStorage()) throw new Error("Browser storage unavailable");
+    saveState();
+  } catch (error) {
+    patients.pop();
+    ({ selectedPatientId, selectedProfile, currentView, auditTrail } = previous);
+    console.warn("Unable to save patient registration", error);
+    return { allowed: false, message: "Unable to save the profile. Check browser storage and try again." };
+  }
+  return { allowed: true, patient };
+}
+
 function updateWorkflowForPatient(patient, updates, role = currentUser.role) {
   const permission = evaluatePermission(role, "workflow:update", patient.name);
   if (!permission.allowed) return permission;
@@ -2881,13 +2940,19 @@ function renderAuditTrail() {
     : '<p class="mini-card">No audit activity recorded yet.</p>';
 }
 
+let clinicalStatusPatientId = null;
+
 function renderClinicalWorkspace() {
   const patient = getSelectedPatient();
   if (!patient) return;
+  if (clinicalStatusPatientId !== patient.id) {
+    document.getElementById("clinicalStatus").textContent = "";
+    clinicalStatusPatientId = patient.id;
+  }
   const clinical = patient.clinical;
   document.getElementById("clinicalPatientHeading").textContent = patient.name;
   document.getElementById("clinicalPatientMeta").textContent =
-    `${patient.mrn} · ${patient.age} years · ${patient.sex} · ${patient.provider}`;
+    `${patient.mrn} · ${patient.age} years · ${patient.sex} · ${patient.provider || "Provider unassigned"}`;
   document.getElementById("workflowSummary").innerHTML = `
     <span class="workflow-chip">${escapeHtml(clinical.stage)}</span>
     <span class="workflow-chip">${escapeHtml(clinical.location)}</span>
@@ -3016,6 +3081,7 @@ function renderAdmissionsView(container) {
         <span class="pill">${admittedPatients.length} active ${admittedPatients.length === 1 ? "admission" : "admissions"}</span>
       </div>
       <p class="muted-copy">Fictional inpatient census across all departments. Update an encounter disposition to add or remove a patient.</p>
+      ${hasPermission(currentUser.role, "workflow:update") ? '<button class="ghost-btn" type="button" data-register-patient>Register a fictional patient</button>' : ""}
       <div class="table-wrap" id="admissionsTable"></div>
     </div>`;
   renderAdmissionTable(container.querySelector("#admissionsTable"), admittedPatients);
@@ -3516,6 +3582,8 @@ function renderPermissions() {
   if (quickEncounterButton) quickEncounterButton.disabled = !canCreateEncounter;
   if (saveEncounterButton) saveEncounterButton.disabled = !canCreateEncounter;
   if (exportButton) exportButton.disabled = !canExport;
+  if (!canUpdateWorkflow) closePatientRegistration();
+  document.getElementById("registerPatientBtn").hidden = !canUpdateWorkflow;
 
   encounterInputs.forEach((field) => {
     field.disabled = !canCreateEncounter;
@@ -3715,6 +3783,42 @@ function handleWorkflowSubmit(event) {
   render();
 }
 
+function handlePatientRegistration(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const result = registerPatientForTriage(Object.fromEntries(new FormData(form).entries()));
+  if (!result.allowed) {
+    document.getElementById("patientRegistrationStatus").textContent = result.message;
+    return;
+  }
+  form.reset();
+  closePatientRegistration();
+  document.getElementById("patientRegistrationStatus").textContent = "";
+  render();
+  document.getElementById("clinicalStatus").textContent =
+    `Profile created for ${result.patient.name}. Step 2 of 2: complete intake and triage, then save the workflow update.`;
+  document.querySelector('#workflowForm [name="chiefComplaint"]').focus();
+}
+
+function openPatientRegistration() {
+  if (!hasPermission(currentUser.role, "workflow:update")) return;
+  if (currentView !== "patients") {
+    setCurrentView("patients");
+    render();
+  }
+  const queue = document.getElementById("patientQueuePanel");
+  if (queue.classList.contains("collapsed")) queue.querySelector(".collapse-toggle").click();
+  const registration = document.getElementById("patientRegistration");
+  registration.hidden = false;
+  document.getElementById("registerPatientBtn").setAttribute("aria-expanded", "true");
+  registration.querySelector('input[name="name"]').focus();
+}
+
+function closePatientRegistration() {
+  document.getElementById("patientRegistration").hidden = true;
+  document.getElementById("registerPatientBtn").setAttribute("aria-expanded", "false");
+}
+
 function handleOrderSubmit(event) {
   event.preventDefault();
   const form = event.currentTarget;
@@ -3826,6 +3930,10 @@ function attachEvents() {
     }
   });
   document.getElementById("extendedContent").addEventListener("click", (event) => {
+    if (event.target.closest("[data-register-patient]")) {
+      openPatientRegistration();
+      return;
+    }
     const inboxAction = event.target.closest("[data-inbox-action]");
     if (inboxAction) {
       handleInboxAction(inboxAction.dataset.inboxAction, inboxAction.dataset.inboxId);
@@ -3943,6 +4051,12 @@ function attachEvents() {
   });
 
   document.getElementById("encounterForm").addEventListener("submit", handleEncounterSubmit);
+  document.getElementById("registerPatientBtn").addEventListener("click", openPatientRegistration);
+  document.getElementById("cancelPatientRegistration").addEventListener("click", () => {
+    closePatientRegistration();
+    document.getElementById("registerPatientBtn").focus();
+  });
+  document.getElementById("patientRegistrationForm").addEventListener("submit", handlePatientRegistration);
   document.getElementById("workflowForm").addEventListener("submit", handleWorkflowSubmit);
   document.getElementById("orderForm").addEventListener("submit", handleOrderSubmit);
   document.getElementById("documentForm").addEventListener("submit", handleDocumentSubmit);
@@ -4209,6 +4323,7 @@ const appApi = {
   normalizeAuditEntry,
   normalizePatient,
   parseVitalsInput,
+  registerPatientForTriage,
   setCurrentRole,
   updateAccountRole,
   updateAccountRoles,

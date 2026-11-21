@@ -20,6 +20,79 @@ function setup(accountId = "clinician", storage = new Map()) {
   return { api: context.window.__ehrApp, storage, context };
 }
 
+test("registration creates a persistent intake profile and opens triage without inventing clinical data", () => {
+  const { api, storage } = setup();
+  const result = api.registerPatientForTriage({ name: "  Demo Patient ", mrn: " DEMO-123 ", age: "0", sex: "Not recorded" });
+  assert.equal(result.allowed, true);
+  const patient = result.patient;
+  assert.equal(patient.name, "Demo Patient");
+  assert.equal(patient.mrn, "DEMO-123");
+  assert.equal(patient.age, 0);
+  assert.equal(patient.clinical.stage, "Intake");
+  assert.equal(patient.clinical.department, "Emergency Department");
+  assert.equal(patient.clinical.admissionAt, "");
+  assert.equal(patient.medicationReviewed, false);
+  assert.equal(patient.vitalReadings.length, 0);
+  assert.equal(patient.allergies.length, 0);
+  const saved = JSON.parse(storage.get(storageKey));
+  assert.equal(saved.selectedPatientId, patient.id);
+  assert.equal(saved.selectedProfile.id, patient.id);
+  assert.equal(saved.currentView, "clinical");
+  assert.equal(saved.auditTrail[0].action, "patient:register");
+  const restored = setup("clinician", storage);
+  const savedPatient = vm.runInContext(`patients.find(patient => patient.id === ${patient.id})`, restored.context);
+  assert.equal(savedPatient.mrn, "DEMO-123");
+  const updated = restored.api.updateWorkflowForPatient(savedPatient, {
+    stage: "Admission", disposition: "Admit to ward", department: "Emergency Department",
+    arrivalMode: "Walk-in", chiefComplaint: "Demo complaint", acuity: "ESI 3 · Urgent",
+    location: "Ward 2", hr: "80"
+  });
+  assert.equal(updated.allowed, true);
+  assert.ok(savedPatient.clinical.admissionAt);
+  assert.equal(JSON.parse(storage.get(storageKey)).patients.find((item) => item.id === patient.id).clinical.chiefComplaint, "Demo complaint");
+});
+
+test("registration rejects duplicate MRNs, invalid input, unauthorized roles, and storage failure", () => {
+  const { api, storage, context } = setup();
+  const valid = { name: "Demo", mrn: "Unique", age: "40", sex: "Other" };
+  assert.equal(api.registerPatientForTriage({ ...valid, mrn: " mrn-10482 " }).allowed, false);
+  for (const age of ["", "-1", "131", "1.5"]) {
+    assert.equal(api.registerPatientForTriage({ ...valid, age }).allowed, false);
+  }
+  assert.equal(api.registerPatientForTriage({ ...valid, name: " " }).allowed, false);
+  assert.equal(api.registerPatientForTriage(valid, "staff").allowed, false);
+  assert.equal(storage.has(storageKey), false);
+  const originalCount = vm.runInContext("patients.length", context);
+  context.console = { warn() {} };
+  context.localStorage.setItem = () => { throw new Error("blocked"); };
+  const result = api.registerPatientForTriage(valid);
+  assert.match(result.message, /Unable to save/);
+  assert.equal(vm.runInContext("patients.length", context), originalCount);
+  assert.equal(vm.runInContext("currentView", context), "overview");
+  assert.equal(vm.runInContext("auditTrail.length", context), 0);
+});
+
+test("encounter status is cleared when switching patients but retained for the same patient", () => {
+  const { context } = setup();
+  const elements = new Map([
+    ["clinicalStatus", { textContent: "" }],
+    ["clinicalPatientHeading", {}],
+    ["clinicalPatientMeta", {}],
+    ["workflowSummary", {}],
+    ["workflowForm", { elements: {} }],
+    ["workflowDepartment", {}],
+    ["workflowNurse", {}],
+    ["workflowAttending", {}]
+  ]);
+  context.document = { getElementById: (id) => elements.get(id) };
+  vm.runInContext("renderClinicalWorkspace()", context);
+  elements.get("clinicalStatus").textContent = "Saved for the first patient.";
+  vm.runInContext("renderClinicalWorkspace()", context);
+  assert.equal(elements.get("clinicalStatus").textContent, "Saved for the first patient.");
+  vm.runInContext("selectedPatientId = patients[1].id; renderClinicalWorkspace()", context);
+  assert.equal(elements.get("clinicalStatus").textContent, "");
+});
+
 const sessionKey = "northstar-ehr-demo-account";
 const acknowledgmentKey = "northstar-ehr-warning-acknowledged";
 const automaticSignInKey = "northstar-ehr-automatic-sign-in";

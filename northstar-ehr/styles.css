@@ -2550,6 +2550,58 @@ textarea {
   gap: 14px;
 }
 
+.patient-registration {
+  margin-bottom: 16px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.patient-registration h4 {
+  margin: 0;
+  color: var(--text);
+}
+
+.patient-registration .muted-copy {
+  margin: 8px 0;
+}
+
+.patient-registration .clinical-form {
+  margin-top: 12px;
+}
+
+.registration-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.registration-error {
+  color: #a33a2b;
+  margin: 0;
+}
+
+.registration-error:empty {
+  display: none;
+}
+
+.workflow-fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.workflow-fieldset > legend {
+  padding: 0 6px;
+  font-weight: 700;
+  color: var(--text);
+}
+
 .structured-fields {
   display: grid;
   gap: 10px;

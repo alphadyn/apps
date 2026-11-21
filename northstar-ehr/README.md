@@ -30,6 +30,7 @@ The deployed URL is `https://alphadyn.github.io/apps/northstar-ehr/`.
 - Staff directory and profiles for administrators, physicians, PAs, nurses, and midlevels; admin demo role can add fictional directory entries
 - Unified search across patients, staff, departments, and care locations; patient and staff results open their profiles
 - Patient profile pages and staff directory profiles with care-team and encounter context
+- Guided fictional patient registration from the worklist or admissions dashboard, followed by intake and triage in the selected patient's encounter
 - Patient status dashboard with current encounter status, allergy visibility, vital-sign history, imaging/report counts, and latest radiology summary
 - Admission-aware patient timeline grouping previous, current, planned, and undated records, with direct links from events to their chart records
 - Encounter progression for intake, triage, ED evaluation, consultation, admission, discharge, and closure

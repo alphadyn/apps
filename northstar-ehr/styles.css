@@ -2444,6 +2444,70 @@ button.stat-card {
   gap: 12px;
 }
 
+.billing-header {
+  margin-bottom: 20px;
+}
+
+.billing-summary {
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #f7fafb;
+}
+
+.billing-summary-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.billing-summary-heading h4 {
+  margin: 4px 0 0;
+  font-size: 1rem;
+}
+
+.billing-summary-heading > span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.billing-details {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+}
+
+.billing-details > div {
+  min-width: 0;
+}
+
+.billing-details dt {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.billing-details dd {
+  margin: 6px 0 0;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
+.billing-details .billing-balance {
+  grid-column: 1 / -1;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.billing-balance dd {
+  color: var(--text);
+  font-size: 1.65rem;
+  letter-spacing: -0.035em;
+}
+
 .mini-card {
   border: 1px solid var(--border);
   border-radius: 16px;
@@ -3341,6 +3405,10 @@ textarea:focus-visible {
   }
 
   .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .billing-details {
     grid-template-columns: 1fr;
   }
 

@@ -1738,25 +1738,6 @@ function getDetailCardsForView(patient, openTasks) {
           `Medication review: ${patient.medicationReviewed ? "Completed" : "Pending"}`
         ]
       }
-    ],
-    billing: [
-      {
-        title: "Revenue cycle",
-        items: [
-          `Outstanding balance: ${formatCurrency(patient.billing.balance)}`,
-          `Insurance: ${patient.billing.insurance}`,
-          `Claim status: ${patient.billing.claimStatus}`,
-          `Last payment: ${patient.billing.lastPayment}`
-        ]
-      },
-      {
-        title: "Patient status",
-        items: [
-          `Patient: ${patient.name}`,
-          `Priority: ${patient.priority}`,
-          `Provider: ${patient.provider}`
-        ]
-      }
     ]
   };
 
@@ -1771,9 +1752,9 @@ function getVisibleSections(view) {
     roleManagementSection: view === "overview" && hasPermission(currentUser.role, "roles:manage"),
     extendedSection: extendedViews.includes(view),
     recordsSection: view === "patients" || view === "labs" || view === "billing",
-    operationsSection: view === "appointments" || view === "billing",
+    operationsSection: view === "appointments",
     encounterSection: view === "patients" || view === "labs",
-    auditSection: (view === "overview" || view === "billing" || view === "appointments") && hasPermission(currentUser.role, "audit:view"),
+    auditSection: (view === "overview" || view === "appointments") && hasPermission(currentUser.role, "audit:view"),
     clinicalSection: ["clinical", "orders", "documents"].includes(view)
   };
 }
@@ -2823,6 +2804,41 @@ function openTimelineRecord(button) {
 function renderPatientDetail() {
   const detail = document.getElementById("patientDetail");
   const patient = getSelectedPatient();
+
+  if (currentView === "billing") {
+    const billing = patient.billing;
+    const balance = typeof billing.balance === "number" && Number.isFinite(billing.balance)
+      ? formatCurrency(billing.balance) : "Not recorded";
+    detail.innerHTML = `
+      <div class="detail-header billing-header">
+        <div>
+          <p class="eyebrow">Selected patient</p>
+          <h3 id="patientDetailHeading" tabindex="-1">${escapeHtml(patient.name)}</h3>
+          <p>${escapeHtml(patient.mrn)}</p>
+        </div>
+      </div>
+      <section class="billing-summary" aria-labelledby="billingSummaryHeading">
+        <div class="billing-summary-heading">
+          <div>
+            <p class="eyebrow">Revenue cycle</p>
+            <h4 id="billingSummaryHeading">Billing summary</h4>
+          </div>
+          <span>Sample information</span>
+        </div>
+        <dl class="billing-details">
+          <div class="billing-balance">
+            <dt>Outstanding balance</dt>
+            <dd>${escapeHtml(balance)}</dd>
+          </div>
+          <div><dt>Insurance</dt><dd>${escapeHtml(billing.insurance || "Not recorded")}</dd></div>
+          <div><dt>Claim status</dt><dd>${escapeHtml(billing.claimStatus || "Not recorded")}</dd></div>
+          <div><dt>Last payment</dt><dd>${escapeHtml(billing.lastPayment || "Not recorded")}</dd></div>
+        </dl>
+      </section>
+    `;
+    return;
+  }
+
   const openTasks = patient.carePlan.tasks.filter((task) => task.status !== "Done");
   const canCompleteTask = hasPermission(currentUser.role, "task:complete");
   const detailCards = getDetailCardsForView(patient, openTasks);
@@ -3661,8 +3677,8 @@ function renderPermissions() {
   if (quickEncounterButton) quickEncounterButton.disabled = !canCreateEncounter;
   if (saveEncounterButton) saveEncounterButton.disabled = !canCreateEncounter;
   if (exportButton) exportButton.disabled = !canExport;
-  if (!canUpdateWorkflow) closePatientRegistration();
-  document.getElementById("registerPatientBtn").hidden = !canUpdateWorkflow;
+  if (!canUpdateWorkflow || currentView === "billing") closePatientRegistration();
+  document.getElementById("registerPatientBtn").hidden = !canUpdateWorkflow || currentView === "billing";
 
   encounterInputs.forEach((field) => {
     field.disabled = !canCreateEncounter;

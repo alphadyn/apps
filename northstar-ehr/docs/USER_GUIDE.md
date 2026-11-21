@@ -54,7 +54,7 @@ Saved orders retain and display their type-specific details. Saved documents ret
 - **Patients & care** groups patient management views separately from clinical tools. The **Worklist & charts** filter searches patient name, MRN, diagnosis, status, care team, and location; select a result to view its chart and current status summary.
 - **Appointments** supports completing appointments; the demo admin role can cancel them.
 - **Labs & medications** displays chart data and supports the existing encounter form.
-- **Billing** displays sample billing context.
+- **Billing** displays the selected patient's sample balance, insurance, claim status, and last payment immediately. Expand **Active records** and select a patient to see another patient's billing context. Appointment tools and the Admin audit trail remain available in their respective views.
 - The active Admin demo role can review the activity audit trail and manage authorized roles. Other users can switch among their authorized roles, but cannot grant themselves additional roles.
 
 ## Persistence and reset

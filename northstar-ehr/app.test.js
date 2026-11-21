@@ -722,6 +722,38 @@ test("Overview excludes individual patient workspaces", () => {
   assert.equal(api.getVisibleSections("inbox").extendedSection, true);
 });
 
+test("Billing immediately renders the selected patient's billing information", () => {
+  for (const accountId of ["clinician", "admin"]) {
+    const { api, context } = setup(accountId);
+    const detail = { innerHTML: "" };
+    context.document = { getElementById: (id) => id === "patientDetail" ? detail : null };
+    assert.equal(api.getVisibleSections("billing").recordsSection, true);
+    assert.equal(api.getVisibleSections("billing").operationsSection, false);
+    assert.equal(api.getVisibleSections("billing").auditSection, false);
+    assert.equal(api.getVisibleSections("appointments").operationsSection, true);
+    if (accountId === "admin") assert.equal(api.getVisibleSections("overview").auditSection, true);
+    vm.runInContext('currentView = "billing"; selectedPatientId = patients[0].id; renderPatientDetail()', context);
+    const firstPatient = vm.runInContext("patients[0]", context);
+    assert.match(detail.innerHTML, new RegExp(firstPatient.name));
+    assert.match(detail.innerHTML, /<dt>Outstanding balance<\/dt>\s*<dd>\$1,260<\/dd>/);
+    assert.match(detail.innerHTML, /<dt>Insurance<\/dt><dd>Blue Cross<\/dd>/);
+    assert.match(detail.innerHTML, /<dt>Claim status<\/dt><dd>Submitted<\/dd>/);
+    assert.match(detail.innerHTML, /<dt>Last payment<\/dt><dd>2026-08-01<\/dd>/);
+    assert.doesNotMatch(detail.innerHTML, /patient-timeline|collapsible/);
+
+    vm.runInContext('selectedPatientId = patients[1].id; renderPatientDetail()', context);
+    assert.match(detail.innerHTML, /\$2,140/);
+    assert.match(detail.innerHTML, /<dt>Insurance<\/dt><dd>Aetna<\/dd>/);
+    assert.doesNotMatch(detail.innerHTML, /Blue Cross/);
+
+    vm.runInContext('patients[1].billing = { insurance: "<Demo>" }; renderPatientDetail()', context);
+    assert.match(detail.innerHTML, /<dt>Outstanding balance<\/dt>\s*<dd>Not recorded<\/dd>/);
+    assert.match(detail.innerHTML, /<dd>&lt;Demo&gt;<\/dd>/);
+    assert.match(detail.innerHTML, /<dt>Claim status<\/dt><dd>Not recorded<\/dd>/);
+    assert.match(detail.innerHTML, /<dt>Last payment<\/dt><dd>Not recorded<\/dd>/);
+  }
+});
+
 test("only Admins can change authorized account roles", () => {
   for (const accountId of ["clinician", "nurse"]) {
     const { api } = setup(accountId);

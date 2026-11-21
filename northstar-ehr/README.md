@@ -21,6 +21,7 @@ The deployed URL is `https://alphadyn.github.io/apps/northstar-ehr/`.
 - Modern clinical workspace with icon-based navigation, a collapsible desktop sidebar, a keyboard-accessible mobile drawer, compact account settings, and an on-demand Data tools menu
 - Data exchange: export the selected patient or all patients as Northstar JSON, an Epic-compatible HL7 FHIR R4 or R5 Bundle (Patient, Condition, AllergyIntolerance, MedicationRequest, Observation, DiagnosticReport, Appointment, DocumentReference), or a CSV roster; import any of these (auto-detected) and upsert by MRN. Import requires the `data:import` permission (Provider, Midlevel, Admin). File-based only: no live Epic connection or OAuth.
 - Aggregate Overview with chart activity, admission, department, team, and open-order counts; Admin-only authorized-role management with a last-Admin safeguard, plus user switching among their authorized roles
+- My patients workspace for matching attending or nurse assignments, open care tasks, and pending or acknowledged patient orders with direct chart and order links
 - In Basket for fictional care-team messages, sample results, and follow-up tasks, with category filters, patient chart links, read/review status, task completion, persistence, and audit entries
 - Expandable Patients menu groups charts, admissions, nursing, appointments, encounters, orders, notes, and labs for provider and midlevel workflows
 - Patient worklist with 23 fictional patient charts, searchable diagnoses, demographics, histories, allergies, medications, labs, and vitals

@@ -1808,6 +1808,63 @@ button.stat-card {
   margin-bottom: 12px;
 }
 
+.my-patients-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.my-patient-card {
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #f7fafb;
+}
+
+.my-patient-heading,
+.my-patient-orders li {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.my-patient-heading h4,
+.my-patient-card h5 {
+  margin: 0;
+}
+
+.my-patient-heading p,
+.my-patient-assignment {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.my-patient-card h5 {
+  margin-top: 16px;
+}
+
+.my-patient-orders {
+  display: grid;
+  gap: 10px;
+  padding: 0;
+  margin: 10px 0 0;
+  list-style: none;
+}
+
+.my-patient-orders li {
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.my-patient-orders span {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
 .profile-header {
   display: flex;
   align-items: center;

@@ -1745,7 +1745,7 @@ function getDetailCardsForView(patient, openTasks) {
 }
 
 function getVisibleSections(view) {
-  const extendedViews = ["inbox", "admissions", "nursing", "departments", "locations", "staff", "profiles", "patient-profiles"];
+  const extendedViews = ["my-patients", "inbox", "admissions", "nursing", "departments", "locations", "staff", "profiles", "patient-profiles"];
   return {
     overviewSection: view === "overview",
     operationsOverviewSection: view === "overview",
@@ -1840,6 +1840,7 @@ function closeMobileNavigation() {
 function initializeWorkspaceNavigation() {
   const iconPaths = {
     overview: "M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z",
+    "my-patients": "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m16-9v6m-3-3h6M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8",
     inbox: "M4 4h16v16H4zM4 13h5l2 3h2l2-3h5",
     patients: "M9 3H4v18h16V3h-5M9 3v4h6V3zM8 12h8m-8 4h5",
     "patient-profiles": "M20 21v-2a7 7 0 0 0-14 0v2M13 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8",
@@ -3181,6 +3182,52 @@ function renderAdmissionsView(container) {
   renderAdmissionTable(container.querySelector("#admissionsTable"), admittedPatients);
 }
 
+function getMyPatients() {
+  const profile = getCurrentUserStaffProfile();
+  if (!profile || !["clinician", "midlevel", "nurse"].includes(currentUser.role)) return [];
+  const field = currentUser.role === "nurse" ? "assignedNurse" : "attending";
+  return patients.filter((patient) => patient.clinical[field] === profile.name);
+}
+
+function renderMyPatientsView(container) {
+  const profile = getCurrentUserStaffProfile();
+  const supported = ["clinician", "midlevel", "nurse"].includes(currentUser.role);
+  const assigned = getMyPatients();
+  const openOrders = (patient) => patient.orders.filter((order) => ["Pending", "Acknowledged"].includes(order.status));
+  const orderCount = assigned.reduce((count, patient) => count + openOrders(patient).length, 0);
+  const assignment = currentUser.role === "nurse" ? "assigned nurse" : "attending";
+  container.innerHTML = `
+    <div class="panel my-patients-panel">
+      <div class="panel-header">
+        <div><p class="eyebrow">Care team workspace</p><h3>My patients</h3></div>
+        <span class="pill">${assigned.length} ${assigned.length === 1 ? "patient" : "patients"} · ${orderCount} open ${orderCount === 1 ? "order" : "orders"}</span>
+      </div>
+      <p id="myPatientsStatus" class="status-message" role="status" aria-live="polite"></p>
+      ${!supported
+        ? '<p class="empty-state">Switch to a Provider, Midlevel, or Nurse role to see patients assigned to your linked staff profile.</p>'
+        : !profile
+          ? '<p class="empty-state">No staff profile is linked to this account. Patient assignments cannot be matched.</p>'
+          : `<p class="muted-copy">Showing patients whose ${assignment} is ${escapeHtml(profile.name)}. Orders shown belong to these patients, not necessarily to you. Update assignments in ED &amp; inpatient.</p>
+            ${assigned.length ? `<div class="my-patients-list">${assigned.map((patient) => {
+              const orders = openOrders(patient);
+              const tasks = patient.carePlan.tasks.filter((task) => task.status !== "Done").length;
+              return `<article class="my-patient-card">
+                <div class="my-patient-heading">
+                  <div><h4>${escapeHtml(patient.name)}</h4><p>${escapeHtml(patient.mrn)} · ${escapeHtml(patient.clinical.location || "Location not recorded")} · ${escapeHtml(patient.clinical.stage)}</p></div>
+                  <button class="ghost-btn action-btn" type="button" data-open-patient="${escapeHtml(patient.id)}">Open chart</button>
+                </div>
+                <p class="my-patient-assignment">Attending: ${escapeHtml(patient.clinical.attending || "Unassigned")} · Nurse: ${escapeHtml(patient.clinical.assignedNurse || "Unassigned")} · ${tasks} open ${tasks === 1 ? "task" : "tasks"}</p>
+                <h5>Open orders (${orders.length})</h5>
+                ${orders.length ? `<ul class="my-patient-orders">${orders.map((order) => `
+                  <li><div><strong>${escapeHtml(order.title)}</strong><span>${escapeHtml(order.category)} · ${escapeHtml(order.priority)} · ${escapeHtml(order.status)}</span></div>
+                    <button class="text-btn" type="button" data-open-patient-order="${escapeHtml(patient.id)}" data-order-id="${escapeHtml(order.id)}" aria-label="Open order ${escapeHtml(order.title)} for ${escapeHtml(patient.name)}">View order</button>
+                  </li>`).join("")}</ul>` : '<p class="empty-state">No pending or acknowledged orders.</p>'}
+              </article>`;
+            }).join("")}</div>` : `<p class="empty-state">No patients are currently assigned to ${escapeHtml(profile.name)} as ${assignment}.</p>`}`
+      }
+    </div>`;
+}
+
 function renderInboxView(container) {
   const unreadCount = inboxItems.filter((item) => item.status === "Unread").length;
   const categoryCounts = inboxItems.reduce((counts, item) => {
@@ -3526,6 +3573,7 @@ function renderExtendedWorkspace() {
   const container = document.getElementById("extendedContent");
   if (!container) return;
   switch (currentView) {
+    case "my-patients": renderMyPatientsView(container); break;
     case "inbox": renderInboxView(container); break;
     case "admissions": renderAdmissionsView(container); break;
     case "nursing": renderNursingView(container); break;
@@ -4067,6 +4115,19 @@ function attachEvents() {
       inboxFilter = normalizeInboxFilter(inboxFilterButton.dataset.inboxFilter);
       saveState();
       render();
+      return;
+    }
+    const orderButton = event.target.closest("[data-open-patient-order]");
+    if (orderButton) {
+      const patient = patients.find((item) => String(item.id) === orderButton.dataset.openPatientOrder);
+      const order = patient?.orders.find((item) => item.id === orderButton.dataset.orderId);
+      if (!patient || !order) {
+        document.getElementById("myPatientsStatus").textContent = "This order is no longer available. Refresh the workspace and try again.";
+        return;
+      }
+      selectedPatientId = patient.id;
+      recordAudit("patient:select", patient.name, `Opened chart for ${patient.mrn}.`);
+      openTimelineRecord({ dataset: { timelineView: "orders", timelineTarget: `patient-order-${order.id}` } });
       return;
     }
     const patientButton = event.target.closest("[data-open-patient]");

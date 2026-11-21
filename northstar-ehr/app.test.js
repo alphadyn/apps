@@ -277,6 +277,51 @@ test("each demo account resolves to its own staff profile", () => {
   }
 });
 
+test("My patients matches the linked profile and active role, and tracks open patient orders", () => {
+  const { api, context } = setup("nurse");
+  context.container = { innerHTML: "" };
+  assert.equal(api.getVisibleSections("my-patients").extendedSection, true);
+  vm.runInContext(`
+    patients[0].clinical.assignedNurse = "Jordan Lee";
+    patients[1].clinical.assignedNurse = "Casey Nguyen";
+    patients[0].orders = [
+      { id: "one", title: "Check vitals", category: "Vitals", priority: "Routine", status: "Pending" },
+      { id: "two", title: "Lab follow-up", category: "Laboratory", priority: "Urgent", status: "Acknowledged" },
+      { id: "three", title: "Finished order", category: "Nursing", priority: "Routine", status: "Completed" }
+    ];
+    renderMyPatientsView(container);
+  `, context);
+  assert.match(context.container.innerHTML, /Maya Thompson/);
+  assert.doesNotMatch(context.container.innerHTML, /Jonathan Lee/);
+  assert.match(context.container.innerHTML, /2 open orders/);
+  assert.match(context.container.innerHTML, /data-open-patient-order="1" data-order-id="one"/);
+  assert.match(context.container.innerHTML, /Lab follow-up/);
+  assert.doesNotMatch(context.container.innerHTML, /Finished order/);
+  const patient = vm.runInContext("patients[0]", context);
+  assert.equal(api.updateOrderStatus(patient, "one", "Completed").allowed, true);
+  vm.runInContext("renderMyPatientsView(container)", context);
+  assert.match(context.container.innerHTML, /1 open order/);
+  assert.doesNotMatch(context.container.innerHTML, /Check vitals/);
+
+  vm.runInContext(`
+    currentUser = normalizeCurrentUser({ accountId: "clinician" });
+    accountRoles.clinician = ["midlevel"];
+    currentUser = normalizeCurrentUser({ ...currentUser, role: "midlevel" });
+    patients[0].clinical.attending = "Dr. Elena Ruiz";
+    patients[1].clinical.attending = "Someone else";
+    renderMyPatientsView(container);
+  `, context);
+  assert.match(context.container.innerHTML, /attending is Dr. Elena Ruiz/);
+  assert.match(context.container.innerHTML, /Maya Thompson/);
+  assert.doesNotMatch(context.container.innerHTML, /Jonathan Lee/);
+  vm.runInContext('patients[0].clinical.attending = ""; patients.forEach(patient => patient.clinical.attending = ""); renderMyPatientsView(container)', context);
+  assert.match(context.container.innerHTML, /No patients are currently assigned/);
+  vm.runInContext('currentUser = normalizeCurrentUser({ accountId: "admin" }); renderMyPatientsView(container)', context);
+  assert.match(context.container.innerHTML, /Switch to a Provider, Midlevel, or Nurse role/);
+  vm.runInContext('currentUser = normalizeCurrentUser({ accountId: "nurse" }); staffDirectory = staffDirectory.filter(staff => staff.id !== "staff-jordan-lee"); renderMyPatientsView(container)', context);
+  assert.match(context.container.innerHTML, /No staff profile is linked/);
+});
+
 test("staff directory cards show concise details and keep profile actions accessible", () => {
   const { context } = setup();
   context.directoryContainer = { innerHTML: "" };

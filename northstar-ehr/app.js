@@ -2829,7 +2829,7 @@ function renderPatientDetail() {
     <div class="detail-header">
       <div>
         <p class="eyebrow">Current patient</p>
-        <h3>${escapeHtml(patient.name)}</h3>
+        <h3 id="patientDetailHeading" tabindex="-1">${escapeHtml(patient.name)}</h3>
         <p>${escapeHtml(patient.mrn)} • ${escapeHtml(patient.age)} years • ${escapeHtml(patient.sex)}</p>
       </div>
       <span class="pill">${escapeHtml(patient.priority)}</span>
@@ -3799,6 +3799,17 @@ function handlePatientSelection(id) {
   const patient = getSelectedPatient();
   recordAudit("patient:select", patient.name, `Opened chart for ${patient.mrn}.`);
   render();
+  focusSelectedPatientChart();
+}
+
+function focusSelectedPatientChart() {
+  const heading = document.getElementById("patientDetailHeading");
+  const panel = document.getElementById("patientDetailPanel");
+  const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  heading.focus({ preventScroll: true });
+  window.requestAnimationFrame(() => {
+    panel.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+  });
 }
 
 function handleEncounterSubmit(event) {

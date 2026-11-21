@@ -1353,6 +1353,20 @@ button.stat-card {
   gap: 16px;
 }
 
+#recordsSection {
+  align-items: start;
+  gap: 12px;
+}
+
+#patientQueuePanel,
+#patientDetailPanel {
+  padding: clamp(14px, 1.5vw, 20px);
+}
+
+#patientQueuePanel .panel-header {
+  margin-bottom: 14px;
+}
+
 .lower-grid {
   grid-template-columns: 1fr 1fr;
 }
@@ -2323,12 +2337,27 @@ button.stat-card {
   justify-content: space-between;
   align-items: flex-start;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+}
+
+.detail-panel {
+  scroll-margin-top: 20px;
+}
+
+.detail-header > div > p:last-child {
+  margin: 4px 0 0;
+  color: var(--muted);
 }
 
 .detail-header h3 {
   margin: 0 0 6px;
   font-size: 1.3rem;
+}
+
+.detail-header h3:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 
 .detail-grid {
@@ -2342,6 +2371,19 @@ button.stat-card {
   border-radius: 16px;
   padding: 14px;
   background: #fbfdff;
+}
+
+.detail-panel .status-overview,
+.detail-panel .clinical-dashboard-card,
+.detail-panel .patient-timeline,
+.detail-panel .mini-card {
+  border: 0;
+  background: #f7fafb;
+}
+
+.detail-panel .status-overview {
+  border-left: 4px solid var(--accent);
+  background: #f2f8f6;
 }
 
 .mini-card h4 {

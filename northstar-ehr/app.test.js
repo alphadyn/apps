@@ -332,6 +332,38 @@ test("patient worklist search includes care team and location details", () => {
   assert.match(list.innerHTML, /No patients found/);
 });
 
+test("worklist selection focuses the chart and scrolls to the top of its card", () => {
+  const { context } = setup();
+  const scrolls = [];
+  const focusCalls = [];
+  let reduceMotion = false;
+  const heading = {
+    focus: (options) => focusCalls.push(options)
+  };
+  const panel = { scrollIntoView: (options) => scrolls.push(options) };
+  const elements = new Map([
+    ["patientDetailHeading", heading],
+    ["patientDetailPanel", panel]
+  ]);
+  context.document = { getElementById: (id) => elements.get(id) };
+  context.window.matchMedia = (query) => ({
+    matches: query === "(prefers-reduced-motion: reduce)" && reduceMotion
+  });
+  context.window.requestAnimationFrame = (callback) => callback();
+  vm.runInContext('render = () => {}; handlePatientSelection(2)', context);
+  assert.equal(vm.runInContext("selectedPatientId", context), 2);
+  assert.equal(scrolls.length, 1);
+  assert.equal(scrolls[0].behavior, "smooth");
+  assert.equal(scrolls[0].block, "start");
+  assert.equal(focusCalls[0].preventScroll, true);
+
+  reduceMotion = true;
+  vm.runInContext("focusSelectedPatientChart()", context);
+  assert.equal(scrolls.length, 2);
+  assert.equal(scrolls[1].behavior, "auto");
+  assert.equal(focusCalls.length, 2);
+});
+
 function setupLogin(session = new Map(), storage = new Map([[automaticSignInKey, "signed-out"]])) {
   const { context } = setup(session.get(sessionKey) ?? null, storage);
   const elements = new Map();

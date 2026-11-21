@@ -2,9 +2,9 @@
 
 **Deployed application:** [Open the app](https://alphadyn.github.io/apps/northstar-ehr/)
 
-> Standalone browser-based EHR interface demo. See the [repository catalog](../README.md) for shared setup and deployment context.
+> Northstar is specified as a browser-based clinical information system for emergency and inpatient care. The public GitHub Pages deployment is a functional prototype and is not an approved or production clinical system.
 
-A responsive electronic health record demonstration covering patient charts, emergency and inpatient encounter flow, clinical notes, orders, referrals, follow-up, appointments, and billing context.
+Northstar defines a clinical workflow covering patient charts, emergency and inpatient encounters, clinical notes, orders, referrals, follow-up, appointments, and billing context. The system is intended for use by authorized clinical and administrative workforce roles within a governed healthcare organization. Clinical use requires server-side identity, role and patient-scope authorization, protected clinical storage, audited workflows, validated integrations, and organizational approval before real patient data is entered.
 
 Select the Northstar brand in the login panel or sidebar to reload the app's entry page. Demo data remains in browser storage.
 
@@ -52,7 +52,7 @@ The deployed URL is `https://alphadyn.github.io/apps/northstar-ehr/`.
 - styles.css — modern responsive UI styling
 - app.js — fictional patient data, UI rendering, interactions, and local storage
 - docs/USER_GUIDE.md — usage guide and customization notes
-- docs/SECURITY_ARCHITECTURE.md — non-production secure multi-user architecture proposal
+- docs/SECURITY_ARCHITECTURE.md — secure clinical-use architecture specification and production release gates
 
 ## How to run
 
@@ -86,9 +86,11 @@ Run the repository-wide test suite from the project root:
 ./run_tests.sh
 ```
 
-## Security status and important limitations
+## Clinical-use specification and current limitations
 
-This is a public, browser-only prototype with fictional sample patients and illustrative imaging text. **Its client-side demo sign-in is not real authentication, and there is no server-enforced authorization or HIPAA safeguard.** Data is stored in browser local storage and is not protected, backed up, or shared with a care team. Admin-managed roles are browser-local demonstration settings, not trusted access control. Do not enter, import, or export real patient information or use this application to make or document clinical decisions. Orders and notes are not sent to clinical systems, and medications are not prescribed.
+Northstar's clinical-use specification requires the system to support only authorized staff, minimum-necessary access, patient-care scope, signed clinical documentation, order privileges, retention, auditability, backup, incident response, and approved interoperability. The public GitHub Pages deployment does not implement these production requirements and must not be used as the system of record.
+
+This deployed release is a public, browser-only prototype with fictional sample patients and illustrative imaging text. **Its client-side demo sign-in is not real authentication, and there is no server-enforced authorization or HIPAA safeguard.** Data is stored in browser local storage and is not protected, backed up, or shared with a care team. Admin-managed roles are browser-local demonstration settings, not trusted access control. Do not enter, import, or export real patient information or use this application to make or document clinical decisions. Orders and notes are not sent to clinical systems, and medications are not prescribed.
 
 Joe Spartan's automatic sign-in is remembered in this browser until explicit sign-out; other sample accounts use tab-local sessions. Signing out disables automatic sign-in and ends the tab's demo session; it does not protect or clear locally stored data.
 

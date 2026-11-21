@@ -1,6 +1,8 @@
-# Secure multi-user architecture proposal
+# Secure clinical-use architecture
 
-**Status: design only.** This document proposes a future production architecture. No authentication service, protected backend, encryption key management, or HIPAA safeguards are implemented by this GitHub Pages application. This proposal is not a compliance certification or a substitute for a security risk analysis, legal advice, or qualified healthcare security review.
+**Status: production architecture specification.** This document specifies the controls required to operate Northstar as an approved clinical system. No authentication service, protected backend, encryption key management, or HIPAA safeguards are implemented by the current GitHub Pages prototype. This specification is not a compliance certification or a substitute for a security risk analysis, legal advice, or qualified healthcare security review.
+
+Northstar is specified for authorized, governed use in emergency and inpatient care. Clinical deployment is not permitted until organizational approval, technical implementation, independent validation, and all release gates in this document are complete.
 
 ## Current deployment boundary
 

@@ -2,7 +2,22 @@
 
 ## Overview
 
-Northstar EHR is a responsive, browser-only demonstration of an emergency and inpatient care workflow. The built-in records are fictional. The application stores changes in browser local storage. Its sign-in and Admin-managed roles are for demonstration only; neither provides real authentication, secure clinical storage, nor server-enforced permissions.
+Northstar EHR is a responsive clinical workflow specification for emergency and inpatient care. It covers chart review, patient intake, care-team assignment, encounter progression, orders, notes, appointments, follow-up, and billing context.
+
+The public deployment is a browser-only functional prototype, not an approved system for clinical use. The built-in records are fictional, changes are stored in browser local storage, and the sign-in and Admin-managed roles are demonstrations rather than real authentication or server-enforced permissions. A deployed clinical system must replace these mechanisms with organization-managed identity, server-side authorization, protected clinical storage, audit controls, validated integrations, and approved operating procedures.
+
+## Clinical-use requirements
+
+Before this software is used for real care, the organization must approve and document the intended patient population, facilities, workforce roles, clinical privileges, data retention, privacy practices, interoperability scope, downtime procedures, incident response, and backup/recovery plan. A clinical deployment must provide:
+
+- Organization-managed workforce identity, MFA, account lifecycle controls, and session revocation.
+- Server-enforced least-privilege and patient-scope access for every read, write, search, export, signature, and image request.
+- Protected clinical-record storage, tested encryption and key management, and private, authorized integrations.
+- Tamper-resistant audit records, monitoring, access review, break-glass controls, and incident procedures.
+- Clinically validated workflows, appropriate professional sign-off and co-signature policies, medication/order safeguards, privacy review, security review, and required regulatory and contractual approvals.
+- Approved clinical governance and vendor agreements, including BAAs where applicable.
+
+Do not enter real patient information or make care decisions in the public prototype. Clinical use is authorized only after the organization has completed the release gates in [SECURITY_ARCHITECTURE.md](./SECURITY_ARCHITECTURE.md) and deployed the approved backend and operating controls.
 
 ## Sign-in and roles
 

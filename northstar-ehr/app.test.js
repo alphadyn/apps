@@ -1086,3 +1086,33 @@ test("appointment status changes are retained as patient timeline events", () =>
   assert.equal(timelineEvent.targetView, "appointments");
   assert.equal(timelineEvent.targetId, "patient-appointment-appointment-test");
 });
+
+test("appointment statuses reject untrusted values before rendering", () => {
+  const { api, context } = setup();
+  const patient = api.normalizePatient({
+    id: 903,
+    name: "Imported Status Test",
+    mrn: "T-903",
+    age: 40,
+    sex: "Female",
+    diagnosis: "Test diagnosis",
+    status: "Stable",
+    priority: "Routine",
+    provider: "Test Provider",
+    allergies: [],
+    medications: [],
+    appointments: [{
+      id: "appointment-injection-test",
+      title: "Test appointment",
+      location: "Clinic",
+      status: "Scheduled\"><img src=x onerror=alert(1)>"
+    }]
+  });
+
+  assert.equal(patient.appointments[0].status, "Scheduled");
+  context.statusPatient = patient;
+  vm.runInContext("patients.push(statusPatient)", context);
+  const invalid = api.updateAppointmentStatus(patient.id, "appointment-injection-test", 'Completed"><script>alert(1)</script>', "clinician");
+  assert.equal(invalid.allowed, false);
+  assert.equal(invalid.message, "Invalid appointment status.");
+});

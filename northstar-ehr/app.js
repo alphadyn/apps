@@ -1043,6 +1043,18 @@ function normalizeTask(task) {
   };
 }
 
+function normalizeAppointmentStatus(status) {
+  const normalized = String(status || "Scheduled").trim().toLowerCase();
+  switch (normalized) {
+    case "in progress": return "In Progress";
+    case "completed": return "Completed";
+    case "cancelled":
+    case "canceled": return "Cancelled";
+    case "scheduled": return "Scheduled";
+    default: return "Scheduled";
+  }
+}
+
 function normalizeAppointment(appointment) {
   return {
     id: appointment.id || createAppointmentId(),
@@ -1051,7 +1063,7 @@ function normalizeAppointment(appointment) {
     time: appointment.time,
     title: appointment.title,
     location: appointment.location,
-    status: appointment.status || "Scheduled",
+    status: normalizeAppointmentStatus(appointment.status),
     updatedAt: appointment.updatedAt || ""
   };
 }
@@ -2300,6 +2312,10 @@ function createDocumentForPatient(patient, document, role = currentUser.role) {
 }
 
 function updateAppointmentStatus(patientId, appointmentId, nextStatus, role = currentUser.role) {
+  if (!["Completed", "Cancelled"].includes(nextStatus)) {
+    return { allowed: false, message: "Invalid appointment status." };
+  }
+
   const patient = patients.find((item) => item.id === patientId);
   if (!patient) return { allowed: false, message: "Patient not found." };
 
@@ -2947,10 +2963,10 @@ function renderAppointments() {
   container.innerHTML = patient.appointments
     .map(
       (appointment) => `
-        <div class="list-item appointment-item ${appointment.status.toLowerCase().replace(/\s+/g, "-")}" id="patient-appointment-${escapeHtml(appointment.id)}">
+        <div class="list-item appointment-item ${escapeHtml(normalizeAppointmentStatus(appointment.status).toLowerCase().replace(/\s+/g, "-"))}" id="patient-appointment-${escapeHtml(appointment.id)}">
           <div>
             <strong>${escapeHtml(appointment.time)} • ${escapeHtml(appointment.title)}</strong>
-            <span>${escapeHtml(appointment.location)} • ${escapeHtml(appointment.status)}</span>
+            <span>${escapeHtml(appointment.location)} • ${escapeHtml(normalizeAppointmentStatus(appointment.status))}</span>
           </div>
           <div class="appointment-actions">
             <button class="ghost-btn action-btn" type="button" data-action="complete" data-id="${escapeHtml(appointment.id)}" ${canComplete ? "" : "disabled"}>Complete</button>

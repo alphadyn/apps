@@ -2,9 +2,9 @@
 
 [Explore the live app catalog](https://alphadyn.github.io/apps/) · [View this repository on GitHub](https://github.com/alphadyn/apps)
 
-This repository is a portfolio-style collection of 19 active, independent projects: interactive demos, data visualizations, browser apps, and Python utilities. Each project is designed to be opened, adapted, or expanded on its own. The collection is intentionally mixed: some apps are static browser experiences, while others use Supabase, Flask, or Vercel APIs.
+This repository is a portfolio-style collection of 20 active, independent projects: interactive demos, data visualizations, browser apps, and Python utilities. Each project is designed to be opened, adapted, or expanded on its own. The collection is intentionally mixed: some apps are static browser experiences, while others use Supabase, Flask, or Vercel APIs.
 
-The [landing page](index.html) links directly to the deployed apps and gives a quick overview of the portfolio. It includes four featured projects and an alphabetical catalog of all 19 apps and experiments.
+The [landing page](index.html) links directly to the deployed apps and gives a quick overview of the portfolio. It includes four featured projects and an alphabetical catalog of all 20 apps and experiments.
 
 Its social link-preview image is generated from the Signika logo SVGs with `python3 -m scripts.generate_social_preview` (requires Pillow and resvg-py, installable with `python3 -m pip install Pillow resvg-py`). After changing the image, update the version in the landing page's Open Graph and Twitter image URLs to encourage cache refreshes; preview caching is controlled by each sharing platform.
 
@@ -32,6 +32,7 @@ Projects are listed alphabetically, matching the catalog on the landing page. Se
 - [Experiences](experiences/) ([Open app](https://alphadyn.github.io/apps/experiences/)) — Supabase-backed journal with trips, shareable Experience collections, Event maps, precise location picking, and media carousels.
 - [Forma](forma/) ([Open app](https://alphadyn.github.io/apps/forma/)) — Browser-based home concept studio with 17 space types, right-angle and shared-wall resizing, directly selectable doors and windows, 2D floor plans, whole-property 3D views, local saving, and SVG/JSON export. No account needed.
 - [Fractals](fractals/) ([Open app](https://alphadyn.github.io/apps/fractals/)) — Interactive fractal visualizer.
+- [Fund Map](fund-map/) ([Open app](https://alphadyn.github.io/apps/fund-map/)) — Explore selected funds sized by reported net assets, with illustrative S&P 500 DCF proxy estimates.
 - [Lexhaven Legal Docketing](lexhaven-legal-docketing/) ([Open app](https://alphadyn.github.io/apps/lexhaven-legal-docketing/)) — Matter and deadline tracking app.
 - [Market Insights](market-insights/) ([Open app](https://alphadyn.github.io/apps/market-insights/)) — Screen S&P 500 stocks and selected funds with valuation and earnings bounds, ten performance periods, sortable results, and interactive price-history charts.
 - [Market Map](market-map/) ([Open app](https://alphadyn.github.io/apps/market-map/)) — View every S&P 500 company in a viewport-filling market-cap treemap colored by implied DCF upside or downside.

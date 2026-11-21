@@ -9,7 +9,8 @@
   --green: #187653;
   --amber: #a85f12;
   --purple: #6d51b5;
-  --shadow: 0 12px 30px rgba(20, 35, 60, 0.07);
+  --shadow: 0 10px 28px rgba(20, 35, 60, 0.06);
+  --shadow-soft: 0 3px 14px rgba(25, 50, 70, 0.04);
 }
 
 .sidebar-heading {
@@ -507,7 +508,7 @@ textarea {
 
 .app-shell {
   display: grid;
-  grid-template-columns: 276px minmax(0, 1fr);
+  grid-template-columns: 260px minmax(0, 1fr);
   min-height: 100vh;
 }
 
@@ -532,7 +533,7 @@ textarea {
   overflow: hidden;
   background: linear-gradient(165deg, #152e3b 0%, #10212e 100%);
   color: #f8fafc;
-  padding: 24px 16px 16px;
+  padding: 20px 14px 14px;
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -796,7 +797,7 @@ textarea {
   color: #cbd5e1;
   background: transparent;
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: 0.82rem;
   transition: background 140ms ease, color 140ms ease, box-shadow 140ms ease;
 }
 
@@ -1008,7 +1009,10 @@ textarea {
   padding: clamp(20px, 2.5vw, 36px);
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
+  width: 100%;
+  max-width: 1500px;
+  margin-inline: auto;
 }
 
 .topbar {
@@ -1017,9 +1021,9 @@ textarea {
   align-items: center;
   flex-wrap: wrap;
   gap: 16px 24px;
-  min-height: 62px;
-  padding: 0 0 22px;
-  border-bottom: 1px solid #dfe7ed;
+  min-height: 56px;
+  padding: 0 0 18px;
+  border-bottom: 1px solid #e4ebf1;
 }
 
 .workspace-heading {
@@ -1252,12 +1256,13 @@ textarea {
 }
 
 .stat-card {
-  min-height: 132px;
+  min-height: 124px;
   border: 1px solid var(--border);
   border-top: 3px solid currentColor;
-  border-radius: 16px;
-  padding: 20px;
+  border-radius: 14px;
+  padding: 18px;
   background: var(--panel);
+  box-shadow: var(--shadow-soft);
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.025);
   transition: box-shadow 140ms ease, transform 140ms ease;
 }
@@ -1324,7 +1329,7 @@ button.stat-card {
   display: block;
   margin: 8px 0 2px;
   color: var(--text);
-  font-size: 1.9rem;
+  font-size: 1.75rem;
   letter-spacing: -0.045em;
   line-height: 1.1;
 }
@@ -1345,7 +1350,7 @@ button.stat-card {
 .content-grid {
   display: grid;
   grid-template-columns: 1.05fr 1.4fr;
-  gap: 18px;
+  gap: 16px;
 }
 
 .lower-grid {
@@ -1355,9 +1360,9 @@ button.stat-card {
 .panel {
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: clamp(18px, 2vw, 26px);
-  box-shadow: 0 4px 20px rgba(25, 50, 70, 0.035);
+  border-radius: 16px;
+  padding: clamp(18px, 2vw, 24px);
+  box-shadow: var(--shadow-soft);
   min-width: 0;
 }
 
@@ -2510,9 +2515,12 @@ textarea {
 .clinical-banner {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+ align-items: center;
   gap: 20px;
-  border-top: 4px solid var(--accent);
+ min-height: 118px;
+ border-top: 0;
+ border-left: 4px solid var(--accent);
+ background: linear-gradient(120deg, #f3faf8 0, #fff 58%);
 }
 
 .clinical-banner h3 {
@@ -2547,7 +2555,31 @@ textarea {
 .clinical-form {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+ gap: 12px;
+}
+
+.clinical-subview .panel-header {
+ margin-bottom: 16px;
+ padding-bottom: 14px;
+ border-bottom: 1px solid #edf1f5;
+}
+
+.clinical-subview label {
+ font-size: 0.86rem;
+}
+
+.clinical-subview input,
+.clinical-subview select,
+.clinical-subview textarea {
+ min-height: 43px;
+}
+
+.clinical-subview textarea {
+ min-height: 76px;
+}
+
+.clinical-subview .primary-btn {
+ min-height: 44px;
 }
 
 .patient-registration {
@@ -2809,9 +2841,34 @@ textarea {
 
 .record-card {
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 14px;
   padding: 16px;
-  background: #fbfdff;
+  background: #fff;
+  box-shadow: var(--shadow-soft);
+}
+
+.record-card-header {
+  align-items: center;
+}
+
+.record-card-header h4 {
+  margin: 3px 0 0;
+  font-size: 1rem;
+}
+
+.record-card-footer {
+  align-items: center;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #edf1f5;
+}
+
+.record-category {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .imaging-record {

@@ -93,6 +93,41 @@ test("encounter status is cleared when switching patients but retained for the s
   assert.equal(elements.get("clinicalStatus").textContent, "");
 });
 
+test("built-in labels are updated for saved records without rewriting edited content", () => {
+  const { context } = setup();
+  const seed = JSON.parse(vm.runInContext("JSON.stringify(allInitialPatients[3])", context));
+  const edited = JSON.parse(JSON.stringify(seed));
+  edited.imaging[0].report = "A user-entered fictional report.";
+  edited.notes[0].summary = "A user-entered fictional history.";
+  edited.imaging.push({ id: "custom" });
+  const storage = new Map([[storageKey, JSON.stringify({
+    patients: [seed],
+    inboxItems: [{
+      id: `inbox-message-${seed.id}`, patientId: seed.id, kind: "Message", status: "Read",
+      summary: "A fictional workflow handoff is waiting for review in this demonstration inbox."
+    }]
+  })]]);
+  const restored = setup("clinician", storage);
+  const patient = vm.runInContext(`patients.find(item => item.id === ${seed.id})`, restored.context);
+  assert.doesNotMatch(patient.imaging[0].report, /fictional/i);
+  assert.equal(patient.notes[0].type, "Medical history");
+  assert.ok(patient.labs.every((lab) => !/fictional/i.test(lab)));
+  assert.equal(vm.runInContext("inboxItems[0].summary", restored.context), "A care team handoff is waiting for review.");
+  assert.equal(vm.runInContext("inboxItems[0].status", restored.context), "Read");
+  const preserved = restored.api.normalizePatient(edited);
+  assert.equal(preserved.imaging[0].report, edited.imaging[0].report);
+  assert.equal(preserved.notes[0].summary, edited.notes[0].summary);
+  assert.equal(preserved.notes[0].type, "Fictional sample history");
+  assert.equal(preserved.imaging[1].report, "");
+});
+
+test("fictional data warning remains on the warning screen, not registration", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /Fictional data only\.<\/strong>/);
+  const registration = html.match(/<section id="patientRegistration"[\s\S]*?<\/section>/)[0];
+  assert.doesNotMatch(registration, /fictional/i);
+});
+
 const sessionKey = "northstar-ehr-demo-account";
 const acknowledgmentKey = "northstar-ehr-warning-acknowledged";
 const automaticSignInKey = "northstar-ehr-automatic-sign-in";

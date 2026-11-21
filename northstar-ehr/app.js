@@ -1064,7 +1064,37 @@ function getDefaultDepartment(patient, index) {
   return departments[index % departments.length].name;
 }
 
+function cleanSeedReport(report) {
+  return report.replace(/ in this (?:fictional sample report|fictional report|sample report|mock report|fictional sample|sample)(?=[.,])/g, "");
+}
+
+function refreshSeedLabels(patient) {
+  const seed = allInitialPatients.find((item) => item.id === patient.id && item.mrn === patient.mrn);
+  if (!seed) return patient;
+  const seedReports = new Map((seed.imaging || []).map((record) => [record.id, record.report]));
+  const updateNote = (note) => note.type === "Fictional sample history" &&
+    seed.notes?.some((original) => original.type === note.type && original.title === note.title &&
+      original.summary === (note.summary ?? note.sections?.summary))
+    ? { ...note, type: "Medical history" } : note;
+  return {
+    ...patient,
+    labs: (patient.labs || []).flatMap((lab) => {
+      if (!(seed.labs || []).includes(lab)) return [lab];
+      if (lab === "Fictional demonstration values") return [];
+      return [lab.replace(/^Sample chart · /, "Chart · ")];
+    }),
+    notes: (patient.notes || []).map(updateNote),
+    documents: patient.documents?.map(updateNote),
+    imaging: (patient.imaging || []).map((record) =>
+      seedReports.has(record.id) && typeof record.report === "string" && seedReports.get(record.id) === record.report
+        ? { ...record, report: cleanSeedReport(record.report) } : record),
+    billing: patient.billing?.insurance === "Fictional PPO" && seed.billing?.insurance === "Fictional PPO"
+      ? { ...patient.billing, insurance: "PPO" } : patient.billing
+  };
+}
+
 function normalizePatient(patient) {
+  patient = refreshSeedLabels(patient);
   const clinical = patient.clinical || {};
   const vitals = { ...(patient.vitals || {}), ...(clinical.vitals || {}) };
   const sampleAdmission = sampleAdmissionAssignments[Number(patient.id)];
@@ -1179,6 +1209,14 @@ function normalizeAuditEntry(entry) {
     patientName: entry.patientName || "System",
     details: entry.details || "No details provided"
   };
+}
+
+function displayAuditDetails(entry) {
+  const details = entry.details;
+  if (entry.action === "patient:register") return details.replace(/^Registered fictional patient (.+) for intake\.$/, "Registered patient $1 for intake.");
+  if (entry.action === "staff:create") return details.replace(/^Added fictional staff directory profile for (.+)\.$/, "Added staff directory profile for $1.");
+  if (entry.action === "inbox:mark-all-read") return details.replace(/^Marked (\d+) fictional inbox items as read\.$/, "Marked $1 inbox items as read.");
+  return details;
 }
 
 function normalizeCurrentUser(user) {
@@ -1371,7 +1409,7 @@ function createDemoInboxItems(patientRecords) {
         kind: "Message",
         source: "Care team",
         title: "Care team handoff",
-        summary: "A fictional workflow handoff is waiting for review in this demonstration inbox.",
+        summary: "A care team handoff is waiting for review.",
         receivedAt: time,
         priority: "Routine",
         status: "Unread"
@@ -1386,7 +1424,7 @@ function createDemoInboxItems(patientRecords) {
         kind: "Result",
         source: "Laboratory",
         title: "Result available",
-        summary: `${patient.labs[0]} · Fictional sample result surfaced for chart review. No clinical interpretation is provided.`,
+        summary: `${patient.labs[0]} · Result available for chart review. No clinical interpretation is provided.`,
         receivedAt: time,
         priority: patient.priority === "Urgent" ? "High" : "Routine",
         status: "Unread"
@@ -1402,7 +1440,7 @@ function createDemoInboxItems(patientRecords) {
         kind: "Task",
         source: "Care plan",
         title: task.label,
-        summary: "Fictional follow-up task from this sample chart.",
+        summary: "Follow-up task from the care plan.",
         receivedAt: time,
         priority: patient.priority === "Urgent" ? "High" : "Routine",
         status: task.status === "Done" ? "Done" : "Open",
@@ -1430,12 +1468,31 @@ function loadInboxItems(patientRecords) {
       mrn: patient.mrn,
       source: String(item.source || "Care team"),
       title: String(item.title || "Inbox item"),
-      summary: String(item.summary || ""),
+      summary: cleanSeedInboxSummary(item, patient),
       receivedAt: String(item.receivedAt || "Date not recorded"),
       priority: item.priority === "High" ? "High" : "Routine"
     }];
   });
   return normalized.length ? normalized : createDemoInboxItems(patientRecords);
+}
+
+function cleanSeedInboxSummary(item, patient) {
+  const summary = String(item.summary || "");
+  const seed = allInitialPatients.find((record) => record.id === patient.id && record.mrn === patient.mrn);
+  if (!seed) return summary;
+  if (item.id === `inbox-message-${patient.id}` &&
+      summary === "A fictional workflow handoff is waiting for review in this demonstration inbox.") {
+    return "A care team handoff is waiting for review.";
+  }
+  if (item.id === `inbox-task-${patient.id}` && summary === "Fictional follow-up task from this sample chart.") {
+    return "Follow-up task from the care plan.";
+  }
+  if (item.id === `inbox-result-${patient.id}` &&
+      summary === `${seed.labs?.[0]} · Fictional sample result surfaced for chart review. No clinical interpretation is provided.`) {
+    const lab = seed.labs[0].replace(/^Sample chart · /, "Chart · ");
+    return `${lab} · Result available for chart review. No clinical interpretation is provided.`;
+  }
+  return summary;
 }
 
 function normalizeInboxFilter(filter) {
@@ -2066,7 +2123,7 @@ function registerPatientForTriage(input, role = currentUser.role) {
   selectedPatientId = patient.id;
   selectedProfile = { type: "patient", id: patient.id };
   currentView = "clinical";
-  recordAudit("patient:register", patient.name, `Registered fictional patient ${patient.mrn} for intake.`);
+  recordAudit("patient:register", patient.name, `Registered patient ${patient.mrn} for intake.`);
   try {
     if (!safeLocalStorage()) throw new Error("Browser storage unavailable");
     saveState();
@@ -2856,7 +2913,7 @@ function renderPatientDetail() {
         ${auditTrail
           .filter((entry) => entry.patientName === patient.name)
           .slice(0, 4)
-          .map((entry) => `<li><strong>${escapeHtml(entry.actorLabel)}</strong> — ${escapeHtml(entry.details)} <em>(${escapeHtml(entry.action)})</em></li>`)
+          .map((entry) => `<li><strong>${escapeHtml(entry.actorLabel)}</strong> — ${escapeHtml(displayAuditDetails(entry))} <em>(${escapeHtml(entry.action)})</em></li>`)
           .join("") || "<li>No audit events for this patient yet.</li>"}
       </ul>
     </div>
@@ -2932,7 +2989,7 @@ function renderAuditTrail() {
             <div class="audit-entry">
               <strong>${escapeHtml(entry.actorLabel)} • ${escapeHtml(entry.action)}</strong>
               <span>${escapeHtml(entry.patientName)}</span>
-              <p>${escapeHtml(entry.details)}</p>
+              <p>${escapeHtml(displayAuditDetails(entry))}</p>
             </div>
           `
         )
@@ -3080,8 +3137,8 @@ function renderAdmissionsView(container) {
         <div><p class="eyebrow">Inpatient management</p><h3>Admissions dashboard</h3></div>
         <span class="pill">${admittedPatients.length} active ${admittedPatients.length === 1 ? "admission" : "admissions"}</span>
       </div>
-      <p class="muted-copy">Fictional inpatient census across all departments. Update an encounter disposition to add or remove a patient.</p>
-      ${hasPermission(currentUser.role, "workflow:update") ? '<button class="ghost-btn" type="button" data-register-patient>Register a fictional patient</button>' : ""}
+      <p class="muted-copy">Inpatient census across all departments. Update an encounter disposition to add or remove a patient.</p>
+      ${hasPermission(currentUser.role, "workflow:update") ? '<button class="ghost-btn" type="button" data-register-patient>Register a patient</button>' : ""}
       <div class="table-wrap" id="admissionsTable"></div>
     </div>`;
   renderAdmissionTable(container.querySelector("#admissionsTable"), admittedPatients);
@@ -3167,7 +3224,7 @@ function handleInboxAction(action, itemId) {
     inboxItems.forEach((item) => {
       if (item.status === "Unread") item.status = item.kind === "Result" ? "Reviewed" : "Read";
     });
-    if (updatedCount) recordAudit("inbox:mark-all-read", "Multiple patients", `Marked ${updatedCount} fictional inbox items as read.`);
+    if (updatedCount) recordAudit("inbox:mark-all-read", "Multiple patients", `Marked ${updatedCount} inbox items as read.`);
     saveState();
     render();
     announceInboxStatus(updatedCount ? `Marked ${updatedCount} items as read.` : "There are no unread items.");
@@ -4000,7 +4057,7 @@ function attachEvents() {
     });
     staffDirectory.push(staff);
     selectedProfile = { type: "staff", id: staff.id };
-    recordAudit("staff:create", "System", `Added fictional staff directory profile for ${staff.name}.`);
+    recordAudit("staff:create", "System", `Added staff directory profile for ${staff.name}.`);
     setCurrentView("profiles");
     render();
     document.getElementById("encounterStatus").textContent = `Added ${staff.name} to the demo staff directory.`;

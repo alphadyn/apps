@@ -26,7 +26,7 @@ The **Patient timeline** brings together diagnoses, lab markers, clinical docume
 
 ## Encounter workflow
 
-To register a new fictional patient, choose **Register patient** in **Patients & care > Worklist & charts**, or choose **Register a fictional patient** from **Admissions**. Provider, Midlevel, and Nurse roles can enter a name, unique MRN, age, and sex, then select **Create profile & open triage**. Check the worklist for an existing record first; duplicate MRNs are rejected. The profile is saved locally and opens the new patient's intake form. No admission, diagnosis, allergy, medication, or vital assessment is inferred by registration. The admissions census includes the patient only after an admission stage or admit disposition is saved.
+To register a new fictional patient, choose **Register patient** in **Patients & care > Worklist & charts**, or choose **Register a patient** from **Admissions**. Provider, Midlevel, and Nurse roles can enter a name, unique MRN, age, and sex, then select **Create profile & open triage**. Check the worklist for an existing record first; duplicate MRNs are rejected. The profile is saved locally and opens the new patient's intake form. No admission, diagnosis, allergy, medication, or vital assessment is inferred by registration. The admissions census includes the patient only after an admission stage or admit disposition is saved.
 
 Use **Cancel** to close the registration form without creating a profile; its unsaved entries remain available until the form is reset or the page is reloaded.
 

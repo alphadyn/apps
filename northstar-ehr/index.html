@@ -129,6 +129,7 @@
                 <button class="nav-link" type="button" data-view="patient-profiles">Patient profiles</button>
                 <button class="nav-link" type="button" data-view="admissions">Admissions</button>
                 <button class="nav-link" type="button" data-view="nursing">Nursing station</button>
+                <button class="nav-link" type="button" data-view="outpatient">Outpatient care</button>
                 <button class="nav-link" type="button" data-view="appointments">Appointments</button>
               </div>
               <div class="nav-subgroup">
@@ -495,6 +496,60 @@
 
           <div class="panel detail-panel" id="patientDetailPanel">
             <div id="patientDetail"></div>
+          </div>
+        </section>
+
+        <section id="outpatientSection" class="outpatient-workspace view-section hidden-section">
+          <div class="panel outpatient-scheduler">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Outpatient care</p>
+                <h3>Schedule a visit</h3>
+              </div>
+            </div>
+            <form id="outpatientAppointmentForm" class="clinical-form outpatient-form">
+              <div class="row">
+                <label>Appointment date
+                  <input name="scheduledAt" type="date" required />
+                </label>
+                <label>Appointment time
+                  <input name="time" type="time" required />
+                </label>
+              </div>
+              <label>Reason for visit
+                <input name="reason" type="text" placeholder="Symptoms or follow-up" required />
+              </label>
+              <div class="row">
+                <label>Visit type
+                  <select name="visitType">
+                    <option>Office visit</option>
+                    <option>Primary care</option>
+                    <option>Specialist consult</option>
+                    <option>Post-op follow-up</option>
+                    <option>Telehealth</option>
+                    <option>Annual wellness</option>
+                    <option>Procedure visit</option>
+                  </select>
+                </label>
+                <label>Provider
+                  <input name="provider" type="text" placeholder="Optional" />
+                </label>
+              </div>
+              <label>Location
+                <input name="location" type="text" placeholder="Clinic or telehealth" />
+              </label>
+              <button class="primary-btn" type="submit">Schedule appointment</button>
+              <p id="outpatientStatus" class="status-message" role="status"></p>
+            </form>
+          </div>
+          <div class="panel outpatient-schedule-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Patient schedule</p>
+                <h3>Appointments</h3>
+              </div>
+            </div>
+            <div id="outpatientAppointmentsList" class="outpatient-appointments-list"></div>
           </div>
         </section>
 

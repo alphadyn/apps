@@ -20,23 +20,23 @@ const demoAccounts = [
 const rolePermissions = {
   clinician: {
     label: "Provider",
-    actions: ["encounter:create", "workflow:update", "order:create", "document:create", "appointment:complete", "task:complete", "patient:select", "report:export", "data:import"]
+    actions: ["encounter:create", "workflow:update", "order:create", "document:create", "appointment:create", "appointment:cancel", "appointment:complete", "task:complete", "patient:select", "report:export", "data:import"]
   },
   midlevel: {
     label: "Midlevel (PA / NP)",
-    actions: ["encounter:create", "workflow:update", "order:create", "document:create", "appointment:complete", "task:complete", "patient:select", "report:export", "data:import"]
+    actions: ["encounter:create", "workflow:update", "order:create", "document:create", "appointment:create", "appointment:cancel", "appointment:complete", "task:complete", "patient:select", "report:export", "data:import"]
   },
   staff: {
     label: "Staff",
-    actions: ["appointment:complete", "patient:select"]
+    actions: ["appointment:create", "appointment:cancel", "appointment:complete", "patient:select"]
   },
   nurse: {
     label: "Nurse",
-    actions: ["workflow:update", "order:create", "document:create", "appointment:complete", "task:complete", "patient:select"]
+    actions: ["workflow:update", "order:create", "document:create", "appointment:create", "appointment:cancel", "appointment:complete", "task:complete", "patient:select"]
   },
   admin: {
     label: "Admin",
-    actions: ["appointment:cancel", "appointment:complete", "patient:select", "report:export", "data:import", "audit:view", "billing:view", "roles:manage"]
+    actions: ["appointment:create", "appointment:cancel", "appointment:complete", "patient:select", "report:export", "data:import", "audit:view", "billing:view", "roles:manage"]
   }
 };
 
@@ -1047,9 +1047,13 @@ function normalizeAppointmentStatus(status) {
   const normalized = String(status || "Scheduled").trim().toLowerCase();
   switch (normalized) {
     case "in progress": return "In Progress";
+    case "checked in":
+    case "checked-in": return "Checked In";
     case "completed": return "Completed";
     case "cancelled":
     case "canceled": return "Cancelled";
+    case "no-show":
+    case "no show": return "No-show";
     case "scheduled": return "Scheduled";
     default: return "Scheduled";
   }
@@ -1063,6 +1067,9 @@ function normalizeAppointment(appointment) {
     time: appointment.time,
     title: appointment.title,
     location: appointment.location,
+    visitType: appointment.visitType || "Office visit",
+    reason: appointment.reason || appointment.title || "",
+    provider: appointment.provider || "",
     status: normalizeAppointmentStatus(appointment.status),
     updatedAt: appointment.updatedAt || ""
   };
@@ -1765,8 +1772,9 @@ function getVisibleSections(view) {
     extendedSection: extendedViews.includes(view),
     recordsSection: view === "patients" || view === "labs" || view === "billing",
     operationsSection: view === "appointments",
+    outpatientSection: view === "outpatient",
     encounterSection: view === "patients" || view === "labs",
-    auditSection: (view === "overview" || view === "appointments") && hasPermission(currentUser.role, "audit:view"),
+    auditSection: (view === "overview" || view === "appointments" || view === "outpatient") && hasPermission(currentUser.role, "audit:view"),
     clinicalSection: ["clinical", "orders", "documents"].includes(view)
   };
 }
@@ -2311,8 +2319,40 @@ function createDocumentForPatient(patient, document, role = currentUser.role) {
   return { allowed: true, document: savedDocument };
 }
 
+function createAppointmentForPatient(patientId, appointment, role = currentUser.role) {
+  const patient = patients.find((item) => item.id === patientId);
+  if (!patient) return { allowed: false, message: "Patient not found." };
+
+  const permission = evaluatePermission(role, "appointment:create", patient.name);
+  if (!permission.allowed) return permission;
+
+  const scheduledAt = String(appointment.scheduledAt || "").trim();
+  const time = String(appointment.time || "").trim();
+  const title = String(appointment.title || appointment.reason || "Outpatient visit").trim();
+  if (!scheduledAt || !time) {
+    return { allowed: false, message: "Choose an appointment date and time." };
+  }
+
+  const created = normalizeAppointment({
+    ...appointment,
+    id: createAppointmentId(),
+    scheduledAt,
+    time,
+    title,
+    status: "Scheduled",
+    createdAt: new Date().toISOString()
+  });
+  patient.appointments.push(created);
+  addPatientEvent(patient, "Appointment", "Outpatient appointment scheduled", `${title} · ${formatDisplayDate(scheduledAt)} at ${time}`, created.createdAt, {
+    targetView: "outpatient",
+    targetId: `patient-appointment-${created.id}`
+  });
+  saveState();
+  return { allowed: true, appointment: created };
+}
+
 function updateAppointmentStatus(patientId, appointmentId, nextStatus, role = currentUser.role) {
-  if (!["Completed", "Cancelled"].includes(nextStatus)) {
+  if (!["Scheduled", "Checked In", "In Progress", "Completed", "Cancelled", "No-show"].includes(nextStatus)) {
     return { allowed: false, message: "Invalid appointment status." };
   }
 
@@ -2953,6 +2993,48 @@ function renderPatientDetail() {
       </ul>
     </div>
   `;
+}
+
+function renderOutpatientAppointments() {
+  const container = document.getElementById("outpatientAppointmentsList");
+  if (!container) return;
+  const patient = getSelectedPatient();
+  const canCreate = hasPermission(currentUser.role, "appointment:create");
+  const canComplete = hasPermission(currentUser.role, "appointment:complete");
+  const canCancel = hasPermission(currentUser.role, "appointment:cancel");
+  const form = document.getElementById("outpatientAppointmentForm");
+  if (form) form.querySelector("button[type='submit']").disabled = !canCreate;
+
+  const allAppointments = [...(patient.appointments || [])].sort((a, b) => {
+    const aDate = `${a.scheduledAt || ""} ${a.time || ""}`;
+    const bDate = `${b.scheduledAt || ""} ${b.time || ""}`;
+    return aDate.localeCompare(bDate);
+  });
+  const appointments = allAppointments.filter((appointment) => !["Completed", "Cancelled", "No-show"].includes(normalizeAppointmentStatus(appointment.status)));
+
+  container.innerHTML = appointments.length ? appointments.map((appointment) => {
+    const status = normalizeAppointmentStatus(appointment.status);
+    const statusClass = status.toLowerCase().replace(/\s+/g, "-");
+    const actions = status === "Scheduled"
+      ? `<button class="primary-btn appointment-action" type="button" data-outpatient-action="check-in" data-id="${escapeHtml(appointment.id)}" ${canComplete ? "" : "disabled"}>Check in</button>`
+      : status === "Checked In" || status === "In Progress"
+        ? `<button class="primary-btn appointment-action" type="button" data-outpatient-action="complete" data-id="${escapeHtml(appointment.id)}" ${canComplete ? "" : "disabled"}>Complete</button>`
+        : "";
+    const cancelAction = !["Completed", "Cancelled", "No-show"].includes(status)
+      ? `<button class="ghost-btn appointment-action" type="button" data-outpatient-action="cancel" data-id="${escapeHtml(appointment.id)}" ${canCancel ? "" : "disabled"}>Cancel</button>`
+      : "";
+    return `
+      <article class="outpatient-appointment ${escapeHtml(statusClass)}" id="patient-appointment-${escapeHtml(appointment.id)}">
+        <div class="outpatient-time-block"><strong>${escapeHtml(appointment.time || "—")}</strong><span>${escapeHtml(appointment.scheduledAt ? formatDisplayDate(appointment.scheduledAt) : "Date not recorded")}</span></div>
+        <div class="outpatient-appointment-body">
+          <div class="outpatient-appointment-heading"><strong>${escapeHtml(appointment.reason || appointment.title || "Outpatient visit")}</strong></div>
+          <p><span class="status-pill ${escapeHtml(statusClass)}">${escapeHtml(status)}</span></p>
+          <p>${escapeHtml(appointment.visitType || "Office visit")}${appointment.provider ? ` · ${escapeHtml(appointment.provider)}` : ""}</p>
+          <p class="outpatient-location"><span aria-hidden="true">⌖</span>${escapeHtml(appointment.location || "Location not recorded")}</p>
+        </div>
+        <div class="appointment-actions">${actions}${cancelAction}</div>
+      </article>`;
+  }).join("") : '<div class="outpatient-empty"><strong>No upcoming appointments</strong><p>Schedule a visit to add it here.</p></div>';
 }
 
 function renderAppointments() {
@@ -3887,6 +3969,7 @@ function render() {
   renderPatientList();
   renderPatientDetail();
   renderAppointments();
+  renderOutpatientAppointments();
   renderSnapshot();
   renderAuditTrail();
   renderClinicalWorkspace();
@@ -4276,6 +4359,37 @@ function attachEvents() {
     render();
   });
 
+  document.getElementById("outpatientAppointmentForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const result = createAppointmentForPatient(selectedPatientId, {
+      scheduledAt: data.get("scheduledAt"),
+      time: data.get("time"),
+      visitType: data.get("visitType"),
+      provider: data.get("provider"),
+      reason: data.get("reason"),
+      title: data.get("reason"),
+      location: data.get("location")
+    });
+    const status = document.getElementById("outpatientStatus");
+    status.textContent = result.allowed ? "Outpatient appointment scheduled." : result.message;
+    if (result.allowed) event.currentTarget.reset();
+    render();
+  });
+
+  document.getElementById("outpatientAppointmentsList").addEventListener("click", (event) => {
+    const action = event.target.closest("[data-outpatient-action]");
+    if (!action) return;
+    const actionName = action.dataset.outpatientAction;
+    const nextStatus = actionName === "check-in" ? "Checked In" : actionName === "complete" ? "Completed" : "Cancelled";
+    const result = updateAppointmentStatus(selectedPatientId, action.dataset.id, nextStatus);
+    document.getElementById("outpatientStatus").textContent = result.allowed
+      ? `Appointment marked ${nextStatus.toLowerCase()}.`
+      : result.message;
+    if (result.allowed) saveState();
+    render();
+  });
+
   document.getElementById("appointmentsList").addEventListener("click", (event) => {
     const actionButton = event.target.closest("[data-action]");
     if (!actionButton) return;
@@ -4515,6 +4629,7 @@ const appApi = {
   buildPatientTimeline,
   buildExportPayload,
   calculateDashboardStats,
+  createAppointmentForPatient,
   createEncounterForPatient,
   createDocumentForPatient,
   createOrderForPatient,

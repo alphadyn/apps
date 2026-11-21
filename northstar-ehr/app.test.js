@@ -776,6 +776,7 @@ test("Billing immediately renders the selected patient's billing information", (
     assert.equal(api.getVisibleSections("billing").operationsSection, false);
     assert.equal(api.getVisibleSections("billing").auditSection, false);
     assert.equal(api.getVisibleSections("appointments").operationsSection, true);
+  assert.equal(api.getVisibleSections("outpatient").outpatientSection, true);
     if (accountId === "admin") assert.equal(api.getVisibleSections("overview").auditSection, true);
     vm.runInContext('currentView = "billing"; selectedPatientId = patients[0].id; renderPatientDetail()', context);
     const firstPatient = vm.runInContext("patients[0]", context);
@@ -1085,6 +1086,46 @@ test("appointment status changes are retained as patient timeline events", () =>
   const timelineEvent = api.buildPatientTimeline(patient).find((item) => item.id === event.id);
   assert.equal(timelineEvent.targetView, "appointments");
   assert.equal(timelineEvent.targetId, "patient-appointment-appointment-test");
+});
+
+test("outpatient care can schedule and normalize an appointment", () => {
+  const { api, context } = setup();
+  const patient = api.normalizePatient({
+    id: 904,
+    name: "Outpatient Test",
+    mrn: "T-904",
+    age: 34,
+    sex: "Female",
+    diagnosis: "Test diagnosis",
+    status: "Stable",
+    priority: "Routine",
+    provider: "Test Provider",
+    allergies: [],
+    medications: [],
+    appointments: []
+  });
+  context.outpatientPatient = patient;
+  vm.runInContext("patients.push(outpatientPatient)", context);
+  const result = api.createAppointmentForPatient(patient.id, {
+    scheduledAt: "2026-12-01",
+    time: "09:30",
+    visitType: "Telehealth",
+    provider: "Dr. Test",
+    reason: "Medication review",
+    location: "Virtual visit"
+  }, "clinician");
+  assert.equal(result.allowed, true);
+  assert.equal(result.appointment.status, "Scheduled");
+  assert.equal(result.appointment.visitType, "Telehealth");
+  assert.equal(result.appointment.reason, "Medication review");
+  assert.equal(patient.appointments.length, 1);
+
+  const invalid = api.createAppointmentForPatient(patient.id, {
+    scheduledAt: "",
+    time: "",
+    reason: "Missing details"
+  }, "clinician");
+  assert.equal(invalid.allowed, false);
 });
 
 test("appointment statuses reject untrusted values before rendering", () => {

@@ -43,7 +43,7 @@ The deployed URL is `https://alphadyn.github.io/apps/northstar-ehr/`.
 - Patient workflow assignment to a department, care location, attending provider, and nurse; clinician and nurse workflow roles, an admin review role, and an activity audit trail
 - Client-side demo sign-in with a consolidated warning screen requiring acknowledgment on each sign-in; not real authentication or server-enforced authorization
 - Joe Spartan, MD is automatically signed in as a Provider on first load, with sign-in remembered across browser restarts until explicit sign-out. After signing out, use `joe.spartan` / `northstar` to sign in again.
-- Appointment management, care tasks, follow-up planning, patient summary export, and billing context
+- Outpatient care workspace for scheduling, visit type, provider, location, check-in, completion, cancellation, and follow-up context; selected-patient appointment management, care tasks, patient summary export, and billing context
 - Local browser persistence for the demonstration dataset
 
 ## Project structure

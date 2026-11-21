@@ -128,6 +128,19 @@ test("fictional data warning remains on the warning screen, not registration", (
   assert.doesNotMatch(registration, /fictional/i);
 });
 
+test("structured fields keep required indicators beside their labels", () => {
+  const { context } = setup();
+  const container = { innerHTML: "" };
+  context.document = { getElementById: () => container };
+  vm.runInContext('renderStructuredFields("documentSpecificFields", documentTypeFields["ED provider note"])', context);
+  assert.match(container.innerHTML, /<span>Chief concern <span class="required-marker" aria-hidden="true">\*<\/span><\/span>/);
+  assert.match(container.innerHTML, /<textarea name="chiefConcern"[^>]*required/);
+  assert.match(container.innerHTML, /<span>Relevant medical \/ surgical history<\/span>/);
+  vm.runInContext('renderStructuredFields("documentSpecificFields", documentTypeFields["ED provider note"], "Document details", "Required fields are marked with *.")', context);
+  assert.match(container.innerHTML, /<strong>Document details<\/strong>/);
+  assert.match(container.innerHTML, /Required fields are marked with \*\./);
+});
+
 const sessionKey = "northstar-ehr-demo-account";
 const acknowledgmentKey = "northstar-ehr-warning-acknowledged";
 const automaticSignInKey = "northstar-ehr-automatic-sign-in";
@@ -281,7 +294,7 @@ test("staff directory search filters staff details and reports empty results", (
   searchInput.value = "no matching staff";
   vm.runInContext("renderStaffView(directoryContainer)", context);
   assert.match(context.directoryContainer.innerHTML, /0 matches/);
-  assert.match(context.directoryContainer.innerHTML, /No staff matched your search/);
+  assert.match(context.directoryContainer.innerHTML, /No staff found/);
 
   searchInput.value = "Joe";
   vm.runInContext('currentView = "overview"; renderGlobalSearch()', context);
@@ -316,7 +329,7 @@ test("patient worklist search includes care team and location details", () => {
   searchField.value = "not a patient";
   vm.runInContext("renderPatientList()", context);
   assert.equal(count.textContent, "0 records");
-  assert.match(list.innerHTML, /No patients matched/);
+  assert.match(list.innerHTML, /No patients found/);
 });
 
 function setupLogin(session = new Map(), storage = new Map([[automaticSignInKey, "signed-out"]])) {

@@ -132,10 +132,10 @@
               </div>
               <div class="nav-subgroup">
                 <p class="nav-subgroup-title">Clinical tools</p>
-                <button class="nav-link" type="button" data-view="clinical">ED &amp; Inpatient</button>
+                <button class="nav-link" type="button" data-view="clinical">ED &amp; inpatient</button>
                 <button class="nav-link" type="button" data-view="orders">Orders</button>
-                <button class="nav-link" type="button" data-view="documents">Notes &amp; Documents</button>
-                <button class="nav-link" type="button" data-view="labs">Labs &amp; Meds</button>
+                <button class="nav-link" type="button" data-view="documents">Notes &amp; documents</button>
+                <button class="nav-link" type="button" data-view="labs">Labs &amp; medications</button>
               </div>
             </div>
           </details>
@@ -231,7 +231,7 @@
             <span id="criticalFollowupsMeta">0 overdue tasks</span>
           </button>
           <button type="button" class="stat-card accent-purple" data-stat-filter="medrec" aria-pressed="false">
-            <p>Medication Reconciliation</p>
+            <p>Medication reconciliation</p>
             <strong id="medRecValue">0%</strong>
             <span id="medRecMeta">0 patient charts reviewed</span>
           </button>
@@ -243,7 +243,7 @@
               <p class="eyebrow">Workspace at a glance</p>
               <h3>Operations overview</h3>
             </div>
-            <button class="ghost-btn" type="button" data-open-view="admissions">View all admissions</button>
+            <button class="ghost-btn" type="button" data-open-view="admissions">View admissions</button>
           </div>
           <div id="operationsOverview"></div>
           <p id="accountRoleStatus" class="status-message" role="status" aria-live="polite"></p>
@@ -283,7 +283,7 @@
                 <h3>Emergency & inpatient workflow</h3>
               </div>
             </div>
-            <p class="muted-copy">Record intake and triage first. To admit, select Admission as the stage or an admit disposition, then save.</p>
+            <p class="muted-copy">Record intake and triage. To admit, select the Admission stage or an admit disposition, then save.</p>
             <form id="workflowForm" class="clinical-form">
               <fieldset class="workflow-fieldset">
                 <legend>Arrival &amp; triage</legend>
@@ -311,8 +311,8 @@
                     </select>
                   </label>
                 </div>
-                <label>Triage / nursing intake note
-                  <textarea name="triageNote" rows="3" placeholder="Onset, symptoms, relevant observations, and immediate nursing concerns"></textarea>
+                <label>Triage and nursing note
+                  <textarea name="triageNote" rows="3" placeholder="Onset, symptoms, observations, and nursing concerns"></textarea>
                 </label>
                 <fieldset class="vitals-fieldset">
                   <legend>Intake vital signs</legend>
@@ -393,7 +393,7 @@
             <div id="ordersList" class="record-list"></div>
           </div>
 
-          <div class="panel clinical-subview" data-clinical-panel="documents">
+          <div class="panel clinical-subview documents-panel" data-clinical-panel="documents">
             <div class="panel-header">
               <div>
                 <p class="eyebrow">Clinical documentation</p>
@@ -401,22 +401,33 @@
               </div>
               <span class="pill" id="documentCount">0 documents</span>
             </div>
-            <form id="documentForm" class="clinical-form">
-              <div class="row">
-                <label>Document type
-                  <select name="type">
-                    <option>ED provider note</option><option>History &amp; physical</option><option>Admission note</option>
-                    <option>Admission H&amp;P</option><option>SOAP progress note</option><option>Consult note</option>
-                    <option>Consultation note</option><option>Nursing note</option><option>Procedure note</option>
-                    <option>Discharge summary</option><option>Disposition note</option><option>Referral letter</option>
-                  </select>
-                </label>
-                <label>Document title<input name="title" type="text" placeholder="e.g., Initial evaluation" required /></label>
-              </div>
-              <div id="documentSpecificFields" class="structured-fields document-fields" aria-live="polite"></div>
-              <button class="primary-btn" type="submit">Save document draft</button>
-            </form>
-            <div id="documentsList" class="record-list"></div>
+            <details class="document-composer">
+              <summary>
+                <span class="document-composer-icon" aria-hidden="true">+</span>
+                <span class="document-composer-heading"><strong>New document</strong><span>Choose a template and create a draft</span></span>
+                <span class="document-composer-chevron" aria-hidden="true"></span>
+              </summary>
+              <p class="muted-copy">Complete the required fields. Documents are saved as drafts.</p>
+              <form id="documentForm" class="clinical-form">
+                <div class="row">
+                  <label>Document type
+                    <select name="type">
+                      <option>ED provider note</option><option>History &amp; physical</option><option>Admission note</option>
+                      <option>Admission H&amp;P</option><option>SOAP progress note</option><option>Consult note</option>
+                      <option>Consultation note</option><option>Nursing note</option><option>Procedure note</option>
+                      <option>Discharge summary</option><option>Disposition note</option><option>Referral letter</option>
+                    </select>
+                  </label>
+                  <label>Document title<input name="title" type="text" placeholder="e.g., Initial evaluation" required /></label>
+                </div>
+                <div id="documentSpecificFields" class="structured-fields document-fields" aria-live="polite"></div>
+                <button class="primary-btn" type="submit">Save document draft</button>
+              </form>
+            </details>
+            <section class="saved-documents" aria-labelledby="savedDocumentsTitle">
+              <h4 id="savedDocumentsTitle">Saved documents</h4>
+              <div id="documentsList" class="record-list"></div>
+            </section>
           </div>
         </section>
 
@@ -458,7 +469,7 @@
               <span id="activeFilterLabel"></span>
               <button id="clearFilterBtn" class="ghost-btn" type="button">Clear filter</button>
             </div>
-            <label class="patient-list-search" for="patientListSearch">Filter patient worklist
+            <label class="patient-list-search" for="patientListSearch">Search worklist
               <input id="patientListSearch" type="search" placeholder="Name, MRN, diagnosis, care team, location..." />
             </label>
             <div id="patientList" class="patient-list"></div>
@@ -497,7 +508,7 @@
               <p class="eyebrow">Encounter documentation</p>
               <h3>Record a care note</h3>
             </div>
-            <button id="saveEncounterBtn" class="primary-btn" type="submit" form="encounterForm">Save Encounter</button>
+            <button id="saveEncounterBtn" class="primary-btn" type="submit" form="encounterForm">Save encounter</button>
           </div>
 
           <form id="encounterForm" class="encounter-form">
@@ -531,7 +542,7 @@
               </label>
             </div>
           </form>
-          <p id="encounterStatus" class="status-message">Encounter notes are saved instantly for the current patient.</p>
+          <p id="encounterStatus" class="status-message">Save the note to the current patient's chart.</p>
         </section>
 
         <section id="auditSection" class="panel audit-panel view-section">

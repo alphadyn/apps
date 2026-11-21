@@ -2479,7 +2479,7 @@ function renderAdmissionTable(container, admittedPatients) {
           <td><span class="status-pill">${escapeHtml(patient.clinical.stage)}</span><span>${escapeHtml(patient.priority)} priority</span></td>
           <td><button class="ghost-btn action-btn" type="button" data-open-patient="${escapeHtml(patient.id)}">Open chart</button></td>
         </tr>`).join("")}</tbody>
-    </table>` : '<p class="empty-state">No active admissions. Update a patient encounter disposition to add an admission.</p>';
+    </table>` : '<p class="empty-state">No active admissions. Save an Admission stage or admit disposition to add a patient.</p>';
 }
 
 function renderOperationsOverview() {
@@ -2493,7 +2493,7 @@ function renderOperationsOverview() {
   ];
   document.getElementById("operationsOverview").innerHTML = `
     <p class="overview-welcome">Welcome, ${escapeHtml(currentUser.label)} <span class="pill">${escapeHtml(getRoleLabel(currentUser.role))}</span></p>
-    <p class="muted-copy">Open Patients for charts and care workflows, or Organization for team and location information.</p>
+    <p class="muted-copy">Use Patients &amp; care for charts and workflows, or Organization for team and location information.</p>
     <div class="overview-summary">${summaries.map(([label, value]) => `
       <div><strong>${value}</strong><p>${escapeHtml(label)}</p></div>`).join("")}</div>`;
 }
@@ -2586,7 +2586,7 @@ function renderPatientList() {
   document.getElementById("patientListCount").textContent =
     `${filtered.length} ${filtered.length === 1 ? "record" : "records"}`;
   if (!filtered.length) {
-    list.innerHTML = '<p class="patient-list-empty">No patients matched. Try a name, MRN, diagnosis, care team, or location.</p>';
+    list.innerHTML = '<p class="patient-list-empty">No patients found. Try a name, MRN, diagnosis, care team, or location.</p>';
     return;
   }
 
@@ -3137,7 +3137,7 @@ function renderAdmissionsView(container) {
         <div><p class="eyebrow">Inpatient management</p><h3>Admissions dashboard</h3></div>
         <span class="pill">${admittedPatients.length} active ${admittedPatients.length === 1 ? "admission" : "admissions"}</span>
       </div>
-      <p class="muted-copy">Inpatient census across all departments. Update an encounter disposition to add or remove a patient.</p>
+      <p class="muted-copy">View active admissions across all departments. Update the encounter stage or disposition to change admission status.</p>
       ${hasPermission(currentUser.role, "workflow:update") ? '<button class="ghost-btn" type="button" data-register-patient>Register a patient</button>' : ""}
       <div class="table-wrap" id="admissionsTable"></div>
     </div>`;
@@ -3167,7 +3167,7 @@ function renderInboxView(container) {
         <div>
           <p class="eyebrow">Messages · results · follow-up</p>
           <h3>In Basket</h3>
-          <p class="muted-copy">Triage team messages, results, and care-plan tasks.</p>
+          <p class="muted-copy">Review messages, results, and care-plan tasks.</p>
         </div>
         <div class="inbox-header-actions">
           <span class="pill">${unreadCount} unread</span>
@@ -3180,7 +3180,7 @@ function renderInboxView(container) {
             ${filter.label}<span>${categoryCounts[filter.key]}</span>
           </button>`).join("")}
       </div>
-      <label class="inbox-search" for="inboxSearch">Search this inbox
+      <label class="inbox-search" for="inboxSearch">Search inbox
         <input id="inboxSearch" type="search" value="${escapeHtml(inboxSearch)}" placeholder="Patient, MRN, subject, or detail..." />
       </label>
       <p id="inboxStatus" class="status-message inbox-status" role="status" aria-live="polite"></p>
@@ -3260,7 +3260,7 @@ function handleInboxAction(action, itemId) {
     recordAudit("inbox:task:complete", item.patientName, `Completed the demo inbox task: ${item.title}.`);
     saveState();
     render();
-    announceInboxStatus("Demo task marked complete.");
+    announceInboxStatus("Task completed.");
   }
 }
 
@@ -3342,7 +3342,7 @@ function renderLocationsView(container) {
   container.innerHTML = `
     <div class="panel">
       <div class="panel-header"><div><p class="eyebrow">Facility operations</p><h3>Locations & beds</h3></div><span class="pill">${locations.length + unlisted.length} locations</span></div>
-      <p class="muted-copy">Occupancy is derived from the patient assignment list.</p>
+      <p class="muted-copy">Occupancy is based on assigned patients.</p>
       <div class="table-wrap"><table class="data-table">
         <thead><tr><th>Location</th><th>Department</th><th>Type</th><th>Admitted patients</th><th>Occupancy</th><th>Assigned patients</th></tr></thead>
         <tbody>${[...locationRows, ...unlisted].map((location) => `
@@ -3418,7 +3418,7 @@ function renderStaffView(container) {
       </div>
       ${filteredStaff.length
         ? `<div class="directory-grid">${staffCards}</div>`
-        : '<p class="empty-state">No staff matched your search. Try another name, role, department, or location.</p>'}
+        : '<p class="empty-state">No staff found. Try a name, role, department, or location.</p>'}
     </div>`;
 }
 
@@ -3500,19 +3500,19 @@ function renderExtendedWorkspace() {
   }
 }
 
-function renderStructuredFields(containerId, fields) {
+function renderStructuredFields(containerId, fields, heading = "Type-specific details", help = "Complete the relevant fields before saving.") {
   const container = document.getElementById(containerId);
   container.innerHTML = `
     <div class="structured-fields-heading">
-      <strong>Type-specific details</strong>
-      <span>Complete the relevant fields before saving.</span>
+      <strong>${escapeHtml(heading)}</strong>
+      <span>${escapeHtml(help)}</span>
     </div>
     <div class="structured-fields-grid">
       ${fields.map((field) => {
         const required = field.required ? "required" : "";
-        const requiredMark = field.required ? ' <span aria-hidden="true">*</span>' : "";
+        const label = `${escapeHtml(field.label)}${field.required ? ' <span class="required-marker" aria-hidden="true">*</span>' : ""}`;
         if (field.type === "select") {
-          return `<label>${escapeHtml(field.label)}${requiredMark}
+          return `<label><span>${label}</span>
             <select name="${escapeHtml(field.name)}" ${required}>
               <option value="">Select...</option>
               ${field.options.map((option) => `<option>${escapeHtml(option)}</option>`).join("")}
@@ -3520,11 +3520,11 @@ function renderStructuredFields(containerId, fields) {
           </label>`;
         }
         if (field.type === "textarea") {
-          return `<label class="structured-field-wide">${escapeHtml(field.label)}${requiredMark}
+          return `<label class="structured-field-wide"><span>${label}</span>
             <textarea name="${escapeHtml(field.name)}" rows="2" placeholder="${escapeHtml(field.placeholder)}" ${required}></textarea>
           </label>`;
         }
-        return `<label>${escapeHtml(field.label)}${requiredMark}
+        return `<label><span>${label}</span>
           <input name="${escapeHtml(field.name)}" type="${escapeHtml(field.type)}" placeholder="${escapeHtml(field.placeholder)}" ${required} />
         </label>`;
       }).join("")}
@@ -3561,7 +3561,7 @@ function renderDocumentFields() {
     );
   }
   activeDocumentTemplate = type;
-  renderStructuredFields("documentSpecificFields", documentTypeFields[type] || []);
+  renderStructuredFields("documentSpecificFields", documentTypeFields[type] || [], "Document details", "Required fields are marked with *.");
   Object.entries(documentFieldDrafts[type] || {}).forEach(([name, value]) => {
     if (form.elements[name]) form.elements[name].value = value;
   });
@@ -3610,7 +3610,7 @@ function renderDocuments() {
             <span class="record-category">${escapeHtml(document.type)}</span>
             <h4>${escapeHtml(document.title)}</h4>
           </div>
-          <span class="status-pill status-draft">${escapeHtml(document.status)}</span>
+          <span class="status-pill ${document.status === "Draft" ? "status-draft" : ""}">${escapeHtml(document.status)}</span>
         </div>
         <p class="document-meta">${escapeHtml(document.time)}</p>
         <div class="document-sections">
@@ -3853,7 +3853,7 @@ function handlePatientRegistration(event) {
   document.getElementById("patientRegistrationStatus").textContent = "";
   render();
   document.getElementById("clinicalStatus").textContent =
-    `Profile created for ${result.patient.name}. Step 2 of 2: complete intake and triage, then save the workflow update.`;
+    `Profile created for ${result.patient.name}. Step 2 of 2: complete intake and triage, then save.`;
   document.querySelector('#workflowForm [name="chiefComplaint"]').focus();
 }
 

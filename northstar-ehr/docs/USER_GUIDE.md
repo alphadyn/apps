@@ -30,13 +30,13 @@ To register a new fictional patient, choose **Register patient** in **Patients &
 
 Use **Cancel** to close the registration form without creating a profile; its unsaved entries remain available until the form is reset or the page is reloaded.
 
-Open **ED & Inpatient** to document an encounter. The form groups arrival and triage separately from care-team and disposition details:
+Open **ED & inpatient** to document an encounter. The form groups arrival and triage separately from care-team and disposition details:
 
 1. Record arrival mode, encounter stage, chief complaint, acuity, triage observations, and intake vitals.
 2. Update the department, care location, attending provider, assigned nurse, and disposition as the patient moves through ED evaluation, consultation, admission, discharge, or transfer.
 3. For ward/ICU admission or PCP/specialist referral, record the receiving location or destination and follow-up date.
 4. Use **Orders** to track nursing, vitals, diagnosis, H&P, laboratory, imaging/radiology, procedure, medication, consult, and referral requests. The selected category opens its own structured fields (for example, specimen and collection timing for labs, or dose, route, frequency, and pharmacy for medications). Pending orders can be acknowledged, completed, or cancelled in the demo.
-5. Use **Documents** to create drafts for ED provider, history and physical, admission, SOAP progress, consultation, nursing, procedure, discharge summary, disposition, and referral notes. Each template provides documentation fields for its workflow, such as a problem-based admission plan, SOAP sections, procedure consent and findings, discharge instructions and return precautions, or referral question and destination.
+5. Use **Notes & documents** to review saved documents or expand **New document** to create drafts for ED provider, history and physical, admission, SOAP progress, consultation, nursing, procedure, discharge summary, disposition, and referral notes. Each template provides documentation fields for its workflow, such as a problem-based admission plan, SOAP sections, procedure consent and findings, discharge instructions and return precautions, or referral question and destination.
 
 Saved orders retain and display their type-specific details. Saved documents retain and display each completed template field. Saved documents remain drafts; the demo does not implement authentication, co-signature, or legally valid electronic signatures.
 
@@ -44,7 +44,7 @@ Saved orders retain and display their type-specific details. Saved documents ret
 
 - **In Basket** groups fictional care-team messages, sample results, and care-plan follow-up tasks. Filter by type or search by patient, MRN, subject, or detail. Mark messages read, mark results reviewed, or complete eligible tasks; task completion also updates the matching sample care-plan task. The unread count appears in the workspace navigation. These are local demonstration entries only—not a real messaging, result-routing, or clinical-review system.
 - **Overview** summarizes patient/chart activity and aggregate admissions, departments, active team members, and open orders without displaying individual charts. Metric cards open a filtered patient worklist. Admins also see account-role management and the activity audit trail. **Patients > Admissions** provides the full census, with department, location, attending, nurse, stage, diagnosis, and chart links.
-- **Nursing station** filters patients by assigned nurse and shows their location, diagnosis, priority/stage, latest charted vitals, and allergy list. Update nurse assignments in **ED & Inpatient**.
+- **Nursing station** filters patients by assigned nurse and shows their location, diagnosis, priority/stage, latest charted vitals, and allergy list. Update nurse assignments in **ED & inpatient**.
 - **Departments** lists ED, MICU, SICU, NICU, radiology, surgery, OB/GYN, pediatrics, neurology, telemetry, and medicine, along with sample team and patient counts. **Locations** lists care areas and illustrative occupancy.
 - **Staff directory** contains fictional administrator, provider, PA, nurse, and midlevel profiles. Search the directory by name, role, department, location, or email, then select **View profile** on a matching card. Physician names use the **Name, MD** format in directory cards and staff profiles, including the profile selector and portrait labels. Existing care-team assignments are unchanged. The Admin demo role can add directory-only staff profiles; this does not create an account. **Patients > Patient profiles** displays patient context and links to the full chart.
 - Use the global header search to find patients by name, MRN, diagnosis, care team, location, or department, and to find staff by name, role, department, location, or demo email. It also finds departments and locations. The patient worklist has its own filter; the patient list is independently scrollable.
@@ -52,7 +52,7 @@ Saved orders retain and display their type-specific details. Saved documents ret
 - **Open encounter** stays at the top of navigation. The account card keeps your name and sign-out visible; expand **Role & permissions** to review authorizations or change the active role. Header **Data tools** contains the existing import/export format, scope, and actions without cluttering the workspace. It can be dismissed by clicking outside or pressing Escape.
 - **Patients & care** groups patient management views separately from clinical tools. The **Worklist & charts** filter searches patient name, MRN, diagnosis, status, care team, and location; select a result to view its chart and current status summary.
 - **Appointments** supports completing appointments; the demo admin role can cancel them.
-- **Labs & Meds** displays chart data and supports the existing encounter form.
+- **Labs & medications** displays chart data and supports the existing encounter form.
 - **Billing** displays sample billing context.
 - The active Admin demo role can review the activity audit trail and manage authorized roles. Other users can switch among their authorized roles, but cannot grant themselves additional roles.
 

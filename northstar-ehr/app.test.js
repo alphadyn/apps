@@ -82,15 +82,48 @@ test("encounter status is cleared when switching patients but retained for the s
     ["workflowForm", { elements: {} }],
     ["workflowDepartment", {}],
     ["workflowNurse", {}],
-    ["workflowAttending", {}]
+    ["workflowAttending", {}],
+    ["workflowAttendingSearch", { value: "" }],
+    ["workflowNurseSearch", { value: "" }],
+    ["workflowAttendingSearchStatus", {}],
+    ["workflowNurseSearchStatus", {}]
   ]);
   context.document = { getElementById: (id) => elements.get(id) };
   vm.runInContext("renderClinicalWorkspace()", context);
   elements.get("clinicalStatus").textContent = "Saved for the first patient.";
+  elements.get("workflowAttendingSearch").value = "radiology";
   vm.runInContext("renderClinicalWorkspace()", context);
   assert.equal(elements.get("clinicalStatus").textContent, "Saved for the first patient.");
+  assert.equal(elements.get("workflowAttendingSearch").value, "radiology");
   vm.runInContext("selectedPatientId = patients[1].id; renderClinicalWorkspace()", context);
   assert.equal(elements.get("clinicalStatus").textContent, "");
+  assert.equal(elements.get("workflowAttendingSearch").value, "");
+});
+
+test("care team searches filter by role and retain the current selection", () => {
+  const { context } = setup();
+  const input = { value: "radiology" };
+  const select = { value: "", innerHTML: "" };
+  const status = { textContent: "" };
+  const elements = new Map([
+    ["search", input],
+    ["select", select],
+    ["status", status]
+  ]);
+  context.document = { getElementById: (id) => elements.get(id) };
+  vm.runInContext('filterCareTeamOptions("search", "select", "status", ["Provider", "PA", "Midlevel"], "Select provider", "Dr. Elena Ruiz")', context);
+  assert.match(select.innerHTML, /Dr. Morgan Ellis/);
+  assert.match(select.innerHTML, /Dr. Taylor Reed/);
+  assert.match(select.innerHTML, /Dr. Elena Ruiz/);
+  assert.doesNotMatch(select.innerHTML, /Jordan Lee/);
+  assert.equal(select.value, "Dr. Elena Ruiz");
+  assert.match(status.textContent, /2 matching staff members; current selection retained/);
+
+  input.value = "not a nurse";
+  vm.runInContext('filterCareTeamOptions("search", "select", "status", ["Nurse"], "Unassigned", "")', context);
+  assert.equal(select.value, "");
+  assert.match(select.innerHTML, /Unassigned/);
+  assert.match(status.textContent, /0 matching staff members/);
 });
 
 test("built-in labels are updated for saved records without rewriting edited content", () => {
@@ -249,6 +282,7 @@ test("staff directory cards show concise details and keep profile actions access
   context.directoryContainer = { innerHTML: "" };
   vm.runInContext("renderStaffView(directoryContainer)", context);
 
+  assert.match(context.directoryContainer.innerHTML, /class="directory-card staff-directory-card"/);
   assert.match(context.directoryContainer.innerHTML, /12 profiles/);
   assert.match(context.directoryContainer.innerHTML, /class="staff-card-role"/);
   assert.match(context.directoryContainer.innerHTML, /class="staff-card-title"/);
@@ -263,27 +297,52 @@ test("staff directory cards show concise details and keep profile actions access
   assert.match(context.directoryContainer.innerHTML, /id="staffForm"/);
 });
 
-test("staff directory search filters staff details and reports empty results", () => {
+test("department cards do not use the staff-specific card layout", () => {
   const { context } = setup();
   context.directoryContainer = { innerHTML: "" };
-  const searchInput = {
-    value: "radiology",
+  vm.runInContext("renderDepartmentsView(directoryContainer)", context);
+  assert.match(context.directoryContainer.innerHTML, /class="directory-card department-card"/);
+  assert.match(context.directoryContainer.innerHTML, /Emergency Department/);
+  assert.match(context.directoryContainer.innerHTML, /Active personnel/);
+  assert.match(context.directoryContainer.innerHTML, /<span>Locations<\/span>/);
+  assert.doesNotMatch(context.directoryContainer.innerHTML, /staff-directory-card/);
+});
+
+test("separate header searches filter the correct records and staff directory", () => {
+  const { context } = setup();
+  context.directoryContainer = { innerHTML: "" };
+  const input = (value) => ({
+    value,
     attributes: {},
-    setAttribute(name, value) { this.attributes[name] = value; },
-    removeAttribute(name) { delete this.attributes[name]; }
-  };
-  const resultsPanel = { hidden: false, innerHTML: "old global results" };
-  context.document = {
-    getElementById: (id) => id === "patientSearch" ? searchInput : resultsPanel
-  };
+    setAttribute(name, attributeValue) { this.attributes[name] = attributeValue; }
+  });
+  const patientInput = input("Maya");
+  const staffInput = input("radiology");
+  const patientResults = { hidden: true, innerHTML: "" };
+  const staffResults = { hidden: true, innerHTML: "" };
+  const elements = new Map([
+    ["patientSearch", patientInput],
+    ["staffSearch", staffInput],
+    ["patientSearchResults", patientResults],
+    ["staffSearchResults", staffResults]
+  ]);
+  context.document = { getElementById: (id) => elements.get(id) };
 
-  vm.runInContext('currentView = "staff"; renderGlobalSearch()', context);
-  assert.equal(resultsPanel.hidden, true);
-  assert.equal(resultsPanel.innerHTML, "");
-  assert.equal(searchInput.attributes.role, "searchbox");
-  assert.equal(searchInput.attributes["aria-label"], "Search staff directory");
-  assert.equal(searchInput.attributes["aria-controls"], undefined);
+  vm.runInContext('currentView = "staff"; activeHeaderSearch = "patient"; renderGlobalSearch()', context);
+  assert.equal(patientResults.hidden, false);
+  assert.match(patientResults.innerHTML, /Maya Thompson/);
+  assert.doesNotMatch(patientResults.innerHTML, /data-search-type="staff"/);
+  assert.equal(staffResults.hidden, true);
+  assert.equal(patientInput.attributes["aria-expanded"], "true");
 
+  vm.runInContext('activeHeaderSearch = "staff"; renderGlobalSearch()', context);
+  assert.equal(patientResults.hidden, true);
+  assert.equal(patientInput.attributes["aria-expanded"], "false");
+  assert.equal(staffResults.hidden, false);
+  assert.match(staffResults.innerHTML, /Morgan Ellis/);
+  assert.match(staffResults.innerHTML, /data-search-type="department"/);
+  assert.match(staffResults.innerHTML, /data-search-type="location"/);
+  assert.doesNotMatch(staffResults.innerHTML, /data-search-type="patient"/);
   vm.runInContext("renderStaffView(directoryContainer)", context);
 
   assert.match(context.directoryContainer.innerHTML, /2 matches/);
@@ -291,16 +350,17 @@ test("staff directory search filters staff details and reports empty results", (
   assert.match(context.directoryContainer.innerHTML, /Taylor Reed, MD/);
   assert.doesNotMatch(context.directoryContainer.innerHTML, /Joe Spartan, MD/);
 
-  searchInput.value = "no matching staff";
+  staffInput.value = "no matching staff";
+  vm.runInContext("renderGlobalSearch()", context);
+  assert.match(staffResults.innerHTML, /No staff, departments, or locations matched/);
   vm.runInContext("renderStaffView(directoryContainer)", context);
   assert.match(context.directoryContainer.innerHTML, /0 matches/);
   assert.match(context.directoryContainer.innerHTML, /No staff found/);
 
-  searchInput.value = "Joe";
-  vm.runInContext('currentView = "overview"; renderGlobalSearch()', context);
-  assert.equal(searchInput.attributes.role, "combobox");
-  assert.equal(resultsPanel.hidden, false);
-  assert.match(resultsPanel.innerHTML, /Joe Spartan/);
+  patientInput.value = "Joe Spartan";
+  vm.runInContext('activeHeaderSearch = "patient"; renderGlobalSearch()', context);
+  assert.doesNotMatch(patientResults.innerHTML, /data-search-type="staff"/);
+  assert.equal(staffResults.hidden, true);
 });
 
 test("patient worklist search includes care team and location details", () => {

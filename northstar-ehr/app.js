@@ -1789,6 +1789,8 @@ function renderNavigation() {
   const patientView = Boolean(patientsMenu.querySelector(`[data-view="${currentView}"]`));
   patientsMenu.dataset.active = String(patientView);
   if (patientView) patientsMenu.open = true;
+  document.getElementById("staffSearchContainer").hidden = currentView !== "staff";
+  if (currentView !== "staff" && activeHeaderSearch === "staff") activeHeaderSearch = null;
   const heading = document.querySelector(".topbar h2");
   const activeLink = [...document.querySelectorAll(".nav-link")].find((item) => item.dataset.view === currentView);
   heading.textContent = activeLink?.dataset.view === "inbox" ? "In Basket" : activeLink?.textContent || "Overview";
@@ -2999,11 +3001,38 @@ function renderAuditTrail() {
 
 let clinicalStatusPatientId = null;
 
+function filterCareTeamOptions(searchId, selectId, statusId, roles, emptyLabel, selected) {
+  const search = document.getElementById(searchId);
+  const select = document.getElementById(selectId);
+  const term = search.value.trim().toLowerCase();
+  const matches = staffDirectory.filter((staff) =>
+    roles.includes(staff.role) &&
+    `${staff.name} ${staff.title || ""} ${staff.department || ""}`.toLowerCase().includes(term)
+  );
+  const names = matches.map((staff) => staff.name);
+  if (selected && !names.includes(selected)) names.push(selected);
+  select.innerHTML = `<option value="">${escapeHtml(emptyLabel)}</option>${names.map((name) =>
+    `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`
+  ).join("")}`;
+  select.value = selected || "";
+  document.getElementById(statusId).textContent = term
+    ? `${matches.length} matching ${matches.length === 1 ? "staff member" : "staff members"}${selected && !matches.some((staff) => staff.name === selected) ? "; current selection retained" : ""}.`
+    : "";
+}
+
+const careTeamSearches = [
+  { searchId: "workflowAttendingSearch", selectId: "workflowAttending", statusId: "workflowAttendingSearchStatus", roles: ["Provider", "PA", "Midlevel"], emptyLabel: "Select provider" },
+  { searchId: "workflowNurseSearch", selectId: "workflowNurse", statusId: "workflowNurseSearchStatus", roles: ["Nurse"], emptyLabel: "Unassigned" }
+];
+
 function renderClinicalWorkspace() {
   const patient = getSelectedPatient();
   if (!patient) return;
   if (clinicalStatusPatientId !== patient.id) {
     document.getElementById("clinicalStatus").textContent = "";
+    careTeamSearches.forEach(({ searchId }) => {
+      document.getElementById(searchId).value = "";
+    });
     clinicalStatusPatientId = patient.id;
   }
   const clinical = patient.clinical;
@@ -3017,8 +3046,6 @@ function renderClinicalWorkspace() {
   `;
 
   const workflowForm = document.getElementById("workflowForm");
-  const nurseOptions = staffDirectory.filter((staff) => staff.role === "Nurse");
-  const providerOptions = staffDirectory.filter((staff) => ["Provider", "PA", "Midlevel"].includes(staff.role));
   const selectOptions = (select, options, selected, emptyLabel) => {
     const optionNames = options.map((option) => typeof option === "string" ? option : option.name);
     if (selected && !optionNames.includes(selected)) optionNames.push(selected);
@@ -3028,8 +3055,10 @@ function renderClinicalWorkspace() {
     select.value = selected || "";
   };
   selectOptions(document.getElementById("workflowDepartment"), departments.map((department) => department.name), clinical.department);
-  selectOptions(document.getElementById("workflowNurse"), nurseOptions, clinical.assignedNurse, "Unassigned");
-  selectOptions(document.getElementById("workflowAttending"), providerOptions, clinical.attending, "Select provider");
+  careTeamSearches.forEach(({ searchId, selectId, statusId, roles, emptyLabel }) => {
+    const selected = selectId === "workflowNurse" ? clinical.assignedNurse : clinical.attending;
+    filterCareTeamOptions(searchId, selectId, statusId, roles, emptyLabel, selected);
+  });
   const values = { ...clinical, ...clinical.vitals };
   Object.entries(values).forEach(([name, value]) => {
     if (workflowForm.elements[name]) workflowForm.elements[name].value = value ?? "";
@@ -3047,38 +3076,25 @@ function openPatientChart(patientId) {
   scrollToWorkspaceTop();
 }
 
-function renderGlobalSearch() {
-  const input = document.getElementById("patientSearch");
-  const searchBox = input.closest(".search-box");
-  const resultsPanel = document.getElementById("globalSearchResults");
-  if (currentView === "staff") {
-    searchBox.classList.add("staff-directory-search");
-    input.placeholder = "Search staff by name, role, department...";
-    input.setAttribute("aria-label", "Search staff directory");
-    input.setAttribute("role", "searchbox");
-    input.removeAttribute("aria-autocomplete");
-    input.removeAttribute("aria-controls");
-    input.removeAttribute("aria-expanded");
-    resultsPanel.hidden = true;
-    resultsPanel.innerHTML = "";
-    return;
-  }
-  searchBox.classList.remove("staff-directory-search");
-  input.placeholder = "Search people, departments, locations...";
-  input.setAttribute("aria-label", "Search patients, staff, departments, and locations");
-  input.setAttribute("role", "combobox");
-  input.setAttribute("aria-autocomplete", "list");
-  input.setAttribute("aria-controls", "globalSearchResults");
+let activeHeaderSearch = null;
+const headerSearches = [
+  { kind: "patient", inputId: "patientSearch", resultsId: "patientSearchResults" },
+  { kind: "staff", inputId: "staffSearch", resultsId: "staffSearchResults" }
+];
+
+function renderHeaderSearch({ kind, inputId, resultsId }) {
+  const input = document.getElementById(inputId);
+  const resultsPanel = document.getElementById(resultsId);
   const term = input.value.trim().toLowerCase();
-  if (!term) {
+  if (!term || activeHeaderSearch !== kind) {
     resultsPanel.hidden = true;
     input.setAttribute("aria-expanded", "false");
     resultsPanel.innerHTML = "";
     return;
   }
 
-  const results = [
-    ...patients.filter((patient) =>
+  const results = kind === "patient"
+    ? patients.filter((patient) =>
       `${patient.name} ${patient.mrn} ${patient.diagnosis} ${patient.status} ${patient.priority} ${patient.clinical.stage} ${patient.clinical.chiefComplaint} ${patient.clinical.department} ${patient.clinical.location} ${patient.provider} ${patient.clinical.assignedNurse} ${patient.allergies.join(" ")} ${patient.medications.join(" ")}`
         .toLowerCase().includes(term)
     ).slice(0, 5).map((patient) => ({
@@ -3087,7 +3103,8 @@ function renderGlobalSearch() {
       title: patient.name,
       subtitle: `${patient.mrn} · ${patient.diagnosis}`,
       kind: "Patient"
-    })),
+    }))
+    : [
     ...staffDirectory.filter((staff) =>
       `${staff.name} ${staff.title} ${staff.role} ${staff.department} ${staff.location} ${staff.email}`
         .toLowerCase().includes(term)
@@ -3124,9 +3141,13 @@ function renderGlobalSearch() {
         <span><strong>${escapeHtml(result.title)}</strong><small>${escapeHtml(result.subtitle)}</small></span>
         <span class="search-result-kind">${escapeHtml(result.kind)}</span>
       </button>`).join("")
-    : '<p class="search-empty">No patients, staff, departments, or locations matched.</p>';
+    : `<p class="search-empty">${kind === "patient" ? "No patients matched." : "No staff, departments, or locations matched."}</p>`;
   resultsPanel.hidden = false;
   input.setAttribute("aria-expanded", "true");
+}
+
+function renderGlobalSearch() {
+  headerSearches.forEach(renderHeaderSearch);
 }
 
 function renderAdmissionsView(container) {
@@ -3310,14 +3331,15 @@ function renderDepartmentsView(container) {
   container.innerHTML = `
     <div class="panel">
       <div class="panel-header"><div><p class="eyebrow">Organization</p><h3>Departments & services</h3></div><span class="pill">${departments.length} departments</span></div>
-      <div class="directory-grid">${departments.map((department) => {
+      <div class="directory-grid department-grid">${departments.map((department) => {
         const census = patients.filter((patient) => patient.clinical.department === department.name && isPatientAdmitted(patient)).length;
         const team = staffDirectory.filter((staff) => staff.department === department.name && staff.status === "Active").length;
-        return `<article class="directory-card">
-          <div class="record-card-header"><div><span class="record-category">${escapeHtml(department.code)}</span><h4>${escapeHtml(department.name)}</h4></div><span class="status-pill">${census} admitted</span></div>
-          <p>${escapeHtml(department.description)}</p>
+        return `<article class="directory-card department-card">
+          <div class="department-card-meta"><span class="record-category">${escapeHtml(department.code)}</span><span class="status-pill">${census} admitted</span></div>
+          <h4>${escapeHtml(department.name)}</h4>
+          <p class="department-description">${escapeHtml(department.description)}</p>
           <dl class="directory-facts"><div><dt>Active personnel</dt><dd>${team}</dd></div><div><dt>Care areas</dt><dd>${department.locations.length}</dd></div></dl>
-          <p class="directory-locations">${department.locations.map(escapeHtml).join(" · ")}</p>
+          <div class="directory-locations"><span>Locations</span><p>${department.locations.map(escapeHtml).join(" · ")}</p></div>
         </article>`;
       }).join("")}</div>
     </div>`;
@@ -3369,7 +3391,7 @@ function renderStaffAvatar(staff) {
 }
 
 function renderStaffView(container) {
-  const searchInput = typeof document === "undefined" ? null : document.getElementById("patientSearch");
+  const searchInput = typeof document === "undefined" ? null : document.getElementById("staffSearch");
   const searchTerm = searchInput?.value.trim().toLowerCase() || "";
   const filteredStaff = staffDirectory
     .filter((staff) =>
@@ -3378,7 +3400,7 @@ function renderStaffView(container) {
     )
     .sort((left, right) => formatStaffProfileName(left).localeCompare(formatStaffProfileName(right)));
   const staffCards = filteredStaff.map((staff) => `
-      <article class="directory-card">
+      <article class="directory-card staff-directory-card">
         ${renderStaffAvatar(staff)}
         <div class="directory-card-content">
           <div class="staff-card-heading">
@@ -3929,56 +3951,73 @@ function handleDocumentSubmit(event) {
 
 function attachEvents() {
   initializeWorkspaceNavigation();
-  document.getElementById("patientSearch").addEventListener("input", () => {
-    if (currentView === "staff") renderStaffView(document.getElementById("extendedContent"));
-    else renderGlobalSearch();
+  careTeamSearches.forEach(({ searchId, selectId, statusId, roles, emptyLabel }) => {
+    document.getElementById(searchId).addEventListener("input", () => {
+      filterCareTeamOptions(searchId, selectId, statusId, roles, emptyLabel, document.getElementById(selectId).value);
+    });
   });
-  document.getElementById("patientSearch").addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-      event.currentTarget.value = "";
-      if (currentView === "staff") renderStaffView(document.getElementById("extendedContent"));
-      else renderGlobalSearch();
-    } else if (event.key === "ArrowDown") {
-      const firstResult = document.querySelector("#globalSearchResults .global-search-result");
-      if (firstResult) {
-        event.preventDefault();
-        firstResult.focus();
-      }
-    }
-  });
-  document.getElementById("globalSearchResults").addEventListener("keydown", (event) => {
-    const results = [...event.currentTarget.querySelectorAll(".global-search-result")];
-    const index = results.indexOf(event.target);
-    if (event.key === "ArrowDown" && index < results.length - 1) {
-      event.preventDefault();
-      results[index + 1].focus();
-    } else if (event.key === "ArrowUp") {
-      event.preventDefault();
-      if (index > 0) results[index - 1].focus();
-      else document.getElementById("patientSearch").focus();
-    } else if (event.key === "Escape") {
-      document.getElementById("patientSearch").value = "";
-      document.getElementById("patientSearch").focus();
+  headerSearches.forEach((search) => {
+    const input = document.getElementById(search.inputId);
+    const resultsPanel = document.getElementById(search.resultsId);
+    const updateSearch = () => {
+      activeHeaderSearch = search.kind;
       renderGlobalSearch();
-    }
-  });
-  document.getElementById("globalSearchResults").addEventListener("click", (event) => {
-    const result = event.target.closest("[data-search-type]");
-    if (!result) return;
-    const { searchType, searchId } = result.dataset;
-    document.getElementById("patientSearch").value = "";
-    if (searchType === "patient") {
-      selectedPatientId = Number(searchId);
-      selectedProfile = { type: "patient", id: selectedPatientId };
-      setCurrentView("patient-profiles");
-    } else if (searchType === "staff") {
-      openStaffProfile(searchId);
-      return;
-    } else {
-      setCurrentView(searchType === "department" ? "departments" : "locations");
-    }
-    render();
-    scrollToWorkspaceTop();
+      if (search.kind === "staff" && currentView === "staff") {
+        renderStaffView(document.getElementById("extendedContent"));
+      }
+    };
+    input.addEventListener("focus", () => {
+      activeHeaderSearch = search.kind;
+      renderGlobalSearch();
+    });
+    input.addEventListener("input", updateSearch);
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        input.value = "";
+        updateSearch();
+      } else if (event.key === "ArrowDown") {
+        const firstResult = resultsPanel.querySelector(".global-search-result");
+        if (firstResult) {
+          event.preventDefault();
+          firstResult.focus();
+        }
+      }
+    });
+    resultsPanel.addEventListener("keydown", (event) => {
+      const results = [...resultsPanel.querySelectorAll(".global-search-result")];
+      const index = results.indexOf(event.target);
+      if (event.key === "ArrowDown" && index < results.length - 1) {
+        event.preventDefault();
+        results[index + 1].focus();
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        if (index > 0) results[index - 1].focus();
+        else input.focus();
+      } else if (event.key === "Escape") {
+        input.value = "";
+        updateSearch();
+        input.focus();
+      }
+    });
+    resultsPanel.addEventListener("click", (event) => {
+      const result = event.target.closest("[data-search-type]");
+      if (!result) return;
+      const { searchType, searchId } = result.dataset;
+      input.value = "";
+      activeHeaderSearch = null;
+      if (searchType === "patient") {
+        selectedPatientId = Number(searchId);
+        selectedProfile = { type: "patient", id: selectedPatientId };
+        setCurrentView("patient-profiles");
+      } else if (searchType === "staff") {
+        openStaffProfile(searchId);
+        return;
+      } else {
+        setCurrentView(searchType === "department" ? "departments" : "locations");
+      }
+      render();
+      scrollToWorkspaceTop();
+    });
   });
   document.getElementById("patientListSearch").addEventListener("input", renderPatientList);
   document.querySelectorAll("[data-stat-filter]").forEach((card) => {

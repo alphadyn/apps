@@ -185,11 +185,20 @@
             </div>
           </div>
           <div class="topbar-actions">
-            <label class="search-box" for="patientSearch">
-              <span aria-hidden="true">⌕</span>
-              <input id="patientSearch" type="search" role="combobox" aria-autocomplete="list" aria-controls="globalSearchResults" aria-expanded="false" aria-label="Search patients, staff, departments, and locations" placeholder="Search people, departments, locations..." />
-            </label>
-            <div id="globalSearchResults" class="global-search-results" role="listbox" aria-label="Search results" hidden></div>
+            <div class="global-search">
+              <label class="search-box" for="patientSearch">
+                <span aria-hidden="true">⌕</span>
+                <input id="patientSearch" type="search" role="combobox" aria-autocomplete="list" aria-controls="patientSearchResults" aria-expanded="false" aria-label="Search patients" placeholder="Search patients..." />
+              </label>
+              <div id="patientSearchResults" class="global-search-results" role="listbox" aria-label="Patient search results" hidden></div>
+            </div>
+            <div id="staffSearchContainer" class="global-search" hidden>
+              <label class="search-box" for="staffSearch">
+                <span aria-hidden="true">⌕</span>
+                <input id="staffSearch" type="search" role="combobox" aria-autocomplete="list" aria-controls="staffSearchResults" aria-expanded="false" aria-label="Search staff, departments, and locations" placeholder="Staff &amp; locations..." />
+              </label>
+              <div id="staffSearchResults" class="global-search-results" role="listbox" aria-label="Staff, department, and location search results" hidden></div>
+            </div>
             <details class="exchange-menu">
               <summary><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 15v5h14v-5" /></svg>Data tools</summary>
               <div class="data-exchange" role="group" aria-label="Import and export">
@@ -343,13 +352,21 @@
                   <label>Department / service
                     <select name="department" id="workflowDepartment"></select>
                   </label>
-                  <label>Attending provider
+                  <div class="care-team-field">
+                    <label for="workflowAttendingSearch">Find attending provider</label>
+                    <input id="workflowAttendingSearch" type="search" placeholder="Search providers..." aria-describedby="workflowAttendingSearchStatus" />
+                    <span id="workflowAttendingSearchStatus" class="care-team-search-status" aria-live="polite"></span>
+                    <label for="workflowAttending">Attending provider</label>
                     <select name="attending" id="workflowAttending"></select>
-                  </label>
+                  </div>
                 </div>
-                <label>Assigned nurse
+                <div class="care-team-field">
+                  <label for="workflowNurseSearch">Find assigned nurse</label>
+                  <input id="workflowNurseSearch" type="search" placeholder="Search nurses..." aria-describedby="workflowNurseSearchStatus" />
+                  <span id="workflowNurseSearchStatus" class="care-team-search-status" aria-live="polite"></span>
+                  <label for="workflowNurse">Assigned nurse</label>
                   <select name="assignedNurse" id="workflowNurse"></select>
-                </label>
+                </div>
                 <div class="row">
                   <label>Receiving service / referral destination
                     <input name="destination" type="text" placeholder="Service, specialist, or PCP" />

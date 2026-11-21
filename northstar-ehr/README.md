@@ -28,7 +28,7 @@ The deployed URL is `https://alphadyn.github.io/apps/northstar-ehr/`.
 - Nursing station dashboard with nurse assignment filtering, patient location, demographics, diagnosis, observations, allergies, and direct chart navigation
 - Organization directories for ED, MICU, SICU, NICU, radiology, surgery, OB/GYN, pediatrics, neurology, telemetry, and medicine, with locations and illustrative occupancy
 - Staff directory and profiles for administrators, physicians, PAs, nurses, and midlevels; admin demo role can add fictional directory entries
-- Unified search across patients, staff, departments, and care locations; patient and staff results open their profiles
+- Header patient search, plus a separate staff, department, and location search in the Staff directory; patient and staff results open their profiles
 - Patient profile pages and staff directory profiles with care-team and encounter context
 - Guided fictional patient registration from the worklist or admissions dashboard, followed by intake and triage in the selected patient's encounter
 - Patient status dashboard with current encounter status, allergy visibility, vital-sign history, imaging/report counts, and latest radiology summary

@@ -10,12 +10,14 @@ Select the Northstar brand in the login panel or sidebar to reload the app's ent
 
 ## Desktop and mobile layout
 
-Patient workspaces adapt from narrow phone screens to wide desktops. Form columns
-and controls constrain long medication and class names instead of widening the
-page. The formulary toolbar responds to its panel width, pharmacy panels stack
-on tablets, and mobile treatment navigation uses wrapping two-column controls
-with 44-pixel touch targets. Dispensing history uses normal page scrolling on
-phones. Wide census tables retain their local horizontal scrolling.
+Patient workspaces adapt from narrow phone screens to wide desktops. The navigation
+becomes a drawer on phones and tablets up to 900 pixels; the desktop sidebar's
+saved preference is preserved. Form columns and controls constrain long medication
+and class names instead of widening the
+page. Pharmacy panels stack on tablets, and mobile treatment navigation uses
+wrapping two-column controls with 44-pixel touch targets. Dispensing history uses
+normal page scrolling on phones. Wide census and location tables retain local
+horizontal scrolling, with a visible hint on narrower screens and keyboard access.
 
 ## Brand and link preview
 
@@ -57,18 +59,15 @@ The deployed URL is `https://alphadyn.github.io/apps/northstar-ehr/`.
 
 ### Formulary review and demo prescribing
 
-In **Dispensary**, the medication formulary supports browsing without selecting
-a patient. Search by medication name, class, strength, adverse effect, or listed
-interaction, and expand an individual medication to review its details.
-
-Select **Patient for prescribing** to see that patient's MRN, allergies, and
-current medications. Expand a medication and select **Prescribe** for the desired
-strength to open the selected patient's prescription form in **Medications & prescriptions**.
-Review the patient and complete quantity, refills, and directions before saving.
-Browsing, choosing a patient, or opening the form does not create a prescription
-or dispense medication. Search and class filtering are also available in the
-patient's prescription form. Prescribing follows the demo encounter-create role
-permission; dispensing remains a separate workflow.
+In **Formulary & dispensing**, search the selected patient by name or MRN, then
+use **Search formulary** to find medications by name, ingredient, class, strength,
+form, route, adverse effect, or listed interaction. Each result shows its class
+when supplied and offers an expandable review of source and safety details.
+Use **Select for prescription** for the desired product or strength to open the
+selected patient's form in **Medications & prescriptions**. Review the patient
+and complete quantity, refills, and directions before saving. Searching or opening
+the form does not create a prescription or dispense medication. Prescribing
+follows the demo encounter-create role permission; dispensing remains separate.
 
 ### Orders, results, medications, and pharmacy
 
@@ -82,10 +81,11 @@ permission; dispensing remains a separate workflow.
   prescription details, and links to dispensing. Saving a prescription creates one
   linked medication request in Orders. Cancelling that request cancels its linked
   prescription; legacy chart medications remain available for reconciliation.
-- **Formulary & dispensing:** Separate **Browse formulary** and **Patient dispensing**
-  modes. Browsing does not change a record. **Open in dispensing** from a prescription
-  preserves the patient, medication, quantity, and instructions. The dispensing
-  record retains the prescription ID; general unlinked dispensing remains available
+- **Formulary & dispensing:** Separate **Search formulary** and **Patient dispensing**
+  modes share one medication search. Searching does not change a record.
+  **Open in dispensing** from a prescription preserves the patient, medication,
+  quantity, and instructions. The dispensing record retains the prescription ID;
+  general unlinked dispensing remains available
   for legacy/demo chart records. Recording dispensing does not consume refills or
   infer that the medication has been administered.
 - A shared patient selector and treatment navigation preserve the selected patient
@@ -130,11 +130,10 @@ product concepts, not 10,000 distinct active ingredients.
   participate in patient prescription selection. Search-based selection menus
   show at most 100 options at a time; refine the search to narrow larger matches.
 
-The formulary groups patient selection, search, and class filtering in a compact
-toolbar. Cards identify source coverage and strengths; opening a review expands
-that medication across the results area and closes the previous review. Detailed
-source limitations are expandable, while the nonclinical safety notice stays
-visible. Clear search and filters without changing the prescribing patient.
+The formulary displays matching products and classes in a paginated list, with
+strength selection and optional source and safety details. Detailed source
+limitations are expandable, while the nonclinical safety notice stays visible.
+Clearing the search does not change the selected patient.
 
 The offline snapshots are stored in `medication-catalog.js` and
 `rxnorm-catalog.js`, both loaded before `app.js`. No patient data is sent to FDA

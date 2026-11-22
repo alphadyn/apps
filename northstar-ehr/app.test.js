@@ -249,6 +249,19 @@ test("mobile navigation contains the workspace, restores focus, and preserves de
   assert.equal(elements.get("appShell").dataset.navigationOpen, "false");
 });
 
+test("navigation uses the same tablet breakpoint for layout and interactions", () => {
+  const { context } = setupNavigation();
+  const queries = [];
+  context.window.matchMedia = (query) => {
+    queries.push(query);
+    return { matches: true };
+  };
+  assert.equal(vm.runInContext("isMobileNavigation()", context), true);
+  assert.deepEqual(queries, ["(max-width: 900px)"]);
+  const css = readFileSync(new URL("./styles.css", import.meta.url), "utf8");
+  assert.match(css, /@media \(max-width: 900px\)\s*\{[\s\S]*?\.app-shell\[data-navigation-open="false"\]/);
+});
+
 test("navigation preference storage errors are visible without changing the layout", () => {
   const { context, elements } = setupNavigation();
   const warnings = [];
@@ -1152,6 +1165,35 @@ test("formulary search supports names, classes, strengths, and empty results", (
   ));
   assert.equal(api.searchMedicationCatalog("atorvastatin", "Antibiotic").length, 0);
   assert.equal(api.searchMedicationCatalog("not-a-medication").length, 0);
+});
+
+test("universal formulary search finds clinical products and supplied classes", () => {
+  const { api } = setup();
+  const products = api.searchMedicationCatalog("zuranolone");
+  assert.ok(products.some((item) => item.source === "RxNorm via RxNav"));
+  assert.ok(products.some((item) => item.source === "FDA NDC via openFDA"));
+  const classMatches = api.searchMedicationCatalog("Angiotensin Converting Enzyme Inhibitor");
+  assert.ok(classMatches.some((item) => item.classes?.includes("Angiotensin Converting Enzyme Inhibitor")));
+  assert.ok(api.searchMedicationCatalog("atorvastatin 20 mg").some((item) => item.name === "Atorvastatin"));
+  assert.ok(api.searchMedicationCatalog("20 mg atorvastatin").some((item) => item.name === "Atorvastatin"));
+  assert.ok(api.searchMedicationCatalog("not-a-medication").length === 0);
+});
+
+test("medication selection options count all strengths while limiting and escaping rendered options", () => {
+  const { context } = setup();
+  const result = vm.runInContext(`getMedicationSelectionOptions([
+    { name: 'Drug <A>', strengths: ['10 mg', '20 mg'] },
+    { name: 'Product 5 MG Oral Tablet', strengths: ['Included in normalized product name'], source: 'RxNorm via RxNav' }
+  ], 2)`, context);
+  assert.equal(result.total, 3);
+  assert.equal((result.options.match(/<option /g) || []).length, 2);
+  assert.match(result.options, /Drug &lt;A&gt; 10 mg/);
+  assert.doesNotMatch(result.options, /Product 5 MG/);
+  const rxnorm = vm.runInContext(`getMedicationSelectionOptions([
+    { name: 'Product 5 MG Oral Tablet', strengths: ['Included in normalized product name'], source: 'RxNorm via RxNav' }
+  ])`, context);
+  assert.match(rxnorm.options, /value="Product 5 MG Oral Tablet"/);
+  assert.doesNotMatch(rxnorm.options, /Included in normalized product name/);
 });
 
 test("treatment navigation retains the selected patient and separates focused workspaces", () => {

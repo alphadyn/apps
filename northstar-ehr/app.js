@@ -412,6 +412,21 @@ function getMedicationStrengthSummary(item) {
     : item.strengths.join(", ");
 }
 
+function getMedicationSelectionOptions(items, limit = 100) {
+  const options = [];
+  let total = 0;
+  for (const item of items) {
+    for (const strength of item.strengths) {
+      total += 1;
+      if (options.length < limit) {
+        const value = getMedicationSelectionValue(item, strength);
+        options.push(`<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`);
+      }
+    }
+  }
+  return { options: options.join(""), total };
+}
+
 const defaultStaffDirectory = [
   { id: "staff-joe-spartan", name: "Joe Spartan, MD", title: "Physician", role: "Provider", department: "Medicine", location: "Main campus", email: "joe.spartan@example.test", status: "Active" },
   { id: "staff-elena-ruiz", name: "Dr. Elena Ruiz", title: "Physician · Internal Medicine", role: "Provider", department: "Medicine", location: "Ward 2 · 214", email: "elena.ruiz@example.test", status: "Active" },
@@ -745,15 +760,19 @@ function getMedicationCatalogEntry(value) {
 
 function searchMedicationCatalog(search = "", medicationClass = "") {
   const term = search.trim().toLowerCase();
-  return medicationCatalog.filter((item) =>
-    (!medicationClass || inferMedicationClass(item.name) === medicationClass) &&
-    (!term || [
-      item.name, inferMedicationClass(item.name), item.adverseEffects,
+  const terms = term ? term.split(/\s+/) : [];
+  return medicationCatalog.filter((item) => {
+    const drugClass = inferMedicationClass(item.name);
+    if (medicationClass && drugClass !== medicationClass) return false;
+    if (!terms.length) return true;
+    const searchable = [
+      item.name, drugClass, item.adverseEffects,
       item.cautions, item.dosageForm, ...(item.routes || []),
       ...(item.ingredients || []).map((ingredient) => ingredient.name),
       ...item.strengths, ...item.interactions
-    ].join(" ").toLowerCase().includes(term))
-  ).sort((a, b) => a.name.localeCompare(b.name));
+    ].join(" ").toLowerCase();
+    return terms.every((part) => searchable.includes(part));
+  }).sort((a, b) => a.name.localeCompare(b.name));
 }
 
 function findMedicationInteractions(patient, selectedMedication) {
@@ -1587,6 +1606,7 @@ let nursingFilter = loadWorkspacePreference("nursingFilter", currentUser.role ==
 let workspaceEventsAttached = false;
 let sidebarCollapsed = loadWorkspacePreference("sidebarCollapsed", false) === true;
 let mobileNavigationOpen = false;
+const mobileNavigationQuery = "(max-width: 900px)";
 
 function saveState() {
   const storage = safeLocalStorage();
@@ -1994,7 +2014,7 @@ function renderNavigation() {
 }
 
 function isMobileNavigation() {
-  return window.matchMedia?.("(max-width: 760px)").matches || false;
+  return window.matchMedia?.(mobileNavigationQuery).matches || false;
 }
 
 function syncNavigationLayout() {
@@ -2078,7 +2098,7 @@ function initializeWorkspaceNavigation() {
   });
   document.getElementById("closeNavigationBtn").addEventListener("click", () => setNavigationOpen(false));
   document.getElementById("navigationBackdrop").addEventListener("click", () => setNavigationOpen(false));
-  window.matchMedia("(max-width: 760px)").addEventListener("change", () => {
+  window.matchMedia(mobileNavigationQuery).addEventListener("change", () => {
     mobileNavigationOpen = false;
     syncNavigationLayout();
   });
@@ -3329,13 +3349,8 @@ function renderPatientDetail() {
     const updateMedicationOptions = () => {
       const selectedClass = classSelect.value;
       const options = searchMedicationCatalog(search.value, selectedClass);
-      const selectionOptions = options.flatMap((item) =>
-        item.strengths.map((strength) => {
-          const value = getMedicationSelectionValue(item, strength);
-          return `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`;
-        })
-      );
-      medicationSelect.innerHTML = `<option value="">${selectionOptions.length > 100 ? "Select from first 100 matches; refine search" : selectionOptions.length ? "Select medication" : "No matching medications"}</option>${selectionOptions.slice(0, 100).join("")}`;
+      const { options: selectionOptions, total } = getMedicationSelectionOptions(options);
+      medicationSelect.innerHTML = `<option value="">${total > 100 ? "Select from first 100 matches; refine search" : total ? "Select medication" : "No matching medications"}</option>${selectionOptions}`;
       safety.className = "medication-safety-info";
       safety.textContent = "Select a medication to review safety information.";
     };
@@ -3684,7 +3699,8 @@ function renderAdmissionsView(container) {
       </div>
       <p class="muted-copy">View active admissions across all departments. Update the encounter stage or disposition to change admission status.</p>
       ${hasPermission(currentUser.role, "workflow:update") ? '<button class="ghost-btn" type="button" data-register-patient>Register a patient</button>' : ""}
-      <div class="table-wrap" id="admissionsTable"></div>
+      <p class="table-scroll-hint">Scroll horizontally to see all columns.</p>
+      <div class="table-wrap" id="admissionsTable" role="region" aria-label="Admissions table, scroll horizontally to see all columns" tabindex="0"></div>
     </div>`;
   renderAdmissionTable(container.querySelector("#admissionsTable"), admittedPatients);
 }
@@ -3855,13 +3871,14 @@ function handleInboxAction(action, itemId) {
   }
 }
 
-const formularyWorkflow = { patientId: "", search: "", medicationClass: "", page: 0 };
+const formularyWorkflow = { search: "", page: 0 };
 let dispensingPrescriptionId = "";
 let pharmacyMode = "formulary";
 
 function renderPatientTreatmentNavigation() {
   const container = document.getElementById("patientWorkflowSection");
   const patient = getSelectedPatient();
+  container.classList.toggle("pharmacy-patient-context", currentView === "dispensary");
   const routes = [
     ["patients", "Chart"], ["orders", "Orders"], ["labs", "Labs & results"],
     ["medications", "Medications"], ["dispensary", "Formulary & dispensing"]
@@ -3869,7 +3886,8 @@ function renderPatientTreatmentNavigation() {
   container.innerHTML = `
     <div class="treatment-context">
       <label for="treatmentPatient">Selected patient
-        <select id="treatmentPatient">${patients.map((record) => `<option value="${escapeHtml(record.id)}">${escapeHtml(record.name)} · ${escapeHtml(record.mrn)}</option>`).join("")}</select>
+        <input id="treatmentPatient" type="search" list="treatmentPatientOptions" placeholder="Search by name or MRN" autocomplete="off" />
+        <datalist id="treatmentPatientOptions">${patients.map((record) => `<option value="${escapeHtml(`${record.name} · ${record.mrn}`)}"></option>`).join("")}</datalist>
       </label>
       <p>Allergies: ${escapeHtml(patient.allergies.join(", ") || "None recorded")}</p>
     </div>
@@ -3877,7 +3895,7 @@ function renderPatientTreatmentNavigation() {
       ${routes.map(([view, label]) => `<button class="ghost-btn" type="button" data-treatment-view="${view}" ${view === currentView ? 'aria-current="page"' : ""}>${label}</button>`).join("")}
     </nav>
     <p id="treatmentStatus" class="status-message" role="status"></p>`;
-  container.querySelector("#treatmentPatient").value = String(patient.id);
+  container.querySelector("#treatmentPatient").value = `${patient.name} · ${patient.mrn}`;
 }
 
 function openTreatmentWorkflow(view, patientId = selectedPatientId) {
@@ -3898,55 +3916,74 @@ function renderDispensaryView(container) {
     ? patient.prescriptions.find((item) => item.id === dispensingPrescriptionId && item.status === "Active")
     : null;
   const canDispense = hasPermission(currentUser.role, "order:create");
+  const activePrescriptions = patient.prescriptions.filter((item) => item.status === "Active");
   const history = [...(patient.dispensations || [])].sort((a, b) =>
     String(b.dispensedAt).localeCompare(String(a.dispensedAt))
   );
-  const medicationClasses = [...new Set(medicationCatalog.map((item) => inferMedicationClass(item.name)))].sort();
-
   container.innerHTML = `
+    <nav class="treatment-navigation pharmacy-navigation" aria-label="Pharmacy workflows">
+      <button class="ghost-btn" type="button" data-pharmacy-mode="formulary">Search formulary</button>
+      <button class="ghost-btn" type="button" data-pharmacy-mode="dispensing">Patient dispensing</button>
+    </nav>
+    <div class="universal-medication-search">
+      <label for="universalMedicationSearch">Search formulary
+        <input id="universalMedicationSearch" type="search" placeholder="Name, ingredient, class, strength, form, or route" autocomplete="off" />
+      </label>
+    </div>
+    <section class="panel dispensary-catalog-panel">
+      <div class="panel-header">
+        <h3>Search results</h3>
+        <div class="formulary-result-heading">
+          <span id="dispensaryCatalogCount" class="pill" aria-live="polite" hidden></span>
+          <button id="formularyClearFilters" class="ghost-btn" type="button" hidden>Clear search</button>
+        </div>
+      </div>
+      <p class="form-caution">Demo only: not live inventory or verified prescribing guidance. Review official labeling; interaction coverage is incomplete.</p>
+      <details class="formulary-provenance">
+        <summary>Catalog sources and limitations</summary>
+        <p class="muted-copy">Includes ${sourcedMedicationCatalog.count.toLocaleString()} FDA NDC entries, ${rxNormMedicationCatalog.count.toLocaleString()} RxNorm product concepts, and ${demoMedicationCatalog.length} demo examples.
+          Source metadata updated ${escapeHtml(sourcedMedicationCatalog.sourceLastUpdated)}.
+          <a href="https://open.fda.gov/apis/drug/ndc/" target="_blank" rel="noopener noreferrer">FDA NDC via openFDA</a>.
+          <a href="https://www.nlm.nih.gov/research/umls/rxnorm/" target="_blank" rel="noopener noreferrer">RxNorm via RxNav</a>.
+          Neither source is verified safety guidance or live stock. Diagnosis/indication and specialty associations are not inferred; review official labeling.</p>
+      </details>
+      <p id="formularyStatus" class="status-message formulary-status" role="status"></p>
+      <div id="dispensaryCatalog" class="dispensary-catalog" aria-live="polite"></div>
+      <div class="formulary-pagination" hidden>
+        <button id="formularyPrevious" class="ghost-btn" type="button">Previous</button>
+        <span id="formularyPageStatus" role="status"></span>
+        <button id="formularyNext" class="ghost-btn" type="button">Next</button>
+      </div>
+    </section>
     <div class="dispensary-grid">
       <section class="panel dispensary-form-panel">
         <div class="panel-header">
           <div><p class="eyebrow">Medication dispensing</p><h3>Dispense medication</h3></div>
         </div>
         <form id="dispensaryForm" class="clinical-form">
-          <div class="dispensary-patient">
-            <div>
-              <span>Patient</span>
-              <strong>${escapeHtml(patient.name)}</strong>
-              <small>${escapeHtml(patient.mrn)}</small>
-            </div>
+          ${activePrescriptions.length ? `
             <label>Prescription to dispense
               <select id="dispensingPrescription">
                 <option value="">General dispensing record (not linked to a prescription)</option>
-                ${patient.prescriptions.filter((item) => item.status === "Active").map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.medication)} · ${escapeHtml(item.quantity)} units</option>`).join("")}
+                ${activePrescriptions.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.medication)} · ${escapeHtml(item.quantity)} units</option>`).join("")}
               </select>
             </label>
-            <p class="form-caution">Review the selected patient and prescription before recording dispensing. This does not administer medication or transmit a prescription.</p>
-            <div>
-              <span>Allergies</span>
-              <strong>${escapeHtml(patient.allergies.join(", ") || "None recorded")}</strong>
-            </div>
-          </div>
-          <label>Search medication
-            <input id="dispensaryMedicationSearch" type="search" placeholder="Type at least two characters" />
-          </label>
+          ` : ""}
           <label>Medication
             <select name="medication" id="dispensaryMedication">
               <option value="">Search to select a medication</option>
             </select>
           </label>
-          <div id="medicationSafetyInfo" class="medication-safety-info" aria-live="polite">
-            Select a medication to review safety information.
-          </div>
+          <div id="medicationSafetyInfo" class="medication-safety-info" aria-live="polite" hidden></div>
           <div class="row">
             <label>Quantity
               <input name="quantity" type="number" min="1" step="1" required placeholder="30" />
             </label>
-            <label>Instructions
-              <input name="directions" type="text" required placeholder="Take once daily" />
+            <label>Directions
+              <input name="directions" type="text" required placeholder="Enter directions" />
             </label>
           </div>
+          <p class="form-caution">Demo only. Recording does not administer or transmit medication.</p>
           <button class="primary-btn" type="submit" ${canDispense ? "" : "disabled"}>Record dispensing</button>
           <p id="dispensaryStatus" class="status-message" role="status"></p>
         </form>
@@ -3971,61 +4008,8 @@ function renderDispensaryView(container) {
         </div>
       </section>
     </div>
-
-    <section class="panel dispensary-catalog-panel">
-      <div class="panel-header">
-        <div><p class="eyebrow">Browse &amp; review</p><h3>Medication formulary</h3></div>
-        <span id="dispensaryCatalogCount" class="pill">${medicationCatalog.length} medications</span>
-      </div>
-      <p class="form-caution">Demo only: not live stock or verified prescribing guidance. FDA NDC and RxNorm concept lists do not supply diagnoses, indications, adverse effects, or interaction assessment.</p>
-      <details class="formulary-provenance">
-      <summary>Catalog sources &amp; limitations</summary>
-      <p class="muted-copy">Includes ${sourcedMedicationCatalog.count.toLocaleString()} FDA NDC entries, ${rxNormMedicationCatalog.count.toLocaleString()} RxNorm product concepts, and ${demoMedicationCatalog.length} demo examples.
-        Source metadata updated ${escapeHtml(sourcedMedicationCatalog.sourceLastUpdated)}.
-        <a href="https://open.fda.gov/apis/drug/ndc/" target="_blank" rel="noopener noreferrer">FDA NDC via openFDA</a>.
-        <a href="https://www.nlm.nih.gov/research/umls/rxnorm/" target="_blank" rel="noopener noreferrer">RxNorm via RxNav</a>.
-        Neither source is verified safety guidance or live stock. Diagnosis/indication and specialty associations are not inferred; review official labeling.</p>
-      </details>
-      <div class="formulary-toolbar">
-      <label class="formulary-patient-selector" for="formularyPatient">Patient for prescribing
-        <select id="formularyPatient">
-          <option value="">Browse only - select a patient to prescribe</option>
-          ${patients.map((record) => `<option value="${escapeHtml(record.id)}">${escapeHtml(record.name)} · ${escapeHtml(record.mrn)}</option>`).join("")}
-        </select>
-      </label>
-      <div class="dispensary-catalog-tools">
-        <label for="dispensaryCatalogSearch">Search medications
-          <input id="dispensaryCatalogSearch" type="search" placeholder="Name, drug class, ingredient, route, or strength" />
-        </label>
-        <label for="dispensaryCatalogClass">Medication class
-          <select id="dispensaryCatalogClass">
-            <option value="">All classes</option>
-            ${medicationClasses.map((className) => `<option value="${escapeHtml(className)}">${escapeHtml(className)}</option>`).join("")}
-          </select>
-        </label>
-      </div>
-      </div>
-      <p id="formularyPatientContext" class="formulary-context" role="status"></p>
-      <div class="formulary-result-heading"><strong>Medications</strong>
-        <button id="formularyClearFilters" class="text-btn" type="button">Clear search &amp; filters</button>
-      </div>
-      <div id="dispensaryCatalog" class="dispensary-catalog" aria-live="polite"></div>
-      <div class="formulary-pagination">
-        <button id="formularyPrevious" class="ghost-btn" type="button">Previous</button>
-        <span id="formularyPageStatus" role="status"></span>
-        <button id="formularyNext" class="ghost-btn" type="button">Next</button>
-      </div>
-    </section>
   `;
-
-  container.prepend(container.querySelector(".dispensary-catalog-panel"));
-  const pharmacyNavigation = document.createElement("nav");
-  pharmacyNavigation.className = "treatment-navigation pharmacy-navigation";
-  pharmacyNavigation.setAttribute("aria-label", "Pharmacy workflows");
-  pharmacyNavigation.innerHTML = `
-    <button class="ghost-btn" type="button" data-pharmacy-mode="formulary">Browse formulary</button>
-    <button class="ghost-btn" type="button" data-pharmacy-mode="dispensing">Patient dispensing</button>`;
-  container.prepend(pharmacyNavigation);
+  const pharmacyNavigation = container.querySelector(".pharmacy-navigation");
   const applyPharmacyMode = () => {
     container.querySelector(".dispensary-catalog-panel").classList.toggle("hidden-section", pharmacyMode !== "formulary");
     container.querySelector(".dispensary-grid").classList.toggle("hidden-section", pharmacyMode !== "dispensing");
@@ -4041,32 +4025,25 @@ function renderDispensaryView(container) {
   });
   applyPharmacyMode();
   const medicationSelect = container.querySelector("#dispensaryMedication");
-  const medicationSearch = container.querySelector("#dispensaryMedicationSearch");
   const safetyInfo = container.querySelector("#medicationSafetyInfo");
   const catalogContainer = container.querySelector("#dispensaryCatalog");
-  const catalogSearch = container.querySelector("#dispensaryCatalogSearch");
-  const catalogClass = container.querySelector("#dispensaryCatalogClass");
+  const catalogSearch = container.querySelector("#universalMedicationSearch");
   const catalogCount = container.querySelector("#dispensaryCatalogCount");
-  const patientSelect = container.querySelector("#formularyPatient");
-  const patientContext = container.querySelector("#formularyPatientContext");
+  const clearSearch = container.querySelector("#formularyClearFilters");
+  const formularyStatus = container.querySelector("#formularyStatus");
   const previousPage = container.querySelector("#formularyPrevious");
   const nextPage = container.querySelector("#formularyNext");
   const pageStatus = container.querySelector("#formularyPageStatus");
+  const pagination = container.querySelector(".formulary-pagination");
   const pageSize = 24;
-  patientSelect.value = formularyWorkflow.patientId;
   catalogSearch.value = formularyWorkflow.search;
-  catalogClass.value = formularyWorkflow.medicationClass;
 
   const renderCatalog = () => {
     formularyWorkflow.search = catalogSearch.value;
-    formularyWorkflow.medicationClass = catalogClass.value;
-    formularyWorkflow.patientId = patientSelect.value;
-    const prescribingPatient = patients.find((record) => String(record.id) === patientSelect.value);
+    const prescribingPatient = getSelectedPatient();
     const canPrescribe = hasPermission(currentUser.role, "encounter:create");
-    patientContext.textContent = prescribingPatient
-      ? `${prescribingPatient.name} · ${prescribingPatient.mrn} · Allergies: ${prescribingPatient.allergies.join(", ") || "None recorded"}. Current medications: ${prescribingPatient.medications.join(", ") || "None recorded"}.${canPrescribe ? "" : " Your role cannot prescribe."}`
-      : "Browsing only. No patient record will be changed.";
-    const matches = searchMedicationCatalog(catalogSearch.value, catalogClass.value);
+    const term = catalogSearch.value.trim();
+    const matches = term ? searchMedicationCatalog(term) : [];
     const pageCount = Math.max(1, Math.ceil(matches.length / pageSize));
     formularyWorkflow.page = Math.min(formularyWorkflow.page, pageCount - 1);
     const first = formularyWorkflow.page * pageSize;
@@ -4074,51 +4051,56 @@ function renderDispensaryView(container) {
     nextPage.disabled = formularyWorkflow.page === pageCount - 1;
     pageStatus.textContent = matches.length
       ? `${first + 1}-${Math.min(first + pageSize, matches.length)} of ${matches.length} · Page ${formularyWorkflow.page + 1} of ${pageCount}`
-      : "No results";
+      : term ? "No results" : "";
 
-    catalogCount.textContent = `${matches.length} ${matches.length === 1 ? "medication" : "medications"}`;
+    catalogCount.textContent = term ? `${matches.length.toLocaleString()} ${matches.length === 1 ? "match" : "matches"}` : "";
+    catalogCount.hidden = !term;
+    clearSearch.hidden = !term;
+    pagination.hidden = matches.length <= pageSize;
     catalogContainer.innerHTML = matches.length ? matches.slice(first, first + pageSize).map((item) => {
       const drugClass = inferMedicationClass(item.name);
       return `
         <article class="dispensary-medication-card">
           <div class="dispensary-medication-heading">
-            <div><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(drugClass)}</span></div>
+            <div><strong>${escapeHtml(item.name)}</strong><span>Class: ${escapeHtml(drugClass)}</span></div>
           </div>
           <p class="formulary-strengths">${escapeHtml(getMedicationStrengthSummary(item))}</p>
           <span class="formulary-source-badge">${item.source === "RxNorm via RxNav" ? "RxNorm / RxNav" : item.sourceUrl ? "FDA NDC" : "Demo example"}</span>
-          <details class="formulary-review">
-          <summary>Review ${escapeHtml(item.name)}</summary>
-          ${renderMedicationSource(item)}
-          <dl class="dispensary-medication-details">
-            <div><dt>Strengths</dt><dd>${escapeHtml(getMedicationStrengthSummary(item))}</dd></div>
-            <div><dt>Adverse effects</dt><dd>${escapeHtml(item.adverseEffects)}</dd></div>
-            <div><dt>Cautions</dt><dd>${escapeHtml(item.cautions)}</dd></div>
-            <div><dt>Listed interactions</dt><dd>${item.interactions.length ? item.interactions.map(escapeHtml).join(", ") : "No interactions listed in this limited demo; this does not establish safety."}</dd></div>
-          </dl>
-          ${prescribingPatient ? findMedicationInteractions(prescribingPatient, item.name).map((warning) => `<p class="interaction-warning">${escapeHtml(warning)}</p>`).join("") : ""}
           <div class="formulary-actions">
             ${item.strengths.map((strength) => {
               const value = getMedicationSelectionValue(item, strength);
-              return `<button class="ghost-btn" type="button" data-formulary-prescribe="${escapeHtml(value)}" ${prescribingPatient && canPrescribe ? "" : "disabled"}>${item.source === "RxNorm via RxNav" ? "Prescribe this product" : `Prescribe ${escapeHtml(strength)}`}</button>`;
+              const label = item.source === "RxNorm via RxNav" ? "Select for prescription" : `Select ${strength} for prescription`;
+              return `<button class="ghost-btn" type="button" data-formulary-prescribe="${escapeHtml(value)}" aria-label="${escapeHtml(`${label}: ${item.name}`)}" ${canPrescribe ? "" : "disabled"}>${escapeHtml(label)}</button>`;
             }).join("")}
           </div>
+          <details class="formulary-review">
+            <summary aria-label="Review details and safety for ${escapeHtml(item.name)}">Review details and safety</summary>
+            ${renderMedicationSource(item)}
+            <dl class="dispensary-medication-details">
+              <div><dt>Strengths</dt><dd>${escapeHtml(getMedicationStrengthSummary(item))}</dd></div>
+              <div><dt>Adverse effects</dt><dd>${escapeHtml(item.adverseEffects)}</dd></div>
+              <div><dt>Cautions</dt><dd>${escapeHtml(item.cautions)}</dd></div>
+              <div><dt>Listed interactions</dt><dd>${item.interactions.length ? item.interactions.map(escapeHtml).join(", ") : "No interactions listed in this limited demo; this does not establish safety."}</dd></div>
+            </dl>
+            ${findMedicationInteractions(prescribingPatient, item.name).map((warning) => `<p class="interaction-warning">${escapeHtml(warning)}</p>`).join("")}
           </details>
         </article>
       `;
-    }).join("") : `
-      <div class="dispensary-empty"><strong>No medications found</strong><p>Try another name or medication class.</p></div>
-    `;
+    }).join("") : term
+      ? `<div class="dispensary-empty"><strong>No medications found</strong><p>Try a different search.</p></div>`
+      : `<div class="dispensary-empty"><strong>Search for a medication</strong><p>Enter a name, ingredient, class, strength, form, or route.</p></div>`;
+    return matches;
   };
 
   const resetCatalogPage = () => {
     formularyWorkflow.page = 0;
-    renderCatalog();
+    formularyStatus.textContent = "";
+    const matches = renderCatalog();
+    updateDispensingMedicationOptions(matches);
   };
   catalogSearch.addEventListener("input", resetCatalogPage);
-  catalogClass.addEventListener("change", resetCatalogPage);
-  container.querySelector("#formularyClearFilters").addEventListener("click", () => {
+  clearSearch.addEventListener("click", () => {
     catalogSearch.value = "";
-    catalogClass.value = "";
     resetCatalogPage();
     catalogSearch.focus();
   });
@@ -4132,13 +4114,18 @@ function renderDispensaryView(container) {
     renderCatalog();
     catalogContainer.scrollTop = 0;
   });
-  patientSelect.addEventListener("change", renderCatalog);
-  catalogContainer?.addEventListener("click", (event) => {
+  catalogContainer.addEventListener("click", (event) => {
     const button = event.target.closest("[data-formulary-prescribe]");
     if (!button) return;
-    const prescribingPatient = patients.find((record) => String(record.id) === patientSelect.value);
-    if (!prescribingPatient || !hasPermission(currentUser.role, "encounter:create")) {
-      patientContext.textContent = "Select a patient and use a prescribing role to continue.";
+    const prescribingPatient = getSelectedPatient();
+    if (!hasPermission(currentUser.role, "encounter:create")) {
+      formularyStatus.textContent = "Your current role cannot prescribe medications.";
+      return;
+    }
+    const medicationValue = button.dataset.formularyPrescribe;
+    const entry = getMedicationCatalogEntry(medicationValue);
+    if (!entry || !entry.strengths.some((strength) => getMedicationSelectionValue(entry, strength) === medicationValue)) {
+      formularyStatus.textContent = "Medication not found in the formulary. Search again.";
       return;
     }
     selectedPatientId = prescribingPatient.id;
@@ -4146,9 +4133,15 @@ function renderDispensaryView(container) {
     render();
     const prescriptionMedication = document.getElementById("patientMedicationSelect");
     const prescriptionSearch = document.getElementById("patientMedicationSearch");
-    prescriptionSearch.value = button.dataset.formularyPrescribe;
+    prescriptionSearch.value = entry.name;
     prescriptionSearch.dispatchEvent(new Event("input", { bubbles: true }));
-    prescriptionMedication.value = button.dataset.formularyPrescribe;
+    if (![...prescriptionMedication.options].some((option) => option.value === medicationValue)) {
+      const option = document.createElement("option");
+      option.value = medicationValue;
+      option.textContent = medicationValue;
+      prescriptionMedication.append(option);
+    }
+    prescriptionMedication.value = medicationValue;
     prescriptionMedication.dispatchEvent(new Event("change"));
     document.getElementById("patientPrescriptionForm").scrollIntoView({ block: "center" });
     prescriptionMedication.focus({ preventScroll: true });
@@ -4166,11 +4159,13 @@ function renderDispensaryView(container) {
     if (!selected) {
       safetyInfo.className = "medication-safety-info";
       safetyInfo.textContent = "Select a medication to review safety information.";
+      safetyInfo.hidden = true;
       return;
     }
     const entry = getMedicationCatalogEntry(selected);
     if (!entry) return;
     const warnings = findMedicationInteractions(patient, selected);
+    safetyInfo.hidden = false;
     safetyInfo.className = `medication-safety-info${warnings.length ? " has-warning" : ""}`;
     safetyInfo.innerHTML = `
       <strong>${escapeHtml(entry.name)} safety information</strong>
@@ -4180,29 +4175,24 @@ function renderDispensaryView(container) {
       ${warnings.length ? `<div class="interaction-warning"><strong>Interaction notices</strong>${warnings.map((warning) => `<p>${escapeHtml(warning)}</p>`).join("")}</div>` : ""}
     `;
   };
-  const updateDispensingMedicationOptions = () => {
-    const term = medicationSearch.value.trim();
-    const matches = term.length >= 2 ? searchMedicationCatalog(term) : [];
-    const selectionOptions = matches.flatMap((item) =>
-      item.strengths.map((strength) => {
-        const value = getMedicationSelectionValue(item, strength);
-        return `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`;
-      })
-    );
-    const options = selectionOptions.slice(0, 100);
+  const updateDispensingMedicationOptions = (matches) => {
+    if (dispensingPrescriptionId) return;
+    const term = catalogSearch.value.trim();
+    const selectionMatches = term.length >= 2 ? matches || searchMedicationCatalog(term) : [];
+    const { options, total } = getMedicationSelectionOptions(selectionMatches);
     const prompt = term.length < 2
       ? "Type at least two characters to search"
-      : selectionOptions.length
-        ? selectionOptions.length > 100 ? "First 100 matches; refine search" : "Select medication"
+      : total
+        ? total > 100 ? "First 100 matches; refine search" : "Select medication"
         : "No matching medications";
-    medicationSelect.innerHTML = `<option value="">${prompt}</option>${options.join("")}`;
+    medicationSelect.innerHTML = `<option value="">${prompt}</option>${options}`;
     safetyInfo.textContent = "Select a medication to review safety information.";
+    safetyInfo.hidden = true;
   };
-  medicationSearch.addEventListener("input", updateDispensingMedicationOptions);
   medicationSelect?.addEventListener("change", renderMedicationSafety);
   const prescriptionSelect = container.querySelector("#dispensingPrescription");
   const form = container.querySelector("#dispensaryForm");
-  prescriptionSelect.value = selectedPrescription?.id || "";
+  if (prescriptionSelect) prescriptionSelect.value = selectedPrescription?.id || "";
   const populatePrescription = () => {
     const linked = patient.prescriptions.find((item) => item.id === prescriptionSelect.value && item.status === "Active");
     dispensingPrescriptionId = linked?.id || "";
@@ -4216,10 +4206,12 @@ function renderDispensaryView(container) {
     medicationSelect.disabled = Boolean(linked);
     form.elements.quantity.value = linked?.quantity || "";
     form.elements.directions.value = linked?.instructions || "";
-    renderMedicationSafety();
+    if (linked) renderMedicationSafety();
+    else updateDispensingMedicationOptions();
   };
-  prescriptionSelect.addEventListener("change", populatePrescription);
+  prescriptionSelect?.addEventListener("change", populatePrescription);
   if (selectedPrescription) populatePrescription();
+  else updateDispensingMedicationOptions();
 
   form?.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -4292,7 +4284,8 @@ function renderNursingView(container) {
         </label>
         <p class="form-caution">Review assignment, location, allergies, and charted observations.</p>
       </div>
-      <div class="table-wrap">
+      <p class="table-scroll-hint">Scroll horizontally to see all columns.</p>
+      <div class="table-wrap" role="region" aria-label="Nursing assignments table, scroll horizontally to see all columns" tabindex="0">
         ${caredFor.length ? `<table class="data-table">
           <thead><tr><th>Patient / MRN</th><th>Location</th><th>Department</th><th>Diagnosis / reason</th><th>Priority / stage</th><th>Vitals</th><th>Allergies</th><th></th></tr></thead>
           <tbody>${caredFor.map((patient) => `
@@ -4350,7 +4343,8 @@ function renderLocationsView(container) {
     <div class="panel">
       <div class="panel-header"><div><p class="eyebrow">Facility operations</p><h3>Locations & beds</h3></div><span class="pill">${locations.length + unlisted.length} locations</span></div>
       <p class="muted-copy">Occupancy is based on assigned patients.</p>
-      <div class="table-wrap"><table class="data-table">
+      <p class="table-scroll-hint">Scroll horizontally to see all columns.</p>
+      <div class="table-wrap" role="region" aria-label="Locations and beds table, scroll horizontally to see all columns" tabindex="0"><table class="data-table">
         <thead><tr><th>Location</th><th>Department</th><th>Type</th><th>Admitted patients</th><th>Occupancy</th><th>Assigned patients</th></tr></thead>
         <tbody>${[...locationRows, ...unlisted].map((location) => `
           <tr><td><strong>${escapeHtml(location.name)}</strong></td><td>${escapeHtml(location.department)}</td><td>${escapeHtml(location.kind)}</td>
@@ -5015,7 +5009,20 @@ function attachEvents() {
   document.getElementById("patientListSearch").addEventListener("input", renderPatientList);
   document.getElementById("main-content").addEventListener("change", (event) => {
     if (event.target.id !== "treatmentPatient") return;
-    const result = openTreatmentWorkflow(currentView, event.target.value);
+    const term = event.target.value.trim().toLowerCase();
+    const matches = patients.filter((patient) =>
+      `${patient.name} · ${patient.mrn}`.toLowerCase() === term ||
+      patient.name.toLowerCase() === term ||
+      patient.mrn.toLowerCase() === term
+    );
+    if (matches.length !== 1) {
+      document.getElementById("treatmentStatus").textContent = matches.length
+        ? `More than one patient matched. Selected patient remains ${getSelectedPatient().name} · ${getSelectedPatient().mrn}.`
+        : `Patient not found. Selected patient remains ${getSelectedPatient().name} · ${getSelectedPatient().mrn}.`;
+      event.target.value = `${getSelectedPatient().name} · ${getSelectedPatient().mrn}`;
+      return;
+    }
+    const result = openTreatmentWorkflow(currentView, matches[0].id);
     if (!result.allowed) {
       document.getElementById("treatmentStatus").textContent = result.message;
       return;
@@ -5049,7 +5056,6 @@ function attachEvents() {
       return;
     }
     if (navigation.dataset.treatmentView === "dispensary") {
-      formularyWorkflow.patientId = String(result.patient.id);
       pharmacyMode = "formulary";
     }
     render();

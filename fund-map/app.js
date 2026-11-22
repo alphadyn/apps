@@ -23,12 +23,13 @@ function showDialog(title, children) {
 
 function inspect(fund) {
   selected = fund;
-  $('selected-symbol').textContent = fund.id;
+  $('selected-symbol').textContent = fund.symbols?.join(' / ') || fund.id;
   $('selected-name').textContent = fund.name;
   $('selected-assets').textContent = money(fund.netAssets);
   $('selected-upside').textContent = percent(fund.upside);
-  $('details').disabled = false;
-  for (const button of buttons) button.classList.toggle('selected', button.dataset.id === fund.id);
+  const portfolioId = fund.members ? fund.id
+    : data.portfolios.find((portfolio) => portfolio.members.some((member) => member.id === fund.id))?.id;
+  for (const button of buttons) button.classList.toggle('selected', button.dataset.id === portfolioId);
 }
 
 function clearInspection() {
@@ -37,11 +38,13 @@ function clearInspection() {
   $('selected-name').textContent = 'Hover, focus, or tap a fund';
   $('selected-assets').textContent = '--';
   $('selected-upside').textContent = '--';
-  $('details').disabled = true;
   for (const button of buttons) button.classList.remove('selected');
 }
 
-function coverageText() {
+function coverageText(fund) {
+  if (fund?.method === 'holdings') {
+    return `${fund.id} reported holdings with usable company DCFs cover ${(fund.holdingCoverage * 100).toFixed(1)}% of fund assets by weight. An estimate requires at least 80% coverage and holdings no more than 45 days old.`;
+  }
   const p = data.proxy;
   return `Live market caps are available for ${p.mappedCount} of ${p.companyCount} proxy companies (${(p.companyCoverage * 100).toFixed(1)}%). DCF is available for ${p.valuedCount} companies, representing ${(p.capCoverage * 100).toFixed(1)}% of the market cap with live caps. At least 80% of companies must have live caps and at least 80% of observed cap must have a usable DCF. Missing caps have unknown weight.`;
 }
@@ -54,10 +57,13 @@ function sourceText() {
 
 function details(fund) {
   inspect(fund);
+  const sharedPortfolio = data.portfolios.find((portfolio) => portfolio.members.length > 1
+    && portfolio.members.some((member) => member.id === fund.id));
   const facts = node('dl');
   for (const [label, value] of [
     ['Ticker', fund.id], ['Type', fund.type], ['Category', fund.sector],
-    ['Reported net assets', money(fund.netAssets)],
+    [sharedPortfolio ? 'Reported pooled net assets' : 'Reported net assets',
+      money(sharedPortfolio?.netAssets ?? fund.netAssets)],
     ['Price / NAV', money(fund.price)],
     ['Quote as of', fund.quoteAt ? new Date(fund.quoteAt).toLocaleString() : 'Unavailable'],
     ['Estimation method', fund.method],
@@ -65,13 +71,17 @@ function details(fund) {
     ['Estimated upside', percent(fund.upside)],
   ]) facts.append(node('dt', label), node('dd', value));
   const explanation = fund.method === 'holdings'
-    ? `Based on iShares holdings as of ${fund.holdingsAsOf}. Usable company DCFs cover ${((fund.holdingCoverage || 0) * 100).toFixed(1)}% of fund assets by reported weight. At least 80% coverage and holdings no older than 45 days are required. The estimate normalizes over covered holdings; uncovered assets, fees, trading and changes since the holdings date are not modeled.`
+    ? `Based on ${fund.id} issuer holdings as of ${fund.holdingsAsOf}. The estimate normalizes over covered holdings; uncovered assets, fees, trading and changes since the holdings date are not modeled.`
     : fund.sector === 'S&P 500'
     ? 'This is an illustrative S&P 500 proxy, not a valuation of this fund’s actual holdings. The same proxy upside is applied to each S&P 500 fund’s current price. Differences in holdings, index weights, fees, cash, tracking error, and distributions are not modeled.'
     : 'A DCF estimate is unavailable: this fund is not an S&P 500 fund, and its actual holdings and weights are not in the dataset.';
   const link = node('a', 'Open in Market Insights');
   link.href = `../market-insights/#symbol=${encodeURIComponent(fund.id)}`;
-  const content = [facts, node('p', explanation), node('p', coverageText()), node('p', sourceText())];
+  const content = [facts];
+  if (sharedPortfolio) {
+    content.push(node('p', `Yahoo reports pooled assets shared by ${sharedPortfolio.symbols.join(' and ')}; the map shows this portfolio once.`));
+  }
+  content.push(node('p', explanation), node('p', coverageText(fund)), node('p', sourceText()));
   if (fund.holdingsSource) {
     const source = node('a', 'Download issuer holdings');
     source.href = fund.holdingsSource;
@@ -79,6 +89,21 @@ function details(fund) {
   }
   content.push(link);
   showDialog(fund.name, content);
+}
+
+function portfolioDetails(portfolio) {
+  inspect(portfolio);
+  const content = [
+    node('p', 'These tickers are share classes of one pooled fund. Reported net assets are shown once on the map and are not separate values for each ticker.'),
+    node('h3', `Reported pooled net assets: ${money(portfolio.netAssets)}`),
+  ];
+  for (const fund of portfolio.members) {
+    const button = node('button', `${fund.id} — ${fund.name}`, 'company-option');
+    button.addEventListener('click', () => details(fund));
+    content.push(button);
+  }
+  content.push(node('p', sourceText()));
+  showDialog(portfolio.name, content);
 }
 
 function layout() {
@@ -93,7 +118,7 @@ function layout() {
       Object.assign(button.style, {
         left: `${item.x}px`, top: `${item.y}px`, width: `${item.width}px`, height: `${item.height}px`,
       });
-          const length = Math.max(item.company.id.length, money(item.company.netAssets).length, percent(item.company.upside).length);
+      const length = Math.max(item.company.symbols.join(' / ').length, money(item.company.netAssets).length, percent(item.company.upside).length);
       const size = Math.max(1, Math.min(28, (item.width - 3) / (length * .67), (item.height - 3) / 3.8));
       button.style.fontSize = `${size}px`;
       button.style.gap = size < 8 ? '0' : '2px';
@@ -107,7 +132,8 @@ function search() {
   const found = data.funds.filter((fund) => matches(fund, query));
   $('matches').textContent = query.trim() ? `${found.length} found` : '';
   for (const button of buttons) {
-    const match = matches(data.funds.find((fund) => fund.id === button.dataset.id), query);
+    const portfolio = data.mappedPortfolios.find((item) => item.id === button.dataset.id);
+    const match = portfolio.members.some((fund) => matches(fund, query));
     button.classList.toggle('dim', !match);
     button.classList.toggle('match', Boolean(query.trim()) && match);
   }
@@ -120,40 +146,41 @@ function render() {
   $('valued').textContent = data.funds.filter((fund) => fund.upside !== null).length;
   const dates = data.funds.map((fund) => fund.quoteAt).filter(Boolean).sort();
   $('date').textContent = dates.length ? new Date(dates.at(-1)).toLocaleString() : 'Unavailable';
-  $('coverage').textContent = `${data.mapped.length} mapped${data.missing.length ? ` / ${data.missing.length} missing assets` : ' / full coverage'}`;
+  $('coverage').textContent = `${data.mappedPortfolios.length} portfolios mapped${data.missing.length ? ` / ${data.missing.length} funds missing assets` : ' / full coverage'}`;
   $('coverage').disabled = false;
   $('search').disabled = false;
   $('message').hidden = data.mapped.length > 0;
   if (!data.mapped.length) $('message').textContent = 'No net assets are available. Open coverage to explore funds.';
-  buttons = data.mapped.map((fund) => {
+  buttons = data.mappedPortfolios.map((portfolio) => {
     const button = node('button', undefined, 'tile');
     button.type = 'button';
-    button.dataset.id = fund.id;
-    button.style.background = upsideColor(fund.upside);
-    button.classList.toggle('dark', upsideTextColor(fund.upside) === '#ffffff');
-    const description = `${fund.id}: ${fund.name}. Reported net assets ${money(fund.netAssets)}. Estimated upside ${percent(fund.upside)}.`;
+    button.dataset.id = portfolio.id;
+    button.style.background = upsideColor(portfolio.upside);
+    button.classList.toggle('dark', upsideTextColor(portfolio.upside) === '#ffffff');
+    const description = `${portfolio.symbols.join(' and ')}: ${portfolio.name}. Reported net assets ${money(portfolio.netAssets)}. Estimated upside ${percent(portfolio.upside)}.`;
     button.setAttribute('aria-label', description);
     button.title = description;
-    button.append(node('strong', fund.id), node('span', money(fund.netAssets)), node('span', percent(fund.upside)));
-    button.addEventListener('pointerenter', () => inspect(fund));
-    button.addEventListener('focus', () => inspect(fund));
-    button.addEventListener('click', () => details(fund));
+    button.append(node('strong', portfolio.symbols.join(' / ')), node('span', money(portfolio.netAssets)), node('span', percent(portfolio.upside)));
+    button.addEventListener('pointerenter', () => inspect(portfolio));
+    button.addEventListener('focus', () => inspect(portfolio));
+    button.addEventListener('click', () => portfolio.members.length > 1
+      ? portfolioDetails(portfolio) : details(portfolio.members[0]));
     return button;
   });
   const groups = new Map();
-  for (const fund of data.mapped) {
-    if (!groups.has(fund.sector)) groups.set(fund.sector, []);
-    groups.get(fund.sector).push(fund);
+  for (const portfolio of data.mappedPortfolios) {
+    if (!groups.has(portfolio.sector)) groups.set(portfolio.sector, []);
+    groups.get(portfolio.sector).push(portfolio);
   }
   const byId = new Map(buttons.map((button) => [button.dataset.id, button]));
-  regions = [...groups].map(([name, funds]) => {
+  regions = [...groups].map(([name, portfolios]) => {
     const element = node('div', undefined, 'sector-region');
     element.setAttribute('role', 'group');
     element.setAttribute('aria-label', name);
     const tiles = node('div', undefined, 'sector-tiles');
-    tiles.append(...funds.map((fund) => byId.get(fund.id)));
+    tiles.append(...portfolios.map((portfolio) => byId.get(portfolio.id)));
     element.append(node('span', name, 'sector-label'), tiles);
-    return { name, funds, marketCap: funds.reduce((sum, fund) => sum + fund.netAssets, 0), element, buttons: byId };
+    return { name, funds: portfolios, marketCap: portfolios.reduce((sum, portfolio) => sum + portfolio.netAssets, 0), element, buttons: byId };
   });
   $('tiles').replaceChildren(...regions.map((region) => region.element));
   layout();
@@ -215,6 +242,10 @@ async function load() {
     if (data.funds.some((fund) => fund.method === 'holdings' && fund.upside === null)) {
       warnings.push('Holdings-based estimates are unavailable for some funds; see fund details.');
     }
+    const proxyFunds = data.funds.filter((fund) => fund.sector === 'S&P 500' && fund.method === 'index proxy');
+    if (proxyFunds.length) {
+      warnings.push(`${proxyFunds.map((fund) => fund.id).join(', ')} use the shared S&P 500 proxy because supported issuer holdings are unavailable.`);
+    }
     warnings.push('Quotes may be delayed; fund assets can overlap. DCF estimates are illustrative.');
     $('status').textContent = warnings.join(' ');
   } catch (error) {
@@ -237,18 +268,26 @@ $('search').addEventListener('keydown', (event) => {
   }
 });
 $('map').addEventListener('pointerleave', () => {
-  if (!$('map').contains(document.activeElement)) clearInspection();
+  clearInspection();
 });
 $('refresh').addEventListener('click', load);
-$('details').addEventListener('click', () => { if (selected) details(selected); });
-$('close').addEventListener('click', () => $('dialog').close());
-$('dialog').addEventListener('click', (event) => { if (event.target === $('dialog')) $('dialog').close(); });
+$('close').addEventListener('click', () => {
+  $('dialog').close();
+  clearInspection();
+});
+$('dialog').addEventListener('close', clearInspection);
+$('dialog').addEventListener('click', (event) => {
+  if (event.target === $('dialog')) {
+    $('dialog').close();
+    clearInspection();
+  }
+});
 $('coverage').addEventListener('click', () => {
   const content = [
-    node('p', `${data.mapped.length} of ${data.funds.length} curated funds have reported net assets and are mapped. Tile area is proportional to Yahoo Finance reported net assets. Values can represent the entire fund rather than an individual share class, so related funds may overlap and must not be added as independent assets.`),
+    node('p', `${data.mapped.length} of ${data.funds.length} curated fund tickers have reported net assets. The map shows ${data.mappedPortfolios.length} pooled portfolios, with known Vanguard share classes combined into one tile. A share class without its own asset value may still appear in a shared portfolio tile. Other overlapping funds may still be present and must not be added as independent assets.`),
     node('p', coverageText()),
     node('p', sourceText()),
-    node('p', 'S&P 500 funds use an index proxy; ITOT uses issuer-reported holdings when sufficient holdings have usable DCFs. Unsupported funds, missing quotes, stale holdings, and insufficient coverage are shown as N/A.'),
+    node('p', 'SPY, IVV, SPYM, and ITOT use issuer-reported holdings when sufficiently covered and current. Other S&P 500 funds use the shared index proxy; unsupported funds, missing quotes, stale holdings, and insufficient coverage are shown as N/A or identified in details.'),
   ];
   if (data.missing.length) content.push(node('h3', 'Missing net assets'), node('p', 'These funds have no map area but remain searchable.'));
   for (const fund of data.missing) {
@@ -259,8 +298,8 @@ $('coverage').addEventListener('click', () => {
   showDialog('Fund coverage', content);
 });
 $('about').addEventListener('click', () => showDialog('One map. A view of funds.', [
-  node('p', 'Funds are grouped by exposure, with tile area proportional to Yahoo Finance reported net assets. Fund-level assets may be shared across multiple classes or tickers, so the map can count the same assets more than once. Funds missing assets have no map area but remain searchable. Search highlights matches without changing areas. Hover or focus for the bottom readout, select a tile for details, or search and press Enter.'),
-  node('p', 'Green and red show estimated upside or downside; gray means unavailable. S&P 500 funds use a shared index proxy rather than actual holdings, using company-wide market caps rather than float-adjusted index weights. ITOT uses reported holdings and their weights when at least 80% of its assets have usable company DCFs and holdings are no more than 45 days old.'),
+  node('p', 'Funds are grouped by exposure, with tile area proportional to Yahoo Finance reported net assets. Known Vanguard mutual-fund and ETF share classes of the same pooled portfolio appear together in one tile; search still finds each ticker, and the tile details link to each share class. Other overlapping funds may still be shown separately. Funds missing assets have no individual tile but remain searchable; if another share class reports pooled assets, they remain included in the shared tile. Search highlights matches without changing areas. Hover or focus for the bottom readout, select a tile for details, or search and press Enter.'),
+  node('p', 'Green and red show estimated upside or downside; gray means unavailable. SPY, IVV, SPYM, and ITOT use reported holdings weights when at least 80% of fund assets have usable company DCFs and holdings are no more than 45 days old. Other S&P 500 funds use a shared market-cap-weighted proxy rather than their actual holdings.'),
   node('p', 'The proxy is the market-cap-weighted average of available constituent DCF upside, normalized over covered companies. Estimated fund fair value is its current price multiplied by one plus proxy upside. Missing or non-positive earnings are excluded rather than valued at zero; this can bias the estimate. Coverage thresholds and missing data are shown under View coverage.'),
   node('p', 'For ITOT, reported holdings weights are multiplied by available company DCF upside and normalized over covered assets. Holdings not in the S&P 500 dataset, other assets, and companies with unavailable DCFs are excluded, which can materially bias the estimate. Holdings weights are dated and rounded, not live.'),
   node('p', 'The shared Market Insights earnings-based model projects five years of net income, caps annual growth at +/-5%, discounts at 10%, and uses 2.5% terminal growth. It is not a full cash-flow model, a price forecast, or investment advice.'),

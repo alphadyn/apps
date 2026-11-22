@@ -63,12 +63,60 @@ test('invalid or missing assets exclude funds from the map, but preserve search 
   assert.throws(() => prepareFunds({ securities: [stock('A', 100), fund('F')] }, {}));
 });
 
+test('shared Vanguard share classes appear in one portfolio with pooled assets', () => {
+  const pairs = [['VFIAX', 'VOO'], ['VTSAX', 'VTI'], ['VTIAX', 'VXUS'], ['VBTLX', 'BND']];
+  const assetValues = Object.fromEntries(pairs.flatMap(([first, second], index) => [
+    [first, 1000 * (index + 1)], [second, 1000 * (index + 1)],
+  ]));
+  const sharedAssets = { fetched_at: '2026-01-01T00:00:00Z', assets: assetValues };
+  const result = prepareFunds({
+    securities: [stock('A', 100), ...pairs.flatMap(([first, second]) => [fund(first), fund(second)])],
+  }, sharedAssets);
+  assert.deepEqual(result.mappedPortfolios.map((portfolio) => portfolio.symbols), pairs);
+  assert.deepEqual(result.mappedPortfolios.map((portfolio) => portfolio.netAssets), [1000, 2000, 3000, 4000]);
+  assert.deepEqual(result.mappedPortfolios.map((portfolio) => portfolio.marketCap), [1000, 2000, 3000, 4000]);
+  assert.equal(result.mappedPortfolios[0].upside, result.funds[0].upside);
+});
+
+test('shared portfolio rejects conflicting pooled asset values', () => {
+  const sharedAssets = { fetched_at: '2026-01-01T00:00:00Z', assets: { VFIAX: 1000, VOO: 900 } };
+  assert.throws(() => prepareFunds({
+    securities: [stock('A', 100), fund('VFIAX'), fund('VOO')],
+  }, sharedAssets), /Conflicting pooled net assets for VFIAX and VOO/);
+});
+
+test('S&P 500 ETFs use their own reported holdings weights for upside', () => {
+  const securities = [
+    stock('A', 100, 10),
+    stock('B', 200, 30),
+    stock('C', 300, 90),
+    fund('SPY'),
+    fund('IVV'),
+    fund('SPYM'),
+  ];
+  const holdings = { funds: {
+    SPY: { as_of: '2026-01-01', source: 'https://www.ssga.com/test',
+      holdings: [{ symbol: 'A', weight: 0.8 }, { symbol: 'B', weight: 0.1 }, { symbol: 'C', weight: 0.1 }] },
+    IVV: { as_of: '2026-01-01', source: 'https://www.ishares.com/test',
+      holdings: [{ symbol: 'A', weight: 0.1 }, { symbol: 'B', weight: 0.1 }, { symbol: 'C', weight: 0.8 }] },
+    SPYM: { as_of: '2026-01-01', source: 'https://www.ssga.com/test',
+      holdings: [{ symbol: 'A', weight: 0.1 }, { symbol: 'B', weight: 0.8 }, { symbol: 'C', weight: 0.1 }] },
+  } };
+  const result = prepareFunds({ securities }, {
+    fetched_at: '2026-01-01T00:00:00Z', assets: { SPY: 100, IVV: 100, SPYM: 100 },
+  }, holdings, Date.parse('2026-01-02T00:00:00Z'));
+  const estimates = result.funds.map((entry) => entry.upside);
+  assert.ok(estimates.every(Number.isFinite));
+  assert.equal(new Set(estimates).size, 3);
+  assert.ok(result.funds.every((entry) => entry.method === 'holdings' && entry.holdingCoverage === 1));
+});
+
 test('holdings-based valuation uses each actual holding weight and requires coverage and freshness', () => {
   const a = stock('A', 100, 10);
-  const b = stock('B', 300, 10);
+  const b = stock('BRK-B', 300, 10);
   const snapshot = { securities: [a, b, fund('F', 'Total U.S. stock market')] };
   const portfolio = { as_of: '2026-01-01', source: 'https://www.ishares.com/test',
-    holdings: [{ symbol: 'A', weight: 0.6 }, { symbol: 'B', weight: 0.2 }, { symbol: 'UNKNOWN', weight: 0.2 }] };
+    holdings: [{ symbol: 'A', weight: 0.6 }, { symbol: 'BRK B', weight: 0.2 }, { symbol: 'UNKNOWN', weight: 0.2 }] };
   const holdings = { funds: { F: portfolio } };
   const now = Date.parse('2026-01-02T00:00:00Z');
   const result = prepareFunds(snapshot, assets, holdings, now).funds[0];

@@ -41,7 +41,7 @@
       <div class="snapshot"><span class="eyebrow">LATEST QUOTE</span><strong id="date">--</strong></div>
       <label class="search"><span class="sr-only">Find a ticker or fund</span><input id="search" type="search" placeholder="Find ticker or fund" autocomplete="off" disabled><span id="matches" role="status"></span></label>
     </section>
-    <div class="map-heading"><p>Size = reported net assets <span> / </span> Color = estimated DCF upside</p><button id="coverage" type="button" disabled>Loading coverage...</button></div>
+    <div class="map-heading"><p>Size = reported assets (shared portfolios shown once) <span> / </span> Color = estimated DCF upside</p><button id="coverage" type="button" disabled>Loading coverage...</button></div>
     <section id="map" aria-label="Fund treemap" aria-busy="true">
       <div id="message" role="status">Loading fund data...</div>
       <div id="tiles"></div>
@@ -50,7 +50,6 @@
       <div><strong id="selected-symbol">Explore funds</strong><span id="selected-name">Hover, focus, or tap a fund</span></div>
       <div><span class="eyebrow">NET ASSETS</span><strong id="selected-assets">--</strong></div>
       <div><span class="eyebrow">EST. UPSIDE</span><strong id="selected-upside">--</strong></div>
-      <button id="details" type="button" disabled>Details</button>
     </section>
     <footer>
       <div class="legend" aria-label="Color legend; darker means larger upside or downside; gray means unavailable"><span>≤−100%</span><i></i><span>0</span><i></i><span>≥+100%</span><b></b><span>N/A</span></div>

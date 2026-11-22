@@ -637,6 +637,12 @@ textarea {
   gap: 16px;
 }
 
+@media (min-width: 761px) and (max-width: 1100px) {
+  .dispensary-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .dispensary-form-panel,
 .dispensary-history-panel {
   min-width: 0;
@@ -711,11 +717,12 @@ textarea {
 .dispensary-catalog-panel {
   grid-column: 1 / -1;
   margin-bottom: 16px;
+  container-type: inline-size;
 }
 
 .formulary-toolbar {
   display: grid;
-  grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.4fr);
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
   gap: 16px;
   align-items: end;
   margin-top: 12px;
@@ -794,7 +801,7 @@ textarea {
 
 .dispensary-catalog-tools {
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) minmax(180px, 240px);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 240px);
   align-items: end;
   gap: 12px;
   margin-bottom: 12px;
@@ -802,6 +809,13 @@ textarea {
 
 .dispensary-catalog-tools label {
   margin: 0;
+}
+
+@container (max-width: 680px) {
+  .formulary-toolbar,
+  .dispensary-catalog-tools {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .formulary-patient-selector {
@@ -3280,7 +3294,7 @@ button.stat-card {
 
 .row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -3290,6 +3304,7 @@ label {
   gap: 6px;
   font-weight: 600;
   color: #334155;
+  min-width: 0;
 }
 
 input,
@@ -3300,6 +3315,8 @@ textarea {
   padding: 10px 12px;
   background: #fcfdff;
   color: var(--text);
+  min-width: 0;
+  max-width: 100%;
 }
 
 input::placeholder,
@@ -4261,6 +4278,52 @@ h4.collapse-head .collapse-toggle {
   select,
   textarea {
     font-size: 16px;
+  }
+
+  .primary-btn,
+  .ghost-btn,
+  .text-btn,
+  .action-btn,
+  .collapse-toggle,
+  .formulary-review summary,
+  .formulary-provenance summary {
+    min-height: 44px;
+  }
+
+  .treatment-navigation,
+  .formulary-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .treatment-navigation button,
+  .formulary-actions button {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .treatment-context {
+    gap: 8px;
+  }
+
+  .treatment-context label,
+  .treatment-context p {
+    flex-basis: 100%;
+    margin: 0;
+  }
+
+  .detail-header {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .detail-header > div {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .dispensary-history {
+    max-height: none;
   }
 
   .data-exchange select,

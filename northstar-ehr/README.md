@@ -8,6 +8,15 @@ Northstar defines a clinical workflow covering patient charts, emergency and inp
 
 Select the Northstar brand in the login panel or sidebar to reload the app's entry page. Demo data remains in browser storage.
 
+## Desktop and mobile layout
+
+Patient workspaces adapt from narrow phone screens to wide desktops. Form columns
+and controls constrain long medication and class names instead of widening the
+page. The formulary toolbar responds to its panel width, pharmacy panels stack
+on tablets, and mobile treatment navigation uses wrapping two-column controls
+with 44-pixel touch targets. Dispensing history uses normal page scrolling on
+phones. Wide census tables retain their local horizontal scrolling.
+
 ## Brand and link preview
 
 The app uses a teal Northstar mark across its SVG favicon, multi-size `favicon.ico`, and 180 × 180 Apple touch icon. Open Graph and Twitter metadata point to the 1200 × 630 social preview image below, with matching fictional-demo descriptions and accessible image text.

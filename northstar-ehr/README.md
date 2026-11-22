@@ -59,12 +59,13 @@ The deployed URL is `https://alphadyn.github.io/apps/northstar-ehr/`.
 
 ### Formulary review and demo prescribing
 
-In **Formulary & dispensing**, search the selected patient by name or MRN, then
-use **Search formulary** to find medications by name, ingredient, class, strength,
+In **Formulary & dispensing**, use **Search formulary** without selecting a patient
+to find medications by name, ingredient, class, strength,
 form, route, adverse effect, or listed interaction. Each result shows its class
 when supplied and offers an expandable review of source and safety details.
-Use **Select for prescription** for the desired product or strength to open the
-selected patient's form in **Medications & prescriptions**. Review the patient
+Use **Select for prescription** for the desired product or strength, then select
+the patient by name or MRN to open their form in **Medications & prescriptions**.
+Patient-specific interaction notices appear in the prescription workflow. Review the patient
 and complete quantity, refills, and directions before saving. Searching or opening
 the form does not create a prescription or dispense medication. Prescribing
 follows the demo encounter-create role permission; dispensing remains separate.
@@ -89,7 +90,7 @@ follows the demo encounter-create role permission; dispensing remains separate.
   for legacy/demo chart records. Recording dispensing does not consume refills or
   infer that the medication has been administered.
 - A shared patient selector and treatment navigation preserve the selected patient
-  across these workspaces. Prescribing uses the demo encounter-create permission;
+  across patient-specific workspaces. Prescribing uses the demo encounter-create permission;
   recording dispensing uses the demo order-create permission.
 
 This is a limited illustrative catalog, not live inventory or a validated clinical

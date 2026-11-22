@@ -1203,13 +1203,24 @@ test("treatment navigation retains the selected patient and separates focused wo
     const result = api.openTreatmentWorkflow(view, patient.id);
     assert.equal(result.allowed, true);
     assert.equal(vm.runInContext("getSelectedPatient().id", context), patient.id);
-    assert.equal(api.getVisibleSections(view).patientWorkflowSection, true);
+    assert.equal(api.getVisibleSections(view).patientWorkflowSection, view !== "dispensary");
   }
+  vm.runInContext('pharmacyMode = "dispensing"', context);
+  assert.equal(api.getVisibleSections("dispensary").patientWorkflowSection, true);
   assert.equal(api.getVisibleSections("labs").encounterSection, false);
   assert.equal(api.getVisibleSections("medications").recordsSection, true);
   assert.equal(api.getVisibleSections("dispensary").extendedSection, true);
   assert.equal(api.openTreatmentWorkflow("not-a-view", patient.id).allowed, false);
   assert.equal(api.openTreatmentWorkflow("medications", "missing").allowed, false);
+});
+
+test("patient search requires an exact, unambiguous name or MRN", () => {
+  const { context } = setup();
+  assert.equal(vm.runInContext('findPatientsByText("").length', context), 0);
+  assert.equal(vm.runInContext('findPatientsByText(patients[0].mrn.toLowerCase()).length', context), 1);
+  assert.equal(vm.runInContext('findPatientsByText(`${patients[0].name} · ${patients[0].mrn}`).length', context), 1);
+  assert.equal(vm.runInContext('findPatientsByText(patients[0].name.slice(0, 3)).length', context), 0);
+  assert.equal(vm.runInContext('patients[1].name = patients[0].name; findPatientsByText(patients[0].name).length', context), 2);
 });
 
 test("prescription workflow creates a persistent linked order and supports dispensing handoff", () => {

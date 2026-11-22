@@ -1980,7 +1980,7 @@ function getVisibleSections(view) {
     operationsOverviewSection: view === "overview",
     roleManagementSection: view === "overview" && hasPermission(currentUser.role, "roles:manage"),
     extendedSection: extendedViews.includes(view),
-    patientWorkflowSection: ["patients", "orders", "labs", "medications", "dispensary"].includes(view),
+    patientWorkflowSection: ["patients", "orders", "labs", "medications"].includes(view) || (view === "dispensary" && pharmacyMode === "dispensing"),
     recordsSection: ["patients", "labs", "medications", "billing"].includes(view),
     operationsSection: view === "appointments",
     outpatientSection: view === "outpatient",
@@ -3875,6 +3875,16 @@ const formularyWorkflow = { search: "", page: 0 };
 let dispensingPrescriptionId = "";
 let pharmacyMode = "formulary";
 
+function findPatientsByText(value) {
+  const term = value.trim().toLowerCase();
+  if (!term) return [];
+  return patients.filter((patient) =>
+    `${patient.name} · ${patient.mrn}`.toLowerCase() === term ||
+    patient.name.toLowerCase() === term ||
+    patient.mrn.toLowerCase() === term
+  );
+}
+
 function renderPatientTreatmentNavigation() {
   const container = document.getElementById("patientWorkflowSection");
   const patient = getSelectedPatient();
@@ -3948,6 +3958,17 @@ function renderDispensaryView(container) {
           Neither source is verified safety guidance or live stock. Diagnosis/indication and specialty associations are not inferred; review official labeling.</p>
       </details>
       <p id="formularyStatus" class="status-message formulary-status" role="status"></p>
+      <div id="formularyPatientChoice" class="formulary-patient-choice" hidden>
+        <p id="formularySelectedMedication"></p>
+        <label for="formularyPatient">Patient for prescription
+          <input id="formularyPatient" type="search" list="formularyPatientOptions" placeholder="Search by name or MRN" autocomplete="off" aria-describedby="formularyStatus" />
+          <datalist id="formularyPatientOptions">${patients.map((record) => `<option value="${escapeHtml(`${record.name} · ${record.mrn}`)}"></option>`).join("")}</datalist>
+        </label>
+        <div class="formulary-patient-actions">
+          <button id="formularyContinuePrescription" class="primary-btn" type="button">Continue to prescription</button>
+          <button id="formularyCancelPrescription" class="ghost-btn" type="button">Cancel</button>
+        </div>
+      </div>
       <div id="dispensaryCatalog" class="dispensary-catalog" aria-live="polite"></div>
       <div class="formulary-pagination" hidden>
         <button id="formularyPrevious" class="ghost-btn" type="button">Previous</button>
@@ -4013,6 +4034,7 @@ function renderDispensaryView(container) {
   const applyPharmacyMode = () => {
     container.querySelector(".dispensary-catalog-panel").classList.toggle("hidden-section", pharmacyMode !== "formulary");
     container.querySelector(".dispensary-grid").classList.toggle("hidden-section", pharmacyMode !== "dispensing");
+    applyViewState();
     pharmacyNavigation.querySelectorAll("button").forEach((button) => {
       button.setAttribute("aria-pressed", String(button.dataset.pharmacyMode === pharmacyMode));
     });
@@ -4035,12 +4057,14 @@ function renderDispensaryView(container) {
   const nextPage = container.querySelector("#formularyNext");
   const pageStatus = container.querySelector("#formularyPageStatus");
   const pagination = container.querySelector(".formulary-pagination");
+  const patientChoice = container.querySelector("#formularyPatientChoice");
+  const patientInput = container.querySelector("#formularyPatient");
+  let selectedFormularyMedication = "";
   const pageSize = 24;
   catalogSearch.value = formularyWorkflow.search;
 
   const renderCatalog = () => {
     formularyWorkflow.search = catalogSearch.value;
-    const prescribingPatient = getSelectedPatient();
     const canPrescribe = hasPermission(currentUser.role, "encounter:create");
     const term = catalogSearch.value.trim();
     const matches = term ? searchMedicationCatalog(term) : [];
@@ -4082,7 +4106,6 @@ function renderDispensaryView(container) {
               <div><dt>Cautions</dt><dd>${escapeHtml(item.cautions)}</dd></div>
               <div><dt>Listed interactions</dt><dd>${item.interactions.length ? item.interactions.map(escapeHtml).join(", ") : "No interactions listed in this limited demo; this does not establish safety."}</dd></div>
             </dl>
-            ${findMedicationInteractions(prescribingPatient, item.name).map((warning) => `<p class="interaction-warning">${escapeHtml(warning)}</p>`).join("")}
           </details>
         </article>
       `;
@@ -4095,6 +4118,8 @@ function renderDispensaryView(container) {
   const resetCatalogPage = () => {
     formularyWorkflow.page = 0;
     formularyStatus.textContent = "";
+    patientChoice.hidden = true;
+    selectedFormularyMedication = "";
     const matches = renderCatalog();
     updateDispensingMedicationOptions(matches);
   };
@@ -4117,7 +4142,6 @@ function renderDispensaryView(container) {
   catalogContainer.addEventListener("click", (event) => {
     const button = event.target.closest("[data-formulary-prescribe]");
     if (!button) return;
-    const prescribingPatient = getSelectedPatient();
     if (!hasPermission(currentUser.role, "encounter:create")) {
       formularyStatus.textContent = "Your current role cannot prescribe medications.";
       return;
@@ -4128,7 +4152,45 @@ function renderDispensaryView(container) {
       formularyStatus.textContent = "Medication not found in the formulary. Search again.";
       return;
     }
-    selectedPatientId = prescribingPatient.id;
+    selectedFormularyMedication = medicationValue;
+    container.querySelector("#formularySelectedMedication").textContent = `Prescription medication: ${medicationValue}`;
+    patientInput.value = "";
+    formularyStatus.textContent = "";
+    patientChoice.hidden = false;
+    patientInput.focus();
+  });
+  container.querySelector("#formularyCancelPrescription").addEventListener("click", () => {
+    patientChoice.hidden = true;
+    selectedFormularyMedication = "";
+    formularyStatus.textContent = "";
+    catalogSearch.focus();
+  });
+  patientInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      container.querySelector("#formularyContinuePrescription").click();
+    }
+  });
+  container.querySelector("#formularyContinuePrescription").addEventListener("click", () => {
+    if (!hasPermission(currentUser.role, "encounter:create")) {
+      formularyStatus.textContent = "Your current role cannot prescribe medications.";
+      return;
+    }
+    const matches = findPatientsByText(patientInput.value);
+    if (matches.length !== 1) {
+      formularyStatus.textContent = matches.length
+        ? "More than one patient matched. Select a patient by name and MRN."
+        : "Select a patient by name or MRN to continue to the prescription.";
+      patientInput.focus();
+      return;
+    }
+    const medicationValue = selectedFormularyMedication;
+    const entry = getMedicationCatalogEntry(medicationValue);
+    if (!entry || !entry.strengths.some((strength) => getMedicationSelectionValue(entry, strength) === medicationValue)) {
+      formularyStatus.textContent = "Medication not found in the formulary. Search again.";
+      return;
+    }
+    selectedPatientId = matches[0].id;
     setCurrentView("medications");
     render();
     const prescriptionMedication = document.getElementById("patientMedicationSelect");
@@ -5009,12 +5071,7 @@ function attachEvents() {
   document.getElementById("patientListSearch").addEventListener("input", renderPatientList);
   document.getElementById("main-content").addEventListener("change", (event) => {
     if (event.target.id !== "treatmentPatient") return;
-    const term = event.target.value.trim().toLowerCase();
-    const matches = patients.filter((patient) =>
-      `${patient.name} · ${patient.mrn}`.toLowerCase() === term ||
-      patient.name.toLowerCase() === term ||
-      patient.mrn.toLowerCase() === term
-    );
+    const matches = findPatientsByText(event.target.value);
     if (matches.length !== 1) {
       document.getElementById("treatmentStatus").textContent = matches.length
         ? `More than one patient matched. Selected patient remains ${getSelectedPatient().name} · ${getSelectedPatient().mrn}.`

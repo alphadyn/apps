@@ -509,6 +509,14 @@
             </div>
             <form id="outpatientAppointmentForm" class="clinical-form outpatient-form">
               <div class="row">
+                <label>Patient
+                  <select name="patientId" id="outpatientPatient" required></select>
+                </label>
+                <label>Provider
+                  <select name="provider" id="outpatientProvider" required></select>
+                </label>
+              </div>
+              <div class="row">
                 <label>Appointment date
                   <input name="scheduledAt" type="date" required />
                 </label>
@@ -530,9 +538,6 @@
                     <option>Annual wellness</option>
                     <option>Procedure visit</option>
                   </select>
-                </label>
-                <label>Provider
-                  <input name="provider" type="text" placeholder="Optional" />
                 </label>
               </div>
               <label>Location

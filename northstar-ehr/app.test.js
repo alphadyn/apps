@@ -1118,7 +1118,17 @@ test("outpatient care can schedule and normalize an appointment", () => {
   assert.equal(result.appointment.status, "Scheduled");
   assert.equal(result.appointment.visitType, "Telehealth");
   assert.equal(result.appointment.reason, "Medication review");
+  assert.equal(result.appointment.patientName, "Outpatient Test");
+  assert.equal(result.appointment.mrn, "T-904");
+  assert.equal(result.appointment.provider, "Dr. Test");
   assert.equal(patient.appointments.length, 1);
+
+  const missingProvider = api.createAppointmentForPatient(patient.id, {
+    scheduledAt: "2026-12-01",
+    time: "10:30",
+    reason: "Missing provider"
+  }, "clinician");
+  assert.equal(missingProvider.allowed, false);
 
   const invalid = api.createAppointmentForPatient(patient.id, {
     scheduledAt: "",

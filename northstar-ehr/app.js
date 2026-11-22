@@ -632,8 +632,12 @@ function formatCurrency(value) {
 
 function formatDisplayDate(isoDate) {
   if (!isoDate) return "Not scheduled";
-  const parsed = new Date(`${isoDate}T00:00:00`);
-  if (Number.isNaN(parsed.getTime())) return isoDate;
+  const raw = String(isoDate).trim();
+  const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(raw);
+  const parsed = dateOnly
+    ? new Date(`${raw}T00:00:00`)
+    : new Date(raw);
+  if (Number.isNaN(parsed.getTime())) return raw;
   return parsed.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
 }
 
@@ -1059,11 +1063,22 @@ function normalizeAppointmentStatus(status) {
   }
 }
 
+function getLocalDateKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 function normalizeAppointment(appointment) {
+  const scheduledAt = String(appointment.scheduledAt || appointment.scheduledDate || appointment.date || "").trim();
   return {
     id: appointment.id || createAppointmentId(),
+    patientId: appointment.patientId || "",
+    patientName: appointment.patientName || "",
+    mrn: appointment.mrn || "",
     createdAt: appointment.createdAt || "",
-    scheduledAt: appointment.scheduledAt || appointment.scheduledDate || appointment.date || "",
+    scheduledAt: scheduledAt || getLocalDateKey(),
     time: appointment.time,
     title: appointment.title,
     location: appointment.location,
@@ -1134,7 +1149,13 @@ function normalizePatient(patient) {
     room: clinical.location || defaultLocation,
     chartCompleted: Boolean(patient.chartCompleted),
     medicationReviewed: patient.medicationReviewed !== false,
-    appointments: (patient.appointments || []).map(normalizeAppointment),
+    appointments: (patient.appointments || []).map((appointment) => normalizeAppointment({
+      ...appointment,
+      patientId: appointment.patientId || patient.id,
+      patientName: appointment.patientName || patient.name,
+      mrn: appointment.mrn || patient.mrn,
+      provider: appointment.provider || patient.provider || ""
+    })),
     vitalReadings: (patient.vitalReadings || [{
       values: vitals,
       recordedAt: patient.vitalsRecordedAt || "",
@@ -1537,7 +1558,7 @@ function loadCurrentView() {
 }
 
 function getSelectedPatient() {
-  return patients.find((patient) => patient.id === selectedPatientId) || patients[0];
+  return patients.find((patient) => String(patient.id) === String(selectedPatientId)) || patients[0];
 }
 
 function loadAccountRoles() {
@@ -2320,7 +2341,7 @@ function createDocumentForPatient(patient, document, role = currentUser.role) {
 }
 
 function createAppointmentForPatient(patientId, appointment, role = currentUser.role) {
-  const patient = patients.find((item) => item.id === patientId);
+  const patient = patients.find((item) => String(item.id) === String(patientId));
   if (!patient) return { allowed: false, message: "Patient not found." };
 
   const permission = evaluatePermission(role, "appointment:create", patient.name);
@@ -2328,14 +2349,22 @@ function createAppointmentForPatient(patientId, appointment, role = currentUser.
 
   const scheduledAt = String(appointment.scheduledAt || "").trim();
   const time = String(appointment.time || "").trim();
+  const provider = String(appointment.provider || "").trim();
   const title = String(appointment.title || appointment.reason || "Outpatient visit").trim();
   if (!scheduledAt || !time) {
     return { allowed: false, message: "Choose an appointment date and time." };
+  }
+  if (!provider) {
+    return { allowed: false, message: "Select an appointment provider." };
   }
 
   const created = normalizeAppointment({
     ...appointment,
     id: createAppointmentId(),
+    patientId: patient.id,
+    patientName: patient.name,
+    mrn: patient.mrn,
+    provider,
     scheduledAt,
     time,
     title,
@@ -2356,7 +2385,7 @@ function updateAppointmentStatus(patientId, appointmentId, nextStatus, role = cu
     return { allowed: false, message: "Invalid appointment status." };
   }
 
-  const patient = patients.find((item) => item.id === patientId);
+  const patient = patients.find((item) => String(item.id) === String(patientId));
   if (!patient) return { allowed: false, message: "Patient not found." };
 
   const appointment = patient.appointments.find((item) => item.id === appointmentId);
@@ -2632,9 +2661,9 @@ function renderPatientList() {
 
   list.innerHTML = filtered
     .map((patient) => {
-      const active = patient.id === selectedPatientId ? "active" : "";
+      const active = String(patient.id) === String(selectedPatientId) ? "active" : "";
       return `
-        <button class="patient-card ${active}" type="button" data-id="${escapeHtml(patient.id)}" aria-pressed="${patient.id === selectedPatientId}">
+        <button class="patient-card ${active}" type="button" data-id="${escapeHtml(patient.id)}" aria-pressed="${String(patient.id) === String(selectedPatientId)}">
           <strong>${escapeHtml(patient.name)}</strong>
           <span class="patient-card-meta"><span>${escapeHtml(patient.mrn)}</span><span class="patient-card-priority ${patient.priority === "Urgent" ? "urgent" : ""}">${escapeHtml(patient.priority)}</span></span>
           <span class="patient-card-diagnosis">${escapeHtml(patient.diagnosis)}</span>
@@ -3003,7 +3032,28 @@ function renderOutpatientAppointments() {
   const canComplete = hasPermission(currentUser.role, "appointment:complete");
   const canCancel = hasPermission(currentUser.role, "appointment:cancel");
   const form = document.getElementById("outpatientAppointmentForm");
-  if (form) form.querySelector("button[type='submit']").disabled = !canCreate;
+  if (form) {
+    form.querySelector("button[type='submit']").disabled = !canCreate;
+    const patientSelect = document.getElementById("outpatientPatient");
+    const providerSelect = document.getElementById("outpatientProvider");
+    if (patientSelect) {
+      patientSelect.innerHTML = patients.map((record) =>
+        `<option value="${escapeHtml(record.id)}">${escapeHtml(record.name)} · ${escapeHtml(record.mrn)}</option>`
+      ).join("");
+      patientSelect.value = String(patient.id);
+    }
+    if (providerSelect) {
+      const providers = staffDirectory
+        .filter((staff) => staff.status === "Active" && ["Provider", "PA", "Midlevel"].includes(staff.role))
+        .map((staff) => staff.name);
+      if (patient.provider && !providers.includes(patient.provider)) providers.push(patient.provider);
+      const selectedProvider = providerSelect.value || patient.provider || providers[0] || "";
+      providerSelect.innerHTML = `<option value="">Select provider</option>${providers.map((name) =>
+        `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`
+      ).join("")}`;
+      providerSelect.value = selectedProvider;
+    }
+  }
 
   const allAppointments = [...(patient.appointments || [])].sort((a, b) => {
     const aDate = `${a.scheduledAt || ""} ${a.time || ""}`;
@@ -3029,7 +3079,9 @@ function renderOutpatientAppointments() {
         <div class="outpatient-appointment-body">
           <div class="outpatient-appointment-heading"><strong>${escapeHtml(appointment.reason || appointment.title || "Outpatient visit")}</strong></div>
           <p><span class="status-pill ${escapeHtml(statusClass)}">${escapeHtml(status)}</span></p>
-          <p>${escapeHtml(appointment.visitType || "Office visit")}${appointment.provider ? ` · ${escapeHtml(appointment.provider)}` : ""}</p>
+          <p><strong>Patient:</strong> ${escapeHtml(appointment.patientName || patient.name)} · ${escapeHtml(appointment.mrn || patient.mrn)}</p>
+          <p><strong>Provider:</strong> ${escapeHtml(appointment.provider || "Provider not specified")}</p>
+          <p>${escapeHtml(appointment.visitType || "Office visit")}</p>
           <p class="outpatient-location"><span aria-hidden="true">⌖</span>${escapeHtml(appointment.location || "Location not recorded")}</p>
         </div>
         <div class="appointment-actions">${actions}${cancelAction}</div>
@@ -3048,7 +3100,8 @@ function renderAppointments() {
         <div class="list-item appointment-item ${escapeHtml(normalizeAppointmentStatus(appointment.status).toLowerCase().replace(/\s+/g, "-"))}" id="patient-appointment-${escapeHtml(appointment.id)}">
           <div>
             <strong>${escapeHtml(appointment.time)} • ${escapeHtml(appointment.title)}</strong>
-            <span>${escapeHtml(appointment.location)} • ${escapeHtml(normalizeAppointmentStatus(appointment.status))}</span>
+            <span>${escapeHtml(appointment.patientName || patient.name)} · ${escapeHtml(appointment.mrn || patient.mrn)}</span>
+            <span>${escapeHtml(appointment.provider || "Provider not specified")} • ${escapeHtml(appointment.location)} • ${escapeHtml(normalizeAppointmentStatus(appointment.status))}</span>
           </div>
           <div class="appointment-actions">
             <button class="ghost-btn action-btn" type="button" data-action="complete" data-id="${escapeHtml(appointment.id)}" ${canComplete ? "" : "disabled"}>Complete</button>
@@ -4362,7 +4415,8 @@ function attachEvents() {
   document.getElementById("outpatientAppointmentForm").addEventListener("submit", (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const result = createAppointmentForPatient(selectedPatientId, {
+    const patientId = String(data.get("patientId") || selectedPatientId);
+    const result = createAppointmentForPatient(patientId, {
       scheduledAt: data.get("scheduledAt"),
       time: data.get("time"),
       visitType: data.get("visitType"),
@@ -4373,7 +4427,19 @@ function attachEvents() {
     });
     const status = document.getElementById("outpatientStatus");
     status.textContent = result.allowed ? "Outpatient appointment scheduled." : result.message;
-    if (result.allowed) event.currentTarget.reset();
+    if (result.allowed) {
+      selectedPatientId = patientId;
+      saveState();
+      event.currentTarget.reset();
+    }
+    render();
+  });
+
+  document.getElementById("outpatientPatient").addEventListener("change", (event) => {
+    const patientId = event.target.value;
+    if (!patients.some((patient) => String(patient.id) === String(patientId))) return;
+    selectedPatientId = patientId;
+    saveState();
     render();
   });
 

@@ -43,10 +43,9 @@ function clearInspection() {
 
 function coverageText(fund) {
   if (fund?.method === 'holdings') {
-    return `${fund.id} reported holdings with usable company DCFs cover ${(fund.holdingCoverage * 100).toFixed(1)}% of fund assets by weight. An estimate requires at least 80% coverage and holdings no more than 45 days old.`;
+    return `${fund.id} reported holdings with usable company DCFs cover ${(fund.holdingCoverage * 100).toFixed(1)}% of fund assets by weight. An estimate requires at least 80% coverage and holdings no more than ${fund.holdingMaxAgeDays} days old.`;
   }
-  const p = data.proxy;
-  return `Live market caps are available for ${p.mappedCount} of ${p.companyCount} proxy companies (${(p.companyCoverage * 100).toFixed(1)}%). DCF is available for ${p.valuedCount} companies, representing ${(p.capCoverage * 100).toFixed(1)}% of the market cap with live caps. At least 80% of companies must have live caps and at least 80% of observed cap must have a usable DCF. Missing caps have unknown weight.`;
+  return fund ? 'No reported holdings are available for this fund.' : 'Holdings-based estimates require at least 80% of fund assets to have usable valuations. Open a fund for its coverage.';
 }
 
 function sourceText() {
@@ -70,11 +69,12 @@ function details(fund) {
     ['Estimated fair value', money(fund.fairValue)],
     ['Estimated upside', percent(fund.upside)],
   ]) facts.append(node('dt', label), node('dd', value));
-  const explanation = fund.method === 'holdings'
-    ? `Based on ${fund.id} issuer holdings as of ${fund.holdingsAsOf}. The estimate normalizes over covered holdings; uncovered assets, fees, trading and changes since the holdings date are not modeled.`
-    : fund.sector === 'S&P 500'
-    ? 'This is an illustrative S&P 500 proxy, not a valuation of this fund’s actual holdings. The same proxy upside is applied to each S&P 500 fund’s current price. Differences in holdings, index weights, fees, cash, tracking error, and distributions are not modeled.'
-    : 'A DCF estimate is unavailable: this fund is not an S&P 500 fund, and its actual holdings and weights are not in the dataset.';
+  const explanation = fund.holdingsAssetClass === 'bond' && fund.method === 'holdings'
+    ? `Bond holdings are reported as of ${fund.holdingsAsOf}, but bond cash-flow valuations and credit-quality inputs are not available. No estimated upside is displayed.`
+    : fund.method === 'holdings'
+    ? `Based on ${fund.id} reported holdings as of ${fund.holdingsAsOf}. ${fund.holdingsSource.startsWith('https://www.sec.gov/')
+      ? 'This SEC N-PORT report can be up to 120 days old. ' : ''}The estimate normalizes over covered holdings; uncovered assets, fees, trading and changes since the holdings date are not modeled.`
+    : 'A DCF estimate is unavailable because reported holdings are not in the dataset.';
   const link = node('a', 'Open in Market Insights');
   link.href = `../market-insights/#symbol=${encodeURIComponent(fund.id)}`;
   const content = [facts];
@@ -83,7 +83,8 @@ function details(fund) {
   }
   content.push(node('p', explanation), node('p', coverageText(fund)), node('p', sourceText()));
   if (fund.holdingsSource) {
-    const source = node('a', 'Download issuer holdings');
+    const source = node('a', fund.holdingsSource.startsWith('https://www.sec.gov/')
+      ? 'View SEC N-PORT filing' : 'View issuer holdings');
     source.href = fund.holdingsSource;
     content.push(source, node('p', ''));
   }
@@ -242,9 +243,9 @@ async function load() {
     if (data.funds.some((fund) => fund.method === 'holdings' && fund.upside === null)) {
       warnings.push('Holdings-based estimates are unavailable for some funds; see fund details.');
     }
-    const proxyFunds = data.funds.filter((fund) => fund.sector === 'S&P 500' && fund.method === 'index proxy');
-    if (proxyFunds.length) {
-      warnings.push(`${proxyFunds.map((fund) => fund.id).join(', ')} use the shared S&P 500 proxy because supported issuer holdings are unavailable.`);
+    const missingHoldings = data.funds.filter((fund) => fund.method === 'unavailable');
+    if (missingHoldings.length) {
+      warnings.push(`Holdings are unavailable for ${missingHoldings.map((fund) => fund.id).join(', ')}; no proxy is used.`);
     }
     warnings.push('Quotes may be delayed; fund assets can overlap. DCF estimates are illustrative.');
     $('status').textContent = warnings.join(' ');
@@ -287,7 +288,7 @@ $('coverage').addEventListener('click', () => {
     node('p', `${data.mapped.length} of ${data.funds.length} curated fund tickers have reported net assets. The map shows ${data.mappedPortfolios.length} pooled portfolios, with known Vanguard share classes combined into one tile. A share class without its own asset value may still appear in a shared portfolio tile. Other overlapping funds may still be present and must not be added as independent assets.`),
     node('p', coverageText()),
     node('p', sourceText()),
-    node('p', 'SPY, IVV, SPYM, and ITOT use issuer-reported holdings when sufficiently covered and current. Other S&P 500 funds use the shared index proxy; unsupported funds, missing quotes, stale holdings, and insufficient coverage are shown as N/A or identified in details.'),
+    node('p', 'Each estimate uses that fund’s reported holdings, not an index proxy. Vanguard share classes use their pooled portfolio. An estimate requires at least 80% coverage and current holdings; SEC N-PORT filings may be up to 120 days old, and issuer holdings up to 45 days old. Missing valuations, stale holdings, and insufficient coverage are shown as N/A.'),
   ];
   if (data.missing.length) content.push(node('h3', 'Missing net assets'), node('p', 'These funds have no map area but remain searchable.'));
   for (const fund of data.missing) {
@@ -299,11 +300,10 @@ $('coverage').addEventListener('click', () => {
 });
 $('about').addEventListener('click', () => showDialog('One map. A view of funds.', [
   node('p', 'Funds are grouped by exposure, with tile area proportional to Yahoo Finance reported net assets. Known Vanguard mutual-fund and ETF share classes of the same pooled portfolio appear together in one tile; search still finds each ticker, and the tile details link to each share class. Other overlapping funds may still be shown separately. Funds missing assets have no individual tile but remain searchable; if another share class reports pooled assets, they remain included in the shared tile. Search highlights matches without changing areas. Hover or focus for the bottom readout, select a tile for details, or search and press Enter.'),
-  node('p', 'Green and red show estimated upside or downside; gray means unavailable. SPY, IVV, SPYM, and ITOT use reported holdings weights when at least 80% of fund assets have usable company DCFs and holdings are no more than 45 days old. Other S&P 500 funds use a shared market-cap-weighted proxy rather than their actual holdings.'),
-  node('p', 'The proxy is the market-cap-weighted average of available constituent DCF upside, normalized over covered companies. Estimated fund fair value is its current price multiplied by one plus proxy upside. Missing or non-positive earnings are excluded rather than valued at zero; this can bias the estimate. Coverage thresholds and missing data are shown under View coverage.'),
-  node('p', 'For ITOT, reported holdings weights are multiplied by available company DCF upside and normalized over covered assets. Holdings not in the S&P 500 dataset, other assets, and companies with unavailable DCFs are excluded, which can materially bias the estimate. Holdings weights are dated and rounded, not live.'),
+  node('p', 'Green and red show estimated upside or downside; gray means unavailable. Each fund uses reported holdings weights, not a shared index proxy. Issuer holdings must be no more than 45 days old; SEC N-PORT holdings may be up to 120 days old. Estimates require usable company DCFs for at least 80% of fund assets.'),
+  node('p', 'Reported holdings weights are multiplied by available company DCF upside and normalized over covered assets. Holdings not in the S&P 500 dataset, other assets, and companies with unavailable DCFs are excluded, which can materially bias the estimate. Holdings weights are dated and rounded, not live. International equities and bonds currently lack valuation inputs and are shown as N/A.'),
   node('p', 'The shared Market Insights earnings-based model projects five years of net income, caps annual growth at +/-5%, discounts at 10%, and uses 2.5% terminal growth. It is not a full cash-flow model, a price forecast, or investment advice.'),
-  node('p', 'Sources: curated funds, S&P 500 constituents, and SEC EDGAR earnings from Market Insights; ITOT holdings from iShares; Yahoo Finance regular-session quotes and Nasdaq market caps fetched on load and refresh. Quotes may be delayed, and mutual fund NAVs typically update once daily.'),
+  node('p', 'Sources: curated funds, S&P 500 constituents, and SEC EDGAR earnings from Market Insights; SEC N-PORT filings, Vanguard, iShares and State Street holdings; Yahoo Finance regular-session quotes and Nasdaq market caps fetched on load and refresh. Quotes may be delayed, and mutual fund NAVs typically update once daily.'),
 ]));
 new ResizeObserver(layout).observe($('tiles'));
 load();

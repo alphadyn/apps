@@ -83,6 +83,82 @@ class HoldingsTests(unittest.TestCase):
             {"symbol": "MSFT", "weight": 0.0575},
         ])
 
+    def test_extracts_vanguard_mutual_fund_holdings(self):
+        response = {
+            "asOfDate": "2026-10-31T00:00:00-04:00",
+            "size": 4,
+            "fund": {"entity": [
+                {"ticker": "AAPL", "percentWeight": "7.70"},
+                {"ticker": "NVDA", "percentWeight": "7.58"},
+                {"ticker": "", "percentWeight": "0.01"},
+                {"ticker": "SMALL", "percentWeight": "0.00"},
+            ]},
+        }
+        result = build_holdings.parse_vanguard_holdings(json.dumps(response))
+        self.assertEqual(result["as_of"], "2026-10-31")
+        self.assertEqual(result["holdings"], [
+            {"symbol": "AAPL", "weight": 0.077},
+            {"symbol": "NVDA", "weight": 0.0758},
+            {"symbol": "UNKNOWN-2", "weight": 0.0001},
+            {"symbol": "SMALL", "weight": 0},
+        ])
+        response["size"] = 5
+        with self.assertRaisesRegex(ValueError, "Incomplete"):
+            build_holdings.parse_vanguard_holdings(json.dumps(response))
+
+    def test_international_tickers_cannot_match_us_securities(self):
+        response = {
+            "asOfDate": "2026-10-31T00:00:00-04:00", "size": 1,
+            "fund": {"entity": [{"ticker": "A", "isin": "GB0000000000", "percentWeight": "85"}]},
+        }
+        result = build_holdings.parse_vanguard_holdings(json.dumps(response), "VTIAX")
+        self.assertEqual(result["holdings"][0]["symbol"], "UNKNOWN-0")
+        self.assertEqual(result["holdings"][0]["weight"], 0.85)
+        self.assertEqual(result["holdings"][0]["isin"], "GB0000000000")
+        self.assertEqual(result["holdings"][0]["ticker"], "A")
+
+    def test_bond_holdings_are_distinguished_from_equities(self):
+        response = {
+            "asOfDate": "2026-10-31T00:00:00-04:00", "size": 1,
+            "fund": {"entity": [{"ticker": "A", "percentWeight": "80"}]},
+        }
+        result = build_holdings.parse_vanguard_holdings(json.dumps(response), "VBTLX")
+        self.assertEqual(result["asset_class"], "bond")
+        self.assertEqual(result["holdings"][0]["symbol"], "UNKNOWN-0")
+        self.assertEqual(result["holdings"][0]["weight"], 0.8)
+        response["fund"]["entity"][0]["percentWeight"] = "-0.01"
+        result = build_holdings.parse_vanguard_holdings(json.dumps(response), "VBTLX")
+        self.assertEqual(result["holdings"][0]["weight"], -0.0001)
+
+    def test_extracts_and_maps_sec_nport_holdings(self):
+        xml = """<edgarSubmission xmlns="http://www.sec.gov/edgar/nport">
+          <headerData><seriesId>S000006027</seriesId></headerData>
+          <formData><genInfo><repPdDate>2026-08-31</repPdDate></genInfo>
+            <invstOrSecs>
+              <invstOrSec><name>APPLE INC</name><cusip>037833100</cusip><pctVal>70</pctVal><assetCat>EC</assetCat></invstOrSec>
+              <invstOrSec><name>ALPHABET INC</name><cusip>02079K107</cusip><pctVal>20</pctVal><assetCat>EC</assetCat></invstOrSec>
+              <invstOrSec><name>UNMAPPED CORP</name><cusip>999999999</cusip><pctVal>10</pctVal><assetCat>EC</assetCat></invstOrSec>
+              <invstOrSec><name>Cash</name><pctVal>1</pctVal><assetCat>STIV</assetCat></invstOrSec>
+            </invstOrSecs>
+          </formData>
+        </edgarSubmission>"""
+        securities = [
+            {"symbol": "AAPL", "name": "Apple Inc."},
+            {"symbol": "GOOG", "name": "Alphabet Inc. (Class C)"},
+            {"symbol": "GOOGL", "name": "Alphabet Inc. (Class A)"},
+        ]
+        result = build_holdings.parse_nport_holdings(
+            xml, securities, "https://www.sec.gov/Archives/edgar/data/819118/test/primary_doc.xml")
+        self.assertEqual(result["as_of"], "2026-08-31")
+        self.assertEqual(result["holdings"], [
+            {"symbol": "AAPL", "weight": 0.7},
+            {"symbol": "GOOG", "weight": 0.2},
+            {"symbol": "UNKNOWN-999999999", "weight": 0.1},
+        ])
+        result = build_holdings.parse_nport_holdings(
+            xml, securities, result["source"], cusip_symbols={"999999999": "AAPL"})
+        self.assertEqual(result["holdings"][-1]["symbol"], "AAPL")
+
     def test_rejects_mismatched_state_street_ticker(self):
         with self.assertRaisesRegex(ValueError, "Unexpected fund identity"):
             build_holdings.parse_spdr_holdings(
@@ -94,7 +170,7 @@ class HoldingsTests(unittest.TestCase):
             "SPY": {"as_of": "2026-01-01", "source": "https://www.ssga.com/test", "holdings": []},
         }}
 
-        def fetch(symbol):
+        def fetch(symbol, cusip_symbols=None):
             if symbol == "ITOT":
                 return symbol, previous["funds"][symbol]
             raise OSError("unavailable")
@@ -106,6 +182,16 @@ class HoldingsTests(unittest.TestCase):
             output.read_text.return_value = json.dumps(previous)
             result = build_holdings.build()
         self.assertEqual(result["funds"]["SPY"], previous["funds"]["SPY"])
+
+    def test_vanguard_share_class_uses_one_reported_portfolio(self):
+        def fetch(symbol, cusip_symbols=None):
+            return symbol, {"as_of": "2026-10-31", "source": "https://example.test", "holdings": []}
+
+        with patch.object(build_holdings, "fetch_holdings", side_effect=fetch), \
+                patch.object(build_holdings, "OUTPUT") as output:
+            output.exists.return_value = False
+            result = build_holdings.build()
+        self.assertEqual(result["funds"]["VOO"], result["funds"]["VFIAX"])
 
 
 if __name__ == "__main__":

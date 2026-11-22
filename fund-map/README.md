@@ -18,6 +18,10 @@ The estimate is withheld unless at least 80% of proxy companies have live caps a
 
 The S&P 500 proxy is **not a valuation of actual fund holdings**. It uses company-wide capitalization rather than float-adjusted index weights, and does not model actual fund holdings, fees, cash, distributions, tracking error, or non-S&P assets. The ITOT estimate models only covered holdings. The shared model projects five years of net income with growth capped at +/-5%, a 10% discount rate, and 2.5% terminal growth; it is not a full free-cash-flow model, a price forecast, or investment advice.
 
+## Link previews
+
+Share <https://alphadyn.github.io/apps/fund-map/>. Static Open Graph and Twitter metadata provide link crawlers with a title, description, and [preview image](social-preview.png) without running JavaScript. The artwork is illustrative, not current fund data. To regenerate it, install Pillow and run `python3 fund-map/generate_social_preview.py`. The page and image must be deployed before the production link can unfurl; preview support and caching depend on the sharing client.
+
 ## Validation
 
 ```bash

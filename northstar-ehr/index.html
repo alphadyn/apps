@@ -25,7 +25,7 @@
     <meta name="twitter:description" content="Explore fictional patient charts, admissions, care teams, timelines, orders, and notes." />
     <meta name="twitter:image" content="https://alphadyn.github.io/apps/northstar-ehr/social-preview.png" />
     <meta name="twitter:image:alt" content="Northstar EHR clinical operations demo, showing a fictional patient chart and timeline." />
-    <link rel="stylesheet" href="styles.css?v=7" />
+    <link rel="stylesheet" href="styles.css?v=8" />
   </head>
   <body>
     <main id="loginScreen" class="login-screen">
@@ -121,24 +121,19 @@
             <button class="nav-link inbox-nav-link" type="button" data-view="inbox">In Basket <span id="inboxUnreadCount" class="nav-count" aria-label="unread inbox items" hidden>0</span></button>
           </div>
           <details id="patientsMenu" class="nav-group patients-menu">
-            <summary><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m20 0v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /><circle cx="9" cy="7" r="4" /></svg>Patients &amp; care<svg class="menu-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg></summary>
+            <summary><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m20 0v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /><circle cx="9" cy="7" r="4" /></svg>Patient care<svg class="menu-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg></summary>
             <div class="nav-submenu">
-              <div class="nav-subgroup">
-                <p class="nav-subgroup-title">Patient care</p>
                 <button class="nav-link" type="button" data-view="patients">Worklist &amp; charts</button>
                 <button class="nav-link" type="button" data-view="patient-profiles">Patient profiles</button>
                 <button class="nav-link" type="button" data-view="admissions">Admissions</button>
                 <button class="nav-link" type="button" data-view="nursing">Nursing station</button>
                 <button class="nav-link" type="button" data-view="outpatient">Outpatient care</button>
                 <button class="nav-link" type="button" data-view="appointments">Appointments</button>
-              </div>
-              <div class="nav-subgroup">
-                <p class="nav-subgroup-title">Clinical tools</p>
                 <button class="nav-link" type="button" data-view="clinical">ED &amp; inpatient</button>
                 <button class="nav-link" type="button" data-view="orders">Orders</button>
                 <button class="nav-link" type="button" data-view="documents">Notes &amp; documents</button>
-                <button class="nav-link" type="button" data-view="labs">Labs &amp; medications</button>
-              </div>
+              <button class="nav-link" type="button" data-view="labs">Labs &amp; medications</button>
+              <button class="nav-link" type="button" data-view="dispensary">Dispensary</button>
             </div>
           </details>
           <div class="nav-group">
@@ -636,6 +631,6 @@
     </div>
 
     <script src="interop.js"></script>
-    <script src="app.js?v=7"></script>
+    <script src="app.js?v=8"></script>
   </body>
 </html>

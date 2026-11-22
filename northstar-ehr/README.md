@@ -46,6 +46,25 @@ The deployed URL is `https://alphadyn.github.io/apps/northstar-ehr/`.
 - Outpatient care workspace for scheduling, visit type, provider, location, check-in, completion, cancellation, and follow-up context; selected-patient appointment management, care tasks, patient summary export, and billing context
 - Local browser persistence for the demonstration dataset
 
+### Formulary review and demo prescribing
+
+In **Dispensary**, the medication formulary supports browsing without selecting
+a patient. Search by medication name, class, strength, adverse effect, or listed
+interaction, and expand an individual medication to review its details.
+
+Select **Patient for prescribing** to see that patient's MRN, allergies, and
+current medications. Expand a medication and select **Prescribe** for the desired
+strength to open the selected patient's prescription form in **Labs & medications**.
+Review the patient and complete quantity, refills, and directions before saving.
+Browsing, choosing a patient, or opening the form does not create a prescription
+or dispense medication. Search and class filtering are also available in the
+patient's prescription form. Prescribing follows the demo encounter-create role
+permission; dispensing remains a separate workflow.
+
+This is a limited illustrative catalog, not live inventory or a validated clinical
+drug database. Its example interaction checks do not establish medication safety,
+allergy compatibility, or prescribing suitability. No real prescriptions are sent.
+
 ## Project structure
 
 - index.html — app shell and dashboard layout

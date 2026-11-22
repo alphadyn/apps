@@ -630,10 +630,278 @@ textarea {
   background: rgba(148, 163, 184, 0.15);
 }
 
-.nav-submenu {
+.dispensary-grid {
+  display: grid;
+  grid-template-columns: minmax(360px, 1.1fr) minmax(300px, 0.9fr);
+  align-items: stretch;
+  gap: 16px;
+}
+
+.dispensary-form-panel,
+.dispensary-history-panel {
+  min-width: 0;
+}
+
+.dispensary-form-panel .clinical-form {
+  gap: 12px;
+}
+
+.dispensary-patient {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 0.65fr);
+  gap: 12px;
+  padding: 12px 14px;
+  margin-bottom: 2px;
+  border: 1px solid #dce7e4;
+  border-radius: 10px;
+  background: #f3f8f7;
+}
+
+.dispensary-patient div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.dispensary-patient div + div {
+  padding-left: 12px;
+  border-left: 1px solid #dce7e4;
+}
+
+.dispensary-patient span,
+.dispensary-patient small {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.dispensary-patient strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.dispensary-history {
+  display: grid;
+  gap: 10px;
+  max-height: 410px;
+  overflow-y: auto;
+}
+
+.dispensary-record {
+  display: grid;
+  gap: 5px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.dispensary-record > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.dispensary-record p,
+.dispensary-record small,
+.dispensary-empty p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.dispensary-catalog-panel {
+  grid-column: 1 / -1;
+  margin-bottom: 16px;
+}
+
+.dispensary-catalog-tools {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(180px, 240px);
+  align-items: end;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.dispensary-catalog-tools label {
+  margin: 0;
+}
+
+.formulary-patient-selector {
+  display: grid;
+  gap: 6px;
+}
+
+.formulary-review summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 600;
+  padding: 8px 0;
+}
+
+.formulary-review summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.formulary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.dispensary-catalog {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr));
+  gap: 10px;
+  max-height: 520px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.dispensary-medication-card {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.dispensary-medication-card:hover {
+  border-color: #93b7b1;
+  box-shadow: 0 4px 14px rgba(18, 60, 73, 0.06);
+}
+
+.dispensary-medication-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.dispensary-medication-heading > div {
+  display: grid;
+  gap: 3px;
+}
+
+.dispensary-medication-heading span {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.dispensary-medication-heading .action-btn {
+  min-height: 32px;
+  padding: 5px 8px;
+  white-space: nowrap;
+  font-size: 0.75rem;
+}
+
+.dispensary-medication-details {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+}
+
+.dispensary-medication-details div {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  gap: 8px;
+}
+
+.dispensary-medication-details dt {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.dispensary-medication-details dd {
+  margin: 0;
+  font-size: 0.82rem;
+}
+
+.medication-safety-info {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #f8fbfa;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.medication-safety-info p,
+.interaction-warning p {
+  margin: 0;
+}
+
+.medication-safety-info.has-warning,
+.dispensary-record.has-interaction-warning,
+.prescription-with-warning {
+  border-color: #d97706;
+}
+
+.interaction-warning {
+  display: grid;
+  gap: 4px;
+  padding: 9px 10px;
+  border-left: 3px solid #d97706;
+  border-radius: 6px;
+  background: #fff7ed;
+  color: #9a3412;
+}
+
+.patient-prescription-panel,
+.patient-prescription-history {
+  grid-column: 1 / -1;
+}
+
+.patient-prescription-history ul {
   display: grid;
   gap: 8px;
-  padding: 6px 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.patient-prescription-history li {
+  display: grid;
+  gap: 5px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.dispensary-empty {
+  padding: 24px 12px;
+  text-align: center;
+  color: var(--muted);
+}
+
+@media (max-width: 900px) {
+  .dispensary-grid,
+  .dispensary-catalog-tools,
+  .dispensary-patient {
+    grid-template-columns: 1fr;
+  }
+
+  .dispensary-patient div + div {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .dispensary-medication-details div {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}
+
+.nav-submenu {
+  display: grid;
+  gap: 2px;
+  padding: 4px 0 2px 12px;
   margin-left: 20px;
   border-left: 1px solid #35515e;
 }
@@ -659,8 +927,8 @@ textarea {
 
 .nav-submenu .nav-link {
   font-size: 0.8rem;
-  min-height: 34px;
-  padding: 6px 10px;
+  min-height: 32px;
+  padding: 5px 10px;
 }
 
 .nav-icon {

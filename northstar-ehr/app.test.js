@@ -1138,6 +1138,44 @@ test("outpatient care can schedule and normalize an appointment", () => {
   assert.equal(invalid.allowed, false);
 });
 
+test("formulary search supports names, classes, strengths, and empty results", () => {
+  const { api } = setup();
+  assert.equal(api.searchMedicationCatalog().length, api.medicationCatalog.length);
+  const named = api.searchMedicationCatalog("  atorvastatin  ");
+  const atorvastatin = named.find((item) => item.name === "Atorvastatin");
+  assert.ok(atorvastatin);
+  assert.ok(atorvastatin.strengths.includes("20 mg"));
+  assert.ok(api.searchMedicationCatalog("", "Antibiotic").every((item) =>
+    api.inferMedicationClass(item.name) === "Antibiotic"
+  ));
+  assert.equal(api.searchMedicationCatalog("atorvastatin", "Antibiotic").length, 0);
+  assert.equal(api.searchMedicationCatalog("not-a-medication").length, 0);
+});
+
+test("medication catalog identifies adverse effects and possible interactions", () => {
+  const { api } = setup();
+  const patient = api.normalizePatient({
+    id: 905,
+    name: "Warfarin Patient",
+    mrn: "T-905",
+    age: 60,
+    sex: "Male",
+    diagnosis: "Anticoagulation",
+    status: "Stable",
+    priority: "Routine",
+    provider: "Test Provider",
+    allergies: [],
+    medications: ["Warfarin 2 mg"],
+    appointments: []
+  });
+  const warnings = api.findMedicationInteractions(patient, "Atorvastatin 10 mg");
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0], /Warfarin/);
+  assert.equal(api.inferMedicationClass("Atorvastatin 10 mg"), "Lipid-lowering agent");
+  assert.ok(api.medicationCatalog.length >= 20);
+  assert.ok(api.medicationCatalog.every((item) => item.name && item.adverseEffects && item.cautions));
+});
+
 test("appointment statuses reject untrusted values before rendering", () => {
   const { api, context } = setup();
   const patient = api.normalizePatient({

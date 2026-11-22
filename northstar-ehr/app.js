@@ -382,10 +382,35 @@ const medicationCatalog = [
     source: "Hand-written demo example",
     interactionCoverage: "demo-only"
   })),
-  ...sourcedMedicationCatalog.medications
+  ...sourcedMedicationCatalog.medications,
+  ...rxNormMedicationCatalog.medications.map((item) => ({
+    ...item,
+    strengths: ["Included in normalized product name"],
+    classes: [],
+    drugClass: "Not supplied by RxNorm concept list",
+    dosageForm: "Included in normalized product name",
+    routes: [],
+    ingredients: [],
+    sourceUrl: `https://rxnav.nlm.nih.gov/REST/rxcui/${item.rxcui}/properties.json`,
+    adverseEffects: "Not supplied by the RxNorm concept list. Review official labeling.",
+    cautions: "Review official labeling for indications, contraindications, and precautions. Not for clinical use.",
+    interactions: [],
+    interactionCoverage: "not-assessed",
+    source: "RxNorm via RxNav"
+  }))
 ];
 const medicationEntriesByName = new Map(medicationCatalog.map((item) => [item.name.toLowerCase(), item]));
 const medicationNamesByLength = [...medicationEntriesByName.keys()].sort((a, b) => b.length - a.length);
+
+function getMedicationSelectionValue(item, strength) {
+  return item.source === "RxNorm via RxNav" ? item.name : `${item.name} ${strength}`;
+}
+
+function getMedicationStrengthSummary(item) {
+  return item.source === "RxNorm via RxNav"
+    ? "Included in normalized product name"
+    : item.strengths.join(", ");
+}
 
 const defaultStaffDirectory = [
   { id: "staff-joe-spartan", name: "Joe Spartan, MD", title: "Physician", role: "Provider", department: "Medicine", location: "Main campus", email: "joe.spartan@example.test", status: "Active" },
@@ -743,7 +768,7 @@ function findMedicationInteractions(patient, selectedMedication) {
         const entry = getMedicationCatalogEntry(name);
         return !entry || entry.interactionCoverage === "not-assessed";
       })) {
-    warnings.push("Interaction coverage incomplete: FDA NDC metadata does not assess drug interactions. Review official labeling; absence of a demo warning does not establish safety.");
+    warnings.push("Interaction coverage incomplete: this medication catalog does not assess drug interactions. Review official labeling; absence of a demo warning does not establish safety.");
   }
 
   prescribedNames.forEach((prescribedName) => {
@@ -760,6 +785,11 @@ function findMedicationInteractions(patient, selectedMedication) {
 
 function renderMedicationSource(entry) {
   if (!entry.sourceUrl) return '<p class="form-caution">Hand-written demo example; not a validated drug reference.</p>';
+  if (entry.source === "RxNorm via RxNav") {
+    return `<p class="form-caution">RxNorm normalized product metadata, release ${escapeHtml(rxNormMedicationCatalog.sourceVersion)}; not prescribing guidance.
+      <a href="${escapeHtml(entry.sourceUrl)}" target="_blank" rel="noopener noreferrer">RxNorm source record (RxCUI ${escapeHtml(entry.rxcui)})</a></p>
+      <p>Strength and dosage form are included in the normalized product name. Pharmacologic class, route, diagnosis/indication, specialty, adverse effects, and interactions are not supplied by this RxNorm concept list.</p>`;
+  }
   return `<p class="form-caution">FDA NDC metadata, updated ${escapeHtml(sourcedMedicationCatalog.sourceLastUpdated)}; not verified clinical guidance.
     <a href="${escapeHtml(entry.sourceUrl)}" target="_blank" rel="noopener noreferrer">Source record (${escapeHtml(entry.productNdc)})</a> ·
     <a href="${escapeHtml(entry.labelUrl)}" target="_blank" rel="noopener noreferrer">Official labeling: indications &amp; safety</a></p>
@@ -2427,7 +2457,9 @@ function createPrescriptionForPatient(patient, data, role = currentUser.role) {
   const refills = Number(data.refills);
   const instructions = String(data.instructions || "").trim();
   const entry = getMedicationCatalogEntry(medication);
-  if (!entry || !entry.strengths.some((strength) => medication === `${entry.name} ${strength}`) ||
+  if (!entry || !(entry.source === "RxNorm via RxNav"
+      ? medication === entry.name
+      : entry.strengths.some((strength) => medication === `${entry.name} ${strength}`)) ||
       !Number.isInteger(quantity) || quantity < 1 || !instructions ||
       !Number.isInteger(refills) || refills < 0 || refills > 12) {
     return { allowed: false, message: "Select a medication and complete the prescription details." };
@@ -3297,12 +3329,13 @@ function renderPatientDetail() {
     const updateMedicationOptions = () => {
       const selectedClass = classSelect.value;
       const options = searchMedicationCatalog(search.value, selectedClass);
-      medicationSelect.innerHTML = `<option value="">${options.length ? "Select medication" : "No matching medications"}</option>${options.flatMap((item) =>
+      const selectionOptions = options.flatMap((item) =>
         item.strengths.map((strength) => {
-          const label = `${item.name} ${strength}`;
-          return `<option value="${escapeHtml(label)}">${escapeHtml(label)}</option>`;
+          const value = getMedicationSelectionValue(item, strength);
+          return `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`;
         })
-      ).join("")}`;
+      );
+      medicationSelect.innerHTML = `<option value="">${selectionOptions.length > 100 ? "Select from first 100 matches; refine search" : selectionOptions.length ? "Select medication" : "No matching medications"}</option>${selectionOptions.slice(0, 100).join("")}`;
       safety.className = "medication-safety-info";
       safety.textContent = "Select a medication to review safety information.";
     };
@@ -3868,10 +3901,6 @@ function renderDispensaryView(container) {
   const history = [...(patient.dispensations || [])].sort((a, b) =>
     String(b.dispensedAt).localeCompare(String(a.dispensedAt))
   );
-  const catalogOptions = medicationCatalog.map((item) => {
-    const strength = item.strengths[0];
-    return `<option value="${escapeHtml(item.name)} ${escapeHtml(strength)}">${escapeHtml(item.name)} ${escapeHtml(strength)}</option>`;
-  }).join("");
   const medicationClasses = [...new Set(medicationCatalog.map((item) => inferMedicationClass(item.name)))].sort();
 
   container.innerHTML = `
@@ -3899,10 +3928,12 @@ function renderDispensaryView(container) {
               <strong>${escapeHtml(patient.allergies.join(", ") || "None recorded")}</strong>
             </div>
           </div>
+          <label>Search medication
+            <input id="dispensaryMedicationSearch" type="search" placeholder="Type at least two characters" />
+          </label>
           <label>Medication
             <select name="medication" id="dispensaryMedication">
-              <option value="">Select medication</option>
-              ${catalogOptions}
+              <option value="">Search to select a medication</option>
             </select>
           </label>
           <div id="medicationSafetyInfo" class="medication-safety-info" aria-live="polite">
@@ -3946,14 +3977,14 @@ function renderDispensaryView(container) {
         <div><p class="eyebrow">Browse &amp; review</p><h3>Medication formulary</h3></div>
         <span id="dispensaryCatalogCount" class="pill">${medicationCatalog.length} medications</span>
       </div>
-      <p class="form-caution">Demo only: not live stock or verified prescribing guidance. FDA NDC does not assess indications, adverse effects, or interactions.</p>
+      <p class="form-caution">Demo only: not live stock or verified prescribing guidance. FDA NDC and RxNorm concept lists do not supply diagnoses, indications, adverse effects, or interaction assessment.</p>
       <details class="formulary-provenance">
       <summary>Catalog sources &amp; limitations</summary>
-      <p class="muted-copy">Includes ${sourcedMedicationCatalog.count.toLocaleString()} FDA-sourced entries plus ${demoMedicationCatalog.length} existing demo examples.
+      <p class="muted-copy">Includes ${sourcedMedicationCatalog.count.toLocaleString()} FDA NDC entries, ${rxNormMedicationCatalog.count.toLocaleString()} RxNorm product concepts, and ${demoMedicationCatalog.length} demo examples.
         Source metadata updated ${escapeHtml(sourcedMedicationCatalog.sourceLastUpdated)}.
         <a href="https://open.fda.gov/apis/drug/ndc/" target="_blank" rel="noopener noreferrer">FDA NDC via openFDA</a>.
-        Labeler-submitted data is not verified safety guidance, proof of approval, or live stock.
-        Diagnoses, adverse effects, and interactions are not supplied by NDC; review each entry's official labeling.</p>
+        <a href="https://www.nlm.nih.gov/research/umls/rxnorm/" target="_blank" rel="noopener noreferrer">RxNorm via RxNav</a>.
+        Neither source is verified safety guidance or live stock. Diagnosis/indication and specialty associations are not inferred; review official labeling.</p>
       </details>
       <div class="formulary-toolbar">
       <label class="formulary-patient-selector" for="formularyPatient">Patient for prescribing
@@ -4010,6 +4041,7 @@ function renderDispensaryView(container) {
   });
   applyPharmacyMode();
   const medicationSelect = container.querySelector("#dispensaryMedication");
+  const medicationSearch = container.querySelector("#dispensaryMedicationSearch");
   const safetyInfo = container.querySelector("#medicationSafetyInfo");
   const catalogContainer = container.querySelector("#dispensaryCatalog");
   const catalogSearch = container.querySelector("#dispensaryCatalogSearch");
@@ -4052,20 +4084,23 @@ function renderDispensaryView(container) {
           <div class="dispensary-medication-heading">
             <div><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(drugClass)}</span></div>
           </div>
-          <p class="formulary-strengths">${item.strengths.map(escapeHtml).join(", ")}</p>
-          <span class="formulary-source-badge">${item.sourceUrl ? "FDA NDC" : "Demo example"}</span>
+          <p class="formulary-strengths">${escapeHtml(getMedicationStrengthSummary(item))}</p>
+          <span class="formulary-source-badge">${item.source === "RxNorm via RxNav" ? "RxNorm / RxNav" : item.sourceUrl ? "FDA NDC" : "Demo example"}</span>
           <details class="formulary-review">
           <summary>Review ${escapeHtml(item.name)}</summary>
           ${renderMedicationSource(item)}
           <dl class="dispensary-medication-details">
-            <div><dt>Available strengths</dt><dd>${item.strengths.map(escapeHtml).join(", ")}</dd></div>
+            <div><dt>Strengths</dt><dd>${escapeHtml(getMedicationStrengthSummary(item))}</dd></div>
             <div><dt>Adverse effects</dt><dd>${escapeHtml(item.adverseEffects)}</dd></div>
             <div><dt>Cautions</dt><dd>${escapeHtml(item.cautions)}</dd></div>
             <div><dt>Listed interactions</dt><dd>${item.interactions.length ? item.interactions.map(escapeHtml).join(", ") : "No interactions listed in this limited demo; this does not establish safety."}</dd></div>
           </dl>
           ${prescribingPatient ? findMedicationInteractions(prescribingPatient, item.name).map((warning) => `<p class="interaction-warning">${escapeHtml(warning)}</p>`).join("") : ""}
           <div class="formulary-actions">
-            ${item.strengths.map((strength) => `<button class="ghost-btn" type="button" data-formulary-prescribe="${escapeHtml(item.name)} ${escapeHtml(strength)}" ${prescribingPatient && canPrescribe ? "" : "disabled"}>Prescribe ${escapeHtml(strength)}</button>`).join("")}
+            ${item.strengths.map((strength) => {
+              const value = getMedicationSelectionValue(item, strength);
+              return `<button class="ghost-btn" type="button" data-formulary-prescribe="${escapeHtml(value)}" ${prescribingPatient && canPrescribe ? "" : "disabled"}>${item.source === "RxNorm via RxNav" ? "Prescribe this product" : `Prescribe ${escapeHtml(strength)}`}</button>`;
+            }).join("")}
           </div>
           </details>
         </article>
@@ -4110,6 +4145,9 @@ function renderDispensaryView(container) {
     setCurrentView("medications");
     render();
     const prescriptionMedication = document.getElementById("patientMedicationSelect");
+    const prescriptionSearch = document.getElementById("patientMedicationSearch");
+    prescriptionSearch.value = button.dataset.formularyPrescribe;
+    prescriptionSearch.dispatchEvent(new Event("input", { bubbles: true }));
     prescriptionMedication.value = button.dataset.formularyPrescribe;
     prescriptionMedication.dispatchEvent(new Event("change"));
     document.getElementById("patientPrescriptionForm").scrollIntoView({ block: "center" });
@@ -4142,6 +4180,25 @@ function renderDispensaryView(container) {
       ${warnings.length ? `<div class="interaction-warning"><strong>Interaction notices</strong>${warnings.map((warning) => `<p>${escapeHtml(warning)}</p>`).join("")}</div>` : ""}
     `;
   };
+  const updateDispensingMedicationOptions = () => {
+    const term = medicationSearch.value.trim();
+    const matches = term.length >= 2 ? searchMedicationCatalog(term) : [];
+    const selectionOptions = matches.flatMap((item) =>
+      item.strengths.map((strength) => {
+        const value = getMedicationSelectionValue(item, strength);
+        return `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`;
+      })
+    );
+    const options = selectionOptions.slice(0, 100);
+    const prompt = term.length < 2
+      ? "Type at least two characters to search"
+      : selectionOptions.length
+        ? selectionOptions.length > 100 ? "First 100 matches; refine search" : "Select medication"
+        : "No matching medications";
+    medicationSelect.innerHTML = `<option value="">${prompt}</option>${options.join("")}`;
+    safetyInfo.textContent = "Select a medication to review safety information.";
+  };
+  medicationSearch.addEventListener("input", updateDispensingMedicationOptions);
   medicationSelect?.addEventListener("change", renderMedicationSafety);
   const prescriptionSelect = container.querySelector("#dispensingPrescription");
   const form = container.querySelector("#dispensaryForm");

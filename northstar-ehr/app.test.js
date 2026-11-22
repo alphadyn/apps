@@ -4,6 +4,7 @@ import test from "node:test";
 import vm from "node:vm";
 
 const script = readFileSync(new URL("./medication-catalog.js", import.meta.url), "utf8") +
+  "\n" + readFileSync(new URL("./rxnorm-catalog.js", import.meta.url), "utf8") +
   "\n" + readFileSync(new URL("./app.js", import.meta.url), "utf8");
 const storageKey = "northstar-ehr-state-v3";
 
@@ -1197,7 +1198,7 @@ test("FDA formulary snapshot adds 1000 distinct attributed medication names", ()
   const { api } = setup();
   const sourced = api.medicationCatalog.filter((item) => item.source === "FDA NDC via openFDA");
   assert.equal(sourced.length, 1000);
-  assert.equal(api.medicationCatalog.length, 1021);
+  assert.equal(api.medicationCatalog.length, 11021);
   assert.equal(new Set(sourced.map((item) => item.name.trim().toLowerCase())).size, 1000);
   const classes = new Set(sourced.flatMap((item) => item.classes));
   assert.ok(classes.size >= 300);
@@ -1218,6 +1219,28 @@ test("FDA formulary snapshot adds 1000 distinct attributed medication names", ()
   assert.ok(api.searchMedicationCatalog(entry.name, entry.drugClass).some((item) => item.name === entry.name));
   const notices = api.findMedicationInteractions({ medications: ["Warfarin 2 mg"] }, entry.name);
   assert.ok(notices.some((notice) => notice.includes("Interaction coverage incomplete")));
+});
+
+test("RxNorm catalog adds 10000 unique product concepts without invented clinical mappings", () => {
+  const { api, context } = setup();
+  const products = api.medicationCatalog.filter((item) => item.source === "RxNorm via RxNav");
+  assert.equal(products.length, 10000);
+  assert.equal(new Set(products.map((item) => item.name.toLowerCase())).size, 10000);
+  assert.equal(api.medicationCatalog.length, 11021);
+  assert.ok(products.every((item) =>
+    item.name && item.rxcui && item.sourceUrl.includes(`/rxcui/${item.rxcui}/`) &&
+    item.strengths.length === 1 && item.drugClass === "Not supplied by RxNorm concept list" &&
+    item.interactionCoverage === "not-assessed" && item.interactions.length === 0 &&
+    !("diagnoses" in item) && !("specialties" in item)
+  ));
+  const product = products.at(-1);
+  assert.ok(api.searchMedicationCatalog(product.name).some((item) => item.rxcui === product.rxcui));
+  const patient = vm.runInContext("patients[0]", context);
+  const result = api.createPrescriptionForPatient(patient, {
+    medication: product.name, quantity: 1, refills: 0, instructions: "Demo directions"
+  });
+  assert.equal(result.allowed, true);
+  assert.equal(result.prescription.medication, product.name);
 });
 
 test("medication catalog identifies adverse effects and possible interactions", () => {

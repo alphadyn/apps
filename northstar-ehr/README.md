@@ -96,33 +96,39 @@ This is a limited illustrative catalog, not live inventory or a validated clinic
 drug database. Its example interaction checks do not establish medication safety,
 allergy compatibility, or prescribing suitability. No real prescriptions are sent.
 
-### FDA medication catalog snapshot
+### FDA and RxNorm medication catalog snapshots
 
-The formulary includes **1,000 additional distinct FDA-listed generic-name entries**
-alongside the 21 existing hand-written demo examples (1,021 entries total).
-The snapshot covers 394 established pharmacologic classes, including antibacterial,
-antihypertensive, antiepileptic, antineoplastic, endocrine, and other specialty
-therapies. Names are not guaranteed to identify distinct molecules: salts,
-combinations, and labeler naming variants can have separate generic names.
-Strengths and packages are not counted as extra medications.
+The formulary includes **1,000 FDA-listed generic-name entries** and **10,000
+RxNorm clinical drug product concepts**, alongside the 21 existing hand-written
+demo examples (11,021 entries total). The FDA snapshot covers 394 established
+pharmacologic classes, including antibacterial, antihypertensive, antiepileptic,
+antineoplastic, endocrine, and other specialty therapies. RxNorm products may
+represent separate strengths and dosage forms of the same ingredient; they are
+product concepts, not 10,000 distinct active ingredients.
 
 - **Source:** [FDA NDC via openFDA](https://open.fda.gov/apis/drug/ndc/),
-  source update 2026-11-20. Each entry links to its NDC record and DailyMed labeling.
+  source update 2026-11-20, and [RxNorm via RxNav](https://www.nlm.nih.gov/research/umls/rxnorm/),
+  API release 02-Nov-2026. Entries link to source metadata records.
 - **Scope:** Human prescription products listed under NDA, ANDA, or BLA marketing
   categories, sampled by drug class. One representative listed product supplies
-  each entry's strength, dosage form, route, and active ingredients.
-- **Rights:** See [openFDA terms and data rights](https://open.fda.gov/terms/).
-  The snapshot contains factual product metadata, not copied prescribing-label text.
+  each FDA entry's strength, dosage form, route, and active ingredients. RxNorm
+  entries are sampled across RxNorm's name-sorted SCD (Semantic Clinical Drug)
+  concepts; strength and dosage form are embedded in each normalized product name.
+- **Rights:** See [openFDA terms and data rights](https://open.fda.gov/terms/) and
+  [RxNorm terms of use](https://www.nlm.nih.gov/research/umls/rxnorm/docs/termsofuse.html).
+  The snapshots contain factual product metadata, not copied prescribing-label text.
 - **Limitations:** NDC data is labeler-submitted and is not verified by FDA.
   NDC listing is not proof of FDA approval or current dispensary inventory.
-  Diagnoses/indications, adverse-effect summaries, contraindications, specialty
-  assignments, and interaction rules are **not supplied by this dataset**.
-  Review the linked labeling for indications and safety. New entries explicitly
+  RxNorm SCD concepts do not supply pharmacologic class, route, diagnoses,
+  indications, specialties, adverse-effect summaries, contraindications, or
+  interaction rules. No diagnosis or specialty associations are inferred.
+  Review official labeling for indications and safety. New entries explicitly
   show unavailable safety information and incomplete interaction coverage rather
   than inheriting unverified rules from similarly named demo medications.
 - **Browsing:** Search includes drug classes, ingredients, strengths, dosage
   forms, and routes. Results are paginated in groups of 24. All entries also
-  participate in patient prescription selection.
+  participate in patient prescription selection. Search-based selection menus
+  show at most 100 options at a time; refine the search to narrow larger matches.
 
 The formulary groups patient selection, search, and class filtering in a compact
 toolbar. Cards identify source coverage and strengths; opening a review expands
@@ -130,17 +136,19 @@ that medication across the results area and closes the previous review. Detailed
 source limitations are expandable, while the nonclinical safety notice stays
 visible. Clear search and filters without changing the prescribing patient.
 
-The offline snapshot is stored in `medication-catalog.js` and loaded before
-`app.js`. No patient data is sent to FDA or DailyMed by the app; source links open
-only when selected. To rebuild from public FDA metadata using Python's standard
-library (requires network access):
+The offline snapshots are stored in `medication-catalog.js` and
+`rxnorm-catalog.js`, both loaded before `app.js`. No patient data is sent to FDA
+or RxNav; source links open only when selected. To rebuild from public FDA and
+RxNorm metadata using Python's standard library (requires network access):
 
 ```bash
 python3 northstar-ehr/scripts/build_medication_catalog.py --count 1000
+python3 northstar-ehr/scripts/build_rxnorm_catalog.py --count 10000
 ```
 
-The generator validates the count, excludes existing demo names, retains
-provenance, and fails rather than padding the catalog with invented drugs.
+Each generator validates the requested count and retains provenance. The RxNorm
+generator samples across the full available SCD concept list and fails rather
+than padding the catalog with invented products.
 
 ## Project structure
 

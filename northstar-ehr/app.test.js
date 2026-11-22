@@ -3,7 +3,8 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
 
-const script = readFileSync(new URL("./app.js", import.meta.url), "utf8");
+const script = readFileSync(new URL("./medication-catalog.js", import.meta.url), "utf8") +
+  "\n" + readFileSync(new URL("./app.js", import.meta.url), "utf8");
 const storageKey = "northstar-ehr-state-v3";
 
 function setup(accountId = "clinician", storage = new Map()) {
@@ -1150,6 +1151,73 @@ test("formulary search supports names, classes, strengths, and empty results", (
   ));
   assert.equal(api.searchMedicationCatalog("atorvastatin", "Antibiotic").length, 0);
   assert.equal(api.searchMedicationCatalog("not-a-medication").length, 0);
+});
+
+test("treatment navigation retains the selected patient and separates focused workspaces", () => {
+  const { api, context } = setup();
+  const patient = vm.runInContext("patients[1]", context);
+  for (const view of ["orders", "labs", "medications", "dispensary"]) {
+    const result = api.openTreatmentWorkflow(view, patient.id);
+    assert.equal(result.allowed, true);
+    assert.equal(vm.runInContext("getSelectedPatient().id", context), patient.id);
+    assert.equal(api.getVisibleSections(view).patientWorkflowSection, true);
+  }
+  assert.equal(api.getVisibleSections("labs").encounterSection, false);
+  assert.equal(api.getVisibleSections("medications").recordsSection, true);
+  assert.equal(api.getVisibleSections("dispensary").extendedSection, true);
+  assert.equal(api.openTreatmentWorkflow("not-a-view", patient.id).allowed, false);
+  assert.equal(api.openTreatmentWorkflow("medications", "missing").allowed, false);
+});
+
+test("prescription workflow creates a persistent linked order and supports dispensing handoff", () => {
+  const { api, context, storage } = setup();
+  const patient = vm.runInContext("patients[0]", context);
+  const initialOrders = patient.orders.length;
+  const data = { medication: "Doxycycline 100 mg", quantity: 14, refills: 0, instructions: "Demo directions" };
+  assert.equal(api.createPrescriptionForPatient(patient, data, "staff").allowed, false);
+  assert.equal(api.createPrescriptionForPatient(patient, { ...data, quantity: 1.5 }).allowed, false);
+  assert.equal(api.createPrescriptionForPatient(patient, { ...data, medication: "Unknown 1 mg" }).allowed, false);
+  const result = api.createPrescriptionForPatient(patient, data);
+  assert.equal(result.allowed, true);
+  assert.equal(patient.orders.length, initialOrders + 1);
+  const order = patient.orders[0];
+  assert.equal(order.prescriptionId, result.prescription.id);
+  assert.equal(order.category, "Medication");
+  assert.equal(api.getPrescriptionForDispensing(patient, result.prescription.id).prescription.medication, data.medication);
+  const reloaded = setup("clinician", storage);
+  const savedPatient = vm.runInContext("patients[0]", reloaded.context);
+  assert.equal(savedPatient.orders[0].prescriptionId, savedPatient.prescriptions[0].id);
+  assert.equal(savedPatient.events[0].targetView, "medications");
+  assert.equal(api.updateOrderStatus(patient, order.id, "Cancelled").allowed, true);
+  assert.equal(result.prescription.status, "Cancelled");
+  assert.equal(api.getPrescriptionForDispensing(patient, result.prescription.id).allowed, false);
+});
+
+test("FDA formulary snapshot adds 1000 distinct attributed medication names", () => {
+  const { api } = setup();
+  const sourced = api.medicationCatalog.filter((item) => item.source === "FDA NDC via openFDA");
+  assert.equal(sourced.length, 1000);
+  assert.equal(api.medicationCatalog.length, 1021);
+  assert.equal(new Set(sourced.map((item) => item.name.trim().toLowerCase())).size, 1000);
+  const classes = new Set(sourced.flatMap((item) => item.classes));
+  assert.ok(classes.size >= 300);
+  assert.ok(classes.has("Angiotensin Converting Enzyme Inhibitor"));
+  assert.ok(classes.has("Anti-epileptic Agent"));
+  assert.ok(classes.has("Alkylating Drug"));
+  for (const item of sourced) {
+    assert.ok(item.strengths.length && item.routes.length && item.dosageForm);
+    assert.ok(item.ingredients.every((ingredient) => ingredient.name && ingredient.strength));
+    assert.match(item.sourceUrl, /^https:\/\/api\.fda\.gov\/drug\/ndc\.json\?/);
+    assert.match(item.labelUrl, /^https:\/\/dailymed\.nlm\.nih\.gov\//);
+    assert.equal(item.interactionCoverage, "not-assessed");
+    assert.equal(item.interactions.length, 0);
+    assert.match(item.adverseEffects, /Not supplied/);
+    assert.equal(api.inferMedicationClass(item.name), item.drugClass);
+  }
+  const entry = sourced[0];
+  assert.ok(api.searchMedicationCatalog(entry.name, entry.drugClass).some((item) => item.name === entry.name));
+  const notices = api.findMedicationInteractions({ medications: ["Warfarin 2 mg"] }, entry.name);
+  assert.ok(notices.some((notice) => notice.includes("Interaction coverage incomplete")));
 });
 
 test("medication catalog identifies adverse effects and possible interactions", () => {

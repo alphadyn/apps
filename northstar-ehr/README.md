@@ -54,16 +54,78 @@ interaction, and expand an individual medication to review its details.
 
 Select **Patient for prescribing** to see that patient's MRN, allergies, and
 current medications. Expand a medication and select **Prescribe** for the desired
-strength to open the selected patient's prescription form in **Labs & medications**.
+strength to open the selected patient's prescription form in **Medications & prescriptions**.
 Review the patient and complete quantity, refills, and directions before saving.
 Browsing, choosing a patient, or opening the form does not create a prescription
 or dispense medication. Search and class filtering are also available in the
 patient's prescription form. Prescribing follows the demo encounter-create role
 permission; dispensing remains a separate workflow.
 
+### Orders, results, medications, and pharmacy
+
+- **Orders & requests:** General clinical requests and linked medication requests.
+  Laboratory requests link to results; medication requests link to the prescription
+  and dispensing workflow. Completing an order does not create a lab result or
+  record administration/dispensing.
+- **Labs & results:** Recorded fictional results and laboratory requests only.
+  **Order a lab test** opens Orders with the Laboratory category selected.
+- **Medications & prescriptions:** Medication/allergy context, formulary search,
+  prescription details, and links to dispensing. Saving a prescription creates one
+  linked medication request in Orders. Cancelling that request cancels its linked
+  prescription; legacy chart medications remain available for reconciliation.
+- **Formulary & dispensing:** Separate **Browse formulary** and **Patient dispensing**
+  modes. Browsing does not change a record. **Open in dispensing** from a prescription
+  preserves the patient, medication, quantity, and instructions. The dispensing
+  record retains the prescription ID; general unlinked dispensing remains available
+  for legacy/demo chart records. Recording dispensing does not consume refills or
+  infer that the medication has been administered.
+- A shared patient selector and treatment navigation preserve the selected patient
+  across these workspaces. Prescribing uses the demo encounter-create permission;
+  recording dispensing uses the demo order-create permission.
+
 This is a limited illustrative catalog, not live inventory or a validated clinical
 drug database. Its example interaction checks do not establish medication safety,
 allergy compatibility, or prescribing suitability. No real prescriptions are sent.
+
+### FDA medication catalog snapshot
+
+The formulary includes **1,000 additional distinct FDA-listed generic-name entries**
+alongside the 21 existing hand-written demo examples (1,021 entries total).
+The snapshot covers 394 established pharmacologic classes, including antibacterial,
+antihypertensive, antiepileptic, antineoplastic, endocrine, and other specialty
+therapies. Names are not guaranteed to identify distinct molecules: salts,
+combinations, and labeler naming variants can have separate generic names.
+Strengths and packages are not counted as extra medications.
+
+- **Source:** [FDA NDC via openFDA](https://open.fda.gov/apis/drug/ndc/),
+  source update 2026-11-20. Each entry links to its NDC record and DailyMed labeling.
+- **Scope:** Human prescription products listed under NDA, ANDA, or BLA marketing
+  categories, sampled by drug class. One representative listed product supplies
+  each entry's strength, dosage form, route, and active ingredients.
+- **Rights:** See [openFDA terms and data rights](https://open.fda.gov/terms/).
+  The snapshot contains factual product metadata, not copied prescribing-label text.
+- **Limitations:** NDC data is labeler-submitted and is not verified by FDA.
+  NDC listing is not proof of FDA approval or current dispensary inventory.
+  Diagnoses/indications, adverse-effect summaries, contraindications, specialty
+  assignments, and interaction rules are **not supplied by this dataset**.
+  Review the linked labeling for indications and safety. New entries explicitly
+  show unavailable safety information and incomplete interaction coverage rather
+  than inheriting unverified rules from similarly named demo medications.
+- **Browsing:** Search includes drug classes, ingredients, strengths, dosage
+  forms, and routes. Results are paginated in groups of 24. All entries also
+  participate in patient prescription selection.
+
+The offline snapshot is stored in `medication-catalog.js` and loaded before
+`app.js`. No patient data is sent to FDA or DailyMed by the app; source links open
+only when selected. To rebuild from public FDA metadata using Python's standard
+library (requires network access):
+
+```bash
+python3 northstar-ehr/scripts/build_medication_catalog.py --count 1000
+```
+
+The generator validates the count, excludes existing demo names, retains
+provenance, and fails rather than padding the catalog with invented drugs.
 
 ## Project structure
 

@@ -749,6 +749,68 @@ textarea {
   margin-top: 12px;
 }
 
+.formulary-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.treatment-context {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.treatment-context label {
+  display: grid;
+  gap: 6px;
+  flex: 1 1 260px;
+}
+
+.treatment-context p {
+  flex: 1 1 200px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.treatment-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.treatment-navigation [aria-current="page"] {
+  color: white;
+  background: var(--accent);
+}
+
+.pharmacy-navigation {
+  margin: 0 0 16px;
+}
+
+.pharmacy-navigation [aria-pressed="true"] {
+  background: var(--accent);
+  color: white;
+}
+
+.dispensary-grid.hidden-section {
+  display: none;
+}
+
+.treatment-navigation button,
+.formulary-actions button {
+  min-height: 44px;
+}
+
+.dispensary-medication-card {
+  overflow-wrap: anywhere;
+}
+
 .dispensary-catalog {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr));

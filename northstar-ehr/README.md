@@ -115,6 +115,12 @@ Strengths and packages are not counted as extra medications.
   forms, and routes. Results are paginated in groups of 24. All entries also
   participate in patient prescription selection.
 
+The formulary groups patient selection, search, and class filtering in a compact
+toolbar. Cards identify source coverage and strengths; opening a review expands
+that medication across the results area and closes the previous review. Detailed
+source limitations are expandable, while the nonclinical safety notice stays
+visible. Clear search and filters without changing the prescribing patient.
+
 The offline snapshot is stored in `medication-catalog.js` and loaded before
 `app.js`. No patient data is sent to FDA or DailyMed by the app; source links open
 only when selected. To rebuild from public FDA metadata using Python's standard

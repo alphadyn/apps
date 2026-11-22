@@ -3946,19 +3946,22 @@ function renderDispensaryView(container) {
         <div><p class="eyebrow">Browse &amp; review</p><h3>Medication formulary</h3></div>
         <span id="dispensaryCatalogCount" class="pill">${medicationCatalog.length} medications</span>
       </div>
-      <p class="muted-copy">Search the demo formulary and expand a medication to review it. To prescribe, select a patient below, then choose a medication strength.</p>
-      <p class="form-caution">Includes ${sourcedMedicationCatalog.count.toLocaleString()} FDA-sourced entries plus ${demoMedicationCatalog.length} existing demo examples.
+      <p class="form-caution">Demo only: not live stock or verified prescribing guidance. FDA NDC does not assess indications, adverse effects, or interactions.</p>
+      <details class="formulary-provenance">
+      <summary>Catalog sources &amp; limitations</summary>
+      <p class="muted-copy">Includes ${sourcedMedicationCatalog.count.toLocaleString()} FDA-sourced entries plus ${demoMedicationCatalog.length} existing demo examples.
         Source metadata updated ${escapeHtml(sourcedMedicationCatalog.sourceLastUpdated)}.
         <a href="https://open.fda.gov/apis/drug/ndc/" target="_blank" rel="noopener noreferrer">FDA NDC via openFDA</a>.
         Labeler-submitted data is not verified safety guidance, proof of approval, or live stock.
         Diagnoses, adverse effects, and interactions are not supplied by NDC; review each entry's official labeling.</p>
+      </details>
+      <div class="formulary-toolbar">
       <label class="formulary-patient-selector" for="formularyPatient">Patient for prescribing
         <select id="formularyPatient">
           <option value="">Browse only - select a patient to prescribe</option>
           ${patients.map((record) => `<option value="${escapeHtml(record.id)}">${escapeHtml(record.name)} · ${escapeHtml(record.mrn)}</option>`).join("")}
         </select>
       </label>
-      <p id="formularyPatientContext" class="muted-copy" role="status"></p>
       <div class="dispensary-catalog-tools">
         <label for="dispensaryCatalogSearch">Search medications
           <input id="dispensaryCatalogSearch" type="search" placeholder="Name, drug class, ingredient, route, or strength" />
@@ -3969,6 +3972,11 @@ function renderDispensaryView(container) {
             ${medicationClasses.map((className) => `<option value="${escapeHtml(className)}">${escapeHtml(className)}</option>`).join("")}
           </select>
         </label>
+      </div>
+      </div>
+      <p id="formularyPatientContext" class="formulary-context" role="status"></p>
+      <div class="formulary-result-heading"><strong>Medications</strong>
+        <button id="formularyClearFilters" class="text-btn" type="button">Clear search &amp; filters</button>
       </div>
       <div id="dispensaryCatalog" class="dispensary-catalog" aria-live="polite"></div>
       <div class="formulary-pagination">
@@ -4044,7 +4052,8 @@ function renderDispensaryView(container) {
           <div class="dispensary-medication-heading">
             <div><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(drugClass)}</span></div>
           </div>
-          <p class="muted-copy">${item.strengths.map(escapeHtml).join(", ")}</p>
+          <p class="formulary-strengths">${item.strengths.map(escapeHtml).join(", ")}</p>
+          <span class="formulary-source-badge">${item.sourceUrl ? "FDA NDC" : "Demo example"}</span>
           <details class="formulary-review">
           <summary>Review ${escapeHtml(item.name)}</summary>
           ${renderMedicationSource(item)}
@@ -4072,6 +4081,12 @@ function renderDispensaryView(container) {
   };
   catalogSearch.addEventListener("input", resetCatalogPage);
   catalogClass.addEventListener("change", resetCatalogPage);
+  container.querySelector("#formularyClearFilters").addEventListener("click", () => {
+    catalogSearch.value = "";
+    catalogClass.value = "";
+    resetCatalogPage();
+    catalogSearch.focus();
+  });
   previousPage.addEventListener("click", () => {
     formularyWorkflow.page -= 1;
     renderCatalog();
@@ -4100,6 +4115,12 @@ function renderDispensaryView(container) {
     document.getElementById("patientPrescriptionForm").scrollIntoView({ block: "center" });
     prescriptionMedication.focus({ preventScroll: true });
   });
+  catalogContainer.addEventListener("toggle", (event) => {
+    if (!event.target.matches(".formulary-review") || !event.target.open) return;
+    catalogContainer.querySelectorAll(".formulary-review[open]").forEach((review) => {
+      if (review !== event.target) review.open = false;
+    });
+  }, true);
   renderCatalog();
 
   const renderMedicationSafety = () => {

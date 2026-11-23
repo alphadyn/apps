@@ -14,8 +14,8 @@ Patient workspaces adapt from narrow phone screens to wide desktops. The navigat
 becomes a drawer on phones and tablets up to 900 pixels; the desktop sidebar's
 saved preference is preserved. Form columns and controls constrain long medication
 and class names instead of widening the
-page. Pharmacy panels stack on tablets, and mobile treatment navigation uses
-wrapping two-column controls with 44-pixel touch targets. Dispensing history uses
+page. Pharmacy panels stack on tablets, and pharmacy mode controls use wrapping
+two-column layouts with 44-pixel touch targets on phones. Dispensing history uses
 normal page scrolling on phones. Wide census and location tables retain local
 horizontal scrolling, with a visible hint on narrower screens and keyboard access.
 
@@ -111,9 +111,12 @@ follows the demo encounter-create role permission; dispensing remains separate.
   general unlinked dispensing remains available
   for legacy/demo chart records. Recording dispensing does not consume refills or
   infer that the medication has been administered.
-- A shared patient selector and treatment navigation preserve the selected patient
-  across patient-specific workspaces. Prescribing uses the demo encounter-create permission;
-  recording dispensing uses the demo order-create permission.
+- Patient care home links to patient-specific chart, encounter, orders, results,
+  medication, formulary, scheduling, documents, and billing workspaces. Use the
+  header patient search to select a patient; the Patient care menu shows the
+  current patient's MRN.
+  Prescribing uses the demo encounter-create permission; recording dispensing uses
+  the demo order-create permission.
 
 This is a limited illustrative catalog, not live inventory or a validated clinical
 drug database. Its example interaction checks do not establish medication safety,

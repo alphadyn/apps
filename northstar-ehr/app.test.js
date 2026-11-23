@@ -1225,6 +1225,25 @@ test("Overview excludes individual patient workspaces", () => {
   assert.equal(sections.operationsOverviewSection, true);
   assert.equal(api.getVisibleSections("patients").recordsSection, true);
   assert.equal(api.getVisibleSections("inbox").extendedSection, true);
+  assert.equal(api.getVisibleSections("patient-care").patientCareHomeSection, true);
+  assert.equal(api.getVisibleSections("patient-care").extendedSection, false);
+  assert.equal(api.getVisibleSections("patient-care").patientWorkflowSection, false);
+});
+
+test("Patient care home uses the header patient search and presents patient-specific workflow links", () => {
+  const { context } = setup();
+  const container = { innerHTML: "" };
+  context.patientCareContainer = container;
+  vm.runInContext("renderPatientCareHome(patientCareContainer)", context);
+
+  assert.match(container.innerHTML, /Search for a patient in the field above/);
+  assert.doesNotMatch(container.innerHTML, /Search patients/);
+  assert.doesNotMatch(container.innerHTML, /patientCareSearch/);
+  assert.match(container.innerHTML, /Patient in context/);
+  assert.match(container.innerHTML, /data-patient-care-view="orders"/);
+  assert.match(container.innerHTML, /data-patient-care-view="documents"/);
+  assert.match(container.innerHTML, /data-patient-care-view="dispensary"/);
+  assert.match(container.innerHTML, /data-patient-care-view="billing"/);
 });
 
 test("Billing immediately renders the selected patient's billing information", () => {
@@ -1641,22 +1660,45 @@ test("medication selection options count all strengths while limiting and escapi
   assert.doesNotMatch(rxnorm.options, /Included in normalized product name/);
 });
 
-test("treatment navigation retains the selected patient and separates focused workspaces", () => {
+test("patient context follows patient-specific workspaces and separates focused workspaces", () => {
   const { api, context, storage } = setup();
   const patient = vm.runInContext("patients[1]", context);
-  for (const view of ["orders", "labs", "medications", "dispensary"]) {
+  vm.runInContext('currentView = "patient-care"', context);
+  assert.equal(vm.runInContext("hasPatientContext()", context), true);
+  for (const view of ["patients", "orders", "labs", "medications", "outpatient", "appointments"]) {
     const result = api.openTreatmentWorkflow(view, patient.id);
     assert.equal(result.allowed, true);
     assert.equal(vm.runInContext("getSelectedPatient().id", context), patient.id);
-    assert.equal(api.getVisibleSections(view).patientWorkflowSection, view !== "dispensary");
+    assert.equal(api.getVisibleSections(view).patientWorkflowSection, true);
+    assert.equal(vm.runInContext("hasPatientContext()", context), true);
   }
+  api.openTreatmentWorkflow("dispensary", patient.id);
+  assert.equal(vm.runInContext("hasPatientContext()", context), false);
   vm.runInContext('pharmacyPatientContext = true; saveState()', context);
   assert.equal(api.getVisibleSections("dispensary").patientWorkflowSection, true);
+  assert.equal(vm.runInContext("hasPatientContext()", context), true);
   const restored = setup("clinician", storage);
   assert.equal(restored.api.getVisibleSections("dispensary").patientWorkflowSection, true);
   vm.runInContext('pharmacyPatientContext = false', context);
   vm.runInContext('pharmacyMode = "dispensing"', context);
   assert.equal(api.getVisibleSections("dispensary").patientWorkflowSection, true);
+  assert.equal(vm.runInContext("hasPatientContext()", context), true);
+  vm.runInContext('currentView = "patient-profiles"; selectedProfile = { type: "patient", id: patients[1].id }', context);
+  assert.equal(vm.runInContext("hasPatientContext()", context), true);
+  vm.runInContext('selectedProfile = { type: "staff", id: "staff-1" }', context);
+  assert.equal(vm.runInContext("hasPatientContext()", context), false);
+  for (const view of ["clinical", "documents", "billing"]) {
+    vm.runInContext(`currentView = "${view}"`, context);
+    assert.equal(vm.runInContext("hasPatientContext()", context), true);
+    assert.equal(api.getVisibleSections(view).patientWorkflowSection, true);
+  }
+  vm.runInContext('currentView = "patient-profiles"; selectedProfile = { type: "patient", id: patients[1].id }', context);
+  assert.equal(api.getVisibleSections("patient-profiles").patientWorkflowSection, true);
+  vm.runInContext('currentView = "orders"; patientCareHomeActive = true', context);
+  assert.equal(api.getVisibleSections("orders").patientCareHomeSection, true);
+  assert.equal(api.getVisibleSections("orders").patientWorkflowSection, false);
+  assert.equal(api.getVisibleSections("orders").clinicalSection, true);
+  vm.runInContext("patientCareHomeActive = false", context);
   assert.equal(api.getVisibleSections("labs").encounterSection, false);
   assert.equal(api.getVisibleSections("medications").recordsSection, true);
   assert.equal(api.getVisibleSections("dispensary").extendedSection, true);

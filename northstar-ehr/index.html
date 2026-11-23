@@ -120,8 +120,9 @@
             <button class="nav-link inbox-nav-link" type="button" data-view="inbox">In Basket <span id="inboxUnreadCount" class="nav-count" aria-label="unread inbox items" hidden>0</span></button>
           </div>
           <details id="patientsMenu" class="nav-group patients-menu">
-            <summary><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m20 0v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /><circle cx="9" cy="7" r="4" /></svg>Patient care<svg class="menu-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg></summary>
+            <summary><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m20 0v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /><circle cx="9" cy="7" r="4" /></svg><span class="patient-menu-label">Patient care</span><span id="patientContextMrn" class="patient-context-mrn" hidden></span><svg class="menu-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg></summary>
             <div class="nav-submenu">
+              <button class="nav-link" type="button" data-view="patient-care">Patient care home</button>
               <button class="nav-link" type="button" data-view="patients">Worklist &amp; charts</button>
               <button class="nav-link" type="button" data-view="patient-profiles">Patient profiles</button>
               <button class="nav-link" type="button" data-view="admissions">Admissions</button>
@@ -231,7 +232,11 @@
           </div>
         </header>
 
-        <section id="patientWorkflowSection" class="panel view-section hidden-section" aria-label="Patient treatment navigation"></section>
+        <section id="patientCareHomeSection" class="view-section hidden-section" aria-label="Patient care home">
+          <div id="patientCareHomeContent"></div>
+        </section>
+
+        <section id="patientWorkflowSection" class="panel view-section hidden-section" aria-label="Patient in context"></section>
 
         <section id="overviewSection" class="stats-grid view-section">
           <button type="button" class="stat-card accent-blue" data-stat-filter="all" aria-pressed="false">
@@ -415,7 +420,7 @@
                 </label>
                 <label>Priority<select name="priority"><option>Routine</option><option>Urgent</option><option>STAT</option></select></label>
               </div>
-              <p id="orderMedicationHelp" class="muted-copy" hidden>For a catalog-based prescription, use <button class="text-btn" type="button" data-treatment-view="medications">Medications &amp; prescriptions</button>. You can also record a general medication request below.</p>
+              <p id="orderMedicationHelp" class="muted-copy" hidden>For a catalog-based prescription, use Patient care &gt; Medications &amp; prescriptions. You can also record a general medication request below.</p>
               <section id="procedureCatalog" class="procedure-catalog" aria-labelledby="procedureCatalogHeading" hidden>
                 <div>
                   <strong id="procedureCatalogHeading">Procedure and surgical operation catalog</strong>

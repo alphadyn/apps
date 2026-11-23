@@ -1598,6 +1598,7 @@ let inboxItems = loadInboxItems(patients);
 let inboxFilter = normalizeInboxFilter(loadWorkspacePreference("inboxFilter", "all"));
 let inboxSearch = "";
 let currentView = loadCurrentView();
+let patientCareHomeActive = false;
 let pharmacyPatientContext = loadWorkspacePreference("pharmacyPatientContext", false) === true;
 if (currentView === "profiles" && selectedProfile.type === "patient") currentView = "patient-profiles";
 let nursingFilter = loadWorkspacePreference("nursingFilter", currentUser.role === "nurse" ? currentUser.label : "all");
@@ -1979,7 +1980,12 @@ function getVisibleSections(view) {
     operationsOverviewSection: view === "overview",
     roleManagementSection: view === "overview" && hasPermission(currentUser.role, "roles:manage"),
     extendedSection: extendedViews.includes(view),
-    patientWorkflowSection: ["patients", "orders", "labs", "medications", "outpatient", "appointments"].includes(view) || (view === "dispensary" && (pharmacyPatientContext || pharmacyMode === "dispensing")),
+    patientCareHomeSection: view === "patient-care" || patientCareHomeActive,
+    patientWorkflowSection: !patientCareHomeActive && (
+      ["patients", "orders", "labs", "medications", "outpatient", "appointments", "clinical", "documents", "billing"].includes(view) ||
+      (view === "patient-profiles" && selectedProfile.type === "patient") ||
+      (view === "dispensary" && (pharmacyPatientContext || pharmacyMode === "dispensing"))
+    ),
     recordsSection: ["patients", "labs", "medications", "billing"].includes(view),
     operationsSection: view === "appointments",
     outpatientSection: view === "outpatient",
@@ -1987,6 +1993,13 @@ function getVisibleSections(view) {
     auditSection: (view === "overview" || view === "appointments" || view === "outpatient") && hasPermission(currentUser.role, "audit:view"),
     clinicalSection: ["clinical", "orders", "documents"].includes(view)
   };
+}
+
+function hasPatientContext(view = currentView) {
+  if (view === "patient-care") return true;
+  if (view === "patient-profiles") return selectedProfile.type === "patient";
+  return ["patients", "orders", "labs", "medications", "outpatient", "appointments", "clinical", "documents", "billing"].includes(view) ||
+    (view === "dispensary" && (pharmacyPatientContext || pharmacyMode === "dispensing"));
 }
 
 function renderNavigation() {
@@ -1998,13 +2011,19 @@ function renderNavigation() {
   });
   const patientsMenu = document.getElementById("patientsMenu");
   const patientView = Boolean(patientsMenu.querySelector(`[data-view="${currentView}"]`));
-  patientsMenu.dataset.active = String(patientView);
-  if (patientView) patientsMenu.open = true;
+  const patientContext = hasPatientContext();
+  patientsMenu.dataset.active = String(patientView || patientContext);
+  if (patientView || patientContext) patientsMenu.open = true;
+  const patientContextMrn = document.getElementById("patientContextMrn");
+  patientContextMrn.textContent = patientContext ? getSelectedPatient().mrn : "";
+  patientContextMrn.hidden = !patientContext;
   document.getElementById("staffSearchContainer").hidden = currentView !== "staff";
   if (currentView !== "staff" && activeHeaderSearch === "staff") activeHeaderSearch = null;
   const heading = document.querySelector(".topbar h2");
   const activeLink = [...document.querySelectorAll(".nav-link")].find((item) => item.dataset.view === currentView);
-  heading.textContent = activeLink?.dataset.view === "inbox" ? "In Basket" : activeLink?.textContent || "Overview";
+  heading.textContent = patientCareHomeActive
+    ? "Patient care home"
+    : activeLink?.dataset.view === "inbox" ? "In Basket" : activeLink?.textContent || "Overview";
   const unreadCount = inboxItems.filter((item) => item.status === "Unread").length;
   const inboxBadge = document.getElementById("inboxUnreadCount");
   inboxBadge.textContent = String(unreadCount);
@@ -3262,7 +3281,6 @@ function renderPatientDetail() {
       <section class="mini-card"><h4>Medication context</h4>
         <p><strong>Allergies:</strong> ${escapeHtml(patient.allergies.join(", ") || "None recorded")}</p>
         <p><strong>Current medication list:</strong> ${escapeHtml(patient.medications.join(", ") || "None recorded")}</p>
-        <button class="ghost-btn" type="button" data-treatment-view="dispensary" data-patient-formulary>Search formulary for this patient</button>
       </section>`}
 
     ${currentView !== "medications" ? `<div class="detail-grid">
@@ -3924,25 +3942,19 @@ function findPatientsByText(value) {
   );
 }
 
-function renderPatientTreatmentNavigation() {
+function renderPatientContext() {
   const container = document.getElementById("patientWorkflowSection");
   const patient = getSelectedPatient();
   container.classList.toggle("pharmacy-patient-context", currentView === "dispensary");
-  const routes = [
-    ["patients", "Chart"], ["orders", "Orders"], ["labs", "Labs & results"],
-    ["outpatient", "Schedule"], ["appointments", "Appointments"], ["medications", "Medications"], ["dispensary", "Formulary"]
-  ];
   container.innerHTML = `
     <div class="treatment-context">
-      <label for="treatmentPatient">Selected patient
+      <label for="treatmentPatient">Patient in context
         <input id="treatmentPatient" type="search" list="treatmentPatientOptions" placeholder="Search by name or MRN" autocomplete="off" />
         <datalist id="treatmentPatientOptions">${patients.map((record) => `<option value="${escapeHtml(`${record.name} · ${record.mrn}`)}"></option>`).join("")}</datalist>
       </label>
       <p>Allergies: ${escapeHtml(patient.allergies.join(", ") || "None recorded")}</p>
+      <button class="ghost-btn patient-care-home-return" type="button" data-patient-care-home>Back to Patient care home</button>
     </div>
-    <nav class="treatment-navigation" aria-label="Selected patient workflow">
-      ${routes.map(([view, label]) => `<button class="ghost-btn" type="button" data-treatment-view="${view}" ${view === currentView ? 'aria-current="page"' : ""}>${label}</button>`).join("")}
-    </nav>
     <p id="treatmentStatus" class="status-message" role="status"></p>`;
   container.querySelector("#treatmentPatient").value = `${patient.name} · ${patient.mrn}`;
 }
@@ -3950,7 +3962,9 @@ function renderPatientTreatmentNavigation() {
 function positionPharmacyNavigation() {
   const navigation = document.querySelector("#extendedContent .pharmacy-navigation, #patientWorkflowSection .pharmacy-navigation");
   if (!navigation) return;
-  const target = document.getElementById(pharmacyMode === "dispensing" ? "patientWorkflowSection" : "extendedContent");
+  const target = document.getElementById(
+    !patientCareHomeActive && pharmacyMode === "dispensing" ? "patientWorkflowSection" : "extendedContent"
+  );
   target.prepend(navigation);
 }
 
@@ -4599,10 +4613,50 @@ function renderProfilesView(container) {
   container.querySelector("#profileSelector").value = `${selectedProfile.type}:${selectedProfile.id}`;
 }
 
+function renderPatientCareHome(container) {
+  const patient = getSelectedPatient();
+  const workflows = [
+    ["patients", "Patient chart", "Review the chart, history, and clinical timeline"],
+    ["patient-profiles", "Patient profile", "View patient demographics and profile details"],
+    ["clinical", "ED & inpatient", "Document encounters, triage, and care-team updates"],
+    ["orders", "Orders & requests", "Create and track care requests"],
+    ["labs", "Labs & results", "Review results and laboratory requests"],
+    ["medications", "Medications", "Review medications and create prescriptions"],
+    ["outpatient", "Outpatient care", "Schedule and manage ambulatory visits"],
+    ["appointments", "Appointments", "Review the patient appointment schedule"],
+    ["documents", "Notes & documents", "Review or create clinical documents"],
+    ["dispensary", "Formulary", "Search medications for the patient"],
+    ["billing", "Billing", "Review billing and insurance details"]
+  ];
+  container.innerHTML = `
+    <section class="panel patient-care-home">
+      <div class="panel-header">
+        <div><p class="eyebrow">Patient care</p><h3>Patient care home</h3></div>
+      </div>
+      <p class="muted-copy">Search for a patient in the field above. Select a result to set the patient in context.</p>
+      <section class="patient-care-context" aria-labelledby="patientCareSelectedHeading">
+          <p class="eyebrow">Patient in context</p>
+          <h4 id="patientCareSelectedHeading" tabindex="-1">${escapeHtml(patient.name)}</h4>
+          <p class="patient-care-context-meta">${escapeHtml(patient.mrn)} · ${escapeHtml(patient.age)} years · ${escapeHtml(patient.sex)}</p>
+          <p>${escapeHtml(patient.diagnosis)}</p>
+          <div class="patient-care-workflows">
+            <h4>Patient workflows</h4>
+            <div class="patient-care-workflow-grid">
+              ${workflows.map(([view, title, description]) => `
+                <button class="patient-care-workflow" type="button" data-patient-care-view="${view}">
+                  <strong>${title}</strong><span>${description}</span>
+                </button>                `).join("")}
+            </div>
+          </div>
+      </section>
+    </section>`;
+}
+
 function renderExtendedWorkspace() {
   const container = document.getElementById("extendedContent");
   if (!container) return;
   switch (currentView) {
+    case "patient-care": container.innerHTML = ""; break;
     case "my-patients": renderMyPatientsView(container); break;
     case "inbox": renderInboxView(container); break;
     case "admissions": renderAdmissionsView(container); break;
@@ -4980,8 +5034,6 @@ function renderOrders() {
               <p class="status-message" role="status"></p>
             </form></details>` : ""}
           <div class="record-card-footer"><span>${escapeHtml(order.time)}</span>
-            ${order.category === "Laboratory" ? '<button class="ghost-btn" type="button" data-treatment-view="labs">Review lab results</button>' : ""}
-            ${order.category === "Medication" ? `<button class="ghost-btn" type="button" data-treatment-view="medications" ${order.prescriptionId ? `data-treatment-target="patient-prescription-${escapeHtml(order.prescriptionId)}"` : ""}>Review medications</button>` : ""}
             ${order.prescriptionId && order.status !== "Cancelled" ? `<button class="ghost-btn" type="button" data-dispense-prescription="${escapeHtml(order.prescriptionId)}">Open in dispensing</button>` : ""}
             ${nextStatus ? `<button class="ghost-btn action-btn" type="button" data-order-id="${escapeHtml(order.id)}" data-next-status="${escapeHtml(nextStatus)}" ${canUpdate ? "" : "disabled"}>${nextStatus === "Acknowledged" ? "Acknowledge" : "Mark complete"}</button>` : ""}
             ${order.status === "Pending" ? `<button class="text-btn" type="button" data-order-id="${escapeHtml(order.id)}" data-next-status="Cancelled" ${canUpdate ? "" : "disabled"}>Cancel</button>` : ""}
@@ -5172,6 +5224,9 @@ function render() {
   syncOrderDraftPatient();
   renderNavigation();
   applyViewState();
+  if (currentView === "patient-care" || patientCareHomeActive) {
+    renderPatientCareHome(document.getElementById("patientCareHomeContent"));
+  }
   renderRoleSummary();
   renderDashboardStats();
   renderPermissions();
@@ -5181,7 +5236,7 @@ function render() {
   renderExtendedWorkspace();
   renderPatientList();
   renderPatientDetail();
-  renderPatientTreatmentNavigation();
+  renderPatientContext();
   positionPharmacyNavigation();
   renderAppointments();
   renderOutpatientAppointments();
@@ -5389,7 +5444,12 @@ function attachEvents() {
       if (searchType === "patient") {
         selectedPatientId = Number(searchId);
         selectedProfile = { type: "patient", id: selectedPatientId };
-        setCurrentView("patient-profiles");
+        const keepPatientCareHome = currentView === "patient-care" || patientCareHomeActive;
+        if (keepPatientCareHome) {
+          patientCareHomeActive = currentView !== "patient-care";
+        } else {
+          setCurrentView("patient-profiles");
+        }
       } else if (searchType === "staff") {
         openStaffProfile(searchId);
         return;
@@ -5417,6 +5477,29 @@ function attachEvents() {
     render();
   });
   document.getElementById("main-content").addEventListener("click", (event) => {
+    if (event.target.closest("[data-patient-care-home]")) {
+      patientCareHomeActive = false;
+      setCurrentView("patient-care");
+      dispensingPrescriptionId = "";
+      render();
+      scrollToWorkspaceTop();
+      return;
+    }
+    const patientWorkflow = event.target.closest("[data-patient-care-view]");
+    if (patientWorkflow) {
+      const view = patientWorkflow.dataset.patientCareView;
+      patientCareHomeActive = true;
+      if (view === "patient-profiles") selectedProfile = { type: "patient", id: selectedPatientId };
+      if (view === "dispensary") {
+        pharmacyPatientContext = true;
+        pharmacyMode = "formulary";
+      }
+      setCurrentView(view);
+      dispensingPrescriptionId = "";
+      render();
+      scrollToWorkspaceTop();
+      return;
+    }
     const dispense = event.target.closest("[data-dispense-prescription]");
     const navigation = event.target.closest("[data-treatment-view]");
     if (!dispense && !navigation) return;
@@ -5664,8 +5747,11 @@ function attachEvents() {
   document.querySelectorAll(".nav-link").forEach((link) => {
     link.addEventListener("click", () => {
       closeMobileNavigation();
+      const patientWorkflowViews = ["patients", "patient-profiles", "clinical", "orders", "labs", "medications", "outpatient", "appointments", "documents", "dispensary", "billing"];
+      patientCareHomeActive = link.dataset.view !== "patient-care" &&
+        patientCareHomeActive && patientWorkflowViews.includes(link.dataset.view);
       if (link.dataset.view === "dispensary") {
-        pharmacyPatientContext = false;
+        pharmacyPatientContext = hasPatientContext();
         pharmacyMode = "formulary";
       }
       setCurrentView(link.dataset.view);

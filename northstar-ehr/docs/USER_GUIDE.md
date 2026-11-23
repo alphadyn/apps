@@ -33,6 +33,10 @@ Use **Active role** in the sidebar to switch among your account's authorized rol
 
 Provider and Midlevel roles support encounter, order, note, task, and data-exchange workflows. Nurse retains nursing workflow, order, note, appointment, and task capabilities. Staff supports appointment completion and chart selection; Admin supports account management, administrative review, billing, and data exchange. These controls are demo UI permissions, not trusted access control. Sample sign-ins use `elena.ruiz` (Provider and Admin, initially active as Provider), `jordan.lee` (Nurse), or `alex.morgan` (Admin), with the password `northstar`. Saved Admin-managed authorizations take precedence over sample defaults; existing accounts can be updated from Account roles. The sidebar distinguishes authorized roles from the active role. Do not enter or import real patient information.
 
+## Patient care
+
+Open **Patient care > Patient care home** to choose a workflow. Use the patient search in the workspace header to find a patient by name, MRN, diagnosis, care team, or location; selecting a result updates the patient in context. Choose a workflow to show its details below the patient context on the same screen. The patient's chart, profile, encounter, orders, results, medication list, formulary, outpatient care, appointments, documents, or billing are available. The Patient care menu displays the current patient's MRN while the patient is in context.
+
 ## Patient chart
 
 The worklist contains 23 fictional charts spanning a variety of conditions and histories. Choose a patient or filter the worklist by name, MRN, diagnosis, priority, or status. Selecting a patient updates and focuses the chart and brings the top of its card into view. The header has a patient search; the Staff directory has a separate search for staff by name and profile details. Selecting a patient or staff result opens that person's profile. At the top of the chart, the medical-status dashboard summarizes the primary diagnosis, encounter stage, department/location, attending, assigned nurse, priority, and allergies. The vital dashboard displays the latest charted blood pressure, heart rate, respiratory rate, temperature, oxygen saturation, and pain score; when repeat readings are recorded, expand **View recent readings** to review their timestamps and values. The imaging dashboard shows study and report counts, preliminary reports, open imaging orders, and the latest report summary.
@@ -46,6 +50,8 @@ When opening **Formulary** from a patient's workflow, the selected patient and n
 To register a new fictional patient, choose **Register patient** in **Patients & care > Worklist & charts**, or choose **Register a patient** from **Admissions**. Provider, Midlevel, and Nurse roles can enter a name, unique MRN, age, and sex, then select **Create profile & open triage**. Check the worklist for an existing record first; duplicate MRNs are rejected. The profile is saved locally and opens the new patient's intake form. No admission, diagnosis, allergy, medication, or vital assessment is inferred by registration. The admissions census includes the patient only after an admission stage or admit disposition is saved.
 
 Use **Cancel** to close the registration form without creating a profile; its unsaved entries remain available until the form is reset or the page is reloaded.
+
+When a patient is in context, use the **Patient care** menu to move between that patient's chart, encounter, orders, results, appointments, and medications. The patient's MRN appears beside the menu label. In patient workflow panels, use the patient selector to change context without leaving the current workspace.
 
 Open **ED & inpatient** to document an encounter. The form groups arrival and triage separately from care-team and disposition details:
 

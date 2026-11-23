@@ -630,6 +630,27 @@ textarea {
   font-weight: 600;
 }
 
+.patient-context-mrn {
+  min-width: 0;
+  max-width: 105px;
+  overflow: hidden;
+  flex: 0 1 105px;
+  margin-left: auto;
+  padding: 3px 7px;
+  border: 1px solid rgba(132, 203, 193, 0.3);
+  border-radius: 999px;
+  color: #a4d8d1;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.patient-menu-label {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
 .patients-menu > summary::-webkit-details-marker {
   display: none;
 }
@@ -2540,6 +2561,74 @@ button.stat-card {
 
 .patient-card .patient-card-diagnosis {
   color: #526170;
+}
+
+.patient-care-context {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fff;
+}
+
+.patient-care-workflows h4 {
+  margin: 0;
+  color: var(--text);
+}
+
+.patient-care-context > .eyebrow {
+  margin-bottom: 5px;
+}
+
+.patient-care-context > h4 {
+  margin: 0;
+  color: var(--text);
+  font-size: 1.2rem;
+}
+
+.patient-care-context-meta {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.patient-care-workflows {
+  margin-top: 20px;
+}
+
+.patient-care-workflow-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 10px;
+}
+
+.patient-care-workflow {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  min-height: 74px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.patient-care-workflow:hover {
+  border-color: #9ab8d8;
+  background: #f8fbff;
+}
+
+.patient-care-workflow strong {
+  color: var(--accent);
+}
+
+.patient-care-workflow span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.4;
 }
 
 .patient-card .patient-card-status {
@@ -4493,6 +4582,10 @@ h4.collapse-head .collapse-toggle {
   .treatment-context label,
   .treatment-context p {
     flex-basis: 100%;
+  }
+
+  .patient-care-workflow-grid {
+    grid-template-columns: 1fr;
     margin: 0;
   }
 

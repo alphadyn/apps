@@ -368,7 +368,7 @@ test("department cards do not use the staff-specific card layout", () => {
   assert.doesNotMatch(context.directoryContainer.innerHTML, /staff-directory-card/);
 });
 
-test("separate header searches filter the correct records and staff directory", () => {
+test("separate header searches return patient or staff profiles and search staff details", () => {
   const { context } = setup();
   context.directoryContainer = { innerHTML: "" };
   const input = (value) => ({
@@ -400,8 +400,9 @@ test("separate header searches filter the correct records and staff directory", 
   assert.equal(patientInput.attributes["aria-expanded"], "false");
   assert.equal(staffResults.hidden, false);
   assert.match(staffResults.innerHTML, /Morgan Ellis/);
-  assert.match(staffResults.innerHTML, /data-search-type="department"/);
-  assert.match(staffResults.innerHTML, /data-search-type="location"/);
+  assert.match(staffResults.innerHTML, /data-search-type="staff"/);
+  assert.doesNotMatch(staffResults.innerHTML, /data-search-type="department"/);
+  assert.doesNotMatch(staffResults.innerHTML, /data-search-type="location"/);
   assert.doesNotMatch(staffResults.innerHTML, /data-search-type="patient"/);
   vm.runInContext("renderStaffView(directoryContainer)", context);
 
@@ -412,7 +413,7 @@ test("separate header searches filter the correct records and staff directory", 
 
   staffInput.value = "no matching staff";
   vm.runInContext("renderGlobalSearch()", context);
-  assert.match(staffResults.innerHTML, /No staff, departments, or locations matched/);
+  assert.match(staffResults.innerHTML, /No staff matched/);
   vm.runInContext("renderStaffView(directoryContainer)", context);
   assert.match(context.directoryContainer.innerHTML, /0 matches/);
   assert.match(context.directoryContainer.innerHTML, /No staff found/);

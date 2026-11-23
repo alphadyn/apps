@@ -3643,8 +3643,7 @@ function renderHeaderSearch({ kind, inputId, resultsId }) {
       subtitle: `${patient.mrn} · ${patient.diagnosis}`,
       kind: "Patient"
     }))
-    : [
-    ...staffDirectory.filter((staff) =>
+    : staffDirectory.filter((staff) =>
       `${staff.name} ${staff.title} ${staff.role} ${staff.department} ${staff.location} ${staff.email}`
         .toLowerCase().includes(term)
     ).slice(0, 5).map((staff) => ({
@@ -3653,26 +3652,7 @@ function renderHeaderSearch({ kind, inputId, resultsId }) {
       title: staff.name,
       subtitle: `${staff.title} · ${staff.department}`,
       kind: staff.role
-    })),
-    ...departments.filter((department) =>
-      `${department.name} ${department.code} ${department.description}`.toLowerCase().includes(term)
-    ).slice(0, 5).map((department) => ({
-      type: "department",
-      id: department.name,
-      title: department.name,
-      subtitle: `${department.code} · ${department.description}`,
-      kind: "Department"
-    })),
-    ...locations.filter((location) =>
-      `${location.name} ${location.department} ${location.kind}`.toLowerCase().includes(term)
-    ).slice(0, 5).map((location) => ({
-      type: "location",
-      id: location.name,
-      title: location.name,
-      subtitle: `${location.department} · ${location.kind}`,
-      kind: "Location"
-    }))
-  ];
+    }));
 
   resultsPanel.innerHTML = results.length
     ? results.map((result) => `
@@ -3680,7 +3660,7 @@ function renderHeaderSearch({ kind, inputId, resultsId }) {
         <span><strong>${escapeHtml(result.title)}</strong><small>${escapeHtml(result.subtitle)}</small></span>
         <span class="search-result-kind">${escapeHtml(result.kind)}</span>
       </button>`).join("")
-    : `<p class="search-empty">${kind === "patient" ? "No patients matched." : "No staff, departments, or locations matched."}</p>`;
+    : `<p class="search-empty">${kind === "patient" ? "No patients matched." : "No staff matched."}</p>`;
   resultsPanel.hidden = false;
   input.setAttribute("aria-expanded", "true");
 }
@@ -5061,8 +5041,6 @@ function attachEvents() {
       } else if (searchType === "staff") {
         openStaffProfile(searchId);
         return;
-      } else {
-        setCurrentView(searchType === "department" ? "departments" : "locations");
       }
       render();
       scrollToWorkspaceTop();

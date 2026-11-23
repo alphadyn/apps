@@ -103,7 +103,9 @@ For designs without explicit fence settings, adding a gate also shows a default 
 
 ## Rooftop terraces
 
-The two rooftop family-home samples include aligned stairs to a separate roof level, an enclosed stair/lobby, outdoor terrace zones, and example door/window/gate specifications. The roof level counts as a floor in the overview and its terrace area contributes to total floor area.
+All 14 sample designs include curated flat-roof finishes and capped parapets. The collection demonstrates membrane, gravel, and paver roofs; timber, tile, and concrete outdoor floors; and glass, metal, and solid railings on elevated balconies and terraces. Ground-level garden terraces remain open to the garden. Gallery previews and newly opened sample copies use these settings; existing saved designs are not modified.
+
+The two rooftop family-home samples include aligned stairs to a separate roof level, an enclosed stair/lobby, outdoor terrace zones, and example door/window/gate specifications. The Roof Garden Family Home pairs timber decks with metal railings and gravel roofs; the Skyline Family House uses tiled outdoor spaces, glass railings, and roof pavers. The roof level counts as a floor in the overview and its terrace area contributes to total floor area.
 
 For your own design, add a floor, add **Terrace** spaces on it, and name them as rooftop zones. Add a staircase aligned with the floor below and an enclosed access room as needed. Select any terrace or balcony, enable **Show concept railing**, and choose its style and height. Choose **Update space**, then **Apply changes** to save. Railings appear on exposed outdoor edges in the plan and 3D views, rotate with the model, and are included in saved designs and SVG exports. Removing the checkbox hides the railing without discarding its style and height.
 

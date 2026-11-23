@@ -1,4 +1,10 @@
-import { createProject, createRoom, validateProject } from "./model.js";
+import { createProject, createRoom, isOutdoor, validateProject } from "./model.js";
+import { ROOF_FINISHES } from "./envelope.js?v=20261122-6";
+
+const finishes = (finish, height, material, railingStyle) => ({
+  roof: { finish, parapet: true, height },
+  outdoor: { material, railingStyle, railingHeight: 1.1 },
+});
 
 function home(name, style, ceiling, lot, floors) {
   return {
@@ -14,6 +20,7 @@ function home(name, style, ceiling, lot, floors) {
 const definitions = [
   {
     id: "pocket-retreat", tag: "COMPACT RETREAT", description: "A small footprint, a generous way of living.",
+    finishes: finishes("membrane", .25, "deck", "metal"),
     story: "A single-level, one-bedroom home with a full-width garden deck. Open living and a compact kitchen sit beside a private sleeping suite, connected by a dedicated hallway.",
     highlights: ["One-bedroom retreat", "Efficient rectangular plan", "Full-width timber deck"],
     project: home("The Pocket Retreat", "Minimalist", 2.7, [16, 22, 4, 5, "Fern Walk"], [[
@@ -25,6 +32,7 @@ const definitions = [
   },
   {
     id: "garden-bungalow", tag: "SINGLE-LEVEL LIVING", description: "Two bedrooms, open spaces, and a garden connection.",
+    finishes: finishes("gravel", .35, "tile", "metal"),
     story: "A two-bedroom bungalow arranged in two clear bands: social spaces at the rear, bedrooms and service rooms along a central hall. A broad terrace opens toward the front garden.",
     highlights: ["Two-bedroom bungalow", "Central circulation spine", "Pantry, laundry & storage"],
     project: home("The Garden Bungalow", "Modern organic", 2.9, [24, 30, 6, 6, "Willow Crescent"], [[
@@ -39,12 +47,14 @@ const definitions = [
   },
   {
     id: "courtyard-house", tag: "COMPACT FAMILY HOME", description: "The original Forma concept, across two thoughtful levels.",
+    finishes: finishes("gravel", .45, "tile", "glass"),
     story: "The familiar three-bedroom starter concept: living, kitchen, dining, utility, and a garden terrace downstairs; bedrooms and a home office above. A compact stacked form leaves generous room around the house.",
     highlights: ["Three bedrooms & office", "Two stacked levels", "Ground-floor garden terrace"],
     project: createProject(),
   },
   {
     id: "terrace-townhouse", tag: "NARROW-LOT HOME", description: "Three levels of possibility on an urban lot.",
+    finishes: finishes("membrane", .45, "tile", "metal"),
     story: "A narrow townhouse with social spaces on the ground floor, two bedrooms and a study above, and a private primary suite on the top level. Aligned stairs link all floors; a balcony and roof terrace create outdoor retreats.",
     highlights: ["Three bedrooms & study", "Three aligned staircases", "Balcony & roof terrace"],
     project: home("The Terrace Townhouse", "Contemporary", 2.8, [11, 24, 2, 4, "Alder Street"], [
@@ -70,6 +80,7 @@ const definitions = [
   },
   {
     id: "l-shaped-residence", tag: "SHELTERED OUTDOOR LIVING", description: "An L-shaped home wrapped around a generous terrace.",
+    finishes: finishes("gravel", .3, "concrete", "metal"),
     story: "A single-story residence with a social wing and a three-bedroom private wing. The L-shaped enclosed footprint frames a large sheltered outdoor terrace. Two bathrooms and a dedicated hall support everyday family life.",
     highlights: ["Three-bedroom single story", "Distinct L-shaped footprint", "Large sheltered terrace"],
     project: home("The L-Shaped Residence", "Mid-century", 3, [30, 34, 7, 6, "Laurel Drive"], [[
@@ -83,6 +94,7 @@ const definitions = [
   },
   {
     id: "urban-duplex", tag: "COMPACT DUPLEX", description: "A three-bedroom family home on two efficient levels.",
+    finishes: finishes("membrane", .45, "tile", "metal"),
     story: "A single-family, two-storey duplex with an open social floor, a dedicated laundry, and three upstairs bedrooms. A central hall and aligned staircase organize a compact rectangular footprint.",
     highlights: ["Single-family two-storey home", "Three bedrooms & three baths", "Compact footprint"],
     project: home("The Urban Duplex", "Contemporary", 2.8, [18, 26, 4, 6, "Maple Lane"], [
@@ -104,6 +116,7 @@ const definitions = [
   },
   {
     id: "garden-duplex", tag: "GARDEN DUPLEX", description: "A generous two-storey home for a growing family.",
+    finishes: finishes("gravel", .45, "deck", "glass"),
     story: "A four-bedroom, single-family duplex with a ground-floor guest room, garage, and a full-width garden terrace. Three upstairs bedrooms share a family lounge, study, and balcony; the stacked staircase connects both floors.",
     highlights: ["Four bedrooms & four baths", "Guest room & single garage", "Garden terrace & upper balcony"],
     project: home("The Garden Duplex", "Modern organic", 3, [26, 32, 6, 7, "Acacia Avenue"], [
@@ -127,6 +140,7 @@ const definitions = [
   },
   {
     id: "palm-maisonette", tag: "COMPACT MAISONETTE", description: "Two bedrooms above an intimate garden-facing living floor.",
+    finishes: finishes("membrane", .35, "deck", "metal"),
     story: "A compact, self-contained two-level maisonette with its own ground-floor entrance. Living, kitchen, and pantry sit below two bedrooms, with a garden deck downstairs and an open balcony above.",
     highlights: ["Two bedrooms & two baths", "Private ground-floor entrance", "Garden deck & upper balcony"],
     project: home("The Palm Maisonette", "Minimalist", 2.8, [16, 24, 4, 5, "Palm Close"], [
@@ -145,6 +159,7 @@ const definitions = [
   },
   {
     id: "terrace-maisonette", tag: "FAMILY MAISONETTE", description: "A two-level family home with an upper garden retreat.",
+    finishes: finishes("tile", .45, "tile", "solid"),
     story: "A three-bedroom maisonette with a private entrance, ground-floor guest bedroom, and a generous upstairs family lounge. The smaller enclosed upper floor opens onto an L-shaped terrace beside the primary suite.",
     highlights: ["Three bedrooms & three baths", "Ground-floor guest bedroom", "Upper lounge & L-shaped terrace"],
     project: home("The Terrace Maisonette", "Contemporary", 2.9, [24, 28, 6, 6, "Magnolia Court"], [
@@ -167,6 +182,7 @@ const definitions = [
   },
   {
     id: "horizon-mansion", tag: "CONTEMPORARY MANSION", description: "Five bedrooms, broad social spaces, and a sweeping balcony.",
+    finishes: finishes("tile", .5, "tile", "glass"),
     story: "A five-bedroom, two-storey mansion with a guest suite, study, and triple garage on the ground floor. Upstairs, a primary suite and three further bedrooms surround family spaces and a broad terrace above the garage.",
     highlights: ["Five bedrooms & six baths", "Triple garage & guest suite", "Broad upper balcony"],
     project: home("The Horizon Mansion", "Contemporary", 3.2, [46, 48, 11, 10, "Horizon Boulevard"], [
@@ -195,6 +211,7 @@ const definitions = [
   },
   {
     id: "grand-courtyard-estate", tag: "THREE-STOREY MANSION", description: "A six-bedroom estate arranged around an open garden court.",
+    finishes: finishes("gravel", .6, "tile", "solid"),
     story: "A contemporary mansion with two wings framing a garden court, connected by broad galleries. Six bedrooms span three levels, with a private top-floor suite, wellness studio, cinema, roof terraces, and a triple garage.",
     highlights: ["Six bedrooms & seven baths", "U-shaped garden-court concept", "Three floors, cinema & wellness studio"],
     project: home("The Grand Courtyard Estate", "Modern organic", 3.3, [60, 64, 18, 16, "Cypress Ridge"], [
@@ -236,6 +253,7 @@ const definitions = [
   },
   {
     id: "family-pavilion", tag: "GENEROUS FAMILY LIVING", description: "A broad pavilion with a stepped-back upper floor.",
+    finishes: finishes("gravel", .4, "deck", "glass"),
     story: "A larger four-bedroom home with a guest suite and double garage downstairs. A smaller upper level creates a stepped contemporary profile, with three more bedrooms, a family lounge, and a wide balcony overlooking the garden.",
     highlights: ["Four bedrooms & four baths", "Double garage & guest suite", "Stepped upper floor & balcony"],
     project: home("The Family Pavilion", "Modern organic", 3, [36, 40, 8, 7, "Cedar Grove"], [
@@ -286,6 +304,7 @@ function rooftopHome(sourceId, name, roofRooms) {
 definitions.push(
   {
     id: "roof-garden-family-home", tag: "SINGLE-FAMILY ROOF GARDEN", description: "Three bedrooms below a private rooftop garden terrace.",
+    finishes: finishes("gravel", .4, "deck", "metal"),
     story: "A single-family two-storey home with a dedicated third-level roof terrace. The aligned staircase ends in an enclosed rooftop access lobby, with railed outdoor decks wrapping around it. Includes editable entry, glazing, roof-door, and boundary-gate specifications.",
     highlights: ["Three bedrooms & three baths", "Stair-accessed rooftop terrace", "Specified doors, window & vehicle gate"],
     project: rooftopHome("urban-duplex", "The Roof Garden Family Home", [
@@ -297,6 +316,7 @@ definitions.push(
   },
   {
     id: "skyline-family-house", tag: "SINGLE-FAMILY SKY TERRACE", description: "Four bedrooms, a garage, and outdoor living above the rooftops.",
+    finishes: finishes("tile", .5, "tile", "glass"),
     story: "A generous single-family home with a guest bedroom, upper family lounge, and balcony. A third-level roof terrace offers multiple outdoor zones around the enclosed stair and lobby, with conceptual glass edge railings and editable opening specifications.",
     highlights: ["Four bedrooms & four baths", "Garage, balcony & rooftop decks", "Continuous staircase to the roof"],
     project: rooftopHome("garden-duplex", "The Skyline Family House", [
@@ -307,10 +327,18 @@ definitions.push(
   },
 );
 
-export const SAMPLE_DESIGNS = definitions.map(({ project, ...details }) => ({
-  ...details,
-  create: () => validateProject(structuredClone(project)),
-}));
+export const SAMPLE_DESIGNS = definitions.map(({ project, finishes, ...details }) => {
+  const template = structuredClone(project);
+  template.roof = { ...finishes.roof };
+  template.floors.forEach((floor, level) => {
+    for (const room of floor.rooms.filter(isOutdoor)) Object.assign(room, finishes.outdoor, { railing: level > 0 });
+  });
+  return {
+    ...details,
+    highlights: [...details.highlights, `${ROOF_FINISHES[template.roof.finish]} & capped parapets`],
+    create: () => validateProject(structuredClone(template)),
+  };
+});
 
 export function createSampleDesign(id) {
   const sample = SAMPLE_DESIGNS.find(item => item.id === id);

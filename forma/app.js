@@ -2,7 +2,7 @@ import { TYPES, createProject, floorArea, projectStats, propertyStats, bounds, i
 import { renderPropertyView } from "./property-view.js?v=20261122-6";
 import { renderFloor3D } from "./floor-view.js?v=20261122-5";
 import { cameraFromDrag, createCamera, DEFAULT_CAMERA, normalizeCamera } from "./camera.js";
-import { SAMPLE_DESIGNS, createSampleDesign } from "./samples.js";
+import { SAMPLE_DESIGNS, createSampleDesign } from "./samples.js?v=20261122-7";
 import { featureHost, featureVertices, featureMarkup, fenceSettings, FEATURE_MATERIALS, railingMarkup } from "./architecture.js?v=20261122-5";
 import { outdoorControlsMarkup, roofControlsMarkup, readOutdoorControls, readRoofControls } from "./envelope-ui.js?v=20261122-5";
 import { railingSettings } from "./envelope.js?v=20261122-5";

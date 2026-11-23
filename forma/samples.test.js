@@ -103,6 +103,7 @@ test("each sample opens as a fresh copy without mutating templates or the starte
     const first = createSampleDesign(sample.id), saved = JSON.stringify(first);
     first.name = "Changed home";
     first.property.width = 100;
+    first.roof.finish = "changed";
     first.floors[0].rooms[0].width = 1;
     first.floors.push({ id: "extra", name: "Extra floor", rooms: [] });
     assert.equal(JSON.stringify(sample.create()), saved);
@@ -110,6 +111,30 @@ test("each sample opens as a fresh copy without mutating templates or the starte
   }
   assert.deepEqual(createProject(), starter);
   assert.throws(() => createSampleDesign("missing-sample"), /not available/);
+});
+
+test("samples showcase finished roofs and protect elevated outdoor spaces without enclosing garden terraces", () => {
+  const finishes = new Set(), styles = new Set(), materials = new Set();
+  for (const sample of SAMPLE_DESIGNS) {
+    const project = sample.create();
+    finishes.add(project.roof.finish);
+    assert.equal(project.roof.parapet, true);
+    assert.ok(sample.highlights.some(text => text.includes("capped parapets")));
+    project.floors.forEach((floor, level) => {
+      for (const room of floor.rooms.filter(isOutdoor)) {
+        assert.equal(room.railing, level > 0, `${sample.id}: ${room.name}`);
+        assert.equal(room.railingHeight, 1.1);
+        materials.add(room.material);
+        if (room.railing) styles.add(room.railingStyle);
+      }
+    });
+    const markup = renderPropertyView(project, { view: "3d" }).markup;
+    assert.match(markup, /data-roof-edge="coping"/);
+    assert.match(markup, new RegExp(`data-roof-finish="${project.roof.finish}"`));
+  }
+  assert.deepEqual([...finishes].sort(), ["gravel", "membrane", "tile"]);
+  assert.deepEqual([...styles].sort(), ["glass", "metal", "solid"]);
+  assert.deepEqual([...materials].sort(), ["concrete", "deck", "tile"]);
 });
 
 test("all samples render as complete property plans and 3D floor previews", () => {

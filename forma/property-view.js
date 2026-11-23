@@ -2,7 +2,7 @@ import { TYPES, bounds, isOutdoor, exteriorWalls, exteriorRoomWalls, roomVertice
 import { createCamera, DEFAULT_CAMERA, sortFaces } from "./camera.js";
 import { featureHost, featureVertices, featureMarkup, railingMarkup, boundaryFence, fenceSettings, fenceMarkup } from "./architecture.js?v=20261122-5";
 import { formatLength } from "./units.js";
-import { railingSettings, roofSettings, surfaceMarkup, edgePrism, exposedRoofEdge, namespaceScene } from "./envelope.js?v=20261122-5";
+import { railingSettings, roofSettings, surfaceMarkup, roofEdgeDetails, exposedRoofEdge, namespaceScene } from "./envelope.js?v=20261122-6";
 
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const number = value => Number(value.toFixed(2));
@@ -188,13 +188,12 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
             : surfaceMarkup(vertices, finish, point, `roof-finish-${index}-${roomIndex}`);
           scene.push({ vertices, markup: `<g data-roof-level="${index}" data-roof-finish="${roofSpec.finish}">${surface}</g>`, floor: f, index });
         }
-        if (roofSpec.parapet) {
-          const coverings = project.floors.slice(index + 1).flatMap(floor => floor.rooms.map(roomVertices));
-          for (const edge of exteriorRoomWalls(enclosed).flatMap(wall => exposedRoofEdge(wall, coverings))) {
-            const origin = v => [v[0] + p.houseX, v[1] + p.houseY];
-            for (const face of edgePrism(origin(edge.a), origin(edge.b), edge.normal, z + project.ceiling, roofSpec.height)) {
-              addFace(face.vertices, face.fill, 'data-roof-parapet="true"', f, index);
-            }
+        const coverings = project.floors.slice(index + 1).flatMap(floor => floor.rooms.map(roomVertices));
+        for (const edge of exteriorRoomWalls(enclosed).flatMap(wall => exposedRoofEdge(wall, coverings))) {
+          const origin = v => [v[0] + p.houseX, v[1] + p.houseY];
+          for (const face of roofEdgeDetails(origin(edge.a), origin(edge.b), edge.normal, z + project.ceiling, roofSpec)) {
+            const parapet = face.kind === "parapet" || face.kind === "coping";
+            addFace(face.vertices, face.fill, `data-roof-edge="${face.kind}"${parapet ? ' data-roof-parapet="true"' : ""}`, f, index);
           }
         }
       }

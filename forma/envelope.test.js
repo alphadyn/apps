@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createProject, createRoom, validateProject, validateRoom, parseProject, propertyStats } from "./model.js";
-import { roofSettings, railingSettings, exposedRoofEdge, edgePrism, surfaceMarkup } from "./envelope.js";
+import { roofSettings, railingSettings, exposedRoofEdge, edgePrism, surfaceMarkup, roofEdgeDetails } from "./envelope.js";
 import { fromMeters } from "./units.js";
 import { outdoorControlsMarkup, roofControlsMarkup, readOutdoorControls, readRoofControls } from "./envelope-ui.js";
 import { renderPropertyView } from "./property-view.js";
@@ -59,6 +59,23 @@ test("roof decks do not acquire parapets underneath them or phantom extra height
   assert.match(renderPropertyView(project, { view: "3d" }).markup, /data-roof-parapet/);
 });
 
+test("finished roof edges have fascia, overhanging segmented coping and base flashing", () => {
+  const faces = roofEdgeDetails([0, 0], [4, 0], [0, -1], 3, { parapet: true, height: .6 });
+  assert.equal(faces.filter(face => face.kind === "coping").length, 20);
+  for (const kind of ["fascia", "parapet", "coping", "flashing"]) assert.ok(faces.some(face => face.kind === kind));
+  const coping = faces.filter(face => face.kind === "coping").flatMap(face => face.vertices);
+  assert.ok(coping.some(v => v[1] < 0));
+  assert.ok(coping.some(v => v[1] > .12));
+  assert.ok(Math.abs(Math.max(...coping.map(v => v[2])) - 3.6) < 1e-8);
+  assert.ok(roofEdgeDetails([0, 0], [4, 0], [0, -1], 3, { parapet: false }).every(face => face.kind === "fascia"));
+  const vertices = [[0, 0, 3], [4, 0, 3], [4, 4, 3], [0, 4, 3]];
+  const point = (x, y) => ({ x, y });
+  const gravel = surfaceMarkup(vertices, "gravel", point, "gravel-test");
+  assert.match(gravel, /data-roof-aggregate="true"/);
+  assert.equal(surfaceMarkup(vertices, "gravel", point, "gravel-test"), gravel);
+  assert.ok(new Set([...gravel.matchAll(/fill="(#[a-f0-9]+)"/g)].map(match => match[1])).size >= 5);
+});
+
 test("finishes, slabs, parapets, and every railing style render across orbit extremes", () => {
   const project = createProject(), room = project.floors[0].rooms.find(r => r.type === "terrace");
   room.outline = [[0, 0], [10, 0], [8, 2.5], [0, 2.5]];
@@ -82,7 +99,7 @@ test("finishes, slabs, parapets, and every railing style render across orbit ext
     }
     assert.equal(JSON.stringify(project), before);
   }
-  assert.doesNotMatch(renderPropertyView(project, { view: "3d", roof: false }).markup, /data-roof-parapet|data-roof-level/);
+  assert.doesNotMatch(renderPropertyView(project, { view: "3d", roof: false }).markup, /data-roof-parapet|data-roof-level|data-roof-edge/);
   assert.match(renderPropertyView(project, { view: "2d" }).markup, /data-railing-style="solid"/);
   room.railing = false;
   assert.doesNotMatch(renderFloor3D([room]), /data-terrace-railing/);

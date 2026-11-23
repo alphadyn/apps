@@ -45,9 +45,15 @@ export function surfaceMarkup(vertices, material, point, id) {
       for (let x = minX + step; x < maxX; x += step) detail += line([[x, minY, z], [x, maxY, z]]);
     }
   } else if (material === "gravel") {
-    for (let y = minY + .2, row = 0; y < maxY; y += .35, row++) {
-      for (let x = minX + .16 + (row % 2) * .17; x < maxX; x += .35) {
-        detail += line([[x, y, z], [x + .06, y + .04, z]]);
+    // World-space variation stays fixed as the camera moves and across adjoining roof rooms.
+    const noise = (x, y) => { const n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return n - Math.floor(n); };
+    for (let row = Math.floor(minY / .22); row * .22 < maxY; row++) {
+      for (let column = Math.floor(minX / .22); column * .22 < maxX; column++) {
+        const x = (column + noise(column, row) * .8) * .22;
+        const y = (row + noise(row, column + 19) * .8) * .22;
+        const size = .025 + noise(column + 7, row) * .045;
+        const color = ["#97998e", "#d9d4c7", "#aaa89b", "#e7e1d3"][Math.floor(noise(column, row + 11) * 4)];
+        detail += `<polygon data-roof-aggregate="true" points="${coords([[x - size, y, z], [x, y - size * .7, z], [x + size, y, z], [x + size * .3, y + size, z]])}" fill="${color}" opacity=".7"/>`;
       }
     }
   }
@@ -65,6 +71,25 @@ export function edgePrism(a, b, normal, base, height, thickness = .12) {
     { vertices: [innerB, outerB, up(outerB), up(innerB)], fill: "#c5cabb" },
     { vertices: [up(outerA), up(outerB), up(innerB), up(innerA)], fill: "#eeeade" },
   ];
+}
+
+export function roofEdgeDetails(a, b, normal, elevation, roof) {
+  const offset = (p, amount) => [p[0] + normal[0] * amount, p[1] + normal[1] * amount];
+  const faces = edgePrism(offset(a, .025), offset(b, .025), normal, elevation - .18, .18, .075)
+    .map(face => ({ ...face, kind: "fascia", fill: "#b1b5ac" }));
+  if (!roof.parapet) return faces;
+  faces.push(...edgePrism(a, b, normal, elevation, roof.height - .06).map(face => ({ ...face, kind: "parapet" })));
+  const length = Math.hypot(b[0] - a[0], b[1] - a[1]), count = Math.ceil(length / 1.2);
+  const along = t => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+  for (let i = 0; i < count; i++) {
+    const start = along((i * length / count + (i ? .004 : 0)) / length);
+    const end = along(((i + 1) * length / count - (i < count - 1 ? .004 : 0)) / length);
+    faces.push(...edgePrism(offset(start, .04), offset(end, .04), normal, elevation + roof.height - .06, .06, .20)
+      .map((face, index) => ({ ...face, kind: "coping", fill: index === 4 ? "#eeeade" : "#b9b8ad" })));
+  }
+  const flashing = edgePrism(a, b, normal, elevation, .003, .3)[4];
+  faces.push({ ...flashing, kind: "flashing", fill: "#9b9e91" });
+  return faces;
 }
 
 // Split roof edges wherever an upper-floor footprint covers them, including partial spans.

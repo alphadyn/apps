@@ -4693,6 +4693,18 @@ function searchProcedures(query, kind = "all") {
   });
 }
 
+function getProcedureResultsPage(query, kind, requestedPage) {
+  const matches = searchProcedures(query, kind);
+  const pages = Math.max(1, Math.ceil(matches.length / procedurePageSize));
+  const page = Math.max(0, Math.min(requestedPage, pages - 1));
+  const start = page * procedurePageSize;
+  return { matches, pages, page, start, items: matches.slice(start, start + procedurePageSize) };
+}
+
+function procedureCategoryLabel(procedure) {
+  return `${procedure.category}${procedure.surgical ? " · Surgical operation" : ""}`;
+}
+
 let independentProcedurePage = 0;
 
 function renderIndependentProcedureResults() {
@@ -4706,16 +4718,14 @@ function renderIndependentProcedureResults() {
     pagination.hidden = true;
     return;
   }
-  const matches = searchProcedures(query, kind);
-  const pages = Math.max(1, Math.ceil(matches.length / procedurePageSize));
-  independentProcedurePage = Math.min(independentProcedurePage, pages - 1);
-  const start = independentProcedurePage * procedurePageSize;
+  const { matches, pages, page, start, items } = getProcedureResultsPage(query, kind, independentProcedurePage);
+  independentProcedurePage = page;
   const canOrder = hasPermission(currentUser.role, "order:create");
   document.getElementById("independentProcedureCount").textContent = `${matches.length} results · Page ${independentProcedurePage + 1} of ${pages}`;
   document.getElementById("independentProcedureResults").innerHTML = matches.length
-    ? matches.slice(start, start + procedurePageSize).map((procedure, index) => `
+    ? items.map((procedure, index) => `
       <details class="procedure-review">
-        <summary><strong>${escapeHtml(procedure.name)}</strong><span>${escapeHtml(procedure.category)}${procedure.surgical ? " · Surgical operation" : ""}</span></summary>
+        <summary><span class="procedure-review-heading"><strong>${escapeHtml(procedure.name)}</strong><span>${escapeHtml(procedureCategoryLabel(procedure))}</span></span></summary>
         <div class="procedure-review-content">
           <dl class="structured-record-fields">
             <div><dt>Name</dt><dd>${escapeHtml(procedure.name)}</dd></div>
@@ -4738,17 +4748,19 @@ function renderIndependentProcedureCatalog(container) {
   container.innerHTML = `<section class="panel">
     <div class="panel-header"><div><p class="eyebrow">Clinical catalog</p><h3>Procedures &amp; operations</h3></div></div>
     <div class="clinical-form">
-      <p class="muted-copy">Search by name, specialty, or procedure type and expand a result to review its available details. To order, enter a patient and select the procedure.</p>
+      <p class="muted-copy">Search by name, specialty, or type. Expand a result to review it; choose a patient only if you want to order.</p>
       <label for="independentProcedureSearch">Search procedures and operations
         <input id="independentProcedureSearch" type="search" placeholder="e.g., knee arthroscopy, cardiology, surgical operation" />
       </label>
-      <label for="independentProcedureKind">Catalog filter
-        <select id="independentProcedureKind"><option value="all">All procedures and operations</option><option value="surgical">Surgical operations</option></select>
-      </label>
-      <label for="independentProcedurePatient">Patient for order
-        <input id="independentProcedurePatient" type="search" list="independentProcedurePatients" placeholder="Name or MRN" autocomplete="off" />
-        <datalist id="independentProcedurePatients">${patients.map((patient) => `<option value="${escapeHtml(`${patient.name} · ${patient.mrn}`)}"></option>`).join("")}</datalist>
-      </label>
+      <div class="row">
+        <label for="independentProcedureKind">Catalog filter
+          <select id="independentProcedureKind"><option value="all">All procedures and operations</option><option value="surgical">Surgical operations</option></select>
+        </label>
+        <label for="independentProcedurePatient">Patient for order
+          <input id="independentProcedurePatient" type="search" list="independentProcedurePatients" placeholder="Name or MRN" autocomplete="off" aria-describedby="independentProcedureStatus" />
+          <datalist id="independentProcedurePatients">${patients.map((patient) => `<option value="${escapeHtml(`${patient.name} · ${patient.mrn}`)}"></option>`).join("")}</datalist>
+        </label>
+      </div>
       <p id="independentProcedureStatus" class="status-message" role="status"></p>
       <p id="independentProcedureCount" class="muted-copy" role="status"></p>
       <div id="independentProcedureResults" class="procedure-results"></div>
@@ -4761,16 +4773,14 @@ function renderIndependentProcedureCatalog(container) {
 
 function renderProcedureCatalog() {
   const query = document.getElementById("procedureSearch").value.trim();
-  const matches = searchProcedures(query, document.getElementById("procedureKind").value);
-  const pages = Math.max(1, Math.ceil(matches.length / procedurePageSize));
-  procedurePage = Math.min(procedurePage, pages - 1);
-  const start = procedurePage * procedurePageSize;
+  const { matches, pages, page, start, items } = getProcedureResultsPage(query, document.getElementById("procedureKind").value, procedurePage);
+  procedurePage = page;
   document.getElementById("procedureSearchStatus").textContent =
     query ? `${matches.length} ${matches.length === 1 ? "procedure" : "procedures"} found.` : "Enter a name, specialty, or procedure type to search.";
   document.getElementById("procedureResults").innerHTML = !query ? "" : matches.length
-    ? matches.slice(start, start + procedurePageSize).map((procedure, index) => `
+    ? items.map((procedure, index) => `
       <button class="ghost-btn procedure-result" type="button" data-procedure-index="${start + index}">
-        <strong>${escapeHtml(procedure.name)}</strong><span>${escapeHtml(procedure.category)}${procedure.surgical ? " · Surgical operation" : ""}</span>
+        <strong>${escapeHtml(procedure.name)}</strong><span>${escapeHtml(procedureCategoryLabel(procedure))}</span>
       </button>`).join("")
     : '<p class="empty-state">No matching procedures. Try another search or enter a procedure manually below.</p>';
   document.getElementById("procedurePage").textContent = `Page ${procedurePage + 1} of ${pages}`;

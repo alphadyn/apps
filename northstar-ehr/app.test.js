@@ -84,6 +84,19 @@ test("procedure results paginate, reset on new searches, and honor order permiss
   assert.equal(elements.get("procedurePagination").hidden, true);
 });
 
+test("procedure result pages are bounded and retain the correct search indices", () => {
+  const { context } = setup();
+  const page = JSON.parse(vm.runInContext('JSON.stringify(getProcedureResultsPage("surgical operation", "surgical", 1))', context));
+  assert.equal(page.page, 1);
+  assert.equal(page.start, 15);
+  assert.equal(page.items.length, 15);
+  assert.equal(page.items[0].name, page.matches[15].name);
+  const last = JSON.parse(vm.runInContext('JSON.stringify(getProcedureResultsPage("surgical operation", "surgical", 999))', context));
+  assert.equal(last.page, last.pages - 1);
+  assert.ok(last.items.length > 0 && last.items.length <= 15);
+  assert.equal(vm.runInContext('getProcedureResultsPage("not found", "all", 4).page', context), 0);
+});
+
 test("independent procedure search starts empty, searches details, and clears results", () => {
   const { context } = setup();
   const elements = new Map([

@@ -733,6 +733,7 @@ textarea {
   gap: 4px 12px;
   width: 100%;
   text-align: left;
+  overflow-wrap: anywhere;
 }
 
 .procedure-result span {
@@ -753,6 +754,7 @@ textarea {
 .procedure-review {
   border: 1px solid var(--border);
   border-radius: 10px;
+  overflow-wrap: anywhere;
 }
 
 .procedure-review summary {
@@ -760,9 +762,20 @@ textarea {
   padding: 12px;
 }
 
-.procedure-review summary span {
+.procedure-review summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+}
+
+.procedure-review-heading {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+}
+
+.procedure-review-heading > span {
   color: var(--muted);
-  margin-left: 8px;
 }
 
 .procedure-review-content {
@@ -773,6 +786,10 @@ textarea {
 
 .procedure-review-content p {
   margin: 0;
+}
+
+.procedure-review-content .primary-btn {
+  justify-self: start;
 }
 
 .formulary-patient-choice:not([hidden]) {

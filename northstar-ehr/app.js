@@ -4361,12 +4361,20 @@ function renderDepartmentsView(container) {
       <div class="panel-header"><div><p class="eyebrow">Organization</p><h3>Departments & services</h3></div><span class="pill">${departments.length} departments</span></div>
       <div class="directory-grid department-grid">${departments.map((department) => {
         const census = patients.filter((patient) => patient.clinical.department === department.name && isPatientAdmitted(patient)).length;
-        const team = staffDirectory.filter((staff) => staff.department === department.name && staff.status === "Active").length;
+        const team = staffDirectory.filter((staff) => staff.department === department.name && staff.status === "Active");
         return `<article class="directory-card department-card">
           <div class="department-card-meta"><span class="record-category">${escapeHtml(department.code)}</span><span class="status-pill">${census} admitted</span></div>
           <h4>${escapeHtml(department.name)}</h4>
           <p class="department-description">${escapeHtml(department.description)}</p>
-          <dl class="directory-facts"><div><dt>Active personnel</dt><dd>${team}</dd></div><div><dt>Care areas</dt><dd>${department.locations.length}</dd></div></dl>
+          <div class="department-facts">
+            <button class="department-fact department-personnel-toggle" type="button" data-toggle-department-personnel="${escapeHtml(department.name)}" aria-expanded="false" aria-controls="department-personnel-${escapeHtml(department.code)}">
+              <span>Active personnel</span><strong>${team.length}</strong>
+            </button>
+            <div class="department-fact"><span>Care areas</span><strong>${department.locations.length}</strong></div>
+          </div>
+          <div id="department-personnel-${escapeHtml(department.code)}" class="department-personnel-list hidden-section" data-department-personnel="${escapeHtml(department.name)}">
+            ${team.length ? team.map((staff) => `<button class="inline-link" type="button" data-open-staff-profile="${escapeHtml(staff.id)}">${escapeHtml(formatStaffProfileName(staff))} <span>${escapeHtml(staff.title)}</span></button>`).join("") : '<p class="muted-copy">No active personnel listed.</p>'}
+          </div>
           <div class="directory-locations"><span>Locations</span><p>${department.locations.map(escapeHtml).join(" · ")}</p></div>
         </article>`;
       }).join("")}</div>
@@ -5161,6 +5169,18 @@ function attachEvents() {
     const patientButton = event.target.closest("[data-open-patient]");
     if (patientButton) {
       openPatientChart(patientButton.dataset.openPatient);
+      return;
+    }
+    const personnelToggle = event.target.closest("[data-toggle-department-personnel]");
+    if (personnelToggle) {
+      const card = personnelToggle.closest(".department-card");
+      const personnelList = card?.querySelector("[data-department-personnel]");
+      if (!personnelList) return;
+      const expanded = personnelToggle.getAttribute("aria-expanded") !== "true";
+      card.querySelectorAll("[data-toggle-department-personnel]").forEach((toggle) => {
+        toggle.setAttribute("aria-expanded", String(expanded));
+      });
+      personnelList.classList.toggle("hidden-section", !expanded);
       return;
     }
     const staffButton = event.target.closest("[data-open-staff-profile]");

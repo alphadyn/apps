@@ -364,6 +364,10 @@ test("department cards do not use the staff-specific card layout", () => {
   assert.match(context.directoryContainer.innerHTML, /class="directory-card department-card"/);
   assert.match(context.directoryContainer.innerHTML, /Emergency Department/);
   assert.match(context.directoryContainer.innerHTML, /Active personnel/);
+  assert.match(context.directoryContainer.innerHTML, /data-toggle-department-personnel="Emergency Department" aria-expanded="false" aria-controls="department-personnel-ED"/);
+  assert.equal((context.directoryContainer.innerHTML.match(/data-toggle-department-personnel="Emergency Department"/g) || []).length, 1);
+  assert.match(context.directoryContainer.innerHTML, /data-open-staff-profile="staff-joe-spartan"/);
+  assert.match(context.directoryContainer.innerHTML, /data-department-personnel="Emergency Department"/);
   assert.match(context.directoryContainer.innerHTML, /<span>Locations<\/span>/);
   assert.doesNotMatch(context.directoryContainer.innerHTML, /staff-directory-card/);
 });

@@ -49,7 +49,8 @@ test("roof textures have an opaque base so lower floors cannot show through", ()
   const { markup } = renderPropertyView(createProject(), { view: "3d" });
   const pattern = markup.match(/<pattern id="property-roof"[^>]*>([\s\S]*?)<\/pattern>/)[1];
   assert.match(pattern, /<rect width="18" height="18" fill="#d9dece"\/>/);
-  assert.match(markup, /style="stroke:#d9dece;stroke-width:\.5;stroke-linejoin:round" data-roof-level=/);
+  assert.match(markup, /data-roof-level="\d+" data-roof-finish="membrane"/);
+  assert.match(markup, /style="stroke:#d9dece;stroke-width:\.5;stroke-linejoin:round"/);
 });
 
 test("stacked facades meet exactly at floor elevations throughout orbit and tilt", () => {

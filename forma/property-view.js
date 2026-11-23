@@ -1,7 +1,8 @@
-import { TYPES, bounds, isOutdoor, exteriorWalls, exteriorRoomWalls, roomVertices, roomCentroid, propertyStats } from "./model.js";
+import { TYPES, bounds, isOutdoor, exteriorWalls, exteriorRoomWalls, roomVertices, roomCentroid, propertyStats } from "./model.js?v=20261122-5";
 import { createCamera, DEFAULT_CAMERA, sortFaces } from "./camera.js";
-import { featureHost, featureVertices, featureMarkup, railingMarkup, boundaryFence, fenceSettings, fenceMarkup } from "./architecture.js";
+import { featureHost, featureVertices, featureMarkup, railingMarkup, boundaryFence, fenceSettings, fenceMarkup } from "./architecture.js?v=20261122-5";
 import { formatLength } from "./units.js";
+import { railingSettings, roofSettings, surfaceMarkup, edgePrism, exposedRoofEdge, namespaceScene } from "./envelope.js?v=20261122-5";
 
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const number = value => Number(value.toFixed(2));
@@ -27,7 +28,7 @@ export function propertyFeatures(project) {
   return { trees, driveway };
 }
 
-export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 0, y: 0 }, dimensions = true, labels = true, roof = true, viewportWidth = 900, camera: angles = DEFAULT_CAMERA, units = "metric" } = {}) {
+export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 0, y: 0 }, dimensions = true, labels = true, roof = true, viewportWidth = 900, camera: angles = DEFAULT_CAMERA, units = "metric", idPrefix = "" } = {}) {
   const iso = view === "3d";
   const camera = createCamera(angles), projectPoint = camera.project;
   const p = project.property;
@@ -59,6 +60,7 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
   const text = (x, y, label, options = "") => `<text x="${x}" y="${y}" fill="#687f5c" font-family="Arial,sans-serif" font-size="8" text-anchor="middle" ${options}>${escape(label)}</text>`;
   const worldText = (x, y, label, z = 0, options = "") => { const v = point(x, y, z); return text(v.x, v.y, label, options); };
   const features = propertyFeatures(project);
+  const roofSpec = roofSettings(project);
   let markup = `<g class="property-scene" transform="translate(${450 + pan.x} ${345 + pan.y}) scale(${zoom}) translate(-450 -345)">`;
   markup += `<defs>
     <pattern id="property-grass" width="13" height="13" patternUnits="userSpaceOnUse"><path d="m3 5 1-2m4 7 1-2" stroke="#859e70" stroke-width=".6" opacity=".22"/></pattern>
@@ -106,15 +108,17 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
       const z = index * project.ceiling;
       const enclosed = f.rooms.filter(r => !isOutdoor(r));
       const walls = exteriorWalls(enclosed, Object.keys(camera.faces).filter(side => camera.faces[side]));
-      for (const r of f.rooms) {
-        const x = r.x + p.houseX, y = r.y + p.houseY;
+      for (const [roomIndex, r] of f.rooms.entries()) {
         const isDeck = isOutdoor(r);
         const vertices = roomVertices(r).map(([px, py]) => [px + p.houseX, py + p.houseY, z]);
-        let surface = polygon(vertices, isDeck ? "#b9b696" : "#cbd0bf");
-        if (isDeck && !r.outline) {
-          for (let step = .35; step < r.width; step += .35) surface += `<polyline points="${points([[x + step, y, z], [x + step, y + r.depth, z]])}" stroke="#9c9e7d" stroke-width=".5" fill="none"/>`;
-        }
+        const surface = isDeck
+          ? surfaceMarkup(vertices, r.material ?? "deck", point, `property-finish-${index}-${roomIndex}`)
+          : polygon(vertices, "#cbd0bf");
         scene.push({ vertices, markup: surface, floor: f, index });
+      }
+      for (const wall of exteriorRoomWalls(f.rooms).filter(w => isOutdoor(w.room))) {
+        const edge = (p, up) => [p[0] + project.property.houseX, p[1] + project.property.houseY, up];
+        addFace([edge(wall.a, z - .18), edge(wall.b, z - .18), edge(wall.b, z), edge(wall.a, z)], "#abae9f", 'data-outdoor-slab="true"', f, index);
       }
       for (const wall of walls) {
         const vertical = wall.axis === "east" || wall.axis === "west";
@@ -170,12 +174,29 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
         scene.push({ vertices, markup: polygon(vertices, "#d5dbce", 'data-exterior-wall="custom"'), floor: f, index });
       }
       for (const wall of exteriorRoomWalls(f.rooms).filter(w => w.room.railing)) {
+        const settings = railingSettings(wall.room);
         const edge = (point, up) => [point[0] + p.houseX, point[1] + p.houseY, up];
-        const vertices = [edge(wall.a, z + .08), edge(wall.b, z + .08), edge(wall.b, z + 1.1), edge(wall.a, z + 1.1)];
-        scene.push({ vertices, markup: railingMarkup(vertices, point), floor: f, index });
+        const vertices = [edge(wall.a, z), edge(wall.b, z), edge(wall.b, z + settings.height), edge(wall.a, z + settings.height)];
+        scene.push({ vertices, markup: railingMarkup(vertices, point, wall.room, false, units), floor: f, index });
       }
       if (roof) {
-        for (const r of enclosed) addFace(roomVertices(r).map(([x, y]) => [x + p.houseX, y + p.houseY, z + project.ceiling]), index === project.floors.length - 1 ? "url(#property-roof)" : "#ecece0", `style="stroke:${index === project.floors.length - 1 ? "#d9dece" : "#ecece0"};stroke-width:.5;stroke-linejoin:round" data-roof-level="${index}"`, f, index);
+        for (const [roomIndex, r] of enclosed.entries()) {
+          const vertices = roomVertices(r).map(([x, y]) => [x + p.houseX, y + p.houseY, z + project.ceiling]);
+          const finish = roofSpec.finish === "membrane" ? "url(#property-roof)" : roofSpec.finish;
+          const surface = roofSpec.finish === "membrane"
+            ? polygon(vertices, finish, `style="stroke:#d9dece;stroke-width:.5;stroke-linejoin:round"`)
+            : surfaceMarkup(vertices, finish, point, `roof-finish-${index}-${roomIndex}`);
+          scene.push({ vertices, markup: `<g data-roof-level="${index}" data-roof-finish="${roofSpec.finish}">${surface}</g>`, floor: f, index });
+        }
+        if (roofSpec.parapet) {
+          const coverings = project.floors.slice(index + 1).flatMap(floor => floor.rooms.map(roomVertices));
+          for (const edge of exteriorRoomWalls(enclosed).flatMap(wall => exposedRoofEdge(wall, coverings))) {
+            const origin = v => [v[0] + p.houseX, v[1] + p.houseY];
+            for (const face of edgePrism(origin(edge.a), origin(edge.b), edge.normal, z + project.ceiling, roofSpec.height)) {
+              addFace(face.vertices, face.fill, 'data-roof-parapet="true"', f, index);
+            }
+          }
+        }
       }
     });
     for (const segment of fenceSegments) {
@@ -210,6 +231,11 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
       for (const r of f.rooms) markup += polygon(roomVertices(r).map(([x, y]) => [x + p.houseX, y + p.houseY]), "none", 'style="stroke:#7d957d;stroke-dasharray:4 3;stroke-width:1"');
       markup += "</g>";
     });
+    for (const wall of exteriorRoomWalls(ground.rooms).filter(w => w.room.railing)) {
+      const { height } = railingSettings(wall.room);
+      const edge = (v, up) => [v[0] + p.houseX, v[1] + p.houseY, up];
+      markup += railingMarkup([edge(wall.a, 0), edge(wall.b, 0), edge(wall.b, height), edge(wall.a, height)], point, wall.room, true, units);
+    }
     for (const segment of fenceSegments) markup += fenceMarkup(segment.vertices, fence, point, true, units);
     for (const feature of (project.features || []).filter(f => f.type === "gate" || f.floorId === ground.id)) {
       markup += featureMarkup(feature, featureVertices(feature, featureHost(project, feature), 0, feature.type === "gate" ? { x: 0, y: 0 } : { x: p.houseX, y: p.houseY }), point, true, units);
@@ -231,7 +257,7 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
     markup += text((c.x + d.x) / 2 - 16, (c.y + d.y) / 2, formatLength(p.depth, units));
   }
   markup += "</g>";
-  return { markup, scale };
+  return { markup: namespaceScene(markup, idPrefix), scale };
 
   function tree3d(tree) {
     const base = point(tree.x, tree.y), top = point(tree.x, tree.y, tree.radius * 1.8);

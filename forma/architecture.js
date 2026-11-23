@@ -1,4 +1,5 @@
 import { formatLength } from "./units.js";
+import { railingSettings } from "./envelope.js?v=20261122-5";
 
 export const FEATURE_STYLES = {
   door: ["hinged", "sliding", "double", "pivot"],
@@ -143,7 +144,20 @@ export function featureMarkup(feature, vertices, point, plan = false, units = "m
   return `<g class="architectural-feature" data-feature="${escape(feature.id)}" tabindex="0" role="button" aria-label="${escape(action)} ${escape(feature.name)}"><title>${escape(`${feature.name} · ${formatLength(feature.width, units)} × ${formatLength(feature.height, units)} · ${feature.style} · ${feature.material} · ${feature.glazing} glazing`)}</title>${markup}</g>`;
 }
 
-export function railingMarkup(vertices, point) {
+export function railingMarkup(vertices, point, room = {}, plan = false, units = "metric") {
   const coords = vertices.map(v => point(...v));
-  return `<g data-terrace-railing="true" pointer-events="none"><polygon points="${coords.map(p => `${p.x},${p.y}`).join(" ")}" fill="#a5c5bf55" stroke="#718a80" stroke-width="1"/><path d="M${coords[3].x} ${coords[3].y}L${coords[2].x} ${coords[2].y}" stroke="#59786e" stroke-width="2"/></g>`;
+  const settings = railingSettings(room);
+  const line = (a, b, width = 1) => `<path d="M${a.x} ${a.y}L${b.x} ${b.y}" fill="none" stroke="#59786e" stroke-width="${width}"/>`;
+  const length = Math.hypot(vertices[1][0] - vertices[0][0], vertices[1][1] - vertices[0][1]);
+  let markup = plan ? line(coords[0], coords[1], settings.style === "solid" ? 4 : 2) :
+    `<polygon points="${coords.map(p => `${p.x},${p.y}`).join(" ")}" fill="${settings.style === "solid" ? "#d4d8cb" : settings.style === "glass" ? "#a5c5bf55" : "none"}" stroke="#718a80" stroke-width="1"/>${line(coords[3], coords[2], 2)}`;
+  if (!plan && settings.style !== "solid") {
+    const sections = Math.max(1, Math.ceil(length / (settings.style === "metal" ? .14 : 1.2)));
+    for (let i = 0; i <= sections; i++) {
+      const t = i / sections;
+      markup += line({ x: coords[0].x + (coords[1].x - coords[0].x) * t, y: coords[0].y + (coords[1].y - coords[0].y) * t },
+        { x: coords[3].x + (coords[2].x - coords[3].x) * t, y: coords[3].y + (coords[2].y - coords[3].y) * t }, settings.style === "metal" ? 1 : .65);
+    }
+  }
+  return `<g data-terrace-railing="true" data-railing-style="${settings.style}" pointer-events="none"><title>${escape(`${settings.style} railing · ${formatLength(settings.height, units)}`)}</title>${markup}</g>`;
 }

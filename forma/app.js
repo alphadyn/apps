@@ -1,9 +1,11 @@
-import { TYPES, createProject, floorArea, projectStats, propertyStats, bounds, isOutdoor, exteriorRoomWalls, roomOutline, roomArea, roomCentroid, validateRoom, validateProject, validateProperty, makeRoom, parseProject, readProjectFile, hasRectangularOutline } from "./model.js?v=20261117-1";
-import { renderPropertyView } from "./property-view.js?v=20261122-3";
-import { renderFloor3D } from "./floor-view.js?v=20261122-1";
+import { TYPES, createProject, floorArea, projectStats, propertyStats, bounds, isOutdoor, exteriorRoomWalls, roomOutline, roomArea, roomCentroid, validateRoom, validateProject, validateProperty, makeRoom, parseProject, readProjectFile, hasRectangularOutline } from "./model.js?v=20261122-5";
+import { renderPropertyView } from "./property-view.js?v=20261122-5";
+import { renderFloor3D } from "./floor-view.js?v=20261122-5";
 import { cameraFromDrag, createCamera, DEFAULT_CAMERA, normalizeCamera } from "./camera.js";
 import { SAMPLE_DESIGNS, createSampleDesign } from "./samples.js";
-import { featureHost, featureVertices, featureMarkup, fenceSettings, FEATURE_MATERIALS } from "./architecture.js";
+import { featureHost, featureVertices, featureMarkup, fenceSettings, FEATURE_MATERIALS, railingMarkup } from "./architecture.js?v=20261122-5";
+import { outdoorControlsMarkup, roofControlsMarkup, readOutdoorControls, readRoofControls } from "./envelope-ui.js?v=20261122-5";
+import { railingSettings } from "./envelope.js?v=20261122-5";
 import { architectureDialog } from "./architecture-ui.js?v=20261117-1";
 import { documentationDialog } from "./documentation.js";
 import { shiftSpaceBoundary } from "./space-edit.js?v=20261117-1";
@@ -342,7 +344,8 @@ function renderPlan() {
   }
   markup += openingHandles;
   for (const wall of exteriorRoomWalls(rooms).filter(w => w.room.railing)) {
-    markup += `<path data-terrace-railing="true" d="M${ox + wall.a[0] * scale} ${oy + wall.a[1] * scale}L${ox + wall.b[0] * scale} ${oy + wall.b[1] * scale}" stroke="#688b7c" stroke-width="2" stroke-dasharray="8 3" pointer-events="none"/>`;
+    const height = railingSettings(wall.room).height;
+    markup += railingMarkup([[...wall.a, 0], [...wall.b, 0], [...wall.b, height], [...wall.a, height]], (x, y) => ({ x: ox + x * scale, y: oy + y * scale }), wall.room, true, unitSystem);
   }
   if (dimensions && rooms.length) {
     const left = ox + b.x * scale, top = oy + b.y * scale, right = left + b.width * scale, bottom = top + b.depth * scale;
@@ -399,7 +402,7 @@ function renderInspector() {
     content.insertAdjacentHTML("beforeend", '<div class="opening-edit-help"><span class="property-label">DOORS & WINDOWS</span><p>Click an opening to select it, then drag to move or use its end handles to resize. Choose Edit specifications for exact measurements.</p></div>');
   }
   if (isOutdoor(item)) {
-    $("#room-form .area-readout").insertAdjacentHTML("beforebegin", `<label class="property-checkbox"><input type="checkbox" name="railing" id="room-railing" ${item.railing ? "checked" : ""}>Concept glass railing (${lengthText(1.1)})</label>`);
+    $("#room-form .area-readout").insertAdjacentHTML("beforebegin", outdoorControlsMarkup(item, unitSystem));
   } else {
     $("#room-add-door").onclick = () => architecturalFeatures(undefined, "door");
     $("#room-add-window").onclick = () => architecturalFeatures(undefined, "window");
@@ -416,7 +419,7 @@ function renderInspector() {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const updated = { ...item, name: String(data.get("name")).trim(), material: data.get("material") };
-    if (isOutdoor(item)) updated.railing = data.has("railing");
+    if (isOutdoor(item)) Object.assign(updated, readOutdoorControls(data, unitSystem));
     for (const key of ["width", "depth", "x", "y"]) updated[key] = toMeters(Number(data.get(key)), unitSystem);
     if (item.outline && (updated.width !== item.width || updated.depth !== item.depth)) {
       updated.outline = item.outline.map(([x, y]) => [x * updated.width / item.width, y * updated.depth / item.depth]);
@@ -449,7 +452,7 @@ function renderInspector() {
       const copy = makeRoom(item.type, floor().rooms);
       Object.assign(copy, { width: item.width, depth: item.depth, material: item.material, name: `${item.name.slice(0, 53)} copy`, x: Math.min(item.x + item.width + .5, 200), y: item.y });
       if (item.outline) copy.outline = item.outline.map(point => [...point]);
-      if (item.railing !== undefined) copy.railing = item.railing;
+      for (const key of ["railing", "railingStyle", "railingHeight"]) if (item[key] !== undefined) copy[key] = item[key];
       floor().rooms.push(copy); selected = copy.id;
     });
   };
@@ -461,6 +464,8 @@ function renderPropertyInspector() {
   $("#edit-property").onclick = propertyDialog;
   $("#edit-property").insertAdjacentHTML("afterend", '<button class="add-space-button" id="property-openings">Gates & opening specifications</button>');
   $("#property-openings").onclick = () => architecturalFeatures();
+  $("#property-openings").insertAdjacentHTML("afterend", '<button class="add-space-button" id="roof-details">Roof finish & parapets</button>');
+  $("#roof-details").onclick = projectDialog;
   if ($("#show-roof")) $("#show-roof").onchange = event => { showRoof = event.target.checked; renderPlan(); };
 }
 function propertyDialog() {
@@ -536,9 +541,10 @@ function projectBackup() {
   toast("Current design backup downloaded.");
 }
 function sampleArtwork(design, label, mode = "3d", floorId = null) {
+  const idPrefix = `sample-${design.name}-${floorId || mode}`;
   const markup = floorId
-    ? renderFloor3D(design.floors.find(f => f.id === floorId).rooms, { ceiling: design.ceiling, labels: true, features: (design.features || []).filter(f => f.floorId === floorId), units: unitSystem })
-    : renderPropertyView(design, { view: mode, labels: false, dimensions: false, units: unitSystem }).markup;
+    ? renderFloor3D(design.floors.find(f => f.id === floorId).rooms, { ceiling: design.ceiling, labels: true, features: (design.features || []).filter(f => f.floorId === floorId), units: unitSystem, idPrefix })
+    : renderPropertyView(design, { view: mode, labels: false, dimensions: false, units: unitSystem, idPrefix }).markup;
   return `<div class="sample-artwork" inert><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 690" role="img" aria-label="${escape(label)}">${markup}</svg></div>`;
 }
 function sampleGallery() {
@@ -587,6 +593,7 @@ function projectDialog() {
       project.name = String(data.get("name")).trim();
       project.style = data.get("style");
       project.ceiling = toMeters(Number(data.get("ceiling")), unitSystem);
+      project.roof = readRoofControls(data, unitSystem);
     })) {
       const nextUnits = String(data.get("units"));
       if (UNIT_SYSTEMS.includes(nextUnits) && nextUnits !== unitSystem) {
@@ -598,6 +605,7 @@ function projectDialog() {
       closeDialog();
     }
   };
+  $("#settings-form .dialog-note").insertAdjacentHTML("beforebegin", roofControlsMarkup(project, unitSystem));
   $("#import-project").onclick = importProject;
   $("#settings-form").insertAdjacentHTML("beforeend", '<div class="settings-links"><button class="browse-spaces" id="edit-property-settings" type="button">Edit lot & house placement</button><button class="browse-spaces" id="browse-sample-settings" type="button">Browse sample home designs</button><button class="floor-delete" id="new-project" type="button">Start a new, blank project</button></div>');
   $("#browse-sample-settings").onclick = sampleGallery;

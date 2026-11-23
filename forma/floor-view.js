@@ -1,15 +1,17 @@
-import { bounds, isOutdoor, TYPES, exteriorWalls, exteriorRoomWalls, roomVertices, roomCentroid } from "./model.js";
+import { bounds, isOutdoor, TYPES, exteriorRoomWalls, roomVertices, roomCentroid } from "./model.js?v=20261122-5";
 import { createCamera, DEFAULT_CAMERA, sortFaces } from "./camera.js";
-import { featureVertices, featureMarkup, railingMarkup } from "./architecture.js";
+import { featureVertices, featureMarkup, railingMarkup } from "./architecture.js?v=20261122-5";
+import { railingSettings, surfaceMarkup, namespaceScene } from "./envelope.js?v=20261122-5";
 
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-export function renderFloor3D(rooms, { camera: angles = DEFAULT_CAMERA, ceiling = 2.8, viewportWidth = 900, zoom = 1, pan = { x: 0, y: 0 }, furniture = true, labels = true, selected = null, features = [], units = "metric" } = {}) {
+export function renderFloor3D(rooms, { camera: angles = DEFAULT_CAMERA, ceiling = 2.8, viewportWidth = 900, zoom = 1, pan = { x: 0, y: 0 }, furniture = true, labels = true, selected = null, features = [], units = "metric", idPrefix = "" } = {}) {
   if (!rooms.length) return "";
   const camera = createCamera(angles), b = bounds(rooms);
   const wallHeight = Math.min(ceiling * .44, 1.6);
   const rect = (x, y, w, d, z = 0) => [[x, y, z], [x + w, y, z], [x + w, y + d, z], [x, y + d, z]];
-  const projected = rect(b.x - .6, b.y - .6, b.width + 1.2, b.depth + 1.2).flatMap(([x, y]) => [camera.project(x, y, -.2), camera.project(x, y, wallHeight)]);
+  const sceneHeight = Math.max(wallHeight, ...rooms.filter(r => r.railing).map(r => railingSettings(r).height));
+  const projected = rect(b.x - .6, b.y - .6, b.width + 1.2, b.depth + 1.2).flatMap(([x, y]) => [camera.project(x, y, -.2), camera.project(x, y, sceneHeight)]);
   const minX = Math.min(...projected.map(p => p.x)), maxX = Math.max(...projected.map(p => p.x));
   const minY = Math.min(...projected.map(p => p.y)), maxY = Math.max(...projected.map(p => p.y));
   const scale = Math.min(Math.min(660, Math.max(100, viewportWidth - 140)) / (maxX - minX), 460 / (maxY - minY));
@@ -71,31 +73,11 @@ export function renderFloor3D(rooms, { camera: angles = DEFAULT_CAMERA, ceiling 
       }
     }
   };
-  const floorTexture = (room, index) => {
-    const material = room.material || "oak";
-    const colors = { oak: "#d8cfb9", tile: "#d5ddd7", deck: "#c5c2a8", concrete: "#c9cdc6" };
-    const boundary = roomVertices(room).map(([x, y]) => [x, y, .006]);
-    const id = `floor-material-${index}`;
-    let detail = "";
-    const line = vertices => `<path d="M${vertices.map(v => { const p = point(v); return `${p.x} ${p.y}`; }).join("L")}" fill="none" stroke="#66715e" stroke-width=".55" opacity=".22"/>`;
-    if (material === "oak" || material === "deck") {
-      const step = material === "deck" ? .22 : .3;
-      for (let row = 1, y = room.y + step; y < room.y + room.depth; row++, y += step) {
-        detail += line([[room.x, y, .008], [room.x + room.width, y, .008]]);
-        const joint = room.x + room.width * (row % 2 ? .35 : .68);
-        detail += line([[joint, y - step, .008], [joint, y, .008]]);
-      }
-    } else if (material === "tile") {
-      for (let x = room.x + .6; x < room.x + room.width; x += .6) detail += line([[x, room.y, .008], [x, room.y + room.depth, .008]]);
-      for (let y = room.y + .6; y < room.y + room.depth; y += .6) detail += line([[room.x, y, .008], [room.x + room.width, y, .008]]);
-    }
-    return `<defs><clipPath id="${id}"><polygon points="${points(boundary)}"/></clipPath></defs><g clip-path="url(#${id})">${polygon(roomVertices(room).map(([x, y]) => [x, y, .004]), colors[material] || colors.oak, 'style="stroke:none"')}${detail}</g>`;
-  };
+  const floorTexture = (room, index) => surfaceMarkup(roomVertices(room).map(([x, y]) => [x, y, 0]), room.material ?? (isOutdoor(room) ? "deck" : "oak"), (x, y, z) => point([x, y, z]), `floor-material-${index}`);
   let markup = `<g class="floor-scene" transform="translate(${450 + pan.x} ${345 + pan.y}) scale(${zoom}) translate(-450 -345)">`;
   markup += polygon(rect(b.x - .6, b.y - .6, b.width + 1.2, b.depth + 1.2, -.2), "#d8e1c9");
   for (const [roomIndex, room] of rooms.entries()) {
     const { x, y, width: w, depth: d } = room;
-    const h = isOutdoor(room) ? .13 : wallHeight;
     const floor = roomVertices(room).map(([px, py]) => [px, py, 0]);
     scene.push({ vertices: floor, room, markup: polygon(floor, TYPES[room.type].color, room.id === selected ? 'style="stroke:#38885c;stroke-width:3"' : "") + floorTexture(room, roomIndex) });
     if (furniture && !room.outline) {
@@ -108,9 +90,9 @@ export function renderFloor3D(rooms, { camera: angles = DEFAULT_CAMERA, ceiling 
       scene.push({ vertices: [location], room, markup: `<text x="${p.x}" y="${p.y}" text-anchor="middle" fill="#5a6c50" font-size="8" font-family="Arial,sans-serif" pointer-events="none">${escape(room.name.toUpperCase())}</text>` });
     }
   }
-  for (const wall of exteriorRoomWalls(rooms).filter(edge => edge.normal[0] * camera.toward.x + edge.normal[1] * camera.toward.y < 0)) {
-    const h = isOutdoor(wall.room) ? .13 : wallHeight;
-    const vertices = [[...wall.a, 0], [...wall.b, 0], [...wall.b, h], [...wall.a, h]];
+  for (const wall of exteriorRoomWalls(rooms).filter(edge => isOutdoor(edge.room) || edge.normal[0] * camera.toward.x + edge.normal[1] * camera.toward.y < 0)) {
+    const h = isOutdoor(wall.room) ? 0 : wallHeight, base = isOutdoor(wall.room) ? -.18 : 0;
+    const vertices = [[...wall.a, base], [...wall.b, base], [...wall.b, h], [...wall.a, h]];
     add(vertices, wall.normal[0] ? "#c1cbb7" : "#e1e4d7", wall.room);
   }
   for (const feature of features) {
@@ -121,11 +103,10 @@ export function renderFloor3D(rooms, { camera: angles = DEFAULT_CAMERA, ceiling 
     const vertices = featureVertices(feature, host, 0, { x: 0, y: 0 }, wallHeight / ceiling);
     scene.push({ vertices, markup: featureMarkup(feature, vertices, (x, y, z) => point([x, y, z]), false, units), feature });
   }
-  for (const wall of exteriorWalls(rooms, ["north", "east", "south", "west"]).filter(w => w.room.railing)) {
-    const vertical = ["east", "west"].includes(wall.axis);
-    const edge = (along, z) => vertical ? [wall.at, along, z] : [along, wall.at, z];
-    const vertices = [edge(wall.from, .08), edge(wall.to, .08), edge(wall.to, 1.1), edge(wall.from, 1.1)];
-    scene.push({ vertices, markup: railingMarkup(vertices, (x, y, z) => point([x, y, z])), feature: true });
+  for (const wall of exteriorRoomWalls(rooms).filter(w => w.room.railing)) {
+    const { height } = railingSettings(wall.room);
+    const vertices = [[...wall.a, 0], [...wall.b, 0], [...wall.b, height], [...wall.a, height]];
+    scene.push({ vertices, markup: railingMarkup(vertices, (x, y, z) => point([x, y, z]), wall.room, false, units), feature: true });
   }
   const seen = new Set();
   for (const face of sortFaces(scene, camera)) {
@@ -133,5 +114,5 @@ export function renderFloor3D(rooms, { camera: angles = DEFAULT_CAMERA, ceiling 
     const room = face.room, first = !seen.has(room.id); seen.add(room.id);
     markup += `<g class="${first ? "iso-room" : "iso-surface"}" data-room="${escape(room.id)}" ${first ? `tabindex="0" role="button" aria-label="${escape(room.name)}"` : ""}>${face.markup}</g>`;
   }
-  return markup + '<text x="450" y="623" text-anchor="middle" font-family="Arial,sans-serif" fill="#7b8f70" font-size="9" letter-spacing="2">AXONOMETRIC STUDY · PARTIAL-HEIGHT WALLS</text></g>';
+  return namespaceScene(markup + '<text x="450" y="623" text-anchor="middle" font-family="Arial,sans-serif" fill="#7b8f70" font-size="9" letter-spacing="2">AXONOMETRIC STUDY · PARTIAL-HEIGHT WALLS</text></g>', idPrefix);
 }

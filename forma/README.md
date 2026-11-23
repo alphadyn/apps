@@ -105,9 +105,18 @@ For designs without explicit fence settings, adding a gate also shows a default 
 
 The two rooftop family-home samples include aligned stairs to a separate roof level, an enclosed stair/lobby, outdoor terrace zones, and example door/window/gate specifications. The roof level counts as a floor in the overview and its terrace area contributes to total floor area.
 
-For your own design, add a floor, add **Terrace** spaces on it, and name them as rooftop zones. Add a staircase aligned with the floor below and an enclosed access room as needed. Select any terrace or balcony, enable **Concept glass railing (1.1 m)**, and apply changes. Railings appear on exposed outdoor edges in the plan and 3D views, rotate with the model, and are included in saved designs and SVG exports. Removing the checkbox removes the railing.
+For your own design, add a floor, add **Terrace** spaces on it, and name them as rooftop zones. Add a staircase aligned with the floor below and an enclosed access room as needed. Select any terrace or balcony, enable **Show concept railing**, and choose its style and height. Choose **Update space**, then **Apply changes** to save. Railings appear on exposed outdoor edges in the plan and 3D views, rotate with the model, and are included in saved designs and SVG exports. Removing the checkbox hides the railing without discarding its style and height.
 
 Roof access, edge protection, loading, drainage, waterproofing, staircase geometry, and structural support require professional design; the app does not certify these.
+
+### Outdoor finishes and flat roofs
+
+- Select a balcony or terrace and set **Floor finish** to timber decking, limestone tile, concrete, or oak. The floor cutaway and property 3D view share the same finish detailing, clipped to custom room outlines. Outdoor slab edges have an illustrative 0.18 m thickness.
+- **Outdoor edge protection** offers glass panels with posts, metal balusters, or solid masonry. Height is editable from 0.6 to 1.8 m (or its equivalent in feet). Shared edges and edges against adjacent rooms are omitted, including on custom-shaped outdoor spaces. These ranges are visual modeling limits, not safety/code recommendations.
+- In **Project settings**, or **House & property → Roof finish & parapets**, choose a light membrane, gravel ballast, or roof pavers. Enable exposed-edge parapets and set their height from 0.2 to 1.2 m. The finish applies to enclosed-room flat roofs throughout the house.
+- Parapets have illustrative 0.12 m thickness and a contrasting coping. They follow exterior roof edges, omit shared interior edges, and split around upper-floor footprints so they do not pass through upper rooms or roof decks. Turn off **Show full-height walls & roofs** to hide both roofs and parapets for the open-top study.
+- Railing and parapet heights contribute to the property height and 3D framing. Controls follow the selected measurement system; saved dimensions remain in meters. Duplicating an outdoor space preserves its finish and railing settings.
+- Settings participate in undo/redo, **Apply changes**/**Revert**, JSON save/open, and current-view SVG export. Existing designs without these optional settings retain their 1.1 m glass railings and membrane roofs without parapets.
 
 ## House, lot, and property
 

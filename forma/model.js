@@ -1,4 +1,5 @@
-import { validateFeatures, validateFence } from "./architecture.js";
+import { validateFeatures, validateFence } from "./architecture.js?v=20261122-5";
+import { railingSettings, roofSettings, validateRailing, validateRoof, exposedRoofEdge } from "./envelope.js?v=20261122-5";
 
 export const TYPES = {
   living: { name: "Living room", icon: "sofa", color: "#e5e8d5", category: "Living", width: 6, depth: 5 },
@@ -147,7 +148,17 @@ export function propertyStats(project) {
     const b = bounds([r]);
     return b.x + p.houseX < 0 || b.y + p.houseY < 0 || b.x + b.width + p.houseX > p.width || b.y + b.depth + p.houseY > p.depth;
   });
-  const height = project.floors.reduce((highest, f, index) => Math.max(highest, ...f.rooms.map(r => index * project.ceiling + (isOutdoor(r) ? r.railing ? 1.1 : .08 : project.ceiling))), 0);
+  const roof = roofSettings(project);
+  const height = project.floors.reduce((highest, f, index) => {
+    let levelHeight = Math.max(highest, ...f.rooms.map(r => index * project.ceiling + (isOutdoor(r) ? r.railing ? railingSettings(r).height : .08 : project.ceiling)));
+    if (roof.parapet) {
+      const coverings = project.floors.slice(index + 1).flatMap(floor => floor.rooms.map(roomVertices));
+      if (exteriorRoomWalls(f.rooms.filter(r => !isOutdoor(r))).some(edge => exposedRoofEdge(edge, coverings).length)) {
+        levelHeight = Math.max(levelHeight, (index + 1) * project.ceiling + roof.height);
+      }
+    }
+    return levelHeight;
+  }, 0);
   return { lotArea: p.width * p.depth, footprint, coverage: footprint / (p.width * p.depth) * 100, height, outsideRooms };
 }
 export function validateProperty(property) {
@@ -254,7 +265,7 @@ export function validateRoom(item) {
     }
   }
   if (!["oak", "tile", "concrete", "deck"].includes(item.material)) throw new Error("Choose a supported floor finish.");
-  if (item.railing !== undefined && (typeof item.railing !== "boolean" || !isOutdoor(item))) throw new Error("Railings are an on/off setting for terraces and balconies only.");
+  validateRailing(item, isOutdoor(item));
   return item;
 }
 export function validateProject(project) {
@@ -262,6 +273,7 @@ export function validateProject(project) {
   if (typeof project.name !== "string" || !project.name.trim() || project.name.length > 80) throw new Error("Project names must be between 1 and 80 characters.");
   if (!["Contemporary", "Minimalist", "Modern organic", "Mid-century"].includes(project.style)) throw new Error("Choose a supported design style.");
   if (!Number.isFinite(project.ceiling) || project.ceiling < 2 || project.ceiling > 6) throw new Error("Ceiling height must be between 2 and 6 meters.");
+  validateRoof(project);
   validateProperty(project.property);
   if (!Array.isArray(project.floors) || project.floors.length < 1 || project.floors.length > 8) throw new Error("Projects must have between 1 and 8 floors.");
   const ids = new Set();

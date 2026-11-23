@@ -533,7 +533,7 @@ const orderTypeFields = {
   ],
   "Imaging / Radiology": [
     textField("imagingStudy", "Study requested", "e.g., chest radiograph, CT abdomen", true),
-    selectField("imagingModality", "Modality", ["X-ray", "CT", "MRI", "Ultrasound", "Mammography", "DEXA", "Other"], true),
+    selectField("imagingModality", "Modality", ["X-ray", "CT", "MRI", "Ultrasound", "Mammography", "DEXA", "Fluoroscopy", "Nuclear medicine", "PET", "Interventional radiology", "Other"], true),
     textField("imagingBodySite", "Body site / laterality", "Specify anatomy and side"),
     selectField("imagingContrast", "Contrast", ["Not applicable", "Without contrast", "With contrast", "Without and with contrast", "Per radiology protocol"], true),
     selectField("pregnancyStatus", "Pregnancy status (when applicable)", ["Not applicable", "Not pregnant", "Pregnant", "Unknown / verify"], false),
@@ -1980,7 +1980,7 @@ function getDetailCardsForView(patient, openTasks) {
 }
 
 function getVisibleSections(view) {
-  const extendedViews = ["my-patients", "inbox", "admissions", "nursing", "departments", "locations", "staff", "profiles", "patient-profiles", "dispensary", "procedure-catalog"];
+  const extendedViews = ["my-patients", "inbox", "admissions", "nursing", "departments", "locations", "staff", "profiles", "patient-profiles", "dispensary", "procedure-catalog", "radiology-catalog"];
   return {
     overviewSection: view === "overview",
     operationsOverviewSection: view === "overview",
@@ -2087,6 +2087,7 @@ function initializeWorkspaceNavigation() {
     clinical: "M3 12h4l3-8 4 16 3-8h4",
     orders: "M9 3H4v18h16V3h-5M9 3v4h6V3zM8 13h8m-4-4v8",
     "procedure-catalog": "M9 3H4v18h16V3h-5M9 3v4h6V3zM8 13h8m-4-4v8",
+    "radiology-catalog": "M4 3h16v18H4zM8 7h8M8 12h8M8 17h8",
     outpatient: "M4 5h16v16H4zM8 2v6m8-6v6M4 11h16",
     documents: "M14 2H5v20h14V7zM14 2v6h5M8 12h8m-8 4h8",
     labs: "M9 3h6m-5 0v7l-6 9v2h16v-2l-6-9V3M7 16h10",
@@ -4630,6 +4631,7 @@ function renderExtendedWorkspace() {
     case "staff": renderStaffView(container); break;
     case "dispensary": renderDispensaryView(container); break;
     case "procedure-catalog": renderIndependentProcedureCatalog(container); break;
+    case "radiology-catalog": renderIndependentRadiologyCatalog(container); break;
     case "profiles": renderProfilesView(container); break;
     case "patient-profiles": renderProfilesView(container); break;
     default: container.innerHTML = "";
@@ -4771,6 +4773,92 @@ function renderIndependentProcedureCatalog(container) {
   renderIndependentProcedureResults();
 }
 
+let radiologyPage = 0;
+let independentRadiologyPage = 0;
+
+function searchRadiology(query) {
+  const terms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  if (!terms.length) return [];
+  return window.NORTHSTAR_RADIOLOGY.filter((study) =>
+    terms.every((term) => `${study.name} ${study.modality}`.toLowerCase().includes(term))
+  );
+}
+
+function getRadiologyResultsPage(query, requestedPage) {
+  const matches = searchRadiology(query);
+  const pages = Math.max(1, Math.ceil(matches.length / procedurePageSize));
+  const page = Math.max(0, Math.min(requestedPage, pages - 1));
+  const start = page * procedurePageSize;
+  return { matches, pages, page, start, items: matches.slice(start, start + procedurePageSize) };
+}
+
+function renderRadiologyResults(independent = false) {
+  const prefix = independent ? "independentRadiology" : "radiology";
+  const query = document.getElementById(`${prefix}Search`).value.trim();
+  const { matches, pages, page, start, items } = getRadiologyResultsPage(query, independent ? independentRadiologyPage : radiologyPage);
+  if (independent) independentRadiologyPage = page;
+  else radiologyPage = page;
+  const canOrder = hasPermission(currentUser.role, "order:create");
+  document.getElementById(`${prefix}Count`).textContent = query
+    ? `${matches.length} ${matches.length === 1 ? "result" : "results"} · Page ${page + 1} of ${pages}`
+    : "Enter a study, procedure, or modality to search.";
+  document.getElementById(`${prefix}Results`).innerHTML = !query ? "" : matches.length
+    ? items.map((study, index) => independent ? `
+      <details class="procedure-review">
+        <summary><span class="procedure-review-heading"><strong>${escapeHtml(study.name)}</strong><span>${escapeHtml(study.modality)}</span></span></summary>
+        <div class="procedure-review-content">
+          <dl class="structured-record-fields">
+            <div><dt>Study or procedure</dt><dd>${escapeHtml(study.name)}</dd></div>
+            <div><dt>Modality</dt><dd>${escapeHtml(study.modality)}</dd></div>
+          </dl>
+          <p class="muted-copy">This catalog does not provide protocols, preparation, risks, or billing codes.</p>
+          <button class="primary-btn" type="button" data-independent-radiology="${start + index}" ${canOrder ? "" : "disabled"}>Select for patient order</button>
+        </div>
+      </details>` : `
+      <button class="ghost-btn procedure-result" type="button" data-radiology-index="${start + index}" ${canOrder ? "" : "disabled"}>
+        <strong>${escapeHtml(study.name)}</strong><span>${escapeHtml(study.modality)}</span>
+      </button>`).join("")
+    : '<p class="empty-state">No matching radiology studies or procedures.</p>';
+  document.getElementById(`${prefix}Previous`).disabled = page === 0;
+  document.getElementById(`${prefix}Next`).disabled = page >= pages - 1;
+  document.getElementById(`${prefix}Pagination`).hidden = !query || pages <= 1;
+}
+
+function renderIndependentRadiologyCatalog(container) {
+  independentRadiologyPage = 0;
+  container.innerHTML = `<section class="panel">
+    <div class="panel-header"><div><p class="eyebrow">Clinical catalog</p><h3>Radiology studies &amp; procedures</h3></div></div>
+    <div class="clinical-form">
+      <p class="muted-copy">Search by study or modality. Expand a result to review it; choose a patient only if you want to order.</p>
+      <label for="independentRadiologySearch">Search radiology
+        <input id="independentRadiologySearch" type="search" placeholder="e.g., CT chest, ultrasound, biopsy" autocomplete="off" />
+      </label>
+      <label for="independentRadiologyPatient">Patient for order
+        <input id="independentRadiologyPatient" type="search" list="independentRadiologyPatients" placeholder="Name or MRN" autocomplete="off" aria-describedby="independentRadiologyStatus" />
+        <datalist id="independentRadiologyPatients">${patients.map((patient) => `<option value="${escapeHtml(`${patient.name} · ${patient.mrn}`)}"></option>`).join("")}</datalist>
+      </label>
+      <p id="independentRadiologyStatus" class="status-message" role="status"></p>
+      <p id="independentRadiologyCount" class="muted-copy" role="status"></p>
+      <div id="independentRadiologyResults" class="procedure-results"></div>
+      <div id="independentRadiologyPagination" class="procedure-pagination" hidden><button id="independentRadiologyPrevious" class="ghost-btn" type="button">Previous</button><button id="independentRadiologyNext" class="ghost-btn" type="button">Next</button></div>
+      <p class="form-caution">Illustrative names only; not a validated clinical order set or billing terminology. Orders and appointments are not transmitted.</p>
+    </div>
+  </section>`;
+  renderRadiologyResults(true);
+}
+
+function fillRadiologyOrder(study) {
+  const form = document.getElementById("orderForm");
+  form.elements.title.value = study.name;
+  form.elements.imagingStudy.value = study.name;
+  form.elements.imagingModality.value = study.modality;
+  form.elements.imagingBodySite.value = "";
+  form.elements.imagingContrast.value = study.name.endsWith("without and with contrast") ? "Without and with contrast"
+    : study.name.endsWith("without contrast") ? "Without contrast"
+      : study.name.endsWith("with contrast") ? "With contrast" : "Per radiology protocol";
+  form.elements.imagingStudy.focus();
+}
+
 function renderProcedureCatalog() {
   const query = document.getElementById("procedureSearch").value.trim();
   const { matches, pages, page, start, items } = getProcedureResultsPage(query, document.getElementById("procedureKind").value, procedurePage);
@@ -4815,7 +4903,9 @@ function renderOrderFields() {
     if (form.elements[name]) form.elements[name].value = value;
   });
   document.getElementById("procedureCatalog").hidden = category !== "Procedure";
+  document.getElementById("radiologyCatalog").hidden = category !== "Imaging / Radiology";
   if (category === "Procedure") renderProcedureCatalog();
+  if (category === "Imaging / Radiology") renderRadiologyResults();
 }
 
 function openOrderComposer() {
@@ -4946,6 +5036,7 @@ function renderPermissions() {
     });
   });
   if (!document.getElementById("procedureCatalog").hidden) renderProcedureCatalog();
+  if (!document.getElementById("radiologyCatalog").hidden) renderRadiologyResults();
 }
 
 function summarizeList(items, limit = 2) {
@@ -5371,6 +5462,41 @@ function attachEvents() {
     }
   });
   document.getElementById("extendedContent").addEventListener("click", (event) => {
+    const radiologyResult = event.target.closest("[data-independent-radiology]");
+    if (radiologyResult) {
+      if (!hasPermission(currentUser.role, "order:create")) return;
+      const matches = findPatientsByText(document.getElementById("independentRadiologyPatient").value);
+      if (matches.length !== 1) {
+        document.getElementById("independentRadiologyStatus").textContent = matches.length ? "Multiple patients match. Select a unique patient by name and MRN." : "Select a patient by name or MRN before ordering.";
+        return;
+      }
+      const study = searchRadiology(document.getElementById("independentRadiologySearch").value)[Number(radiologyResult.dataset.independentRadiology)];
+      if (!study) {
+        document.getElementById("independentRadiologyStatus").textContent = "The selected study is no longer available. Search again.";
+        return;
+      }
+      const result = openTreatmentWorkflow("orders", matches[0].id);
+      if (!result.allowed) {
+        document.getElementById("independentRadiologyStatus").textContent = result.message;
+        return;
+      }
+      render();
+      const form = document.getElementById("orderForm");
+      openOrderComposer();
+      form.elements.category.value = "Imaging / Radiology";
+      renderOrderFields();
+      delete orderFieldDrafts["Imaging / Radiology"];
+      orderTypeFields["Imaging / Radiology"].forEach((field) => { form.elements[field.name].value = ""; });
+      form.elements.details.value = "";
+      fillRadiologyOrder(study);
+      document.getElementById("clinicalStatus").textContent = `Complete the radiology order for ${matches[0].name} · ${matches[0].mrn}.`;
+      return;
+    }
+    if (event.target.closest("#independentRadiologyPrevious, #independentRadiologyNext")) {
+      independentRadiologyPage += event.target.closest("#independentRadiologyPrevious") ? -1 : 1;
+      renderRadiologyResults(true);
+      return;
+    }
     const catalogResult = event.target.closest("[data-independent-procedure]");
     if (catalogResult) {
       if (!hasPermission(currentUser.role, "order:create")) return;
@@ -5461,6 +5587,11 @@ function attachEvents() {
     }
   });
   document.getElementById("extendedContent").addEventListener("input", (event) => {
+    if (event.target.id === "independentRadiologySearch") {
+      independentRadiologyPage = 0;
+      renderRadiologyResults(true);
+      return;
+    }
     if (event.target.id === "independentProcedureSearch") {
       independentProcedurePage = 0;
       renderIndependentProcedureResults();
@@ -5593,6 +5724,24 @@ function attachEvents() {
   document.getElementById("procedureResults").addEventListener("click", (event) => {
     const button = event.target.closest("[data-procedure-index]");
     if (button) selectCatalogProcedure(Number(button.dataset.procedureIndex));
+  });
+  document.getElementById("radiologySearch").addEventListener("input", () => {
+    radiologyPage = 0;
+    renderRadiologyResults();
+  });
+  document.getElementById("radiologyPrevious").addEventListener("click", () => {
+    radiologyPage -= 1;
+    renderRadiologyResults();
+  });
+  document.getElementById("radiologyNext").addEventListener("click", () => {
+    radiologyPage += 1;
+    renderRadiologyResults();
+  });
+  document.getElementById("radiologyResults").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-radiology-index]");
+    if (!button || !hasPermission(currentUser.role, "order:create") || document.getElementById("orderForm").elements.category.value !== "Imaging / Radiology") return;
+    const study = searchRadiology(document.getElementById("radiologySearch").value)[Number(button.dataset.radiologyIndex)];
+    if (study) fillRadiologyOrder(study);
   });
   document.querySelector('#documentForm [name="type"]').addEventListener("change", renderDocumentFields);
 

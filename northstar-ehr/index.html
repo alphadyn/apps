@@ -142,6 +142,7 @@
           <div class="nav-group">
             <p class="nav-group-title">Clinical catalog</p>
             <button class="nav-link" type="button" data-view="procedure-catalog">Procedures &amp; operations</button>
+            <button class="nav-link" type="button" data-view="radiology-catalog">Radiology studies &amp; procedures</button>
           </div>
           <div class="nav-group">
             <p class="nav-group-title">Pharmacy workspace</p>
@@ -437,6 +438,22 @@
                 </div>
                 <p class="form-caution">Illustrative names only; not a validated clinical order set or billing terminology.</p>
               </section>
+              <section id="radiologyCatalog" class="procedure-catalog" aria-labelledby="radiologyCatalogHeading" hidden>
+                <div>
+                  <strong id="radiologyCatalogHeading">Radiology studies and procedures</strong>
+                  <p class="muted-copy">Search by study or modality and select a result, or enter a study manually below.</p>
+                </div>
+                <label for="radiologySearch">Search radiology
+                  <input id="radiologySearch" type="search" placeholder="e.g., CT chest or ultrasound" autocomplete="off" />
+                </label>
+                <p id="radiologyCount" class="muted-copy" role="status" aria-live="polite"></p>
+                <div id="radiologyResults" class="procedure-results"></div>
+                <div id="radiologyPagination" class="procedure-pagination" hidden>
+                  <button id="radiologyPrevious" class="ghost-btn" type="button">Previous</button>
+                  <button id="radiologyNext" class="ghost-btn" type="button">Next</button>
+                </div>
+                <p class="form-caution">Illustrative names only; not a validated clinical order set or billing terminology.</p>
+              </section>
               <label>Order / request
                 <input name="title" type="text" placeholder="Specify the requested care, test, medication, or referral" required />
               </label>
@@ -682,6 +699,7 @@
     <script src="rxnorm-catalog.js?v=1"></script>
     <script src="procedure-catalog.js?v=1"></script>
     <script src="surgical-catalog.js?v=1"></script>
-    <script src="app.js?v=24"></script>
+    <script src="radiology-catalog.js?v=1"></script>
+    <script src="app.js?v=25"></script>
   </body>
 </html>

@@ -7,6 +7,7 @@ const script = readFileSync(new URL("./medication-catalog.js", import.meta.url),
   "\n" + readFileSync(new URL("./rxnorm-catalog.js", import.meta.url), "utf8") +
   "\n" + readFileSync(new URL("./procedure-catalog.js", import.meta.url), "utf8") +
   "\n" + readFileSync(new URL("./surgical-catalog.js", import.meta.url), "utf8") +
+  "\n" + readFileSync(new URL("./radiology-catalog.js", import.meta.url), "utf8") +
   "\n" + readFileSync(new URL("./app.js", import.meta.url), "utf8");
 const storageKey = "northstar-ehr-state-v3";
 
@@ -23,6 +24,83 @@ function setup(accountId = "clinician", storage = new Map()) {
   vm.runInContext(script, context);
   return { api: context.window.__ehrApp, storage, context };
 }
+
+test("radiology catalog is bounded, unique, and searchable by study and modality", () => {
+  const { context } = setup();
+  const studies = context.window.NORTHSTAR_RADIOLOGY;
+  assert.ok(studies.length > 200 && studies.length <= 1000);
+  assert.equal(new Set(studies.map((study) => study.name.toLowerCase())).size, studies.length);
+  assert.ok(studies.every((study) => study.name && study.modality));
+  assert.equal(vm.runInContext('window.NORTHSTAR_RADIOLOGY.every(study => orderTypeFields["Imaging / Radiology"].find(field => field.name === "imagingModality").options.includes(study.modality))', context), true);
+  assert.equal(vm.runInContext('searchRadiology("").length', context), 0);
+  assert.equal(vm.runInContext('searchRadiology("CT CHEST without contrast")[0].name', context), "CT chest without contrast");
+  assert.ok(vm.runInContext('searchRadiology("ultrasound biopsy").length', context) > 0);
+  assert.equal(vm.runInContext('searchRadiology("not a study").length', context), 0);
+  assert.equal(vm.runInContext('getRadiologyResultsPage("CT", 1).start', context), 15);
+  assert.equal(vm.runInContext('getRadiologyResultsPage("CT", 999).page === getRadiologyResultsPage("CT", 999).pages - 1', context), true);
+});
+
+test("radiology search shows only matches and respects order permissions", () => {
+  const { context } = setup();
+  const elements = new Map();
+  for (const prefix of ["radiology", "independentRadiology"]) {
+    for (const suffix of ["Search", "Count", "Results", "Pagination", "Previous", "Next"]) {
+      elements.set(prefix + suffix, suffix === "Search" ? { value: "" } : {});
+    }
+  }
+  context.document = { getElementById: (id) => elements.get(id) };
+  vm.runInContext("renderRadiologyResults(); renderRadiologyResults(true)", context);
+  assert.equal(elements.get("radiologyResults").innerHTML, "");
+  assert.equal(elements.get("independentRadiologyResults").innerHTML, "");
+  elements.get("radiologySearch").value = "CT";
+  vm.runInContext("renderRadiologyResults()", context);
+  assert.equal((elements.get("radiologyResults").innerHTML.match(/data-radiology-index/g) || []).length, 15);
+  vm.runInContext("radiologyPage = 1; renderRadiologyResults()", context);
+  assert.match(elements.get("radiologyResults").innerHTML, /data-radiology-index="15"/);
+  elements.get("independentRadiologySearch").value = "ultrasound biopsy";
+  vm.runInContext('currentUser.role = "staff"; renderRadiologyResults(true)', context);
+  assert.match(elements.get("independentRadiologyResults").innerHTML, /Ultrasound-guided thyroid biopsy/);
+  assert.match(elements.get("independentRadiologyResults").innerHTML, /data-independent-radiology="0" disabled/);
+  elements.get("independentRadiologySearch").value = "no matching study";
+  vm.runInContext("renderRadiologyResults(true)", context);
+  assert.match(elements.get("independentRadiologyResults").innerHTML, /No matching radiology/);
+  elements.get("independentRadiologySearch").value = "";
+  vm.runInContext("renderRadiologyResults(true)", context);
+  assert.equal(elements.get("independentRadiologyResults").innerHTML, "");
+});
+
+test("selected radiology study saves and schedules as a linked patient order", () => {
+  const { context, storage, api } = setup();
+  const form = { elements: {
+    title: { value: "" }, imagingStudy: { value: "", focus() {} }, imagingModality: { value: "" },
+    imagingBodySite: { value: "old site" }, imagingContrast: { value: "" }
+  } };
+  context.document = { getElementById: () => form };
+  vm.runInContext('fillRadiologyOrder(searchRadiology("CT chest without contrast")[0])', context);
+  assert.equal(form.elements.title.value, "CT chest without contrast");
+  assert.equal(form.elements.imagingStudy.value, form.elements.title.value);
+  assert.equal(form.elements.imagingModality.value, "CT");
+  assert.equal(form.elements.imagingContrast.value, "Without contrast");
+  assert.equal(form.elements.imagingBodySite.value, "");
+  context.orderData = {
+    category: "Imaging / Radiology", title: form.elements.title.value,
+    imagingStudy: form.elements.imagingStudy.value, imagingModality: form.elements.imagingModality.value,
+    imagingContrast: form.elements.imagingContrast.value, imagingIndication: "Demo indication"
+  };
+  const patient = vm.runInContext("patients[0]", context);
+  assert.equal(vm.runInContext('createOrderForPatient(patients[0], orderData, "staff").allowed', context), false);
+  const result = vm.runInContext("createOrderForPatient(patients[0], orderData)", context);
+  assert.equal(result.allowed, true);
+  const appointment = api.createAppointmentForPatient(patient.id, {
+    orderId: result.order.id, scheduledAt: "2026-12-10", time: "10:30", provider: "Demo provider", location: "Radiology"
+  });
+  assert.equal(appointment.allowed, true);
+  const restored = setup("clinician", storage);
+  assert.equal(vm.runInContext('patients[0].orders[0].fields.find(field => field.label === "Study requested").value', restored.context), form.elements.title.value);
+  assert.equal(vm.runInContext(`patients[0].appointments.find(item => item.id === "${appointment.appointment.id}").orderId`, restored.context), result.order.id);
+  vm.runInContext('fillRadiologyOrder(searchRadiology("thyroid ultrasound")[0])', context);
+  assert.equal(form.elements.imagingContrast.value, "Per radiology protocol");
+});
 
 test("procedure catalog is bounded, unique, and searchable by name and specialty", () => {
   const { context } = setup();

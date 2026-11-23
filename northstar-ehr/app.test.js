@@ -646,6 +646,25 @@ function setupNavigation(mobile = false, storage = new Map()) {
   return { context, elements, storage };
 }
 
+test("every workspace navigation link receives an icon path", () => {
+  const { context, elements } = setupNavigation();
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  const links = [...html.matchAll(/<button class="nav-link\b[^"]*"[^>]*data-view="([^"]+)"/g)]
+    .map((match) => ({
+      dataset: { view: match[1] },
+      insertAdjacentHTML(position, markup) { this.markup = markup; }
+    }));
+  assert.ok(links.some((link) => link.dataset.view === "patient-care"));
+  context.document.querySelectorAll = () => links;
+  context.document.addEventListener = () => {};
+  for (const element of elements.values()) element.addEventListener = () => {};
+  context.window.matchMedia = () => ({ matches: false, addEventListener() {} });
+  vm.runInContext("initializeWorkspaceNavigation()", context);
+  for (const link of links) {
+    assert.match(link.markup, /<path d="M[^"]+" \/>/, `Missing icon for ${link.dataset.view}`);
+  }
+});
+
 test("desktop navigation collapses, persists, and restores without changing the current view", () => {
   const { context, elements, storage } = setupNavigation();
   vm.runInContext("syncNavigationLayout()", context);

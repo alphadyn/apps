@@ -2091,6 +2091,7 @@ function initializeWorkspaceNavigation() {
     overview: "M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z",
     "my-patients": "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m16-9v6m-3-3h6M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8",
     inbox: "M4 4h16v16H4zM4 13h5l2 3h2l2-3h5",
+    "patient-care": "M3 11 12 3l9 8M5 10v11h14V10M12 12v6m-3-3h6",
     patients: "M9 3H4v18h16V3h-5M9 3v4h6V3zM8 12h8m-8 4h5",
     "patient-profiles": "M20 21v-2a7 7 0 0 0-14 0v2M13 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8",
     admissions: "M3 21V5h18v16M7 5V2m10 3V2M3 10h18M8 14h2m4 0h2m-8 4h2m4 0h2",

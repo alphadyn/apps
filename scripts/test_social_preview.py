@@ -27,7 +27,7 @@ class SocialPreviewTests(unittest.TestCase):
     def test_metadata_and_image(self):
         parser = MetadataParser()
         parser.feed((ROOT / "index.html").read_text(encoding="utf-8"))
-        url = "https://alphadyn.github.io/apps/social-preview.png?v=3"
+        url = "https://alphadyn.github.io/apps/social-preview.png?v=4"
         for key in ("og:image", "og:image:secure_url", "twitter:image"):
             self.assertEqual(parser.meta[key], url)
         self.assertEqual(parser.meta["og:image:type"], "image/png")

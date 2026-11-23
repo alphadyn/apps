@@ -88,9 +88,9 @@ draw.text((610, 168), "PROJECT DIRECTORY", font=font(10, True), fill=(143, 164, 
 draw.text((610, 190), "A universe of useful ideas", font=font(20, True), fill=(241, 245, 255, 255))
 cards = [
     ((610, 231, 862, 350), "MARKETS", "Market Map", "S&P 500 treemap", (110, 231, 210, 255), "chart"),
-    ((878, 231, 1107, 350), "NEWS", "Signal", "Ranked news & trends", (138, 167, 255, 255), "pulse"),
+    ((878, 231, 1107, 350), "ARCHITECTURE", "Forma", "Homes & 3D concepts", (138, 167, 255, 255), "diamond"),
     ((610, 365, 862, 484), "COMMUNITY", "People", "Profiles & communities", (255, 188, 130, 255), "pin"),
-    ((878, 365, 1107, 484), "COMMERCE", "Atlas Store", "Storefront & checkout", (195, 157, 255, 255), "diamond"),
+    ((878, 365, 1107, 484), "CLINICAL", "Northstar EHR", "Care workflows", (195, 157, 255, 255), "pulse"),
 ]
 for box, category, title, desc, accent, mark in cards:
     rounded(draw, box, 15, (22, 34, 55, 255), (63, 83, 112, 170), 1)

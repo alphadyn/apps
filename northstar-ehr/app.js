@@ -3969,12 +3969,6 @@ function openTreatmentWorkflow(view, patientId = selectedPatientId) {
   }
   const patient = patients.find((record) => String(record.id) === String(patientId));
   if (!patient) return { allowed: false, message: "Patient not found. Select a patient to continue." };
-  if (String(selectedPatientId) !== String(patient.id) && typeof document !== "undefined") {
-    document.getElementById("orderForm").reset();
-    Object.keys(orderFieldDrafts).forEach((key) => delete orderFieldDrafts[key]);
-    activeOrderTemplate = "";
-    renderOrderFields();
-  }
   selectedPatientId = patient.id;
   dispensingPrescriptionId = "";
   setCurrentView(view);
@@ -4671,6 +4665,8 @@ function renderStructuredFields(containerId, fields, heading = "Type-specific de
 }
 
 const orderFieldDrafts = {};
+const orderCommonFields = ["title", "details", "priority"];
+let orderDraftPatientId = selectedPatientId;
 const documentFieldDrafts = {};
 let activeOrderTemplate = "";
 let activeDocumentTemplate = "";
@@ -4894,22 +4890,67 @@ function renderOrderFields() {
   const form = document.getElementById("orderForm");
   if (activeOrderTemplate) {
     orderFieldDrafts[activeOrderTemplate] = Object.fromEntries(
-      orderTypeFields[activeOrderTemplate].map((field) => [field.name, form.elements[field.name]?.value || ""])
+      [...orderCommonFields, ...orderTypeFields[activeOrderTemplate].map((field) => field.name)]
+        .map((name) => [name, form.elements[name]?.value || ""])
     );
   }
   activeOrderTemplate = category;
   renderStructuredFields("orderSpecificFields", orderTypeFields[category] || []);
+  orderCommonFields.forEach((name) => {
+    form.elements[name].value = orderFieldDrafts[category]?.[name] ?? (name === "priority" ? "Routine" : "");
+  });
   Object.entries(orderFieldDrafts[category] || {}).forEach(([name, value]) => {
     if (form.elements[name]) form.elements[name].value = value;
   });
   document.getElementById("procedureCatalog").hidden = category !== "Procedure";
   document.getElementById("radiologyCatalog").hidden = category !== "Imaging / Radiology";
+  document.getElementById("orderMedicationHelp").hidden = category !== "Medication";
   if (category === "Procedure") renderProcedureCatalog();
   if (category === "Imaging / Radiology") renderRadiologyResults();
+  updateOrderChoices();
+}
+
+function updateOrderChoices() {
+  const category = document.getElementById("orderForm").elements.category.value;
+  const kind = document.getElementById("procedureKind").value;
+  document.querySelectorAll("#orderQuickChoices [data-order-choice]").forEach((button) => {
+    const selected = button.dataset.orderChoice === category && (!button.dataset.orderKind || button.dataset.orderKind === kind);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+}
+
+function selectOrderCategory(category, procedureKind) {
+  document.getElementById("orderForm").elements.category.value = category;
+  if (procedureKind) {
+    document.getElementById("procedureKind").value = procedureKind;
+    procedurePage = 0;
+  }
+  renderOrderFields();
+}
+
+function openSavedOrderScheduler(orderId) {
+  const orderCard = document.getElementById(`patient-order-${orderId}`);
+  const scheduler = orderCard?.querySelector(".order-scheduler");
+  if (!scheduler) return;
+  scheduler.open = true;
+  scheduler.querySelector("summary").focus();
 }
 
 function openOrderComposer() {
   document.getElementById("orderComposer").open = true;
+}
+
+function syncOrderDraftPatient() {
+  if (String(orderDraftPatientId) === String(selectedPatientId)) return;
+  document.getElementById("orderForm").reset();
+  Object.keys(orderFieldDrafts).forEach((key) => delete orderFieldDrafts[key]);
+  activeOrderTemplate = "";
+  procedurePage = 0;
+  radiologyPage = 0;
+  orderDraftPatientId = selectedPatientId;
+  renderOrderFields();
+  document.getElementById("orderComposer").open = false;
+  document.getElementById("clinicalStatus").textContent = "Order drafts were cleared for the new patient.";
 }
 
 function renderDocumentFields() {
@@ -4956,7 +4997,7 @@ function renderOrders() {
           </details>` : ""}
           ${appointments.map((appointment) => `<p>Appointment: ${escapeHtml(formatDisplayDate(appointment.scheduledAt))} at ${escapeHtml(appointment.time)} · ${escapeHtml(appointment.status)}
             <button class="text-btn" type="button" data-order-appointment="${escapeHtml(appointment.id)}">View appointment</button></p>`).join("")}
-          ${canSchedule ? `<details class="order-scheduler"><summary>Schedule this order</summary>
+          ${canSchedule ? `<details class="order-scheduler"><summary>Schedule this order (optional)</summary>
             <form class="clinical-form" data-schedule-order="${escapeHtml(order.id)}">
               <div class="row"><label>Date<input name="scheduledAt" type="date" required /></label><label>Time<input name="time" type="time" required /></label></div>
               <label>Provider<input name="provider" type="text" value="${escapeHtml(patient.provider || "")}" required /></label>
@@ -5155,6 +5196,7 @@ function initCollapsibles() {
 
 function render() {
   if (typeof document === "undefined") return;
+  syncOrderDraftPatient();
   renderNavigation();
   applyViewState();
   renderRoleSummary();
@@ -5292,6 +5334,7 @@ function handleOrderSubmit(event) {
   renderOrderFields();
   document.getElementById("orderComposer").open = false;
   render();
+  openSavedOrderScheduler(result.order.id);
 }
 
 function handleDocumentSubmit(event) {
@@ -5432,14 +5475,7 @@ function attachEvents() {
     render();
     if (navigation.dataset.orderCategory) {
       openOrderComposer();
-      const category = document.getElementById("orderForm").elements.category;
-      category.value = navigation.dataset.orderCategory;
-      renderOrderFields();
-      if (navigation.dataset.procedureKind) {
-        document.getElementById("procedureKind").value = navigation.dataset.procedureKind;
-        procedurePage = 0;
-        renderProcedureCatalog();
-      }
+      selectOrderCategory(navigation.dataset.orderCategory, navigation.dataset.procedureKind || (navigation.dataset.orderCategory === "Procedure" ? "all" : ""));
     }
     const target = navigation.dataset.treatmentTarget && document.getElementById(navigation.dataset.treatmentTarget);
     if (target) target.scrollIntoView({ block: "center" });
@@ -5518,6 +5554,7 @@ function attachEvents() {
       renderOrderFields();
       delete orderFieldDrafts.Procedure;
       orderTypeFields.Procedure.forEach((field) => { form.elements[field.name].value = ""; });
+      form.elements.details.value = "";
       form.elements.title.value = procedure.name;
       form.elements.procedureName.value = procedure.name;
       form.elements.procedureName.focus();
@@ -5705,6 +5742,11 @@ function attachEvents() {
   document.getElementById("orderForm").addEventListener("submit", handleOrderSubmit);
   document.getElementById("documentForm").addEventListener("submit", handleDocumentSubmit);
   document.querySelector('#orderForm [name="category"]').addEventListener("change", renderOrderFields);
+  document.getElementById("orderQuickChoices").addEventListener("click", (event) => {
+    const choice = event.target.closest("[data-order-choice]");
+    if (!choice || !hasPermission(currentUser.role, "order:create")) return;
+    selectOrderCategory(choice.dataset.orderChoice, choice.dataset.orderKind);
+  });
   document.getElementById("procedureSearch").addEventListener("input", () => {
     procedurePage = 0;
     renderProcedureCatalog();
@@ -5712,6 +5754,7 @@ function attachEvents() {
   document.getElementById("procedureKind").addEventListener("change", () => {
     procedurePage = 0;
     renderProcedureCatalog();
+    updateOrderChoices();
   });
   document.getElementById("procedurePrevious").addEventListener("click", () => {
     procedurePage -= 1;

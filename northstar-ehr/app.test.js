@@ -135,6 +135,125 @@ test("orders screen starts with a collapsed composer and keeps saved details ava
   assert.equal(elements.get("orderComposer").open, true);
 });
 
+test("order shortcuts select categories and keep surgery filter and button state in sync", () => {
+  const { context } = setup();
+  const choices = [
+    { dataset: { orderChoice: "Laboratory" } },
+    { dataset: { orderChoice: "Procedure", orderKind: "all" } },
+    { dataset: { orderChoice: "Procedure", orderKind: "surgical" } }
+  ];
+  choices.forEach((choice) => { choice.setAttribute = (name, value) => { choice[name] = value; }; });
+  const elements = {
+    orderForm: { elements: { category: { value: "Nursing" } } },
+    procedureKind: { value: "all" }
+  };
+  context.document = {
+    getElementById: (id) => elements[id],
+    querySelectorAll: () => choices
+  };
+  vm.runInContext("renderOrderFields = () => updateOrderChoices(); selectOrderCategory('Procedure', 'surgical')", context);
+  assert.equal(elements.orderForm.elements.category.value, "Procedure");
+  assert.equal(elements.procedureKind.value, "surgical");
+  assert.deepEqual(choices.map((choice) => choice["aria-pressed"]), ["false", "false", "true"]);
+  vm.runInContext("selectOrderCategory('Procedure', 'all')", context);
+  assert.deepEqual(choices.map((choice) => choice["aria-pressed"]), ["false", "true", "false"]);
+  vm.runInContext("selectOrderCategory('Laboratory')", context);
+  assert.deepEqual(choices.map((choice) => choice["aria-pressed"]), ["true", "false", "false"]);
+});
+
+test("switching order categories keeps common and structured drafts separate", () => {
+  const { context } = setup();
+  const form = { elements: {
+    category: { value: "Laboratory" }, title: { value: "" }, details: { value: "" }, priority: { value: "Routine" },
+    labTest: { value: "" }, imagingStudy: { value: "" }
+  } };
+  const elements = {
+    orderForm: form, procedureKind: { value: "all" }, procedureCatalog: {}, radiologyCatalog: {}, orderMedicationHelp: {}
+  };
+  context.document = {
+    getElementById: (id) => elements[id],
+    querySelector: () => form.elements.category,
+    querySelectorAll: () => []
+  };
+  vm.runInContext("renderStructuredFields = () => {}; renderRadiologyResults = () => {}; renderOrderFields()", context);
+  form.elements.title.value = "CBC";
+  form.elements.details.value = "Lab instructions";
+  form.elements.priority.value = "Urgent";
+  form.elements.labTest.value = "CBC";
+  form.elements.category.value = "Imaging / Radiology";
+  vm.runInContext("renderOrderFields()", context);
+  assert.equal(form.elements.title.value, "");
+  assert.equal(form.elements.details.value, "");
+  assert.equal(form.elements.priority.value, "Routine");
+  form.elements.title.value = "Chest X-ray";
+  form.elements.imagingStudy.value = "Chest X-ray";
+  form.elements.category.value = "Laboratory";
+  vm.runInContext("renderOrderFields()", context);
+  assert.equal(form.elements.title.value, "CBC");
+  assert.equal(form.elements.details.value, "Lab instructions");
+  assert.equal(form.elements.priority.value, "Urgent");
+  assert.equal(form.elements.labTest.value, "CBC");
+  form.elements.category.value = "Imaging / Radiology";
+  vm.runInContext("renderOrderFields()", context);
+  assert.equal(form.elements.title.value, "Chest X-ray");
+  assert.equal(form.elements.imagingStudy.value, "Chest X-ray");
+});
+
+test("changing patients clears order drafts and closes the composer", () => {
+  const { context } = setup();
+  const elements = {
+    orderForm: { reset() { context.resetCalled = true; } },
+    orderComposer: { open: true }, clinicalStatus: {}
+  };
+  context.document = { getElementById: (id) => elements[id] };
+  vm.runInContext(`
+    renderOrderFields = () => {};
+    orderFieldDrafts.Laboratory = { title: "CBC" };
+    selectedPatientId = patients[1].id;
+    syncOrderDraftPatient();
+  `, context);
+  assert.equal(context.resetCalled, true);
+  assert.equal(elements.orderComposer.open, false);
+  assert.match(elements.clinicalStatus.textContent, /cleared for the new patient/);
+  assert.equal(vm.runInContext("Object.keys(orderFieldDrafts).length", context), 0);
+  context.resetCalled = false;
+  vm.runInContext("syncOrderDraftPatient()", context);
+  assert.equal(context.resetCalled, false);
+});
+
+test("saving an order opens optional scheduling only after successful save", () => {
+  const { context } = setup();
+  const composer = { open: true };
+  const scheduler = { open: false, querySelector: () => ({ focus() { context.schedulerFocused = true; } }) };
+  const elements = {
+    orderComposer: composer, clinicalStatus: {}, encounterStatus: {},
+    "patient-order-new-order": { querySelector: () => scheduler }
+  };
+  context.document = { getElementById: (id) => elements[id] };
+  context.FormData = class { entries() { return Object.entries({ category: "Laboratory", title: "Test" }); } };
+  context.form = { reset() { context.resetCalled = true; } };
+  context.event = { preventDefault() {}, currentTarget: context.form };
+  vm.runInContext(`
+    createOrderForPatient = () => ({ allowed: false, message: "Unable to save." });
+    renderOrderFields = () => {};
+    render = () => {};
+    handleOrderSubmit(event);
+  `, context);
+  assert.equal(composer.open, true);
+  assert.equal(scheduler.open, false);
+  assert.equal(elements.clinicalStatus.textContent, "Unable to save.");
+  assert.equal(context.resetCalled, undefined);
+  vm.runInContext(`
+    createOrderForPatient = () => ({ allowed: true, order: { id: "new-order", category: "Laboratory" } });
+    handleOrderSubmit(event);
+  `, context);
+  assert.equal(composer.open, false);
+  assert.equal(scheduler.open, true);
+  assert.equal(context.schedulerFocused, true);
+  assert.equal(context.resetCalled, true);
+  assert.doesNotThrow(() => vm.runInContext('openSavedOrderScheduler("unavailable")', context));
+});
+
 test("surgical operations are unique, bounded, and searchable alongside existing procedures", () => {
   const { context } = setup();
   const operations = context.window.NORTHSTAR_SURGICAL_OPERATIONS;

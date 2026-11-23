@@ -25,7 +25,7 @@
     <meta name="twitter:description" content="Explore fictional patient charts, admissions, care teams, timelines, orders, and notes." />
     <meta name="twitter:image" content="https://alphadyn.github.io/apps/northstar-ehr/social-preview.png" />
     <meta name="twitter:image:alt" content="Northstar EHR clinical operations demo, showing a fictional patient chart and timeline." />
-    <link rel="stylesheet" href="styles.css?v=20" />
+    <link rel="stylesheet" href="styles.css?v=21" />
   </head>
   <body>
     <main id="loginScreen" class="login-screen">
@@ -400,13 +400,21 @@
             <details id="orderComposer" class="document-composer order-composer">
               <summary>
                 <span class="document-composer-icon" aria-hidden="true">+</span>
-                <span class="document-composer-heading"><strong>New order</strong><span>Choose a category and add a request</span></span>
+                <span class="document-composer-heading"><strong>New order</strong><span>Choose care, save the request, then schedule if needed</span></span>
                 <span class="document-composer-chevron" aria-hidden="true"></span>
               </summary>
             <form id="orderForm" class="clinical-form">
-              <p class="muted-copy">Use <button class="text-btn" type="button" data-treatment-view="medications">Medications &amp; prescriptions</button> for a catalog-based prescription, or record a general medication request here.</p>
+              <div id="orderQuickChoices" class="order-quick-choices" role="group" aria-label="Common order types">
+                <button class="ghost-btn" type="button" data-order-choice="Laboratory">Lab</button>
+                <button class="ghost-btn" type="button" data-order-choice="Imaging / Radiology">Radiology</button>
+                <button class="ghost-btn" type="button" data-order-choice="Medication">Medication</button>
+                <button class="ghost-btn" type="button" data-order-choice="Procedure" data-order-kind="all">Procedure</button>
+                <button class="ghost-btn" type="button" data-order-choice="Procedure" data-order-kind="surgical">Surgery</button>
+                <button class="ghost-btn" type="button" data-order-choice="Consult">Consult</button>
+                <button class="ghost-btn" type="button" data-order-choice="Follow-up">Follow-up</button>
+              </div>
               <div class="row">
-                <label>Order category
+                <label>Order category <span class="order-category-hint">(including other request types)</span>
                   <select name="category">
                     <option>Nursing</option><option>Vitals</option><option>Diagnosis</option><option>History &amp; physical</option>
                     <option>Laboratory</option><option>Imaging / Radiology</option><option>Procedure</option><option>Medication</option>
@@ -415,6 +423,7 @@
                 </label>
                 <label>Priority<select name="priority"><option>Routine</option><option>Urgent</option><option>STAT</option></select></label>
               </div>
+              <p id="orderMedicationHelp" class="muted-copy" hidden>For a catalog-based prescription, use <button class="text-btn" type="button" data-treatment-view="medications">Medications &amp; prescriptions</button>. You can also record a general medication request below.</p>
               <section id="procedureCatalog" class="procedure-catalog" aria-labelledby="procedureCatalogHeading" hidden>
                 <div>
                   <strong id="procedureCatalogHeading">Procedure and surgical operation catalog</strong>
@@ -461,7 +470,8 @@
               <label>Additional instructions
                 <textarea name="details" rows="2" placeholder="Additional context not captured above"></textarea>
               </label>
-              <button class="primary-btn" type="submit">Add order</button>
+              <button class="primary-btn" type="submit">Save order</button>
+              <p class="muted-copy">After saving, you can schedule an appointment or return to it later.</p>
               <p class="form-caution">Demo only: orders are not transmitted, verified, or executed. A licensed clinician must review all clinical decisions.</p>
             </form>
             </details>
@@ -700,6 +710,6 @@
     <script src="procedure-catalog.js?v=1"></script>
     <script src="surgical-catalog.js?v=1"></script>
     <script src="radiology-catalog.js?v=1"></script>
-    <script src="app.js?v=25"></script>
+    <script src="app.js?v=26"></script>
   </body>
 </html>

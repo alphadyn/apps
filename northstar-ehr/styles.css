@@ -11,6 +11,8 @@
   --purple: #6d51b5;
   --shadow: 0 10px 28px rgba(20, 35, 60, 0.06);
   --shadow-soft: 0 3px 14px rgba(25, 50, 70, 0.04);
+  --font-size-body: 0.9375rem;
+  --font-weight-semibold: 600;
 }
 
 .sidebar-heading {
@@ -30,13 +32,14 @@
 
 .sidebar .brand-block p {
   color: #a4b9c3;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 .brand-edition {
   margin-left: 6px;
   color: #84cbc1;
-  font-size: 0.65rem;
+  font-size: 0.68rem;
   font-weight: 600;
   letter-spacing: 0.05em;
 }
@@ -123,8 +126,29 @@ body {
     radial-gradient(ellipse at 82% 0%, rgba(216, 230, 249, 0.38), transparent 34rem),
     linear-gradient(180deg, #f8fafc 0%, var(--bg) 360px);
   color: var(--text);
+  font-size: var(--font-size-body);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+strong,
+b {
+  font-weight: var(--font-weight-semibold);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  line-height: 1.3;
 }
 
 .account-settings {
@@ -170,7 +194,7 @@ textarea {
   background: #fff;
   color: var(--accent);
   box-shadow: var(--shadow);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .skip-link:focus {
@@ -248,7 +272,7 @@ textarea {
   margin: 0 0 3px;
   color: #a4d5ca;
   font-size: 0.7rem;
-  font-weight: 750;
+  font-weight: 650;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -1067,7 +1091,7 @@ textarea {
 
 .overview-summary strong {
   display: block;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
 }
 
 .overview-summary p {
@@ -1154,8 +1178,8 @@ textarea {
   margin: 0 0 4px;
   padding: 0 12px;
   color: #94a3b8;
-  font-size: 0.69rem;
-  font-weight: 700;
+  font-size: 0.72rem;
+  font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
@@ -1408,7 +1432,7 @@ textarea {
 }
 
 .workspace-heading .eyebrow {
-  font-size: 0.62rem;
+  font-size: 0.68rem;
   letter-spacing: 0.12em;
   color: #687e90;
 }
@@ -1486,16 +1510,16 @@ textarea {
 .eyebrow {
   margin: 0 0 6px;
   text-transform: uppercase;
-  font-size: 0.74rem;
-  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
   color: var(--accent);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .topbar h2 {
   margin: 0;
-  font-size: clamp(1.3rem, 2vw, 1.7rem);
-  letter-spacing: -0.04em;
+  font-size: clamp(1.25rem, 1.8vw, 1.5rem);
+  letter-spacing: -0.03em;
   line-height: 1.2;
 }
 
@@ -1700,7 +1724,7 @@ button.stat-card {
   display: block;
   margin: 8px 0 2px;
   color: var(--text);
-  font-size: 1.75rem;
+  font-size: 1.6rem;
   letter-spacing: -0.045em;
   line-height: 1.1;
 }
@@ -1762,6 +1786,9 @@ button.stat-card {
 .panel-header h3 {
   margin: 0;
   color: var(--text);
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.3;
   letter-spacing: -0.02em;
 }
 
@@ -1936,8 +1963,8 @@ button.stat-card {
 .staff-card-status {
   padding: 2px 7px;
   border-radius: 999px;
-  font-size: 0.66rem;
-  font-weight: 700;
+  font-size: 0.7rem;
+  font-weight: 600;
   line-height: 1.3;
 }
 
@@ -2009,6 +2036,7 @@ button.stat-card {
   margin: 3px 0 0;
   overflow-wrap: anywhere;
   font-size: 0.9rem;
+  font-weight: 600;
 }
 
 .directory-locations {
@@ -2545,7 +2573,7 @@ button.stat-card {
 .timeline-heading .eyebrow,
 .status-overview .eyebrow {
   margin-bottom: 4px;
-  font-size: 0.66rem;
+  font-size: 0.7rem;
 }
 
 .dashboard-meta {
@@ -3394,7 +3422,8 @@ textarea {
 
 .clinical-banner h3 {
   margin: 0;
-  font-size: 1.35rem;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
 .clinical-banner .muted-copy {
@@ -4451,7 +4480,8 @@ h4.collapse-head .collapse-toggle {
 }
 
 .inbox-header h3 {
-  font-size: 1.35rem;
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .inbox-header .muted-copy {

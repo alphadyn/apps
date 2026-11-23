@@ -4,7 +4,7 @@ Sources:
   * S&P 500 constituents: datasets/s-and-p-500-companies (GitHub)
   * Curated broad-market index funds and ETFs: Yahoo Finance
   * Current market capitalization: Nasdaq stock screener
-  * Daily closing prices: Yahoo Finance chart API
+  * Daily closing prices and trade volumes: Yahoo Finance chart API
   * Net income and diluted share counts: SEC EDGAR XBRL company concepts
 
 If the constituent list or prices cannot be loaded, the build fails so the
@@ -246,6 +246,21 @@ def chart_points(payload, adjusted=False):
     return sorted(points.items()), result.get("meta") or {}
 
 
+def chart_volumes(payload):
+    """Return dated share volumes from a Yahoo Finance chart response."""
+    result = ((payload or {}).get("chart") or {}).get("result") or []
+    if not result:
+        return []
+    result = result[0]
+    quote = ((result.get("indicators") or {}).get("quote") or [{}])[0]
+    volumes = quote.get("volume") or []
+    points = {}
+    for stamp, volume in zip(result.get("timestamp") or [], volumes):
+        if isinstance(volume, (int, float)) and math.isfinite(volume) and volume >= 0:
+            points[datetime.fromtimestamp(stamp, timezone.utc).date()] = int(volume)
+    return sorted(points.items())
+
+
 def price_metrics(payload, total_return=False, now=None):
     points, meta = chart_points(payload, adjusted=total_return)
     raw_points = points if not total_return else chart_points(payload)[0]
@@ -317,13 +332,26 @@ def merge_history(daily_payload, weekly_payload, total_return=False):
     return weekly + daily
 
 
-def encode_history(symbol, points):
-    """Compact JSON payload: days since the Unix epoch and closes to six significant digits."""
-    return {
+def merge_volume_history(daily_payload, weekly_payload):
+    """Merge daily and weekly share volumes, dating weekly bars on their Friday close."""
+    daily = chart_volumes(daily_payload)
+    weekly = [(day + timedelta(days=4), volume) for day, volume in chart_volumes(weekly_payload)]
+    if daily:
+        weekly = [point for point in weekly if point[0] < daily[0][0]]
+    return weekly + daily
+
+
+def encode_history(symbol, points, volumes=None):
+    """Compact history payload with optional share volumes aligned to close dates."""
+    payload = {
         "symbol": symbol,
         "d": [(day - EPOCH).days for day, _ in points],
         "c": [float(f"{close:.6g}") for _, close in points],
     }
+    if volumes:
+        volume_by_day = dict(volumes)
+        payload["v"] = [volume_by_day.get(day) for day, _ in points]
+    return payload
 
 
 def _chart(symbol, params):
@@ -343,7 +371,11 @@ def fetch_prices(symbol, total_return=False):
         weekly = _chart(symbol, {"period1": HISTORY_START, "period2": now, "interval": "1wk"})
     except (HTTPError, URLError, TimeoutError, ValueError):
         weekly = None
-    return {"metrics": metrics, "history": merge_history(daily, weekly, total_return=total_return)}
+    return {
+        "metrics": metrics,
+        "history": merge_history(daily, weekly, total_return=total_return),
+        "volume": merge_volume_history(daily, weekly),
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -616,6 +648,10 @@ def build_snapshot(log=print):
         normalize_symbol(company["symbol"]): item["history"]
         for company, item in zip(companies, fetched) if item and item["history"]
     }
+    volume_histories = {
+        normalize_symbol(company["symbol"]): item["volume"]
+        for company, item in zip(companies, fetched) if item and item.get("volume")
+    }
     priced = sum(1 for item in prices if item)
     log(f"Prices found for {priced} securities")
     if priced < len(companies) * 0.8:
@@ -658,28 +694,28 @@ def build_snapshot(log=print):
             "constituents": SP500_URL,
             "funds": "Curated broad-market mutual funds and ETFs from Yahoo Finance",
             "market_cap": "Nasdaq stock screener",
-            "prices": "Yahoo Finance daily closes",
+            "prices": "Yahoo Finance daily closes and trade volumes",
             "fundamentals": "SEC EDGAR XBRL filings",
         },
         "securities": securities,
-    }, histories
+    }, histories, volume_histories
 
 
-def write_histories(histories, directory=HISTORY_DIR):
+def write_histories(histories, directory=HISTORY_DIR, volume_histories=None):
     """Write one history file per ticker and drop files for tickers that left the index."""
     directory.mkdir(exist_ok=True)
     for stale in directory.glob("*.json"):
         if stale.stem not in histories:
             stale.unlink()
     for symbol, points in histories.items():
-        (directory / f"{symbol}.json").write_text(json.dumps(encode_history(symbol, points), separators=(",", ":")),
-                                                 encoding="utf-8")
+        payload = encode_history(symbol, points, (volume_histories or {}).get(symbol))
+        (directory / f"{symbol}.json").write_text(json.dumps(payload, separators=(",", ":")), encoding="utf-8")
 
 
 def main():
-    snapshot, histories = build_snapshot()
+    snapshot, histories, volume_histories = build_snapshot()
     OUTPUT.write_text(json.dumps(snapshot, separators=(",", ":")), encoding="utf-8")
-    write_histories(histories)
+    write_histories(histories, volume_histories=volume_histories)
     try:
         from build_share_pages import OUTPUT_DIR as SHARE_DIR, build_pages
         share_count = build_pages(SHARE_DIR, snapshot.get("securities", []))

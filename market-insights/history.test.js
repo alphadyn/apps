@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
-  RANGES, formatAxisDate, historyFileFor, indexOnOrBefore, logTicks, nearestIndex, niceTicks, parseHistory,
+  RANGES, formatAxisDate, formatVolume, historyFileFor, indexOnOrBefore, logTicks, nearestIndex, niceTicks, parseHistory,
   rangeStartDay, rangeSummaries, shiftMonths, sliceRange,
 } from './history.js';
 
@@ -26,6 +26,12 @@ test('range starts', () => {
 
 test('parseHistory drops invalid entries and sorts', () => {
   assert.deepEqual(parseHistory({ d: [3, 1, 2, 4], c: [30, 10, -1, null] }), [{ day: 1, close: 10 }, { day: 3, close: 30 }]);
+  assert.deepEqual(parseHistory({ d: [3, 1], c: [30, 10], v: [1200000, 500] }), [
+    { day: 1, close: 10, volume: 500 }, { day: 3, close: 30, volume: 1200000 },
+  ]);
+  assert.deepEqual(parseHistory({ d: [1, 2, 3], c: [10, 20, 30], v: [-1, null, 0] }), [
+    { day: 1, close: 10 }, { day: 2, close: 20 }, { day: 3, close: 30, volume: 0 },
+  ]);
   assert.deepEqual(parseHistory(null), []);
 });
 
@@ -83,4 +89,6 @@ test('labels and file names', () => {
   assert.equal(formatAxisDate(day('2026-10-02'), 400), "Oct '26");
   assert.equal(formatAxisDate(day('2026-10-02'), 4000), '2026');
   assert.equal(historyFileFor('BRK.B'), 'BRK-B.json');
+  assert.equal(formatVolume(1_200_000), '1.2M shares');
+  assert.equal(formatVolume(-1), '—');
 });

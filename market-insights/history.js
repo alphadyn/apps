@@ -38,15 +38,19 @@ export function rangeStartDay(lastDay, key, firstDay) {
   return shiftMonths(lastDay, -MONTHS[key]);
 }
 
-/** Validate a history payload ({ d: [days], c: [closes] }) into sorted points. */
+/** Validate a history payload ({ d: [days], c: [closes], v?: [share volumes] }) into sorted points. */
 export function parseHistory(payload) {
   const days = Array.isArray(payload?.d) ? payload.d : [];
   const closes = Array.isArray(payload?.c) ? payload.c : [];
+  const volumes = Array.isArray(payload?.v) ? payload.v : [];
   const points = [];
   for (let index = 0; index < Math.min(days.length, closes.length); index += 1) {
     const day = days[index];
     const close = closes[index];
-    if (Number.isInteger(day) && Number.isFinite(close) && close > 0) points.push({ day, close });
+    const volume = volumes[index];
+    if (Number.isInteger(day) && Number.isFinite(close) && close > 0) {
+      points.push({ day, close, ...(Number.isFinite(volume) && volume >= 0 ? { volume } : {}) });
+    }
   }
   return points.sort((a, b) => a.day - b.day);
 }
@@ -149,6 +153,11 @@ export function formatAxisDate(day, spanDays) {
 
 export function formatLongDate(day) {
   return dayToDate(day).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+}
+
+export function formatVolume(value) {
+  if (!Number.isFinite(value) || value < 0) return '—';
+  return `${new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(value)} shares`;
 }
 
 export function historyFileFor(symbol) {

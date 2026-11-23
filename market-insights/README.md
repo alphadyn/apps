@@ -87,7 +87,7 @@ python3 build_share_pages.py
 
 Missing values display as — and always rank last.
 
-**Price history** is written to `history/{SYMBOL}.json` (with `.` replaced by `-`), one file per security, about 14 MB in total. Each file holds daily closes for the last two years and weekly closes (dated the week's last trading day) back to the first listing. The format is `{"symbol", "d": [days since 1970-01-01], "c": [closes]}`. These files are generated at deploy time and are gitignored.
+**Price history** is written to `history/{SYMBOL}.json` (with `.` replaced by `-`), one file per security. Each file holds daily closes for the last two years and weekly closes (dated the week's last trading day) back to the first listing. The format is `{"symbol", "d": [days since 1970-01-01], "c": [closes], "v": [optional aligned trade volumes]}`. Volume is included when Yahoo Finance provides it, and securities with volume data show bars below their price charts. These files are generated at deploy time and are gitignored.
 
 The GitHub Pages workflow runs the tests and rebuilds the snapshot on every deployment. In the repository's **Settings → Pages → Build and deployment**, **Source must be GitHub Actions**, not **Deploy from a branch**. Branch publishing does not generate the gitignored history files and can cancel the custom build, leaving every security's chart unavailable. The custom workflow publishes on pushes to `main`, hourly, or when run manually.
 

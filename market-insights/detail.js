@@ -1,5 +1,5 @@
 import {
-  RANGES, formatAxisDate, formatLongDate, historyFileFor, logTicks, nearestIndex, niceTicks, parseHistory,
+  RANGES, formatAxisDate, formatLongDate, formatVolume, historyFileFor, logTicks, nearestIndex, niceTicks, parseHistory,
   rangeSummaries, sliceRange,
 } from './history.js';
 import { CRITERIA, formatPE, formatPercent, formatPrice, formatValue, getSecurityPE, marketCapDescription } from './ranking.js';
@@ -184,7 +184,9 @@ export function createDetailView({ onRequestClose, onNavigate, onRangeChange, on
     const height = width < 600 ? 260 : 380;
     const pad = { top: 16, right: 62, bottom: 30, left: 10 };
     const innerWidth = width - pad.left - pad.right;
-    const innerHeight = height - pad.top - pad.bottom;
+    const hasVolume = points.some((point) => Number.isFinite(point.volume));
+    const volumeHeight = hasVolume ? Math.max(38, Math.round(height * 0.16)) : 0;
+    const innerHeight = height - pad.top - pad.bottom - volumeHeight;
     const firstDay = points[0].day;
     const spanDays = Math.max(1, points.at(-1).day - firstDay);
     const useLog = el.log.checked;
@@ -211,9 +213,17 @@ export function createDetailView({ onRequestClose, onNavigate, onRangeChange, on
     const line = points.map((point, index) => `${index ? 'L' : 'M'}${xOf(point.day).toFixed(1)},${yOf(point.close).toFixed(1)}`).join('');
     const baseY = yOf(slice.base.close).toFixed(1);
     const chartBottom = pad.top + innerHeight;
+    const volumeBottom = height - pad.bottom - 14;
+    const maxVolume = hasVolume ? points.reduce((maximum, point) => Math.max(maximum, point.volume || 0), 0) : 0;
+    const volumeBars = hasVolume ? points.filter((point) => Number.isFinite(point.volume) && point.volume > 0).map((point) => {
+      const barWidth = Math.max(1, Math.min(8, innerWidth / points.length * 0.7));
+      const barHeight = Math.max(1, (point.volume / maxVolume) * (volumeHeight - 18));
+      return `<rect class="volume-bar" x="${(xOf(point.day) - barWidth / 2).toFixed(1)}" y="${(volumeBottom - barHeight).toFixed(1)}" width="${barWidth.toFixed(1)}" height="${barHeight.toFixed(1)}"/>`;
+    }).join('') : '';
     const direction = slice.change >= 0 ? 'up' : 'down';
     const summary = `${view.security.symbol} closing price over ${rangeMeta(view.range).name.toLowerCase()}: `
-      + `${formatPrice(slice.base.close)} on ${formatLongDate(slice.base.day)} to ${formatPrice(slice.last.close)} on ${formatLongDate(slice.last.day)}, ${formatPercent(slice.change)}.`;
+      + `${formatPrice(slice.base.close)} on ${formatLongDate(slice.base.day)} to ${formatPrice(slice.last.close)} on ${formatLongDate(slice.last.day)}, ${formatPercent(slice.change)}.`
+      + (hasVolume ? ' Bars below show daily or weekly shares traded.' : '');
 
     el.chart.innerHTML = `
       <svg xmlns="${SVG_NS}" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" class="chart-svg ${direction}"
@@ -222,6 +232,7 @@ export function createDetailView({ onRequestClose, onNavigate, onRangeChange, on
           <stop offset="0%" class="fill-top"/><stop offset="100%" class="fill-bottom"/></linearGradient></defs>
         <g class="grid">${yTicks.map((value) => `<line x1="${pad.left}" x2="${pad.left + innerWidth}" y1="${yOf(value).toFixed(1)}" y2="${yOf(value).toFixed(1)}"/>`).join('')}</g>
         <g class="y-labels">${yTicks.map((value) => `<text x="${width - pad.right + 8}" y="${yOf(value).toFixed(1)}" dy="0.32em">${formatAxisPrice(value)}</text>`).join('')}</g>
+        ${hasVolume ? `<g class="volume-bars">${volumeBars}</g>` : ''}
         <g class="x-labels">${xTicks.map((day, index) => {
           const anchor = index === 0 ? 'start' : index === xTicks.length - 1 ? 'end' : 'middle';
           return `<text x="${xOf(day).toFixed(1)}" y="${height - 8}" text-anchor="${anchor}">${formatAxisDate(day, spanDays)}</text>`;
@@ -229,11 +240,11 @@ export function createDetailView({ onRequestClose, onNavigate, onRangeChange, on
         <line class="baseline" x1="${pad.left}" x2="${pad.left + innerWidth}" y1="${baseY}" y2="${baseY}"/>
         <path class="area" d="${line}L${xOf(points.at(-1).day).toFixed(1)},${chartBottom}L${xOf(firstDay).toFixed(1)},${chartBottom}Z"/>
         <path class="line" d="${line}"/>
-        <g class="cursor" visibility="hidden"><line y1="${pad.top}" y2="${chartBottom}"/><circle r="4.5"/></g>
+        <g class="cursor" visibility="hidden"><line y1="${pad.top}" y2="${hasVolume ? volumeBottom : chartBottom}"/><circle r="4.5"/></g>
       </svg>`;
     view.geometry = { width, xOf, yOf, firstDay, spanDays, pad, innerWidth };
     const shortHistory = rangeSummaries(view.points).some(({ key, partial }) => partial && key !== 'all');
-    el.caption.textContent = `${points.length.toLocaleString('en-US')} closes · ${useLog ? 'log' : 'linear'} scale`
+    el.caption.textContent = `${points.length.toLocaleString('en-US')} closes${hasVolume ? ' · trading volume' : ''} · ${useLog ? 'log' : 'linear'} scale`
       + (shortHistory ? ' · * listed for less than the full period' : '');
   }
 
@@ -259,14 +270,15 @@ export function createDetailView({ onRequestClose, onNavigate, onRangeChange, on
 
     const change = point.close / slice.base.close - 1;
     el.tooltip.innerHTML = `<span>${formatLongDate(point.day)}</span><strong>${formatPrice(point.close)}</strong>
-      <span class="${tone(change)}">${formatPercent(change)} vs. start</span>`;
+      <span class="${tone(change)}">${formatPercent(change)} vs. start</span>
+      ${Number.isFinite(point.volume) ? `<span>${formatVolume(point.volume)}</span>` : ''}`;
     el.tooltip.hidden = false;
     const svg = el.chart.querySelector('svg');
     const ratio = svg.getBoundingClientRect().width / geometry.width;
     const left = x * ratio + el.chart.offsetLeft;
     const flip = left > el.chart.offsetLeft + el.chart.clientWidth * 0.6;
     el.tooltip.style.left = `${left}px`;
-    el.tooltip.style.top = `${Math.max(0, y * ratio + el.chart.offsetTop - 70)}px`;
+    el.tooltip.style.top = `${Math.max(0, y * ratio + el.chart.offsetTop - el.tooltip.offsetHeight - 12)}px`;
     el.tooltip.style.transform = flip ? 'translateX(calc(-100% - 12px))' : 'translateX(12px)';
   }
 

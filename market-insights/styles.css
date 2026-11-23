@@ -577,6 +577,7 @@ body.detail-open { overflow: hidden; }
 .chart-svg.up .fill-top { stop-color: var(--up); stop-opacity: .22; }
 .chart-svg.down .fill-top { stop-color: var(--down); stop-opacity: .22; }
 .chart-svg .fill-bottom { stop-color: var(--surface); stop-opacity: 0; }
+.chart-svg .volume-bar { fill: var(--accent); opacity: .38; }
 .chart-svg .cursor line { stroke: var(--text); stroke-opacity: .35; stroke-dasharray: 2 3; }
 .chart-svg .cursor circle { fill: var(--bg); stroke: var(--text); stroke-width: 2; }
 .chart-tooltip {

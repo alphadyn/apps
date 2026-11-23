@@ -143,7 +143,7 @@ class MarketCapTests(unittest.TestCase):
 class PriceAndRecordTests(unittest.TestCase):
     def chart(self, closes, adjusted_closes=None, meta=None):
         stamps = [int(datetime(d.year, d.month, d.day, 20, tzinfo=timezone.utc).timestamp()) for d, _ in closes]
-        indicators = {"quote": [{"close": [value for _, value in closes]}]}
+        indicators = {"quote": [{"close": [value for _, value in closes], "volume": [1000] * len(closes)}]}
         if adjusted_closes is not None:
             indicators["adjclose"] = [{"adjclose": adjusted_closes}]
         return {"chart": {"result": [{
@@ -194,6 +194,25 @@ class PriceAndRecordTests(unittest.TestCase):
         ])
         self.assertEqual(build_data.merge_history(daily, None)[0], (date(2024, 1, 15), 12.5))
 
+    def test_merge_volume_history_and_encode_aligned_share_counts(self):
+        weekly = self.chart([(date(2024, 1, 1), 10.0), (date(2024, 1, 8), 11.0)])
+        daily = self.chart([(date(2024, 1, 8), 11.0), (date(2024, 1, 9), 12.0)])
+        volumes = build_data.merge_volume_history(daily, weekly)
+        self.assertEqual(volumes, [
+            (date(2024, 1, 5), 1000), (date(2024, 1, 8), 1000), (date(2024, 1, 9), 1000),
+        ])
+        self.assertEqual(build_data.encode_history("AAPL", [
+            (date(2024, 1, 5), 10.0), (date(2024, 1, 8), 11.0), (date(2024, 1, 9), 12.0),
+        ], volumes)["v"], [1000, 1000, 1000])
+
+    def test_fetch_prices_includes_volume_for_any_security(self):
+        daily = self.chart([(date(2026, 10, 8), 10.0), (date(2026, 10, 9), 11.0)])
+        weekly = self.chart([(date(2026, 10, 5), 10.0)])
+        with patch.object(build_data, "_chart", side_effect=[daily, weekly]), \
+                patch.object(build_data.time, "time", return_value=1791561600):
+            result = build_data.fetch_prices("AAPL")
+        self.assertEqual(result["volume"], [(date(2026, 10, 8), 1000), (date(2026, 10, 9), 1000)])
+
     def test_performance_ranges_includes_six_month_return(self):
         points = [
             (date(2025, 10, 9), 50.0),
@@ -224,9 +243,12 @@ class PriceAndRecordTests(unittest.TestCase):
             directory = Path(folder) / "history"
             directory.mkdir()
             (directory / "OLD.json").write_text("{}")
-            build_data.write_histories({"BRK-B": points}, directory)
-            self.assertEqual(sorted(path.name for path in directory.iterdir()), ["BRK-B.json"])
+            build_data.write_histories({"BRK-B": points, "AAPL": points}, directory, {
+                "AAPL": [(date(1970, 1, 2), 500), (date(2026, 10, 9), 1000)],
+            })
+            self.assertEqual(sorted(path.name for path in directory.iterdir()), ["AAPL.json", "BRK-B.json"])
             self.assertEqual(json.loads((directory / "BRK-B.json").read_text())["d"], [1, 20735])
+            self.assertEqual(json.loads((directory / "AAPL.json").read_text())["v"], [500, 1000])
 
     def test_build_record_combines_sources(self):
         company = {"symbol": "XYZ", "name": "XYZ Corp", "sector": "Tech", "industry": None, "cik": 1}
@@ -282,6 +304,7 @@ class SnapshotTests(unittest.TestCase):
                     "price_change_6m": 0.08,
                 },
                 "history": [(date(2025, 11, 6), 90.0), (date(2026, 11, 6), 100.0)],
+                "volume": [(date(2026, 11, 6), 1000)],
             }
 
         with patch.object(build_data, "http_get", return_value=("\n".join(rows) + "\n").encode()), \
@@ -290,7 +313,7 @@ class SnapshotTests(unittest.TestCase):
                 }), \
                 patch.object(build_data, "fetch_prices", side_effect=prices), \
                 patch.object(build_data, "fetch_fundamentals", return_value=None):
-            snapshot, histories = build_data.build_snapshot(log=lambda _: None)
+            snapshot, histories, volume_histories = build_data.build_snapshot(log=lambda _: None)
 
         funds = [security for security in snapshot["securities"] if security["asset_type"] == "fund"]
         stocks = [security for security in snapshot["securities"] if security["asset_type"] == "stock"]
@@ -299,6 +322,8 @@ class SnapshotTests(unittest.TestCase):
         self.assertTrue(all(requested_total_return[security["symbol"]] for security in funds))
         self.assertTrue(all(not requested_total_return[security["symbol"]] for security in stocks))
         self.assertEqual(len(histories), 490 + len(build_data.FUNDS))
+        self.assertEqual(len(volume_histories), len(histories))
+        self.assertEqual(volume_histories["CO000"], [(date(2026, 11, 6), 1000)])
         self.assertTrue(all(security["market_cap"] is None for security in funds))
         self.assertTrue(all(security["market_cap"] == 1000 for security in stocks))
 
@@ -365,7 +390,7 @@ class SnapshotTests(unittest.TestCase):
                     "net_income": (100.0, 90.0, date(2026, 9, 30), "ttm"),
                 }):
             logs = []
-            snapshot, _ = build_data.build_snapshot(log=logs.append)
+            snapshot, _, _ = build_data.build_snapshot(log=logs.append)
         stocks = [security for security in snapshot["securities"] if security["asset_type"] == "stock"]
         retained = [security for security in stocks if security.get("market_cap_stale")]
         self.assertEqual(len(retained), 392)

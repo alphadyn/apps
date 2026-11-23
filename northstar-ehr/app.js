@@ -786,14 +786,6 @@ function findMedicationInteractions(patient, selectedMedication) {
     .map(getMedicationBaseName)
     .filter((name) => name && name.toLowerCase() !== selectedName.toLowerCase());
   const warnings = [];
-  const selectedEntry = getMedicationCatalogEntry(selectedName);
-  if (!selectedEntry || selectedEntry.interactionCoverage === "not-assessed" ||
-      prescribedNames.some((name) => {
-        const entry = getMedicationCatalogEntry(name);
-        return !entry || entry.interactionCoverage === "not-assessed";
-      })) {
-    warnings.push("Interaction coverage incomplete: this medication catalog does not assess drug interactions. Review official labeling; absence of a demo warning does not establish safety.");
-  }
 
   prescribedNames.forEach((prescribedName) => {
     const entry = getMedicationCatalogEntry(prescribedName);
@@ -808,13 +800,12 @@ function findMedicationInteractions(patient, selectedMedication) {
 }
 
 function renderMedicationSource(entry) {
-  if (!entry.sourceUrl) return '<p class="form-caution">Hand-written demo example; not a validated drug reference.</p>';
+  if (!entry.sourceUrl) return "";
   if (entry.source === "RxNorm via RxNav") {
-    return `<p class="form-caution">RxNorm normalized product metadata, release ${escapeHtml(rxNormMedicationCatalog.sourceVersion)}; not prescribing guidance.
-      <a href="${escapeHtml(entry.sourceUrl)}" target="_blank" rel="noopener noreferrer">RxNorm source record (RxCUI ${escapeHtml(entry.rxcui)})</a></p>
-      <p>Strength and dosage form are included in the normalized product name. Pharmacologic class, route, diagnosis/indication, specialty, adverse effects, and interactions are not supplied by this RxNorm concept list.</p>`;
+    return `<p>RxNorm product metadata, release ${escapeHtml(rxNormMedicationCatalog.sourceVersion)}.
+      <a href="${escapeHtml(entry.sourceUrl)}" target="_blank" rel="noopener noreferrer">RxNorm source record (RxCUI ${escapeHtml(entry.rxcui)})</a></p>`;
   }
-  return `<p class="form-caution">FDA NDC metadata, updated ${escapeHtml(sourcedMedicationCatalog.sourceLastUpdated)}; not verified clinical guidance.
+  return `<p>FDA NDC metadata, updated ${escapeHtml(sourcedMedicationCatalog.sourceLastUpdated)}.
     <a href="${escapeHtml(entry.sourceUrl)}" target="_blank" rel="noopener noreferrer">Source record (${escapeHtml(entry.productNdc)})</a> ·
     <a href="${escapeHtml(entry.labelUrl)}" target="_blank" rel="noopener noreferrer">Official labeling: indications &amp; safety</a></p>
     <p>Dosage form: ${escapeHtml(entry.dosageForm)} · Route: ${escapeHtml(entry.routes.join(", "))}</p>`;
@@ -3199,7 +3190,6 @@ function renderPatientDetail() {
       <div class="detail-header"><div><p class="eyebrow">Patient labs</p><h3 id="patientDetailHeading" tabindex="-1">${escapeHtml(patient.name)}</h3><p>${escapeHtml(patient.mrn)}</p></div>
         <button class="primary-btn" type="button" data-treatment-view="orders" data-order-category="Laboratory">Order a lab test</button></div>
       <section class="mini-card"><h4>Recorded results</h4>
-        <p class="form-caution">Fictional chart results only. Completing an order does not generate a result.</p>
         <ul>${patient.labs.map((lab, index) => `<li id="patient-lab-${escapeHtml(patient.id)}-${index}">${escapeHtml(lab)}</li>`).join("") || "<li>No results recorded.</li>"}</ul>
       </section>
       <section class="mini-card"><h4>Laboratory requests (${labOrders.length})</h4>
@@ -3308,7 +3298,6 @@ function renderPatientDetail() {
       <section class="mini-card patient-prescription-panel">
         <h4>Prescribe medication</h4>
         <form id="patientPrescriptionForm" class="clinical-form">
-          <p class="form-caution">Demo prescriptions only. This limited formulary and interaction checker cannot determine whether a medication is safe or appropriate.</p>
           <label>Search formulary
             <input id="patientMedicationSearch" type="search" placeholder="Medication name or class" />
           </label>
@@ -4005,14 +3994,12 @@ function renderDispensaryView(container) {
           <button id="formularyClearFilters" class="ghost-btn" type="button" hidden>Clear search</button>
         </div>
       </div>
-      <p class="form-caution">Demo only: not live inventory or verified prescribing guidance. Review official labeling; interaction coverage is incomplete.</p>
       <details class="formulary-provenance">
-        <summary>Catalog sources and limitations</summary>
+        <summary>Catalog sources</summary>
         <p class="muted-copy">Includes ${sourcedMedicationCatalog.count.toLocaleString()} FDA NDC entries, ${rxNormMedicationCatalog.count.toLocaleString()} RxNorm product concepts, and ${demoMedicationCatalog.length} demo examples.
           Source metadata updated ${escapeHtml(sourcedMedicationCatalog.sourceLastUpdated)}.
           <a href="https://open.fda.gov/apis/drug/ndc/" target="_blank" rel="noopener noreferrer">FDA NDC via openFDA</a>.
-          <a href="https://www.nlm.nih.gov/research/umls/rxnorm/" target="_blank" rel="noopener noreferrer">RxNorm via RxNav</a>.
-          Neither source is verified safety guidance or live stock. Diagnosis/indication and specialty associations are not inferred; review official labeling.</p>
+          <a href="https://www.nlm.nih.gov/research/umls/rxnorm/" target="_blank" rel="noopener noreferrer">RxNorm via RxNav</a>.</p>
       </details>
       <p id="formularyStatus" class="status-message formulary-status" role="status"></p>
       <div id="formularyPatientChoice" class="formulary-patient-choice" hidden>
@@ -4061,7 +4048,6 @@ function renderDispensaryView(container) {
               <input name="directions" type="text" required placeholder="Enter directions" />
             </label>
           </div>
-          <p class="form-caution">Demo only. Recording does not administer or transmit medication.</p>
           <button class="primary-btn" type="submit" ${canDispense ? "" : "disabled"}>Record dispensing</button>
           <p id="dispensaryStatus" class="status-message" role="status"></p>
         </form>
@@ -4541,7 +4527,6 @@ function renderStaffView(container) {
                 <label>Department<select name="department">${departments.map((department) => `<option>${escapeHtml(department.name)}</option>`).join("")}<option>Administration</option></select></label></div>
               <div class="row"><label>Location<input name="location" placeholder="Unit or work area" required /></label><label>Contact email<input name="email" type="email" placeholder="name@example.test" /></label></div>
               <button class="primary-btn" type="submit">Add to directory</button>
-              <p class="form-caution">Adding a profile does not create an account or grant access.</p>
             </form>
           </details>` : ""}
       </div>
@@ -4733,7 +4718,6 @@ function renderIndependentProcedureResults() {
             <div><dt>Type</dt><dd>${procedure.surgical ? "Surgical operation" : "Medical procedure"}</dd></div>
             ${procedure.originalCategory && procedure.originalCategory !== procedure.category ? `<div><dt>Also listed under</dt><dd>${escapeHtml(procedure.originalCategory)}</dd></div>` : ""}
           </dl>
-          <p class="muted-copy">This catalog does not provide clinical descriptions, risks, preparation, or billing codes.</p>
           <button class="primary-btn" type="button" data-independent-procedure="${start + index}" ${canOrder ? "" : "disabled"}>Select for patient order</button>
         </div>
       </details>`).join("")
@@ -4765,7 +4749,6 @@ function renderIndependentProcedureCatalog(container) {
       <p id="independentProcedureCount" class="muted-copy" role="status"></p>
       <div id="independentProcedureResults" class="procedure-results"></div>
       <div id="independentProcedurePagination" class="procedure-pagination" hidden><button id="independentProcedurePrevious" class="ghost-btn" type="button">Previous</button><button id="independentProcedureNext" class="ghost-btn" type="button">Next</button></div>
-      <p class="form-caution">Illustrative names only; not a validated clinical order set or billing terminology. Orders and appointments are not transmitted.</p>
     </div>
   </section>`;
   renderIndependentProcedureResults();
@@ -4809,7 +4792,6 @@ function renderRadiologyResults(independent = false) {
             <div><dt>Study or procedure</dt><dd>${escapeHtml(study.name)}</dd></div>
             <div><dt>Modality</dt><dd>${escapeHtml(study.modality)}</dd></div>
           </dl>
-          <p class="muted-copy">This catalog does not provide protocols, preparation, risks, or billing codes.</p>
           <button class="primary-btn" type="button" data-independent-radiology="${start + index}" ${canOrder ? "" : "disabled"}>Select for patient order</button>
         </div>
       </details>` : `
@@ -4839,7 +4821,6 @@ function renderIndependentRadiologyCatalog(container) {
       <p id="independentRadiologyCount" class="muted-copy" role="status"></p>
       <div id="independentRadiologyResults" class="procedure-results"></div>
       <div id="independentRadiologyPagination" class="procedure-pagination" hidden><button id="independentRadiologyPrevious" class="ghost-btn" type="button">Previous</button><button id="independentRadiologyNext" class="ghost-btn" type="button">Next</button></div>
-      <p class="form-caution">Illustrative names only; not a validated clinical order set or billing terminology. Orders and appointments are not transmitted.</p>
     </div>
   </section>`;
   renderRadiologyResults(true);
@@ -4995,7 +4976,7 @@ function renderOrders() {
               <label>Provider<input name="provider" type="text" value="${escapeHtml(patient.provider || "")}" required /></label>
               <label>Location<input name="location" type="text" placeholder="Clinic, laboratory, radiology, or other location" /></label>
               <button class="primary-btn" type="submit">Schedule appointment</button>
-              <p class="form-caution">Demo scheduling only; cancelling the order and cancelling the appointment are separate actions.</p>
+              <p class="muted-copy">Cancelling an order and cancelling the appointment are separate actions.</p>
               <p class="status-message" role="status"></p>
             </form></details>` : ""}
           <div class="record-card-footer"><span>${escapeHtml(order.time)}</span>

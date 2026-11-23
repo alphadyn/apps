@@ -48,7 +48,6 @@
               <li><span aria-hidden="true">03</span> Team coordination</li>
             </ul>
           </div>
-          <p class="login-aside-footer">Not for clinical use</p>
         </section>
         <section class="login-card" aria-labelledby="loginTitle">
           <div class="login-heading">
@@ -69,7 +68,6 @@
             <p><strong>Demo account ready</strong><span>Joe Spartan, MD · Provider</span></p>
             <p class="login-demo-password">Password <code>northstar</code></p>
           </aside>
-          <p class="login-card-footer">Do not enter real patient information.</p>
         </section>
       </div>
     </main>
@@ -80,9 +78,10 @@
         <p>Review these important limitations before entering Northstar EHR.</p>
         <ul class="warning-list">
           <li><strong>Fictional data only.</strong> Patient records, staff profiles, messages, results, reports, and capacity values are fictional or illustrative. Do not enter, import, or export real patient information.</li>
-          <li><strong>Not for clinical use.</strong> Do not use this app to make or document clinical decisions. Reports are not diagnostic, and results are not clinically interpreted. Reference images are educational examples, not patient scans.</li>
-          <li><strong>No live clinical services.</strong> Orders, notes, prescriptions, messages, and results are not sent to clinical systems or care teams. Documents remain drafts without legally valid electronic signatures.</li>
-          <li><strong>Not a secure clinical system.</strong> Sign-in and roles are browser-local demonstrations, not real authentication or server-enforced authorization. Profiles are not verified identities or access credentials. This app does not provide HIPAA safeguards.</li>
+          <li><strong>Not for clinical use.</strong> Do not use this app to make or document clinical decisions. Reports are not diagnostic, and results are not clinically interpreted. Reference images are educational examples, not patient scans. Procedure and radiology catalogs are illustrative, not validated order sets or billing terminology, and do not provide clinical descriptions, risks, preparation, protocols, or billing codes.</li>
+          <li><strong>No live clinical services.</strong> Orders, notes, prescriptions, messages, and results are not sent to clinical systems or care teams. Orders are not executed, medication is not administered, and completing an order does not generate a result. Appointments are demo records only. Documents remain drafts without legally valid electronic signatures.</li>
+          <li><strong>Medication catalog limitations.</strong> The formulary includes demo examples and product metadata; it is not live inventory or verified prescribing or safety guidance. Interaction coverage is incomplete and cannot determine whether a medication is safe or appropriate. Review official labeling.</li>
+          <li><strong>Not a secure clinical system.</strong> Sign-in and roles are browser-local demonstrations, not real authentication or server-enforced authorization. Profiles are not verified identities or access credentials, and directory profiles do not create sign-in accounts or grant access. This app does not provide HIPAA safeguards.</li>
           <li><strong>Browser-local storage.</strong> Changes stay in this browser; they are not protected, backed up, or shared with a care team. Joe Spartan's automatic sign-in persists until explicit sign-out. Signing out disables automatic sign-in but does not clear or protect stored data.</li>
         </ul>
         <p id="warningError" class="login-error" role="alert"></p>
@@ -278,7 +277,6 @@
           </div>
           <p class="muted-copy">Authorize one or more roles per account. Users switch roles with the sidebar’s Active role selector.</p>
           <div id="accountRoles" class="account-role-grid"></div>
-          <p class="form-caution">Directory profiles do not create sign-in accounts.</p>
         </section>
 
         <section id="extendedSection" class="view-section hidden-section" aria-live="polite">
@@ -439,7 +437,6 @@
                   <span id="procedurePage"></span>
                   <button id="procedureNext" class="ghost-btn" type="button">Next</button>
                 </div>
-                <p class="form-caution">Illustrative names only; not a validated clinical order set or billing terminology.</p>
               </section>
               <section id="radiologyCatalog" class="procedure-catalog" aria-labelledby="radiologyCatalogHeading" hidden>
                 <div>
@@ -455,7 +452,6 @@
                   <button id="radiologyPrevious" class="ghost-btn" type="button">Previous</button>
                   <button id="radiologyNext" class="ghost-btn" type="button">Next</button>
                 </div>
-                <p class="form-caution">Illustrative names only; not a validated clinical order set or billing terminology.</p>
               </section>
               <label>Order / request
                 <input name="title" type="text" placeholder="Specify the requested care, test, medication, or referral" required />
@@ -466,7 +462,6 @@
               </label>
               <button class="primary-btn" type="submit">Save order</button>
               <p class="muted-copy">After saving, you can schedule an appointment or return to it later.</p>
-              <p class="form-caution">Demo only: orders are not transmitted, verified, or executed. A licensed clinician must review all clinical decisions.</p>
             </form>
             </details>
             <section class="saved-documents" aria-labelledby="savedOrdersTitle">

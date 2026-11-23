@@ -1721,7 +1721,7 @@ test("FDA formulary snapshot adds 1000 distinct attributed medication names", ()
   const entry = sourced[0];
   assert.ok(api.searchMedicationCatalog(entry.name, entry.drugClass).some((item) => item.name === entry.name));
   const notices = api.findMedicationInteractions({ medications: ["Warfarin 2 mg"] }, entry.name);
-  assert.ok(notices.some((notice) => notice.includes("Interaction coverage incomplete")));
+  assert.ok(notices.every((notice) => !notice.includes("Interaction coverage incomplete")));
 });
 
 test("RxNorm catalog adds 10000 unique product concepts without invented clinical mappings", () => {

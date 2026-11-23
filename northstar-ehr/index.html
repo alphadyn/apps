@@ -25,7 +25,7 @@
     <meta name="twitter:description" content="Explore fictional patient charts, admissions, care teams, timelines, orders, and notes." />
     <meta name="twitter:image" content="https://alphadyn.github.io/apps/northstar-ehr/social-preview.png" />
     <meta name="twitter:image:alt" content="Northstar EHR clinical operations demo, showing a fictional patient chart and timeline." />
-    <link rel="stylesheet" href="styles.css?v=21" />
+    <link rel="stylesheet" href="styles.css?v=23" />
   </head>
   <body>
     <main id="loginScreen" class="login-screen">
@@ -392,8 +392,7 @@
           <div class="panel clinical-subview" data-clinical-panel="orders">
             <div class="panel-header">
               <div>
-                <p class="eyebrow">Care plan</p>
-                <h3>Orders & requests</h3>
+                <h3 id="savedOrdersTitle">Patient orders</h3>
               </div>
               <span class="pill" id="orderCount">0 orders</span>
             </div>
@@ -404,21 +403,16 @@
                 <span class="document-composer-chevron" aria-hidden="true"></span>
               </summary>
             <form id="orderForm" class="clinical-form">
-              <div id="orderQuickChoices" class="order-quick-choices" role="group" aria-label="Common order types">
-                <button class="ghost-btn" type="button" data-order-choice="Laboratory">Lab</button>
-                <button class="ghost-btn" type="button" data-order-choice="Imaging / Radiology">Radiology</button>
-                <button class="ghost-btn" type="button" data-order-choice="Medication">Medication</button>
-                <button class="ghost-btn" type="button" data-order-choice="Procedure" data-order-kind="all">Procedure</button>
-                <button class="ghost-btn" type="button" data-order-choice="Procedure" data-order-kind="surgical">Surgery</button>
-                <button class="ghost-btn" type="button" data-order-choice="Consult">Consult</button>
-                <button class="ghost-btn" type="button" data-order-choice="Follow-up">Follow-up</button>
-              </div>
               <div class="row">
-                <label>Order category <span class="order-category-hint">(including other request types)</span>
+                <label>Order type
                   <select name="category">
-                    <option>Nursing</option><option>Vitals</option><option>Diagnosis</option><option>History &amp; physical</option>
-                    <option>Laboratory</option><option>Imaging / Radiology</option><option>Procedure</option><option>Medication</option>
-                    <option>Consult</option><option>Referral</option><option>Follow-up</option>
+                    <optgroup label="Common orders">
+                      <option>Laboratory</option><option>Imaging / Radiology</option><option>Medication</option><option>Procedure</option>
+                      <option>Consult</option><option>Referral</option><option>Follow-up</option>
+                    </optgroup>
+                    <optgroup label="Other requests">
+                      <option selected>Nursing</option><option>Vitals</option><option>Diagnosis</option><option>History &amp; physical</option>
+                    </optgroup>
                   </select>
                 </label>
                 <label>Priority<select name="priority"><option>Routine</option><option>Urgent</option><option>STAT</option></select></label>
@@ -476,7 +470,6 @@
             </form>
             </details>
             <section class="saved-documents" aria-labelledby="savedOrdersTitle">
-              <h4 id="savedOrdersTitle">Patient orders</h4>
               <div id="ordersList" class="record-list"></div>
             </section>
           </div>
@@ -710,6 +703,6 @@
     <script src="procedure-catalog.js?v=1"></script>
     <script src="surgical-catalog.js?v=1"></script>
     <script src="radiology-catalog.js?v=1"></script>
-    <script src="app.js?v=26"></script>
+    <script src="app.js?v=28"></script>
   </body>
 </html>

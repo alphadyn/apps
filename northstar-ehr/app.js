@@ -1607,6 +1607,7 @@ let inboxItems = loadInboxItems(patients);
 let inboxFilter = normalizeInboxFilter(loadWorkspacePreference("inboxFilter", "all"));
 let inboxSearch = "";
 let currentView = loadCurrentView();
+let pharmacyPatientContext = loadWorkspacePreference("pharmacyPatientContext", false) === true;
 if (currentView === "profiles" && selectedProfile.type === "patient") currentView = "patient-profiles";
 let nursingFilter = loadWorkspacePreference("nursingFilter", currentUser.role === "nurse" ? currentUser.label : "all");
 let workspaceEventsAttached = false;
@@ -1628,6 +1629,7 @@ function saveState() {
     inboxItems,
     inboxFilter,
     currentView,
+    pharmacyPatientContext,
     sidebarCollapsed
   }));
 }
@@ -1986,7 +1988,7 @@ function getVisibleSections(view) {
     operationsOverviewSection: view === "overview",
     roleManagementSection: view === "overview" && hasPermission(currentUser.role, "roles:manage"),
     extendedSection: extendedViews.includes(view),
-    patientWorkflowSection: ["patients", "orders", "labs", "medications", "outpatient", "appointments"].includes(view) || (view === "dispensary" && pharmacyMode === "dispensing"),
+    patientWorkflowSection: ["patients", "orders", "labs", "medications", "outpatient", "appointments"].includes(view) || (view === "dispensary" && (pharmacyPatientContext || pharmacyMode === "dispensing")),
     recordsSection: ["patients", "labs", "medications", "billing"].includes(view),
     operationsSection: view === "appointments",
     outpatientSection: view === "outpatient",
@@ -4907,16 +4909,6 @@ function renderOrderFields() {
   document.getElementById("orderMedicationHelp").hidden = category !== "Medication";
   if (category === "Procedure") renderProcedureCatalog();
   if (category === "Imaging / Radiology") renderRadiologyResults();
-  updateOrderChoices();
-}
-
-function updateOrderChoices() {
-  const category = document.getElementById("orderForm").elements.category.value;
-  const kind = document.getElementById("procedureKind").value;
-  document.querySelectorAll("#orderQuickChoices [data-order-choice]").forEach((button) => {
-    const selected = button.dataset.orderChoice === category && (!button.dataset.orderKind || button.dataset.orderKind === kind);
-    button.setAttribute("aria-pressed", String(selected));
-  });
 }
 
 function selectOrderCategory(category, procedureKind) {
@@ -5453,6 +5445,7 @@ function attachEvents() {
         document.getElementById("treatmentStatus").textContent = linked.message;
         return;
       }
+      pharmacyPatientContext = true;
       const result = openTreatmentWorkflow("dispensary");
       if (!result.allowed) {
         document.getElementById("treatmentStatus").textContent = result.message;
@@ -5464,6 +5457,7 @@ function attachEvents() {
       document.getElementById("dispensaryForm").scrollIntoView({ block: "center" });
       return;
     }
+    if (navigation.dataset.treatmentView === "dispensary") pharmacyPatientContext = true;
     const result = openTreatmentWorkflow(navigation.dataset.treatmentView);
     if (!result.allowed) {
       document.getElementById("treatmentStatus").textContent = result.message;
@@ -5689,6 +5683,10 @@ function attachEvents() {
   document.querySelectorAll(".nav-link").forEach((link) => {
     link.addEventListener("click", () => {
       closeMobileNavigation();
+      if (link.dataset.view === "dispensary") {
+        pharmacyPatientContext = false;
+        pharmacyMode = "formulary";
+      }
       setCurrentView(link.dataset.view);
       dispensingPrescriptionId = "";
       render();
@@ -5742,11 +5740,6 @@ function attachEvents() {
   document.getElementById("orderForm").addEventListener("submit", handleOrderSubmit);
   document.getElementById("documentForm").addEventListener("submit", handleDocumentSubmit);
   document.querySelector('#orderForm [name="category"]').addEventListener("change", renderOrderFields);
-  document.getElementById("orderQuickChoices").addEventListener("click", (event) => {
-    const choice = event.target.closest("[data-order-choice]");
-    if (!choice || !hasPermission(currentUser.role, "order:create")) return;
-    selectOrderCategory(choice.dataset.orderChoice, choice.dataset.orderKind);
-  });
   document.getElementById("procedureSearch").addEventListener("input", () => {
     procedurePage = 0;
     renderProcedureCatalog();
@@ -5754,7 +5747,6 @@ function attachEvents() {
   document.getElementById("procedureKind").addEventListener("change", () => {
     procedurePage = 0;
     renderProcedureCatalog();
-    updateOrderChoices();
   });
   document.getElementById("procedurePrevious").addEventListener("click", () => {
     procedurePage -= 1;

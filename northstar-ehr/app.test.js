@@ -117,6 +117,9 @@ test("orders screen starts with a collapsed composer and keeps saved details ava
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
   assert.match(html, /<details id="orderComposer" class="document-composer order-composer">/);
   assert.match(html, /<strong>New order<\/strong>/);
+  assert.match(html, /<label>Order type\s*<select name="category">/);
+  assert.doesNotMatch(html, /orderQuickChoices|data-order-choice/);
+  assert.equal((html.match(/id="savedOrdersTitle"/g) || []).length, 1);
   const { context } = setup();
   vm.runInContext(`patients[0].orders = [{
     id: "demo-order", category: "Procedure", priority: "Routine", status: "Pending",
@@ -135,30 +138,20 @@ test("orders screen starts with a collapsed composer and keeps saved details ava
   assert.equal(elements.get("orderComposer").open, true);
 });
 
-test("order shortcuts select categories and keep surgery filter and button state in sync", () => {
+test("patient chart shortcuts select the requested category and surgery filter", () => {
   const { context } = setup();
-  const choices = [
-    { dataset: { orderChoice: "Laboratory" } },
-    { dataset: { orderChoice: "Procedure", orderKind: "all" } },
-    { dataset: { orderChoice: "Procedure", orderKind: "surgical" } }
-  ];
-  choices.forEach((choice) => { choice.setAttribute = (name, value) => { choice[name] = value; }; });
   const elements = {
     orderForm: { elements: { category: { value: "Nursing" } } },
     procedureKind: { value: "all" }
   };
-  context.document = {
-    getElementById: (id) => elements[id],
-    querySelectorAll: () => choices
-  };
-  vm.runInContext("renderOrderFields = () => updateOrderChoices(); selectOrderCategory('Procedure', 'surgical')", context);
+  context.document = { getElementById: (id) => elements[id] };
+  vm.runInContext("renderOrderFields = () => {}; selectOrderCategory('Procedure', 'surgical')", context);
   assert.equal(elements.orderForm.elements.category.value, "Procedure");
   assert.equal(elements.procedureKind.value, "surgical");
-  assert.deepEqual(choices.map((choice) => choice["aria-pressed"]), ["false", "false", "true"]);
   vm.runInContext("selectOrderCategory('Procedure', 'all')", context);
-  assert.deepEqual(choices.map((choice) => choice["aria-pressed"]), ["false", "true", "false"]);
+  assert.equal(elements.procedureKind.value, "all");
   vm.runInContext("selectOrderCategory('Laboratory')", context);
-  assert.deepEqual(choices.map((choice) => choice["aria-pressed"]), ["true", "false", "false"]);
+  assert.equal(elements.orderForm.elements.category.value, "Laboratory");
 });
 
 test("switching order categories keeps common and structured drafts separate", () => {
@@ -1649,7 +1642,7 @@ test("medication selection options count all strengths while limiting and escapi
 });
 
 test("treatment navigation retains the selected patient and separates focused workspaces", () => {
-  const { api, context } = setup();
+  const { api, context, storage } = setup();
   const patient = vm.runInContext("patients[1]", context);
   for (const view of ["orders", "labs", "medications", "dispensary"]) {
     const result = api.openTreatmentWorkflow(view, patient.id);
@@ -1657,6 +1650,11 @@ test("treatment navigation retains the selected patient and separates focused wo
     assert.equal(vm.runInContext("getSelectedPatient().id", context), patient.id);
     assert.equal(api.getVisibleSections(view).patientWorkflowSection, view !== "dispensary");
   }
+  vm.runInContext('pharmacyPatientContext = true; saveState()', context);
+  assert.equal(api.getVisibleSections("dispensary").patientWorkflowSection, true);
+  const restored = setup("clinician", storage);
+  assert.equal(restored.api.getVisibleSections("dispensary").patientWorkflowSection, true);
+  vm.runInContext('pharmacyPatientContext = false', context);
   vm.runInContext('pharmacyMode = "dispensing"', context);
   assert.equal(api.getVisibleSections("dispensary").patientWorkflowSection, true);
   assert.equal(api.getVisibleSections("labs").encounterSection, false);

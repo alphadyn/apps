@@ -937,10 +937,6 @@ textarea {
   margin-top: 12px;
 }
 
-.pharmacy-patient-context .treatment-navigation:not(.pharmacy-navigation) {
-  display: none;
-}
-
 .pharmacy-patient-context #treatmentStatus:empty {
   display: none;
 }
@@ -3829,29 +3825,6 @@ textarea {
 
 .document-composer .clinical-form {
   padding-bottom: 16px;
-}
-
-.order-quick-choices {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.order-quick-choices button[aria-pressed="true"] {
-  color: #fff;
-  background: var(--accent);
-  border-color: var(--accent);
-}
-
-.order-quick-choices button:focus-visible {
-  outline: 3px solid #93c5fd;
-  outline-offset: 2px;
-}
-
-.order-category-hint {
-  color: var(--muted);
-  font-size: 0.85rem;
-  font-weight: 400;
 }
 
 .order-record-details,

@@ -570,6 +570,11 @@ const orderTypeFields = {
     selectField("referralUrgency", "Requested timeframe", ["Routine", "Within 2 weeks", "Within 48 hours", "Same day"], true),
     noteField("referralReason", "Reason for referral / clinical question", "Specific question or service requested", true),
     noteField("referralRecords", "Records to include / coordination notes", "Relevant results, imaging, medications, and contact details")
+  ],
+  "Follow-up": [
+    textField("followUpService", "Clinician / service", "Follow-up clinician or service", true),
+    textField("followUpTimeframe", "Requested timeframe", "e.g., within two weeks", true),
+    noteField("followUpReason", "Reason for follow-up", "Reason and requested care", true)
   ]
 };
 
@@ -1249,6 +1254,7 @@ function normalizeAppointment(appointment) {
     visitType: appointment.visitType || "Office visit",
     reason: appointment.reason || appointment.title || "",
     provider: appointment.provider || "",
+    orderId: appointment.orderId || "",
     status: normalizeAppointmentStatus(appointment.status),
     updatedAt: appointment.updatedAt || ""
   };
@@ -1974,13 +1980,13 @@ function getDetailCardsForView(patient, openTasks) {
 }
 
 function getVisibleSections(view) {
-  const extendedViews = ["my-patients", "inbox", "admissions", "nursing", "departments", "locations", "staff", "profiles", "patient-profiles", "dispensary"];
+  const extendedViews = ["my-patients", "inbox", "admissions", "nursing", "departments", "locations", "staff", "profiles", "patient-profiles", "dispensary", "procedure-catalog"];
   return {
     overviewSection: view === "overview",
     operationsOverviewSection: view === "overview",
     roleManagementSection: view === "overview" && hasPermission(currentUser.role, "roles:manage"),
     extendedSection: extendedViews.includes(view),
-    patientWorkflowSection: ["patients", "orders", "labs", "medications"].includes(view) || (view === "dispensary" && pharmacyMode === "dispensing"),
+    patientWorkflowSection: ["patients", "orders", "labs", "medications", "outpatient", "appointments"].includes(view) || (view === "dispensary" && pharmacyMode === "dispensing"),
     recordsSection: ["patients", "labs", "medications", "billing"].includes(view),
     operationsSection: view === "appointments",
     outpatientSection: view === "outpatient",
@@ -2080,6 +2086,8 @@ function initializeWorkspaceNavigation() {
     appointments: "M4 5h16v16H4zM8 2v6m8-6v6M4 11h16m-12 4h3m2 3h3",
     clinical: "M3 12h4l3-8 4 16 3-8h4",
     orders: "M9 3H4v18h16V3h-5M9 3v4h6V3zM8 13h8m-4-4v8",
+    "procedure-catalog": "M9 3H4v18h16V3h-5M9 3v4h6V3zM8 13h8m-4-4v8",
+    outpatient: "M4 5h16v16H4zM8 2v6m8-6v6M4 11h16",
     documents: "M14 2H5v20h14V7zM14 2v6h5M8 12h8m-8 4h8",
     labs: "M9 3h6m-5 0v7l-6 9v2h16v-2l-6-9V3M7 16h10",
     medications: "M9 3h6v4h3v14H6V7h3V3M9 7h6m-3 4v6m-3-3h6",
@@ -2457,6 +2465,7 @@ function createOrderForPatient(patient, order, role = currentUser.role) {
     status: "Pending",
     time: new Date().toLocaleString([], { dateStyle: "medium", timeStyle: "short" })
   };
+  const previousAudit = auditTrail.slice();
   patient.orders.unshift(savedOrder);
   appendAuditEntry({
     action: "order:create",
@@ -2465,7 +2474,15 @@ function createOrderForPatient(patient, order, role = currentUser.role) {
     actorRole: role,
     actorLabel: getRoleLabel(role)
   });
-  saveState();
+  try {
+    if (!safeLocalStorage()) throw new Error("Browser storage unavailable");
+    saveState();
+  } catch (error) {
+    patient.orders = patient.orders.filter((item) => item.id !== savedOrder.id);
+    auditTrail = previousAudit;
+    console.warn("Unable to save order", error);
+    return { allowed: false, message: "Unable to save the order. Check browser storage and try again." };
+  }
   return { allowed: true, order: savedOrder };
 }
 
@@ -2591,13 +2608,32 @@ function createAppointmentForPatient(patientId, appointment, role = currentUser.
 
   const permission = evaluatePermission(role, "appointment:create", patient.name);
   if (!permission.allowed) return permission;
+  let linkedOrder = null;
+  if (appointment.orderId) {
+    const orderPermission = evaluatePermission(role, "order:create", patient.name);
+    if (!orderPermission.allowed) return orderPermission;
+    linkedOrder = patient.orders.find((item) => item.id === appointment.orderId);
+    if (!linkedOrder || ["Cancelled", "Completed"].includes(linkedOrder.status)) {
+      return { allowed: false, message: "Select an open order to schedule." };
+    }
+    if (patient.appointments.some((item) => item.orderId === linkedOrder.id && !["Cancelled", "No-show"].includes(item.status))) {
+      return { allowed: false, message: "This order already has an appointment; cancel it or mark it no-show before scheduling another." };
+    }
+  }
 
   const scheduledAt = String(appointment.scheduledAt || "").trim();
   const time = String(appointment.time || "").trim();
   const provider = String(appointment.provider || "").trim();
-  const title = String(appointment.title || appointment.reason || "Outpatient visit").trim();
+  const title = linkedOrder ? linkedOrder.title : String(appointment.title || appointment.reason || "Outpatient visit").trim();
   if (!scheduledAt || !time) {
     return { allowed: false, message: "Choose an appointment date and time." };
+  }
+  if (linkedOrder) {
+    const date = new Date(`${scheduledAt}T00:00:00`);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(scheduledAt) || Number.isNaN(date.getTime()) || getLocalDateKey(date) !== scheduledAt ||
+        !/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) {
+      return { allowed: false, message: "Choose a valid appointment date and time." };
+    }
   }
   if (!provider) {
     return { allowed: false, message: "Select an appointment provider." };
@@ -2605,6 +2641,7 @@ function createAppointmentForPatient(patientId, appointment, role = currentUser.
 
   const created = normalizeAppointment({
     ...appointment,
+    reason: linkedOrder ? linkedOrder.title : appointment.reason,
     id: createAppointmentId(),
     patientId: patient.id,
     patientName: patient.name,
@@ -2616,12 +2653,29 @@ function createAppointmentForPatient(patientId, appointment, role = currentUser.
     status: "Scheduled",
     createdAt: new Date().toISOString()
   });
+  const previousAudit = auditTrail.slice();
   patient.appointments.push(created);
-  addPatientEvent(patient, "Appointment", "Outpatient appointment scheduled", `${title} · ${formatDisplayDate(scheduledAt)} at ${time}`, created.createdAt, {
+  const event = addPatientEvent(patient, "Appointment", "Appointment scheduled", `${title} · ${formatDisplayDate(scheduledAt)} at ${time}`, created.createdAt, {
     targetView: "outpatient",
     targetId: `patient-appointment-${created.id}`
   });
-  saveState();
+  appendAuditEntry({
+    action: "appointment:create",
+    patientName: patient.name,
+    details: `Scheduled ${title} for ${scheduledAt} at ${time}${created.orderId ? ` for order ${created.orderId}` : ""}.`,
+    actorRole: role,
+    actorLabel: getRoleLabel(role)
+  });
+  try {
+    if (!safeLocalStorage()) throw new Error("Browser storage unavailable");
+    saveState();
+  } catch (error) {
+    patient.appointments = patient.appointments.filter((item) => item.id !== created.id);
+    patient.events = patient.events.filter((item) => item.id !== event.id);
+    auditTrail = previousAudit;
+    console.warn("Unable to save appointment", error);
+    return { allowed: false, message: "Unable to save the appointment. Check browser storage and try again." };
+  }
   return { allowed: true, appointment: created };
 }
 
@@ -2648,7 +2702,7 @@ function updateAppointmentStatus(patientId, appointmentId, nextStatus, role = cu
     targetView: "appointments",
     targetId: `patient-appointment-${appointment.id}`
   });
-  if (nextStatus === "Completed") {
+  if (nextStatus === "Completed" && !appointment.orderId) {
     patient.chartCompleted = true;
     patient.status = "Stable";
   }
@@ -3200,6 +3254,17 @@ function renderPatientDetail() {
       <span class="pill">${escapeHtml(patient.priority)}</span>
     </div>
 
+    ${currentView === "patients" ? `<section class="mini-card">
+      <h4>Order and schedule care</h4>
+      <div class="formulary-patient-actions">
+        <button class="ghost-btn" type="button" data-treatment-view="orders" data-order-category="Laboratory">Lab</button>
+        <button class="ghost-btn" type="button" data-treatment-view="orders" data-order-category="Imaging / Radiology">Radiology</button>
+        <button class="ghost-btn" type="button" data-treatment-view="orders" data-order-category="Procedure">Procedure</button>
+        <button class="ghost-btn" type="button" data-treatment-view="orders" data-order-category="Procedure" data-procedure-kind="surgical">Surgical operation</button>
+        <button class="ghost-btn" type="button" data-treatment-view="orders" data-order-category="Follow-up">Follow-up</button>
+        <button class="ghost-btn" type="button" data-treatment-view="outpatient">Appointments</button>
+      </div>
+    </section>` : ""}
     ${currentView !== "medications" ? renderPatientStatusDashboard(patient) + renderPatientTimeline(patient) : `
       <section class="mini-card"><h4>Medication context</h4>
         <p><strong>Allergies:</strong> ${escapeHtml(patient.allergies.join(", ") || "None recorded")}</p>
@@ -3454,6 +3519,7 @@ function renderOutpatientAppointments() {
           <p><strong>Provider:</strong> ${escapeHtml(appointment.provider || "Provider not specified")}</p>
           <p>${escapeHtml(appointment.visitType || "Office visit")}</p>
           <p class="outpatient-location"><span aria-hidden="true">⌖</span>${escapeHtml(appointment.location || "Location not recorded")}</p>
+          ${appointment.orderId ? `<button class="text-btn" type="button" data-treatment-view="orders" data-treatment-target="patient-order-${escapeHtml(appointment.orderId)}">View linked order</button>` : ""}
         </div>
         <div class="appointment-actions">${actions}${cancelAction}</div>
       </article>`;
@@ -3470,9 +3536,10 @@ function renderAppointments() {
       (appointment) => `
         <div class="list-item appointment-item ${escapeHtml(normalizeAppointmentStatus(appointment.status).toLowerCase().replace(/\s+/g, "-"))}" id="patient-appointment-${escapeHtml(appointment.id)}">
           <div>
-            <strong>${escapeHtml(appointment.time)} • ${escapeHtml(appointment.title)}</strong>
+            <strong>${escapeHtml(formatDisplayDate(appointment.scheduledAt))} · ${escapeHtml(appointment.time)} • ${escapeHtml(appointment.title)}</strong>
             <span>${escapeHtml(appointment.patientName || patient.name)} · ${escapeHtml(appointment.mrn || patient.mrn)}</span>
             <span>${escapeHtml(appointment.provider || "Provider not specified")} • ${escapeHtml(appointment.location)} • ${escapeHtml(normalizeAppointmentStatus(appointment.status))}</span>
+            ${appointment.orderId ? `<button class="text-btn" type="button" data-treatment-view="orders" data-treatment-target="patient-order-${escapeHtml(appointment.orderId)}">View linked order</button>` : ""}
           </div>
           <div class="appointment-actions">
             <button class="ghost-btn action-btn" type="button" data-action="complete" data-id="${escapeHtml(appointment.id)}" ${canComplete ? "" : "disabled"}>Complete</button>
@@ -3871,7 +3938,7 @@ function renderPatientTreatmentNavigation() {
   container.classList.toggle("pharmacy-patient-context", currentView === "dispensary");
   const routes = [
     ["patients", "Chart"], ["orders", "Orders"], ["labs", "Labs & results"],
-    ["medications", "Medications"], ["dispensary", "Formulary"]
+    ["outpatient", "Schedule"], ["appointments", "Appointments"], ["medications", "Medications"], ["dispensary", "Formulary"]
   ];
   container.innerHTML = `
     <div class="treatment-context">
@@ -3896,11 +3963,17 @@ function positionPharmacyNavigation() {
 }
 
 function openTreatmentWorkflow(view, patientId = selectedPatientId) {
-  if (!["patients", "orders", "labs", "medications", "dispensary"].includes(view)) {
+  if (!["patients", "orders", "labs", "medications", "outpatient", "appointments", "dispensary"].includes(view)) {
     return { allowed: false, message: "This treatment workspace is not available." };
   }
   const patient = patients.find((record) => String(record.id) === String(patientId));
   if (!patient) return { allowed: false, message: "Patient not found. Select a patient to continue." };
+  if (String(selectedPatientId) !== String(patient.id) && typeof document !== "undefined") {
+    document.getElementById("orderForm").reset();
+    Object.keys(orderFieldDrafts).forEach((key) => delete orderFieldDrafts[key]);
+    activeOrderTemplate = "";
+    renderOrderFields();
+  }
   selectedPatientId = patient.id;
   dispensingPrescriptionId = "";
   setCurrentView(view);
@@ -4513,6 +4586,7 @@ function renderProfilesView(container) {
       <div class="staff-avatar patient-avatar" aria-hidden="true">${escapeHtml(profile.name.split(/\s+/).map((part) => part[0]).slice(0, 2).join(""))}</div>
       <div><p class="eyebrow">Patient profile</p><h3>${escapeHtml(profile.name)}</h3><p>${escapeHtml(profile.mrn)} · ${escapeHtml(profile.age)} years · ${escapeHtml(profile.sex)}</p></div>
       <button class="primary-btn" type="button" data-open-patient="${escapeHtml(profile.id)}">Open full chart</button>
+      <button class="ghost-btn" type="button" data-profile-order="${escapeHtml(profile.id)}">Order &amp; schedule care</button>
     </div>
     <div class="profile-facts">
       <article><span>Encounter</span><strong>${escapeHtml(profile.clinical.stage)} · ${escapeHtml(profile.priority)}</strong></article>
@@ -4555,6 +4629,7 @@ function renderExtendedWorkspace() {
     case "locations": renderLocationsView(container); break;
     case "staff": renderStaffView(container); break;
     case "dispensary": renderDispensaryView(container); break;
+    case "procedure-catalog": renderIndependentProcedureCatalog(container); break;
     case "profiles": renderProfilesView(container); break;
     case "patient-profiles": renderProfilesView(container); break;
     default: container.innerHTML = "";
@@ -4611,26 +4686,95 @@ const procedureCatalog = [
 
 function searchProcedures(query, kind = "all") {
   const terms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  if (!terms.length) return [];
   return procedureCatalog.filter((procedure) => {
-    const text = `${procedure.name} ${procedure.category} ${procedure.originalCategory || ""} ${procedure.surgical ? "surgical operation" : ""}`.toLowerCase();
+    const text = `${procedure.name} ${procedure.category} ${procedure.originalCategory || ""} ${procedure.surgical ? "surgical operation" : "medical procedure"}`.toLowerCase();
     return (kind !== "surgical" || procedure.surgical) && terms.every((term) => text.includes(term));
   });
 }
 
+let independentProcedurePage = 0;
+
+function renderIndependentProcedureResults() {
+  const query = document.getElementById("independentProcedureSearch").value.trim();
+  const kind = document.getElementById("independentProcedureKind").value;
+  const pagination = document.getElementById("independentProcedurePagination");
+  if (!query) {
+    independentProcedurePage = 0;
+    document.getElementById("independentProcedureCount").textContent = "Enter a name, specialty, or procedure type to search.";
+    document.getElementById("independentProcedureResults").innerHTML = "";
+    pagination.hidden = true;
+    return;
+  }
+  const matches = searchProcedures(query, kind);
+  const pages = Math.max(1, Math.ceil(matches.length / procedurePageSize));
+  independentProcedurePage = Math.min(independentProcedurePage, pages - 1);
+  const start = independentProcedurePage * procedurePageSize;
+  const canOrder = hasPermission(currentUser.role, "order:create");
+  document.getElementById("independentProcedureCount").textContent = `${matches.length} results · Page ${independentProcedurePage + 1} of ${pages}`;
+  document.getElementById("independentProcedureResults").innerHTML = matches.length
+    ? matches.slice(start, start + procedurePageSize).map((procedure, index) => `
+      <details class="procedure-review">
+        <summary><strong>${escapeHtml(procedure.name)}</strong><span>${escapeHtml(procedure.category)}${procedure.surgical ? " · Surgical operation" : ""}</span></summary>
+        <div class="procedure-review-content">
+          <dl class="structured-record-fields">
+            <div><dt>Name</dt><dd>${escapeHtml(procedure.name)}</dd></div>
+            <div><dt>Specialty</dt><dd>${escapeHtml(procedure.category)}</dd></div>
+            <div><dt>Type</dt><dd>${procedure.surgical ? "Surgical operation" : "Medical procedure"}</dd></div>
+            ${procedure.originalCategory && procedure.originalCategory !== procedure.category ? `<div><dt>Also listed under</dt><dd>${escapeHtml(procedure.originalCategory)}</dd></div>` : ""}
+          </dl>
+          <p class="muted-copy">This catalog does not provide clinical descriptions, risks, preparation, or billing codes.</p>
+          <button class="primary-btn" type="button" data-independent-procedure="${start + index}" ${canOrder ? "" : "disabled"}>Select for patient order</button>
+        </div>
+      </details>`).join("")
+    : '<p class="empty-state">No matching procedures or operations.</p>';
+  document.getElementById("independentProcedurePrevious").disabled = independentProcedurePage === 0;
+  document.getElementById("independentProcedureNext").disabled = independentProcedurePage >= pages - 1;
+  pagination.hidden = pages <= 1;
+}
+
+function renderIndependentProcedureCatalog(container) {
+  independentProcedurePage = 0;
+  container.innerHTML = `<section class="panel">
+    <div class="panel-header"><div><p class="eyebrow">Clinical catalog</p><h3>Procedures &amp; operations</h3></div></div>
+    <div class="clinical-form">
+      <p class="muted-copy">Search by name, specialty, or procedure type and expand a result to review its available details. To order, enter a patient and select the procedure.</p>
+      <label for="independentProcedureSearch">Search procedures and operations
+        <input id="independentProcedureSearch" type="search" placeholder="e.g., knee arthroscopy, cardiology, surgical operation" />
+      </label>
+      <label for="independentProcedureKind">Catalog filter
+        <select id="independentProcedureKind"><option value="all">All procedures and operations</option><option value="surgical">Surgical operations</option></select>
+      </label>
+      <label for="independentProcedurePatient">Patient for order
+        <input id="independentProcedurePatient" type="search" list="independentProcedurePatients" placeholder="Name or MRN" autocomplete="off" />
+        <datalist id="independentProcedurePatients">${patients.map((patient) => `<option value="${escapeHtml(`${patient.name} · ${patient.mrn}`)}"></option>`).join("")}</datalist>
+      </label>
+      <p id="independentProcedureStatus" class="status-message" role="status"></p>
+      <p id="independentProcedureCount" class="muted-copy" role="status"></p>
+      <div id="independentProcedureResults" class="procedure-results"></div>
+      <div id="independentProcedurePagination" class="procedure-pagination" hidden><button id="independentProcedurePrevious" class="ghost-btn" type="button">Previous</button><button id="independentProcedureNext" class="ghost-btn" type="button">Next</button></div>
+      <p class="form-caution">Illustrative names only; not a validated clinical order set or billing terminology. Orders and appointments are not transmitted.</p>
+    </div>
+  </section>`;
+  renderIndependentProcedureResults();
+}
+
 function renderProcedureCatalog() {
-  const matches = searchProcedures(document.getElementById("procedureSearch").value, document.getElementById("procedureKind").value);
+  const query = document.getElementById("procedureSearch").value.trim();
+  const matches = searchProcedures(query, document.getElementById("procedureKind").value);
   const pages = Math.max(1, Math.ceil(matches.length / procedurePageSize));
   procedurePage = Math.min(procedurePage, pages - 1);
   const start = procedurePage * procedurePageSize;
   document.getElementById("procedureSearchStatus").textContent =
-    `${matches.length} ${matches.length === 1 ? "procedure" : "procedures"} found.`;
-  document.getElementById("procedureResults").innerHTML = matches.length
+    query ? `${matches.length} ${matches.length === 1 ? "procedure" : "procedures"} found.` : "Enter a name, specialty, or procedure type to search.";
+  document.getElementById("procedureResults").innerHTML = !query ? "" : matches.length
     ? matches.slice(start, start + procedurePageSize).map((procedure, index) => `
       <button class="ghost-btn procedure-result" type="button" data-procedure-index="${start + index}">
         <strong>${escapeHtml(procedure.name)}</strong><span>${escapeHtml(procedure.category)}${procedure.surgical ? " · Surgical operation" : ""}</span>
       </button>`).join("")
     : '<p class="empty-state">No matching procedures. Try another search or enter a procedure manually below.</p>';
   document.getElementById("procedurePage").textContent = `Page ${procedurePage + 1} of ${pages}`;
+  document.getElementById("procedurePagination").hidden = !query || pages <= 1;
   const canCreate = hasPermission(currentUser.role, "order:create");
   document.getElementById("procedurePrevious").disabled = !canCreate || procedurePage === 0;
   document.getElementById("procedureNext").disabled = !canCreate || procedurePage >= pages - 1;
@@ -4687,6 +4831,9 @@ function renderOrders() {
   container.innerHTML = patient.orders.length
     ? patient.orders.map((order) => {
       const nextStatus = order.status === "Pending" ? "Acknowledged" : order.status === "Acknowledged" ? "Completed" : "";
+      const appointments = patient.appointments.filter((appointment) => appointment.orderId === order.id);
+      const hasAppointment = appointments.some((appointment) => !["Cancelled", "No-show"].includes(appointment.status));
+      const canSchedule = canUpdate && hasPermission(currentUser.role, "appointment:create") && !hasAppointment && !["Completed", "Cancelled"].includes(order.status);
       return `
         <article class="record-card" id="patient-order-${escapeHtml(order.id)}">
           <div class="record-card-header">
@@ -4700,6 +4847,17 @@ function renderOrders() {
           ${order.fields?.length ? `<dl class="structured-record-fields">
             ${order.fields.map((field) => `<div><dt>${escapeHtml(field.label)}</dt><dd>${escapeHtml(field.value)}</dd></div>`).join("")}
           </dl>` : ""}
+          ${appointments.map((appointment) => `<p>Appointment: ${escapeHtml(formatDisplayDate(appointment.scheduledAt))} at ${escapeHtml(appointment.time)} · ${escapeHtml(appointment.status)}
+            <button class="text-btn" type="button" data-order-appointment="${escapeHtml(appointment.id)}">View appointment</button></p>`).join("")}
+          ${canSchedule ? `<details><summary>Schedule this order</summary>
+            <form class="clinical-form" data-schedule-order="${escapeHtml(order.id)}">
+              <div class="row"><label>Date<input name="scheduledAt" type="date" required /></label><label>Time<input name="time" type="time" required /></label></div>
+              <label>Provider<input name="provider" type="text" value="${escapeHtml(patient.provider || "")}" required /></label>
+              <label>Location<input name="location" type="text" placeholder="Clinic, laboratory, radiology, or other location" /></label>
+              <button class="primary-btn" type="submit">Schedule appointment</button>
+              <p class="form-caution">Demo scheduling only; cancelling the order and cancelling the appointment are separate actions.</p>
+              <p class="status-message" role="status"></p>
+            </form></details>` : ""}
           <div class="record-card-footer"><span>${escapeHtml(order.time)}</span>
             ${order.category === "Laboratory" ? '<button class="ghost-btn" type="button" data-treatment-view="labs">Review lab results</button>' : ""}
             ${order.category === "Medication" ? `<button class="ghost-btn" type="button" data-treatment-view="medications" ${order.prescriptionId ? `data-treatment-target="patient-prescription-${escapeHtml(order.prescriptionId)}"` : ""}>Review medications</button>` : ""}
@@ -5018,13 +5176,12 @@ function handleOrderSubmit(event) {
     : result.message;
   document.getElementById("clinicalStatus").textContent = message;
   document.getElementById("encounterStatus").textContent = message;
-  if (result.allowed) {
-    delete orderFieldDrafts[order.category];
-    activeOrderTemplate = "";
-    form.reset();
-    procedurePage = 0;
-    renderOrderFields();
-  }
+  if (!result.allowed) return;
+  delete orderFieldDrafts[order.category];
+  activeOrderTemplate = "";
+  form.reset();
+  procedurePage = 0;
+  renderOrderFields();
   render();
 }
 
@@ -5168,6 +5325,11 @@ function attachEvents() {
       const category = document.getElementById("orderForm").elements.category;
       category.value = navigation.dataset.orderCategory;
       renderOrderFields();
+      if (navigation.dataset.procedureKind) {
+        document.getElementById("procedureKind").value = navigation.dataset.procedureKind;
+        procedurePage = 0;
+        renderProcedureCatalog();
+      }
     }
     const target = navigation.dataset.treatmentTarget && document.getElementById(navigation.dataset.treatmentTarget);
     if (target) target.scrollIntoView({ block: "center" });
@@ -5190,6 +5352,43 @@ function attachEvents() {
     }
   });
   document.getElementById("extendedContent").addEventListener("click", (event) => {
+    const catalogResult = event.target.closest("[data-independent-procedure]");
+    if (catalogResult) {
+      if (!hasPermission(currentUser.role, "order:create")) return;
+      const matches = findPatientsByText(document.getElementById("independentProcedurePatient").value);
+      if (matches.length !== 1) {
+        document.getElementById("independentProcedureStatus").textContent = matches.length ? "Multiple patients match. Select a unique patient by name and MRN." : "Select a patient by name or MRN before ordering.";
+        return;
+      }
+      const procedure = searchProcedures(document.getElementById("independentProcedureSearch").value, document.getElementById("independentProcedureKind").value)[Number(catalogResult.dataset.independentProcedure)];
+      if (!procedure) {
+        document.getElementById("independentProcedureStatus").textContent = "The selected procedure is no longer available. Search again.";
+        return;
+      }
+      openTreatmentWorkflow("orders", matches[0].id);
+      render();
+      const form = document.getElementById("orderForm");
+      form.elements.category.value = "Procedure";
+      renderOrderFields();
+      delete orderFieldDrafts.Procedure;
+      orderTypeFields.Procedure.forEach((field) => { form.elements[field.name].value = ""; });
+      form.elements.title.value = procedure.name;
+      form.elements.procedureName.value = procedure.name;
+      form.elements.procedureName.focus();
+      document.getElementById("clinicalStatus").textContent = `Complete the procedure order for ${matches[0].name} · ${matches[0].mrn}.`;
+      return;
+    }
+    if (event.target.closest("#independentProcedurePrevious, #independentProcedureNext")) {
+      independentProcedurePage += event.target.closest("#independentProcedurePrevious") ? -1 : 1;
+      renderIndependentProcedureResults();
+      return;
+    }
+    const profileOrder = event.target.closest("[data-profile-order]");
+    if (profileOrder) {
+      const result = openTreatmentWorkflow("orders", profileOrder.dataset.profileOrder);
+      if (result.allowed) { render(); scrollToWorkspaceTop(); }
+      return;
+    }
     if (event.target.closest("[data-register-patient]")) {
       openPatientRegistration();
       return;
@@ -5242,6 +5441,11 @@ function attachEvents() {
     }
   });
   document.getElementById("extendedContent").addEventListener("input", (event) => {
+    if (event.target.id === "independentProcedureSearch") {
+      independentProcedurePage = 0;
+      renderIndependentProcedureResults();
+      return;
+    }
     if (event.target.id !== "inboxSearch") return;
     const cursor = event.target.selectionStart;
     inboxSearch = event.target.value;
@@ -5251,7 +5455,10 @@ function attachEvents() {
     search.setSelectionRange(cursor, cursor);
   });
   document.getElementById("extendedContent").addEventListener("change", (event) => {
-    if (event.target.id === "nursingNurseFilter") {
+    if (event.target.id === "independentProcedureKind") {
+      independentProcedurePage = 0;
+      renderIndependentProcedureResults();
+    } else if (event.target.id === "nursingNurseFilter") {
       nursingFilter = event.target.value;
       render();
     } else if (event.target.id === "profileSelector") {
@@ -5370,6 +5577,16 @@ function attachEvents() {
   document.querySelector('#documentForm [name="type"]').addEventListener("change", renderDocumentFields);
 
   document.getElementById("ordersList").addEventListener("click", (event) => {
+    const appointmentLink = event.target.closest("[data-order-appointment]");
+    if (appointmentLink) {
+      setCurrentView("appointments");
+      render();
+      const panel = document.getElementById("appointmentsPanel");
+      if (panel.classList.contains("collapsed")) panel.querySelector(".collapse-toggle").click();
+      const appointment = [...document.querySelectorAll("#appointmentsList [id]")].find((item) => item.id === `patient-appointment-${appointmentLink.dataset.orderAppointment}`);
+      (appointment || panel).scrollIntoView({ block: "center" });
+      return;
+    }
     const button = event.target.closest("[data-order-id]");
     if (!button) return;
     const patient = getSelectedPatient();
@@ -5380,6 +5597,30 @@ function attachEvents() {
     document.getElementById("clinicalStatus").textContent = message;
     document.getElementById("encounterStatus").textContent = message;
     render();
+  });
+  document.getElementById("ordersList").addEventListener("submit", (event) => {
+    const form = event.target.closest("[data-schedule-order]");
+    if (!form) return;
+    event.preventDefault();
+    const patient = getSelectedPatient();
+    const order = patient.orders.find((item) => item.id === form.dataset.scheduleOrder);
+    if (!order) {
+      form.querySelector('[role="status"]').textContent = "Order not found. Refresh and try again.";
+      return;
+    }
+    const data = new FormData(form);
+    const result = createAppointmentForPatient(patient.id, {
+      orderId: order.id, title: order.title, reason: order.title,
+      visitType: order.category === "Follow-up" ? "Follow-up" : `${order.category} appointment`,
+      scheduledAt: data.get("scheduledAt"), time: data.get("time"),
+      provider: data.get("provider"), location: data.get("location")
+    });
+    if (!result.allowed) {
+      form.querySelector('[role="status"]').textContent = result.message;
+      return;
+    }
+    render();
+    document.getElementById("clinicalStatus").textContent = `Appointment scheduled for ${patient.name}.`;
   });
 
   document.getElementById("outpatientAppointmentForm").addEventListener("submit", (event) => {

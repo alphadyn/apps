@@ -746,6 +746,35 @@ textarea {
   gap: 10px;
 }
 
+.procedure-pagination[hidden] {
+  display: none;
+}
+
+.procedure-review {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.procedure-review summary {
+  cursor: pointer;
+  padding: 12px;
+}
+
+.procedure-review summary span {
+  color: var(--muted);
+  margin-left: 8px;
+}
+
+.procedure-review-content {
+  display: grid;
+  gap: 12px;
+  padding: 0 12px 12px;
+}
+
+.procedure-review-content p {
+  margin: 0;
+}
+
 .formulary-patient-choice:not([hidden]) {
   display: grid;
   gap: 10px;

@@ -25,7 +25,7 @@
     <meta name="twitter:description" content="Explore fictional patient charts, admissions, care teams, timelines, orders, and notes." />
     <meta name="twitter:image" content="https://alphadyn.github.io/apps/northstar-ehr/social-preview.png" />
     <meta name="twitter:image:alt" content="Northstar EHR clinical operations demo, showing a fictional patient chart and timeline." />
-    <link rel="stylesheet" href="styles.css?v=16" />
+    <link rel="stylesheet" href="styles.css?v=18" />
   </head>
   <body>
     <main id="loginScreen" class="login-screen">
@@ -139,6 +139,10 @@
               </div>
             </div>
           </details>
+          <div class="nav-group">
+            <p class="nav-group-title">Clinical catalog</p>
+            <button class="nav-link" type="button" data-view="procedure-catalog">Procedures &amp; operations</button>
+          </div>
           <div class="nav-group">
             <p class="nav-group-title">Pharmacy workspace</p>
             <button class="nav-link" type="button" data-view="dispensary">Formulary</button>
@@ -399,7 +403,7 @@
                   <select name="category">
                     <option>Nursing</option><option>Vitals</option><option>Diagnosis</option><option>History &amp; physical</option>
                     <option>Laboratory</option><option>Imaging / Radiology</option><option>Procedure</option><option>Medication</option>
-                    <option>Consult</option><option>Referral</option>
+                    <option>Consult</option><option>Referral</option><option>Follow-up</option>
                   </select>
                 </label>
                 <label>Priority<select name="priority"><option>Routine</option><option>Urgent</option><option>STAT</option></select></label>
@@ -420,7 +424,7 @@
                 </label>
                 <p id="procedureSearchStatus" class="muted-copy" role="status" aria-live="polite"></p>
                 <div id="procedureResults" class="procedure-results"></div>
-                <div class="procedure-pagination">
+                <div id="procedurePagination" class="procedure-pagination" hidden>
                   <button id="procedurePrevious" class="ghost-btn" type="button">Previous</button>
                   <span id="procedurePage"></span>
                   <button id="procedureNext" class="ghost-btn" type="button">Next</button>
@@ -668,6 +672,6 @@
     <script src="rxnorm-catalog.js?v=1"></script>
     <script src="procedure-catalog.js?v=1"></script>
     <script src="surgical-catalog.js?v=1"></script>
-    <script src="app.js?v=18"></script>
+    <script src="app.js?v=22"></script>
   </body>
 </html>

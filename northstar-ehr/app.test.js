@@ -47,7 +47,8 @@ test("surgical operations are unique, bounded, and searchable alongside existing
   assert.equal(vm.runInContext('searchProcedures("appendectomy").filter(item => item.name === "Appendectomy").length', context), 1);
   assert.equal(vm.runInContext('searchProcedures("cardiology pacemaker insertion").length', context), 1);
   assert.equal(vm.runInContext('new Set(procedureCatalog.map(item => item.name.toLowerCase())).size === procedureCatalog.length', context), true);
-  assert.ok(vm.runInContext('searchProcedures("", "surgical").every(item => item.surgical)', context));
+  assert.equal(vm.runInContext('searchProcedures("", "surgical").length', context), 0);
+  assert.ok(vm.runInContext('searchProcedures("medical procedure").every(item => !item.surgical)', context));
 });
 
 test("procedure results paginate, reset on new searches, and honor order permissions", () => {
@@ -55,12 +56,16 @@ test("procedure results paginate, reset on new searches, and honor order permiss
   const elements = new Map([
     ["procedureSearch", { value: "" }], ["procedureKind", { value: "all" }],
     ["procedureSearchStatus", {}], ["procedureResults", {}], ["procedurePage", {}],
-    ["procedurePrevious", {}], ["procedureNext", {}]
+    ["procedurePrevious", {}], ["procedureNext", {}], ["procedurePagination", {}]
   ]);
   context.document = {
     getElementById: (id) => elements.get(id),
     querySelectorAll: () => []
   };
+  vm.runInContext("renderProcedureCatalog()", context);
+  assert.equal(elements.get("procedureResults").innerHTML, "");
+  assert.equal(elements.get("procedurePagination").hidden, true);
+  elements.get("procedureSearch").value = "surgical operation";
   vm.runInContext("renderProcedureCatalog()", context);
   assert.match(elements.get("procedurePage").textContent, /^Page 1 of /);
   assert.equal(elements.get("procedurePrevious").disabled, true);
@@ -75,6 +80,41 @@ test("procedure results paginate, reset on new searches, and honor order permiss
   elements.get("procedureSearch").value = "";
   vm.runInContext('currentUser.role = "staff"; renderProcedureCatalog()', context);
   assert.equal(elements.get("procedureNext").disabled, true);
+  assert.equal(elements.get("procedureResults").innerHTML, "");
+  assert.equal(elements.get("procedurePagination").hidden, true);
+});
+
+test("independent procedure search starts empty, searches details, and clears results", () => {
+  const { context } = setup();
+  const elements = new Map([
+    ["independentProcedureSearch", { value: "" }], ["independentProcedureKind", { value: "all" }],
+    ["independentProcedureCount", {}], ["independentProcedureResults", {}],
+    ["independentProcedurePagination", {}], ["independentProcedurePrevious", {}], ["independentProcedureNext", {}]
+  ]);
+  context.document = { getElementById: (id) => elements.get(id) };
+  vm.runInContext("renderIndependentProcedureResults()", context);
+  assert.equal(elements.get("independentProcedureResults").innerHTML, "");
+  assert.equal(elements.get("independentProcedurePagination").hidden, true);
+  assert.match(elements.get("independentProcedureCount").textContent, /Enter a name/);
+  elements.get("independentProcedureSearch").value = "cardiology echo";
+  vm.runInContext("renderIndependentProcedureResults()", context);
+  assert.match(elements.get("independentProcedureResults").innerHTML, /echocardiogram/i);
+  assert.match(elements.get("independentProcedureResults").innerHTML, /<details class="procedure-review">/);
+  assert.match(elements.get("independentProcedureResults").innerHTML, /<dt>Specialty<\/dt>/);
+  assert.match(elements.get("independentProcedureResults").innerHTML, /Select for patient order/);
+  assert.match(elements.get("independentProcedureResults").innerHTML, /does not provide clinical descriptions/);
+  elements.get("independentProcedureSearch").value = "surgical operation";
+  vm.runInContext("renderIndependentProcedureResults()", context);
+  assert.equal(elements.get("independentProcedurePagination").hidden, false);
+  assert.equal(elements.get("independentProcedureNext").disabled, false);
+  elements.get("independentProcedureSearch").value = "no such operation";
+  vm.runInContext("renderIndependentProcedureResults()", context);
+  assert.match(elements.get("independentProcedureResults").innerHTML, /No matching/);
+  assert.equal(elements.get("independentProcedurePagination").hidden, true);
+  elements.get("independentProcedureSearch").value = "  ";
+  vm.runInContext("renderIndependentProcedureResults()", context);
+  assert.equal(elements.get("independentProcedureResults").innerHTML, "");
+  assert.equal(elements.get("independentProcedurePagination").hidden, true);
 });
 
 test("catalog selection fills a procedure order, which persists with structured details", () => {
@@ -127,6 +167,74 @@ test("selecting a filtered surgical operation saves and restores a procedure ord
   assert.equal(vm.runInContext("patients[0].orders[0].title", restored.context), form.elements.title.value);
   assert.equal(vm.runInContext('patients[0].orders[0].fields.find(field => field.label === "Procedure").value', restored.context), form.elements.title.value);
   assert.equal(vm.runInContext('createOrderForPatient(patients[0], orderData, "staff").allowed', context), false);
+});
+
+test("linked appointments schedule orders for the correct patient and persist independently", () => {
+  const { context, storage, api } = setup();
+  const patient = vm.runInContext("patients[0]", context);
+  const order = vm.runInContext(`createOrderForPatient(patients[0], {
+    category: "Laboratory", title: "Demo test", labTest: "Demo test",
+    labSpecimen: "Blood", labTiming: "Routine"
+  }).order`, context);
+  const input = { orderId: order.id, scheduledAt: "2026-12-10", time: "10:30", provider: "Demo provider", location: "Lab" };
+  assert.equal(api.createAppointmentForPatient(patient.id, input, "staff").allowed, false);
+  assert.equal(api.createAppointmentForPatient(2, input).allowed, false);
+  assert.equal(api.createAppointmentForPatient(patient.id, { ...input, scheduledAt: "2026-02-30" }).allowed, false);
+  assert.equal(api.createAppointmentForPatient(patient.id, { ...input, time: "24:00" }).allowed, false);
+  const result = api.createAppointmentForPatient(patient.id, input);
+  assert.equal(result.allowed, true);
+  assert.equal(result.appointment.title, "Demo test");
+  assert.equal(result.appointment.orderId, order.id);
+  assert.equal(api.createAppointmentForPatient(patient.id, input).allowed, false);
+  const restored = setup("clinician", storage);
+  assert.equal(vm.runInContext(`patients[0].appointments.find(a => a.id === "${result.appointment.id}").orderId`, restored.context), order.id);
+  assert.equal(api.updateOrderStatus(patient, order.id, "Cancelled").allowed, true);
+  assert.equal(result.appointment.status, "Scheduled");
+  assert.equal(api.updateAppointmentStatus(patient.id, result.appointment.id, "Cancelled").allowed, true);
+  assert.equal(api.createAppointmentForPatient(patient.id, input).allowed, false);
+});
+
+test("linked appointment cancellation allows rescheduling and storage failure rolls back", () => {
+  const { context, api } = setup();
+  const patient = vm.runInContext("patients[0]", context);
+  const order = vm.runInContext('createOrderForPatient(patients[0], {category:"Follow-up", title:"Demo follow-up"}).order', context);
+  const input = { orderId: order.id, scheduledAt: "2026-12-10", time: "10:30", provider: "Demo provider" };
+  const first = api.createAppointmentForPatient(patient.id, input);
+  assert.equal(api.updateAppointmentStatus(patient.id, first.appointment.id, "Cancelled").allowed, true);
+  const before = patient.appointments.length;
+  const eventCount = patient.events.length;
+  const audit = vm.runInContext("JSON.stringify(auditTrail)", context);
+  context.console = { warn() {} };
+  context.localStorage.setItem = () => { throw new Error("blocked"); };
+  assert.match(api.createAppointmentForPatient(patient.id, input).message, /Unable to save/);
+  assert.equal(patient.appointments.length, before);
+  assert.equal(patient.events.length, eventCount);
+  assert.equal(vm.runInContext("JSON.stringify(auditTrail)", context), audit);
+});
+
+test("order storage failure preserves the chart and reports the error", () => {
+  const { context } = setup();
+  const count = vm.runInContext("patients[0].orders.length", context);
+  const audit = vm.runInContext("JSON.stringify(auditTrail)", context);
+  context.console = { warn() {} };
+  context.localStorage.setItem = () => { throw new Error("blocked"); };
+  const result = vm.runInContext('createOrderForPatient(patients[0], {category:"Follow-up", title:"Demo follow-up"})', context);
+  assert.match(result.message, /Unable to save/);
+  assert.equal(vm.runInContext("patients[0].orders.length", context), count);
+  assert.equal(vm.runInContext("JSON.stringify(auditTrail)", context), audit);
+});
+
+test("completing a linked appointment does not complete the order or change patient status", () => {
+  const { context, api } = setup();
+  const patient = vm.runInContext("patients[0]", context);
+  const originalStatus = patient.status;
+  const order = vm.runInContext('createOrderForPatient(patients[0], {category:"Imaging / Radiology", title:"Demo imaging"}).order', context);
+  const result = api.createAppointmentForPatient(patient.id, {
+    orderId: order.id, scheduledAt: "2026-12-10", time: "10:30", provider: "Demo provider"
+  });
+  assert.equal(api.updateAppointmentStatus(patient.id, result.appointment.id, "Completed").allowed, true);
+  assert.equal(order.status, "Pending");
+  assert.equal(patient.status, originalStatus);
 });
 
 test("registration creates a persistent intake profile and opens triage without inventing clinical data", () => {

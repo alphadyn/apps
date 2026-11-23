@@ -76,14 +76,28 @@ follows the demo encounter-create role permission; dispensing remains separate.
   Laboratory requests link to results; medication requests link to the prescription
   and dispensing workflow. Completing an order does not create a lab result or
   record administration/dispensing.
+- **Ordering and scheduling:** From a patient chart, use the care shortcuts for
+  labs, radiology, procedures, operations, or follow-up. Save the request, then
+  use **Schedule this order** to create a linked appointment with date, time,
+  provider, and optional location. Both records link to each other; cancelling or
+  completing one does not change the other. Cancel an existing appointment before
+  rescheduling an open order. Appointments are local demo records, not bookings.
 - **Procedure and surgical operation catalog:** In a selected patient's Orders,
   choose **Procedure** and search by name or specialty. Use the catalog filter to
-  show surgical operations. Browse results with Previous and Next, and select
+  show surgical operations. Results appear only after entering a search; browse
+  matching results with Previous and Next, and select
   a procedure to fill the request and procedure fields. Complete the remaining
   required details before saving; free-text procedure orders remain available.
   The catalog is an illustrative, non-exhaustive list, not validated clinical
   terminology, billing codes, or an order set. Orders remain browser-local demo
   records and are not transmitted or performed.
+- **Independent catalog:** Choose **Procedures & operations** in the sidebar to
+  search by name, specialty, or procedure type without a patient. Results appear
+  after entering a search. Expand a result to review its name, specialty, and type.
+  Clinical descriptions and risks are not supplied. Enter a unique patient name
+  or MRN and choose **Select for patient order** to open a prefilled procedure
+  order; complete and save it before scheduling. The existing procedure-order
+  permissions also apply here.
 - **Labs & results:** Recorded fictional results and laboratory requests only.
   **Order a lab test** opens Orders with the Laboratory category selected.
 - **Medications & prescriptions:** Medication/allergy context, formulary search,

@@ -1,0 +1,126 @@
+[hidden] { display: none !important; }
+.canvas-column, .editor-controls, .breadcrumb { min-width: 0; }
+.mobile-editor-actions, #return-to-canvas, #close-navigation { display: none; }
+.inspector {
+  max-height: calc(clamp(450px, 44.5vw, 660px) + 90px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+dialog { overscroll-behavior: contain; }
+#navigation-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 19;
+  background: #07130c99;
+  backdrop-filter: blur(3px);
+  width: 100%;
+  height: 100%;
+}
+body.navigation-open { overflow: hidden; }
+@media (min-width: 1600px) {
+  .inspector { max-height: 710px; }
+}
+@media (max-width: 1190px) {
+  .sidebar {
+    width: 280px;
+    max-width: calc(100vw - 48px);
+    transform: translateX(-110%);
+    transition: transform .2s;
+    box-shadow: 15px 0 50px #0005;
+    padding-top: calc(24px + env(safe-area-inset-top));
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .sidebar.open { transform: translateX(0); }
+  #close-navigation { display: flex; position: absolute; top: calc(12px + env(safe-area-inset-top)); right: 10px; width: 44px; height: 44px; }
+  .sidebar .brand { padding-right: 36px; }
+  .app-shell { margin-left: 0; }
+  .mobile-menu { display: flex; flex-shrink: 0; width: 44px; height: 44px; }
+  .sidebar button { min-height: 44px; }
+  .sidebar .sidebar-section-heading .icon-button { width: 44px; height: 44px; }
+  .topbar { padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); }
+}
+@media (max-width: 780px) {
+  .topbar { position: sticky; top: 0; z-index: 15; min-height: 64px; height: auto; background: #1a1d1cf5; gap: 6px; padding-top: env(safe-area-inset-top); }
+  .breadcrumb { flex: 1; overflow: hidden; }
+  .breadcrumb button { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+  .header-actions { gap: 4px; flex-shrink: 0; }
+  .header-actions .button { width: 44px; height: 44px; padding: 10px; gap: 0; }
+  .header-actions .button-label, .header-actions .export-button>span:last-child, .project-badge { display: none; }
+  .header-actions .export-button>span:first-child { display: inline-flex; }
+  main { padding: 18px max(12px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left)); }
+  .page-heading { margin-bottom: 14px; padding: 0; }
+  .page-heading h1 { font-size: 22px; max-width: none; }
+  .page-heading p, .page-heading .eyebrow { display: none; }
+  .summary-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 16px; }
+  .summary-card { padding: 10px 7px; min-height: 66px; display: block; min-width: 0; }
+  .summary-card .summary-icon, .summary-note, .stat-decoration, .floor-mini { display: none; }
+  .summary-label { font-size: 7px; letter-spacing: .4px; }
+  .summary-card strong { font-size: 19px; overflow-wrap: anywhere; }
+  .summary-card strong small { display: block; font-size: 10px; margin-top: 3px; }
+  .editor-header { height: auto; min-height: 62px; padding: 12px; flex-wrap: wrap; gap: 10px; }
+  .editor-title { flex-basis: 100%; }
+  .editor-title h2 { font-size: 13px; }
+  .editor-controls { width: 100%; justify-content: space-between; gap: 8px; }
+  .scope-switch, .view-switch { min-width: 0; }
+  .scope-switch button, .view-switch button { min-width: 44px; min-height: 44px; font-size: 12px; padding: 7px 10px; }
+  .editor-body { display: flex; flex-direction: column; }
+  .canvas-column { width: 100%; }
+  .mobile-editor-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 12px; border-bottom: 1px solid var(--line); font-size: 11px; color: #a8bdad; }
+  #toggle-properties { min-height: 44px; min-width: 96px; color: var(--mint); font-size: 12px; flex-shrink: 0; scroll-margin-top: 80px; }
+  .canvas-toolbar { height: auto; min-height: 56px; padding: 5px 8px; gap: 4px; flex-wrap: wrap; }
+  .tool-group { gap: 0; flex-wrap: wrap; min-width: 0; }
+  .tool { width: 44px; height: 44px; flex-shrink: 0; }
+  .tool-separator { margin: 0 2px; }
+  .layers-button { min-width: 44px; min-height: 44px; font-size: 0; gap: 0; padding: 4px; }
+  .layers-number { display: none; }
+  .drawing-surface { height: clamp(360px, 58svh, 540px); }
+  .canvas-caption { top: 12px; left: 12px; font-size: 8px; max-width: calc(100% - 65px); flex-wrap: wrap; }
+  .canvas-legend { display: none; }
+  .zoom-controls { height: 46px; bottom: 12px; right: 12px; padding: 0 3px; }
+  .zoom-controls button { width: 44px; height: 44px; }
+  .zoom-controls #zoom-value { font-size: 11px; min-width: 38px; }
+  .canvas-footer { height: auto; min-height: 40px; padding: 9px 12px; font-size: 10px; }
+  .canvas-footer #scale-label { display: none; }
+  .inspector { width: 100%; max-height: none; overflow: visible; border-left: 0; border-top: 1px solid #3c463d; padding: 18px; scroll-margin-top: 80px; }
+  #return-to-canvas { display: flex; width: 100%; min-height: 44px; margin-bottom: 18px; border: 1px solid #526c58; }
+  .inspector-heading h3 { font-size: 14px; }
+  .property-field label, .property-checkbox, .dialog-note, .floor-description { font-size: 12px; }
+  .property-field input, .property-field select, .dialog-form .property-field input, .dialog-form .property-field select, .sample-preview-controls select, .documentation-controls select { font-size: 16px; min-height: 44px; }
+  .property-checkbox { min-height: 44px; }
+  input[type="checkbox"] { width: 20px; height: 20px; }
+  .add-space-button, .overview-room, .back-overview, .floor-delete, .browse-spaces, .dialog-actions .button, .settings-links button { min-height: 44px; }
+  .orbit-controls { top: 44px; left: 12px; right: 12px; width: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; padding: 6px 10px; }
+  .orbit-heading { grid-column: 1/-1; margin: 0; }
+  .orbit-heading button { min-width: 44px; min-height: 32px; }
+  .orbit-controls>label { margin-top: 0; gap: 6px; font-size: 10px; }
+  .orbit-controls input { height: 44px; width: 100%; flex: 1; }
+  .orbit-controls label>span { width: auto; }
+  .orbit-controls output { font-size: 10px; }
+  .layers-popover { max-width: calc(100% - 24px); }
+  .layers-popover label { min-height: 44px; font-size: 13px; }
+  dialog, .samples-dialog { max-height: calc(100dvh - 24px); width: calc(100% - 24px); padding: 20px 16px; }
+  .dialog-heading { gap: 12px; margin-bottom: 18px; }
+  .dialog-heading .icon-button { width: 44px; height: 44px; flex-shrink: 0; }
+  .dialog-actions { flex-wrap: wrap; }
+  .dialog-space-grid button { min-height: 76px; font-size: 12px; }
+  .toast { max-width: calc(100vw - 24px); bottom: max(16px, env(safe-area-inset-bottom)); font-size: 12px; }
+  .workspace-footer { padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+}
+@media (max-width: 360px) {
+  .breadcrumb button { font-size: 10px; }
+  .header-actions { gap: 0; }
+  .topbar { padding-left: 4px; padding-right: 4px; gap: 2px; }
+  .scope-switch button, .view-switch button { padding: 7px; font-size: 11px; }
+  .tool-separator { display: none; }
+  .mobile-editor-actions>span { font-size: 10px; }
+}
+@media (pointer: coarse) and (min-width: 781px) {
+  .tool, .icon-button, .zoom-controls button { min-width: 44px; min-height: 44px; }
+  .header-actions .button { min-width: 44px; min-height: 44px; }
+  .property-field input, .property-field select { font-size: 16px; min-height: 44px; }
+  .scope-switch button, .view-switch button, .overview-room { min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sidebar { transition: none; }
+}

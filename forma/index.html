@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#191c1b">
   <meta name="description" content="Design your next home in the browser. Resize rooms, place doors and windows, and explore floor plans in 2D and 3D. No account needed.">
   <title>Forma — A space for possibility</title>
@@ -24,11 +24,13 @@
   <meta name="twitter:image" content="https://alphadyn.github.io/apps/forma/preview.png?v=20261117">
   <meta name="twitter:image:alt" content="Forma home design studio: a space for possibility, with an illustrated floor plan.">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=20261122-5">
-  <script type="module" src="app.js?v=20261122-7"></script>
+  <link rel="stylesheet" href="styles.css?v=20261122-11">
+  <link rel="stylesheet" href="responsive.css?v=20261122-13">
+  <script type="module" src="app.js?v=20261122-12"></script>
 </head>
 <body>
-  <aside class="sidebar">
+  <aside class="sidebar" id="workspace-navigation" aria-label="Workspace navigation">
+    <button class="icon-button" id="close-navigation" aria-label="Close navigation"><span data-icon="close"></span></button>
     <a class="brand" href="./" aria-label="Forma home"><img src="icon.svg" alt=""><span>forma<span class="brand-period">.</span></span><span class="studio-tag">STUDIO</span></a>
     <div class="workspace-label">YOUR WORKSPACE <span>⌘ K</span></div>
     <button class="project-button" id="project-details"><span class="project-symbol" data-icon="house"></span><span><strong id="sidebar-name">The Courtyard House</strong><small>Residential project</small></span><span data-icon="chevrons"></span></button>
@@ -56,9 +58,10 @@
     </div>
   </aside>
 
+  <button id="navigation-backdrop" aria-label="Close navigation" tabindex="-1" hidden></button>
   <div class="app-shell">
     <header class="topbar">
-      <button class="icon-button mobile-menu" id="mobile-menu" aria-label="Toggle navigation"><span data-icon="menu"></span></button>
+      <button class="icon-button mobile-menu" id="mobile-menu" aria-label="Toggle navigation" aria-controls="workspace-navigation" aria-expanded="false"><span data-icon="menu"></span></button>
       <div class="breadcrumb"><span data-icon="house"></span><span class="slash">/</span><button id="rename-project">The Courtyard House</button><span class="project-badge">Concept</span></div>
       <div class="header-actions">
         <span class="save-state" id="save-state" aria-live="polite"><i></i>All changes applied</span>
@@ -80,6 +83,7 @@
 
       <section class="editor" aria-label="Home design editor">
         <div class="editor-header"><div class="editor-title"><span data-icon="plan"></span><h2 id="editor-title">Design canvas</h2><span class="dot-separator">·</span><span id="canvas-floor-name">Ground floor</span></div><div class="editor-controls"><div class="scope-switch" aria-label="Design scope"><button id="scope-floor" class="active" aria-pressed="true">Floor</button><button id="scope-property" aria-pressed="false">Property</button></div><div class="view-switch" aria-label="Canvas view"><button class="active" id="view-2d" aria-pressed="true"><span data-icon="plan"></span><span id="view-2d-label">2D plan</span></button><button id="view-3d" aria-pressed="false"><span data-icon="cube"></span>3D view</button></div></div></div>
+        <div class="mobile-editor-actions"><span>Select an item, then open its properties.</span><button id="toggle-properties" aria-controls="design-inspector" aria-expanded="false">Properties</button></div>
         <div class="editor-body">
           <div class="canvas-column">
             <div class="canvas-toolbar"><div class="tool-group" aria-label="Canvas tools"><button class="tool active" id="tool-select" aria-label="Select and move rooms" title="Select & move (V)"><span data-icon="cursor"></span></button><button class="tool" id="tool-pan" aria-label="Pan canvas" title="Pan (H)"><span data-icon="hand"></span></button><span class="tool-separator"></span><button class="tool" id="toolbar-add" aria-label="Add room" title="Add a space (R)"><span data-icon="room-add"></span></button><button class="tool active" id="toggle-dimensions" aria-label="Toggle dimensions" aria-pressed="true" title="Dimensions"><span data-icon="ruler"></span></button><span class="tool-separator"></span><button class="tool" id="undo" aria-label="Undo" title="Undo (⌘Z)" disabled><span data-icon="undo"></span></button><button class="tool" id="redo" aria-label="Redo" title="Redo (⌘⇧Z)" disabled><span data-icon="redo"></span></button></div><button class="layers-button" id="layers-button" aria-expanded="false"><span data-icon="layers"></span>Layers<span class="layers-number">3</span></button></div>
@@ -95,7 +99,8 @@
             </div>
             <div class="canvas-footer"><span><i class="live-dot"></i><span id="canvas-help">Click a room to edit · Drag to rearrange</span></span><span id="scale-label">1 : 100 <span class="scale-bar"></span> 5 m</span></div>
           </div>
-          <aside class="inspector" aria-label="Design properties">
+          <aside class="inspector" id="design-inspector" aria-label="Design properties" tabindex="-1">
+            <button id="return-to-canvas" class="button">Back to canvas</button>
             <div class="inspector-heading"><h3 id="inspector-heading">Floor overview</h3><span data-icon="sliders"></span></div>
             <div id="inspector-content"></div>
             <div class="inspector-tip"><span data-icon="bulb"></span><p><strong>A little breathing room.</strong>Consider how spaces connect, not just how they look.</p></div>

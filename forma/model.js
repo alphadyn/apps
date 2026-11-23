@@ -171,6 +171,19 @@ export function validateProperty(property) {
   }
   if (typeof property.roadName !== "string" || !property.roadName.trim() || property.roadName.length > 60) throw new Error("Street names must be between 1 and 60 characters.");
   if (typeof property.landscaping !== "boolean" || typeof property.driveway !== "boolean") throw new Error("Property landscape and driveway settings must be on or off.");
+  if (property.layout !== undefined) {
+    const layout = property.layout;
+    if (!layout || !Array.isArray(layout.trees) || layout.trees.length > 100) throw new Error("A site layout must contain up to 100 trees.");
+    for (const tree of layout.trees) {
+      if (!tree || !Number.isFinite(tree.radius) || tree.radius < .2 || tree.radius > 5 ||
+        !Number.isFinite(tree.x) || !Number.isFinite(tree.y) || tree.x < tree.radius || tree.y < tree.radius ||
+        tree.x + tree.radius > property.width || tree.y + tree.radius > property.depth) throw new Error("Tree canopies must fit inside the lot, with radii between 0.2 and 5 meters.");
+    }
+    const driveway = layout.driveway;
+    if (driveway !== null && (!driveway || !Number.isFinite(driveway.width) || driveway.width < .5 || driveway.width > 20 ||
+      !Number.isFinite(driveway.x) || !Number.isFinite(driveway.y) || driveway.x < 0 || driveway.x + driveway.width > property.width ||
+      driveway.y < 0 || driveway.y >= property.depth)) throw new Error("The driveway must fit inside the lot and extend to the street.");
+  }
   validateFence(property.fence);
   return property;
 }

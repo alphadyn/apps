@@ -8,6 +8,13 @@ A dependency-free, browser-based concept studio for contemporary homes. Resize r
 
 Serve the repository and open the local preview, or launch Forma from the portfolio.
 
+## Desktop and mobile workspace
+
+- Desktop keeps the canvas alongside an independently scrolling properties inspector. Tablet and smaller windows use a dismissible navigation drawer, which supports Escape, keyboard focus containment, and tapping outside to close.
+- On phones, the overview is compact and the canvas uses the available viewport height. Select a room or site item, then tap **Properties** to edit it; **Back to canvas** returns to the drawing without losing the selection. Wider windows restore the side-by-side inspector automatically.
+- Touch-sized tool, zoom, navigation, and form controls support dragging rooms/site items and orbiting 3D views with one finger. Use **Pan canvas** to pan and the **+ / -** buttons to zoom. Scroll the page outside the drawing; the canvas reserves touch gestures for editing. Native browser page zoom remains available.
+- Forms use readable input sizes on phones, dialogs scroll within the screen, and controls respect display safe areas. Resize-triggered drawing updates are coalesced to one per animation frame.
+
 ## Sharing in text messages
 
 Share **https://alphadyn.github.io/apps/forma/** in SMS, iMessage, or other messaging apps. The page includes static Open Graph and large-image card metadata, an absolute HTTPS preview-image URL, and a canonical URL so crawlers can build a preview without running the editor.
@@ -128,6 +135,10 @@ Select **House & property** in the sidebar, or **Property** above the canvas:
 - **3D view** assembles every floor at its actual level into one contemporary exterior concept on the lot, with shaded facades, framed glazing, a finished roof surface, and layered landscaping. Windows, roofs, deck surfaces, shadows, trees, and paving are illustrative, not construction details. Toggle **Show full-height walls & roofs** for an open-top study, or select a floor to edit its interior.
 - Full-house roofs are opaque and exterior walls join at floor elevations, keeping the closed exterior solid as you rotate or tilt. Only the open-top study intentionally exposes the interior.
 - **Edit property** controls lot width/depth (8–200 m), the house origin, street name, landscaping, and the driveway. These controls are also available through project settings.
+- In **Property → Site plan**, drag the whole house, individual trees, or the driveway to arrange the site. Select an item and use arrow keys for 0.1 m nudges, or Shift+arrow for 0.5 m. The **Arrange your property** inspector also offers an item selector and exact X/Y positions in the selected measurement system. Use the floor buttons to edit individual rooms; the property 3D view keeps its existing orbit and floor-selection behavior.
+- Site drags snap to 0.1 m and form a single undoable edit. Escape or a cancelled drag restores the starting layout; invalid moves restore it with an error. **Apply changes**, **Revert**, undo/redo, and JSON save/open include the layout. The same positions appear in 3D and current-view SVG exports.
+- Moving the house changes the shared origin of all floors and their openings, not individual room coordinates or boundary gates. Trees and the driveway stay where placed. The first move stores the generated landscaping as explicit positions; older designs keep automatic landscaping until edited.
+- Tree centers and canopy extents must fit inside the lot. The driveway's rear-left corner moves while its front remains connected to the street; it must fit within the lot with positive depth. House placement outside the lot remains allowed with the existing warning. Tree/building overlaps, driveway access, and setbacks are not automatically resolved. Hiding landscaping or the driveway preserves its layout; lot resizing must still contain stored tree canopies and the driveway.
 - House X/Y offsets locate the common origin of every floor relative to the left/rear boundaries. Room X/Y positions stay relative to the house origin. The street is along the front/bottom boundary.
 - The overview reports lot area, building footprint, site coverage, and house height. Footprint is the union of enclosed room projections across all floors, excluding terraces and balconies; overlapping spaces count once for this metric.
 - Rooms extending beyond the property boundary remain visible and trigger a warning. This is not a setback, boundary survey, or zoning compliance check.

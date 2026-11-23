@@ -1,5 +1,7 @@
-import { TYPES, createProject, floorArea, projectStats, propertyStats, bounds, isOutdoor, exteriorRoomWalls, roomOutline, roomArea, roomCentroid, validateRoom, validateProject, validateProperty, makeRoom, parseProject, readProjectFile, hasRectangularOutline } from "./model.js?v=20261122-5";
-import { renderPropertyView } from "./property-view.js?v=20261122-6";
+import { TYPES, createProject, floorArea, projectStats, propertyStats, bounds, isOutdoor, exteriorRoomWalls, roomOutline, roomArea, roomCentroid, validateRoom, validateProject, validateProperty, makeRoom, parseProject, readProjectFile, hasRectangularOutline } from "./model.js?v=20261122-9";
+import { renderPropertyView } from "./property-view.js?v=20261122-9";
+import { propertyFeatures, propertyItem, movePropertyItem } from "./property-edit.js?v=20261122-9";
+import { setupResponsiveUI } from "./responsive-ui.js?v=20261122-12";
 import { renderFloor3D } from "./floor-view.js?v=20261122-5";
 import { cameraFromDrag, createCamera, DEFAULT_CAMERA, normalizeCamera } from "./camera.js";
 import { SAMPLE_DESIGNS, createSampleDesign } from "./samples.js?v=20261122-7";
@@ -73,6 +75,7 @@ let project = createProject();
 let activeFloor = project.floors[0].id;
 let selected = null;
 let selectedOpening = null;
+let selectedSite = null;
 let selectedCorner = null;
 let shiftSharedBoundaries = false;
 let keepRightAngles = true;
@@ -172,12 +175,18 @@ function history(redo = false) {
 }
 function selectFloor(id) {
   activeFloor = id; scope = "floor"; activePanel = "plan"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; render();
-  $(".sidebar").classList.remove("open");
+  responsiveUI.closeNavigation();
 }
 function setScope(value) {
   scope = value; activePanel = value === "property" ? "property" : "plan"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; render();
 }
 function render() {
+  if (scope !== "property" || view !== "2d") selectedSite = null;
+  else selectedSite ||= "house";
+  if (selectedSite && selectedSite !== "house") {
+    const features = propertyFeatures(project);
+    if (selectedSite === "driveway" ? !features.driveway : !features.trees[Number(selectedSite.slice(5))]) selectedSite = "house";
+  }
   if (!(project.features || []).some(feature => feature.id === selectedOpening && feature.roomId === selected && feature.floorId === activeFloor) || scope !== "floor" || view !== "2d") selectedOpening = null;
   const stats = projectStats(project);
   $("#sidebar-name").textContent = project.name;
@@ -198,7 +207,7 @@ function render() {
   $("#layer-furniture").disabled = scope === "property";
   $("#view-2d-label").textContent = scope === "property" ? "Site plan" : "2D plan";
   $("#tool-select").classList.toggle("active", tool === "select");
-  $("#tool-select").setAttribute("aria-label", view === "3d" ? "Rotate and select model" : "Select and move rooms");
+  $("#tool-select").setAttribute("aria-label", view === "3d" ? "Rotate and select model" : scope === "property" ? "Select and move site items" : "Select and move rooms");
   $("#tool-select").title = view === "3d" ? "Rotate & select (V)" : "Select & move (V)";
   $("#tool-pan").classList.toggle("active", tool === "pan");
   $("#drawing-surface").classList.toggle("pan-mode", tool === "pan");
@@ -221,7 +230,7 @@ function render() {
   $("#view-3d").setAttribute("aria-pressed", view === "3d");
   $("#zoom-value").textContent = `${Math.round(zoom * 100)}%`;
   $("#empty-floor").hidden = scope === "property" || floor().rooms.length > 0;
-  $("#canvas-help").textContent = tool === "pan" ? "Drag the canvas to pan · V to select" : view === "3d" ? "Drag to rotate · Click to edit · H to pan" : scope === "property" ? "Whole property · Click the house to edit a floor" : "Click a room to edit · Drag to rearrange";
+  $("#canvas-help").textContent = tool === "pan" ? "Drag the canvas to pan · V to select" : view === "3d" ? "Drag to rotate · Click to edit · H to pan" : scope === "property" ? "Drag house, trees or driveway · Arrow keys to nudge · H to pan" : "Click a room to edit · Drag to rearrange";
   renderPlan(); renderInspector();
   updateScale();
   $(".meta-date").textContent = `${project.style.toUpperCase()} RESIDENTIAL`;
@@ -272,8 +281,9 @@ function renderPlan() {
   const viewportWidth = Math.min(900, 690 * surface.width / Math.max(surface.height, 1));
   $("#plan").setAttribute("viewBox", `${450 - viewportWidth / 2} 0 ${viewportWidth} 690`);
   if (scope === "property") {
-    const result = renderPropertyView(project, { view, zoom, pan, dimensions, labels: $("#layer-labels").checked, roof: showRoof, viewportWidth, camera, units: unitSystem });
+    const result = renderPropertyView(project, { view, zoom, pan, dimensions, labels: $("#layer-labels").checked, roof: showRoof, viewportWidth, camera, units: unitSystem, editable: true, selectedSite, framing: drag?.mode === "site" ? drag.framing : null });
     drawing.scale = result.scale;
+    drawing.framing = result.framing;
     $("#plan").setAttribute("aria-label", `${project.name}, ${view === "3d" ? "full-house 3D view" : "property site plan"}, ${project.floors.length} floors on a ${lengthText(project.property.width)} by ${lengthText(project.property.depth)} lot`);
     $("#plan").innerHTML = result.markup;
     return;
@@ -466,7 +476,23 @@ function renderPropertyInspector() {
   $("#property-openings").onclick = () => architecturalFeatures();
   $("#property-openings").insertAdjacentHTML("afterend", '<button class="add-space-button" id="roof-details">Roof finish & parapets</button>');
   $("#roof-details").onclick = projectDialog;
+  if (view === "2d") {
+    $("#inspector-content").insertAdjacentHTML("afterbegin", siteControlsMarkup());
+    $("#site-position-form").onsubmit = event => {
+      event.preventDefault();
+      const item = propertyItem(project, selectedSite), data = new FormData(event.currentTarget);
+      change(() => { project = movePropertyItem(project, selectedSite, toMeters(Number(data.get("x")), unitSystem) - item.x, toMeters(Number(data.get("y")), unitSystem) - item.y); });
+    };
+    $("#site-item").onchange = event => { selectedSite = event.target.value; render(); };
+  }
   if ($("#show-roof")) $("#show-roof").onchange = event => { showRoof = event.target.checked; renderPlan(); };
+}
+function siteControlsMarkup() {
+  const features = propertyFeatures(project);
+  const items = [["house", "Whole house"], ...(features.driveway ? [["driveway", "Driveway"]] : []), ...features.trees.map((tree, index) => [`tree-${index}`, `Tree ${index + 1}`])];
+  const id = selectedSite || "house", item = propertyItem(project, id);
+  const field = (axis, label) => `<div class="property-field"><label for="site-${axis}">${label} (${lengthUnit(unitSystem)})</label><input id="site-${axis}" name="${axis}" type="number" step="any" value="${fromMeters(item[axis], unitSystem)}" required></div>`;
+  return `<form id="site-position-form" class="site-controls"><span class="property-label">ARRANGE YOUR PROPERTY</span><p class="dialog-note">Drag an item on the site plan, or set its position below. Arrow keys move 0.1 m; Shift moves 0.5 m. Escape cancels a drag.</p><div class="property-field"><label for="site-item">Site item</label><select id="site-item">${items.map(([value, name]) => `<option value="${value}" ${id === value ? "selected" : ""}>${name}</option>`).join("")}</select></div><div class="field-row">${field("x", "Position X")}${field("y", "Position Y")}</div><button class="add-space-button" type="submit">Update position</button><p class="dialog-note">House positions use its origin; trees use their centers; driveway positions use its rear-left corner. The driveway stays connected to the street. Trees and driveways must fit inside the lot. Building/tree overlaps and setbacks are not checked.</p><div class="inspector-divider"></div></form>`;
 }
 function propertyDialog() {
   const p = project.property;
@@ -477,7 +503,7 @@ function propertyDialog() {
   $("#property-form").onsubmit = event => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const updated = { roadName: String(data.get("roadName")).trim(), landscaping: data.has("landscaping"), driveway: data.has("driveway") };
+    const updated = { ...p, roadName: String(data.get("roadName")).trim(), landscaping: data.has("landscaping"), driveway: data.has("driveway") };
     updated.fence = { enabled: data.has("fence-enabled"), height: toMeters(Number(data.get("fence-height")), unitSystem), style: data.get("fence-style"), material: data.get("fence-material") };
     for (const key of ["width", "depth", "houseX", "houseY"]) updated[key] = toMeters(Number(data.get(key)), unitSystem);
     try { validateProperty(updated); } catch (error) { toast(error.message, true); return; }
@@ -728,6 +754,7 @@ function svgPoint(event) {
 }
 
 hydrateIcons();
+const responsiveUI = setupResponsiveUI();
 $("#sample-count").textContent = SAMPLE_DESIGNS.length;
 $("#space-library").innerHTML = ["bedroom", "bathroom", "kitchen", "living", "dining", "stairs", "hallway", "closet"].map(type => `<button class="library-item" data-add-type="${type}" title="Add ${TYPES[type].name.toLowerCase()}">${icon(TYPES[type].icon)}${TYPES[type].name}</button>`).join("");
 document.addEventListener("click", event => {
@@ -752,7 +779,7 @@ document.addEventListener("click", event => {
     };
     activePanel = panel.dataset.panel;
     panels[panel.dataset.panel]();
-    $(".sidebar").classList.remove("open");
+    responsiveUI.closeNavigation();
   }
 });
 $("#plan").addEventListener("pointerdown", event => {
@@ -771,6 +798,13 @@ $("#plan").addEventListener("pointerdown", event => {
       featureId,
     };
     $("#drawing-surface").classList.add("orbiting");
+  } else if (scope === "property") {
+    const site = event.target.closest("[data-site-item]");
+    selectedSite = site?.dataset.siteItem || null;
+    if (site) {
+      drag = { mode: "site", id: selectedSite, start: point, clientStart: { x: event.clientX, y: event.clientY }, before: snapshot(), scale: drawing.scale, framing: drawing.framing, moved: false };
+    }
+    render();
   } else if (feature) {
     selected = feature.roomId;
     selectedOpening = feature.id;
@@ -781,13 +815,6 @@ $("#plan").addEventListener("pointerdown", event => {
       drawing: { ...drawing }, scale: drawing.scale, moved: false,
     };
     render();
-  } else if (scope === "property") {
-    const building = event.target.closest("[data-property-floor]");
-    if (building) {
-      selectFloor(building.dataset.propertyFloor);
-      if (target) selected = target.dataset.room;
-      render();
-    }
   } else if (target) {
     selectedOpening = null;
     const previousSelected = selected;
@@ -820,6 +847,16 @@ $("#plan").addEventListener("pointermove", event => {
   const point = svgPoint(event);
   const dx = (point.x - drag.start.x) / zoom, dy = (point.y - drag.start.y) / zoom;
   if (drag.mode === "pan") { pan = { x: drag.pan.x + dx * zoom, y: drag.pan.y + dy * zoom }; renderPlan(); }
+  else if (drag.mode === "site") {
+    if (!drag.started && Math.hypot(event.clientX - drag.clientStart.x, event.clientY - drag.clientStart.y) <= 4) return;
+    drag.started = true;
+    try {
+      project = movePropertyItem(JSON.parse(drag.before), drag.id, Math.round(dx / drag.scale * 10) / 10, Math.round(dy / drag.scale * 10) / 10);
+      drag.error = null;
+      drag.moved = snapshot() !== drag.before;
+    } catch (error) { drag.error = error.message; }
+    renderPlan();
+  }
   else if (drag.mode === "opening") {
     if (!drag.started && Math.hypot(event.clientX - drag.clientStart.x, event.clientY - drag.clientStart.y) <= 4) return;
     drag.started = true;
@@ -861,16 +898,17 @@ function endDrag(event, cancelled = false) {
   $("#drawing-surface").classList.remove("orbiting");
   if ($("#plan").hasPointerCapture(event.pointerId)) $("#plan").releasePointerCapture(event.pointerId);
   if (cancelled || previous.error) {
-    if (["room", "wall", "corner", "opening"].includes(previous.mode)) project = JSON.parse(previous.before);
+    if (["room", "wall", "corner", "opening", "site"].includes(previous.mode)) project = JSON.parse(previous.before);
     if (previous.mode === "orbit") camera = previous.camera;
     if (previous.mode === "pan") pan = previous.pan;
     if (previous.error && !cancelled) toast(previous.error, true);
-  } else if (["room", "wall", "corner", "opening"].includes(previous.mode) && previous.moved) {
+  } else if (["room", "wall", "corner", "opening", "site"].includes(previous.mode) && previous.moved) {
     try { validateProject(project); commit(previous.before); }
     catch (error) { project = JSON.parse(previous.before); toast(error.message, true); }
   }
   else if (previous.mode === "opening" && !previous.started && previous.action === "move") {
     render();
+    if (previous.mode === "site") $(`#plan [data-site-item="${previous.id}"]`)?.focus();
     const root = [...$("#plan").querySelectorAll(".opening-controls")].find(el => el.dataset.feature === previous.id);
     root?.querySelector('[data-opening-action="move"]')?.focus();
     return;
@@ -888,9 +926,20 @@ $("#plan").addEventListener("pointerup", endDrag);
 $("#plan").addEventListener("pointercancel", event => endDrag(event, true));
 $("#plan").addEventListener("lostpointercapture", event => endDrag(event, true));
 $("#plan").addEventListener("keydown", event => {
-  if (drag?.mode === "opening") return;
+  if (drag) return;
   const handle = event.target.closest("[data-wall], [data-corner]");
   const arrows = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+  const siteId = event.target.closest("[data-site-item]")?.dataset.siteItem;
+  if (siteId && scope === "property" && view === "2d" && tool !== "pan" && !event.metaKey && !event.ctrlKey && !event.altKey && (arrows[event.key] || ["Enter", " "].includes(event.key))) {
+    event.preventDefault();
+    selectedSite = siteId;
+    if (arrows[event.key]) {
+      const [dx, dy] = arrows[event.key].map(value => value * (event.shiftKey ? .5 : .1));
+      change(() => { project = movePropertyItem(project, siteId, dx, dy); });
+    } else render();
+    $(`#plan [data-site-item="${siteId}"]`)?.focus();
+    return;
+  }
   const featureId = event.target.closest("[data-feature]")?.dataset.feature;
   const feature = (project.features || []).find(item => item.id === featureId);
   if (feature && ["door", "window"].includes(feature.type) && arrows[event.key] && view === "2d" && scope === "floor" && tool !== "pan" && !drag && !event.metaKey && !event.ctrlKey && !event.altKey) {
@@ -963,15 +1012,14 @@ $("#zoom-out").onclick = () => setZoom(zoom - .1);
 $("#zoom-fit").onclick = () => { zoom = 1; pan = { x: 0, y: 0 }; render(); };
 $("#close-dialog").onclick = closeDialog;
 $("#app-dialog").addEventListener("click", event => { if (event.target === $("#app-dialog")) { const r = event.currentTarget.getBoundingClientRect(); if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) closeDialog(); } });
-$("#mobile-menu").onclick = () => $(".sidebar").classList.toggle("open");
 $("#shortcuts-button").onclick = shortcutsDialog;
 $("#about-button").onclick = () => showDialog("A space for possibility.", '<p class="dialog-description">Forma is your personal contemporary home-design studio. Compose spaces, explore proportions, and imagine everyday life in a home that feels like you.</p><p class="dialog-description">Your project stays in this browser. Download a project file to keep a backup or continue in another browser. No account, no cloud, just room to create.</p><p class="dialog-note">The Forma logo returns to this workspace. Concept planning only. Walls, doors, windows, and furniture are illustrative; plans are not code-checked or construction-ready.</p>', "WELCOME TO FORMA");
 document.addEventListener("keydown", event => {
   const editing = ["INPUT", "SELECT", "TEXTAREA"].includes(event.target.tagName);
-  if (event.key === "Escape" && drag?.mode === "opening") {
+  if (event.key === "Escape" && ["opening", "site"].includes(drag?.mode)) {
     event.preventDefault(); endDrag({ pointerId: drag.pointerId }, true); return;
   }
-  if (drag?.mode === "opening") { event.preventDefault(); return; }
+  if (["opening", "site"].includes(drag?.mode)) { event.preventDefault(); return; }
   if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") { event.preventDefault(); applyChanges(); return; }
   if (editing || $("#app-dialog").open) return;
   if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "z") { event.preventDefault(); history(event.shiftKey); }
@@ -979,7 +1027,7 @@ document.addEventListener("keydown", event => {
   else if (event.key === "Escape") {
     if (selectedOpening) selectedOpening = null;
     else selected = null;
-    $(".sidebar").classList.remove("open"); render();
+    responsiveUI.closeNavigation(); render();
   }
   else if (event.key.toLowerCase() === "v") setTool("select");
   else if (event.key.toLowerCase() === "h") setTool("pan");
@@ -990,7 +1038,11 @@ document.addEventListener("keydown", event => {
   }
 });
 render();
-new ResizeObserver(() => { renderPlan(); updateScale(); }).observe($("#plan"));
+let resizeFrame;
+new ResizeObserver(() => {
+  cancelAnimationFrame(resizeFrame);
+  resizeFrame = requestAnimationFrame(() => { renderPlan(); updateScale(); });
+}).observe($("#drawing-surface"));
 $(".meta-date").textContent = `${project.style.toUpperCase()} RESIDENTIAL`;
 if (restoreError) $("#save-state").textContent = "Local restore failed";
 const startupErrors = [restoreError, unitPreferenceError].filter(Boolean);

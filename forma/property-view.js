@@ -1,34 +1,15 @@
-import { TYPES, bounds, isOutdoor, exteriorWalls, exteriorRoomWalls, roomVertices, roomCentroid, propertyStats } from "./model.js?v=20261122-5";
+import { TYPES, bounds, isOutdoor, exteriorWalls, exteriorRoomWalls, roomVertices, roomCentroid, propertyStats } from "./model.js?v=20261122-9";
 import { createCamera, DEFAULT_CAMERA, sortFaces } from "./camera.js";
 import { featureHost, featureVertices, featureMarkup, railingMarkup, boundaryFence, fenceSettings, fenceMarkup } from "./architecture.js?v=20261122-5";
 import { formatLength } from "./units.js";
 import { railingSettings, roofSettings, surfaceMarkup, roofEdgeDetails, exposedRoofEdge, namespaceScene } from "./envelope.js?v=20261122-6";
+import { propertyFeatures } from "./property-edit.js?v=20261122-9";
+export { propertyFeatures } from "./property-edit.js?v=20261122-9";
 
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const number = value => Number(value.toFixed(2));
 
-export function propertyFeatures(project) {
-  const p = project.property;
-  const rooms = project.floors.flatMap(f => f.rooms).map(r => ({ ...r, x: r.x + p.houseX, y: r.y + p.houseY }));
-  const b = bounds(rooms);
-  const garage = project.floors[0].rooms.find(r => r.type === "garage");
-  const driveWidth = garage ? Math.min(garage.width, 5) : 3.2;
-  const driveX = Math.max(.5, Math.min(p.width - driveWidth - .5, garage ? garage.x + p.houseX : b.x + b.width - driveWidth));
-  const driveY = Math.max(0, Math.min(p.depth, garage ? garage.y + p.houseY + garage.depth : b.y + b.depth));
-  const driveway = p.driveway && rooms.length && driveY < p.depth ? { x: driveX, y: driveY, width: driveWidth, depth: p.depth - driveY } : null;
-  const trees = [];
-  if (p.landscaping) {
-    for (const [px, py, size] of [[.12, .13, 1.4], [.34, .1, 1.2], [.76, .12, 1.5], [.9, .3, 1.3], [.1, .52, 1.2], [.9, .66, 1.4], [.14, .82, 1.4], [.34, .9, 1.1]]) {
-      const x = p.width * px, y = p.depth * py, radius = Math.min(size, p.width * .065, p.depth * .065);
-      const occupied = rooms.some(r => x + radius > r.x - .5 && x - radius < r.x + r.width + .5 && y + radius > r.y - .5 && y - radius < r.y + r.depth + .5);
-      const onDrive = driveway && x + radius > driveway.x && x - radius < driveway.x + driveway.width && y + radius > driveway.y;
-      if (!occupied && !onDrive) trees.push({ x, y, radius });
-    }
-  }
-  return { trees, driveway };
-}
-
-export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 0, y: 0 }, dimensions = true, labels = true, roof = true, viewportWidth = 900, camera: angles = DEFAULT_CAMERA, units = "metric", idPrefix = "" } = {}) {
+export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 0, y: 0 }, dimensions = true, labels = true, roof = true, viewportWidth = 900, camera: angles = DEFAULT_CAMERA, units = "metric", idPrefix = "", editable = false, selectedSite = null, framing = null } = {}) {
   const iso = view === "3d";
   const camera = createCamera(angles), projectPoint = camera.project;
   const p = project.property;
@@ -47,8 +28,8 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
     ...(project.features || []).flatMap(feature => featureVertices(feature, featureHost(project, feature), feature.type === "gate" ? 0 : project.floors.findIndex(f => f.id === feature.floorId) * project.ceiling, feature.type === "gate" ? { x: 0, y: 0 } : { x: p.houseX, y: p.houseY }).map(v => projectPoint(...v))),
     ...fenceSegments.flatMap(segment => segment.vertices.map(v => projectPoint(...v))),
   ] : world.map(([x, y]) => ({ x, y }));
-  const left = Math.min(...projected.map(v => v.x)), right = Math.max(...projected.map(v => v.x));
-  const top = Math.min(...projected.map(v => v.y)), bottom = Math.max(...projected.map(v => v.y));
+  const left = framing?.left ?? Math.min(...projected.map(v => v.x)), right = framing?.right ?? Math.max(...projected.map(v => v.x));
+  const top = framing?.top ?? Math.min(...projected.map(v => v.y)), bottom = framing?.bottom ?? Math.max(...projected.map(v => v.y));
   const scale = Math.min(Math.max(100, viewportWidth - 160) / (right - left), 510 / (bottom - top));
   const point = (x, y, z = 0) => {
     const v = iso ? projectPoint(x, y, z) : { x, y };
@@ -57,9 +38,10 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
   const points = list => list.map(([x, y, z = 0]) => { const v = point(x, y, z); return `${v.x},${v.y}`; }).join(" ");
   const polygon = (list, fill, extra = "") => `<polygon points="${points(list)}" fill="${fill}" stroke="#94a387" stroke-width=".7" ${extra}/>`;
   const rect = (x, y, width, depth, z = 0) => [[x, y, z], [x + width, y, z], [x + width, y + depth, z], [x, y + depth, z]];
-  const text = (x, y, label, options = "") => `<text x="${x}" y="${y}" fill="#687f5c" font-family="Arial,sans-serif" font-size="8" text-anchor="middle" ${options}>${escape(label)}</text>`;
+  const text = (x, y, label, options = "") => `<text x="${x}" y="${y}" fill="#687f5c" font-family="Arial,sans-serif" font-size="8" text-anchor="middle" pointer-events="none" ${options}>${escape(label)}</text>`;
   const worldText = (x, y, label, z = 0, options = "") => { const v = point(x, y, z); return text(v.x, v.y, label, options); };
   const features = propertyFeatures(project);
+  const itemAttrs = (id, name) => !iso && editable ? `data-site-item="${id}" class="site-item${id === selectedSite ? " site-selected" : ""}" tabindex="0" role="button" aria-label="Move ${name}" aria-pressed="${id === selectedSite}"` : "";
   const roofSpec = roofSettings(project);
   let markup = `<g class="property-scene" transform="translate(${450 + pan.x} ${345 + pan.y}) scale(${zoom}) translate(-450 -345)">`;
   markup += `<defs>
@@ -79,9 +61,11 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
   if (labels) markup += worldText(p.width * .24, p.depth + 5.3, p.roadName.toUpperCase(), 0, 'letter-spacing="2.5"');
   if (features.driveway) {
     const d = features.driveway;
+    markup += `<g ${itemAttrs("driveway", "driveway")}>`;
     markup += polygon(rect(d.x, d.y, d.width, d.depth), "#dddcd0", 'data-property-driveway="true"');
     markup += polygon(rect(d.x, p.depth, d.width, 1.7), "#dddcd0");
     if (labels && d.depth > 3 && !iso) markup += worldText(d.x + d.width / 2, d.y + d.depth / 2, "DRIVE", 0, 'style="font-size:6px" letter-spacing="1"');
+    markup += "</g>";
   }
   markup += polygon(rect(0, 0, p.width, p.depth), "none", 'style="stroke:#779067;stroke-width:1.2;stroke-dasharray:5 4" data-property-boundary="true"');
   for (const tree of features.trees) {
@@ -217,8 +201,9 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
     if (labels) markup += text(450, 621, `${project.floors.length} ${project.floors.length === 1 ? "LEVEL" : "LEVELS"} · ${formatLength(height, units)} HIGH · ${roof ? "EXTERIOR STUDY" : "OPEN-TOP STUDY"}`, 'letter-spacing="1.6"');
   } else {
     const ground = project.floors[0];
+    markup += `<g ${itemAttrs("house", "whole house")}>`;
     for (const r of ground.rooms) {
-      markup += `<g class="property-floor" data-property-floor="${escape(ground.id)}" data-room="${escape(r.id)}" role="button" tabindex="0" aria-label="Edit ${escape(r.name)}">`;
+      markup += `<g class="property-floor" data-property-floor="${escape(ground.id)}" data-room="${escape(r.id)}"${editable ? "" : ` role="button" tabindex="0" aria-label="Edit ${escape(r.name)}"`}>`;
       markup += polygon(roomVertices(r).map(([x, y]) => [x + p.houseX, y + p.houseY]), TYPES[r.type].color, `style="stroke:#67785b;stroke-width:1.4" data-room="${escape(r.id)}"`);
       const [cx, cy] = roomCentroid(r);
       if (labels) markup += worldText(r.x + cx + p.houseX, r.y + cy + p.houseY, r.name.toUpperCase(), 0, `style="font-size:${Math.min(8, r.width * scale / (r.name.length * .65))}px"`);
@@ -227,7 +212,7 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
     project.floors.forEach((f, index) => {
       if (!index) return;
       markup += `<g data-site-upper-floor="${escape(f.id)}" pointer-events="none">`;
-      for (const r of f.rooms) markup += polygon(roomVertices(r).map(([x, y]) => [x + p.houseX, y + p.houseY]), "none", 'style="stroke:#7d957d;stroke-dasharray:4 3;stroke-width:1"');
+      for (const r of f.rooms) markup += polygon(roomVertices(r).map(([x, y]) => [x + p.houseX, y + p.houseY]), "none", `style="stroke:#7d957d;stroke-dasharray:4 3;stroke-width:1${editable ? ";pointer-events:all" : ""}"`);
       markup += "</g>";
     });
     for (const wall of exteriorRoomWalls(ground.rooms).filter(w => w.room.railing)) {
@@ -235,13 +220,15 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
       const edge = (v, up) => [v[0] + p.houseX, v[1] + p.houseY, up];
       markup += railingMarkup([edge(wall.a, 0), edge(wall.b, 0), edge(wall.b, height), edge(wall.a, height)], point, wall.room, true, units);
     }
-    for (const segment of fenceSegments) markup += fenceMarkup(segment.vertices, fence, point, true, units);
-    for (const feature of (project.features || []).filter(f => f.type === "gate" || f.floorId === ground.id)) {
-      markup += featureMarkup(feature, featureVertices(feature, featureHost(project, feature), 0, feature.type === "gate" ? { x: 0, y: 0 } : { x: p.houseX, y: p.houseY }), point, true, units);
+    for (const feature of (project.features || []).filter(f => f.type !== "gate" && f.floorId === ground.id)) {
+      markup += featureMarkup(feature, featureVertices(feature, featureHost(project, feature), 0, { x: p.houseX, y: p.houseY }), point, true, units);
     }
-    for (const tree of features.trees) {
+    markup += "</g>";
+    for (const segment of fenceSegments) markup += fenceMarkup(segment.vertices, fence, point, true, units);
+    for (const feature of (project.features || []).filter(f => f.type === "gate")) markup += featureMarkup(feature, featureVertices(feature, featureHost(project, feature)), point, true, units);
+    for (const [index, tree] of features.trees.entries()) {
       const v = point(tree.x, tree.y), radius = tree.radius * scale;
-      markup += `<g data-landscape-tree="true"><circle cx="${v.x}" cy="${v.y}" r="${radius}" fill="#bdcfa6" stroke="#98b185" stroke-width=".8"/><path d="M${v.x - radius * .7} ${v.y}h${radius * 1.4}m${-radius * .7} ${-radius * .7}v${radius * 1.4}" stroke="#91a77e" stroke-width=".7"/><circle cx="${v.x}" cy="${v.y}" r="${radius * .65}" fill="#a8bf9170" stroke="#a0b88c" stroke-width=".5"/></g>`;
+      markup += `<g data-landscape-tree="true" ${itemAttrs(`tree-${index}`, `tree ${index + 1}`)}><circle cx="${v.x}" cy="${v.y}" r="${radius}" fill="#bdcfa6" stroke="#98b185" stroke-width=".8"/><path d="M${v.x - radius * .7} ${v.y}h${radius * 1.4}m${-radius * .7} ${-radius * .7}v${radius * 1.4}" stroke="#91a77e" stroke-width=".7"/><circle cx="${v.x}" cy="${v.y}" r="${radius * .65}" fill="#a8bf9170" stroke="#a0b88c" stroke-width=".5"/></g>`;
     }
     if (labels) {
       markup += worldText(p.width * .5, p.depth * .08, "REAR GARDEN", 0, 'letter-spacing="2"');
@@ -256,7 +243,7 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
     markup += text((c.x + d.x) / 2 - 16, (c.y + d.y) / 2, formatLength(p.depth, units));
   }
   markup += "</g>";
-  return { markup: namespaceScene(markup, idPrefix), scale };
+  return { markup: namespaceScene(markup, idPrefix), scale, framing: { left, right, top, bottom } };
 
   function tree3d(tree) {
     const base = point(tree.x, tree.y), top = point(tree.x, tree.y, tree.radius * 1.8);

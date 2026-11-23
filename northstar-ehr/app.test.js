@@ -6,6 +6,7 @@ import vm from "node:vm";
 const script = readFileSync(new URL("./medication-catalog.js", import.meta.url), "utf8") +
   "\n" + readFileSync(new URL("./rxnorm-catalog.js", import.meta.url), "utf8") +
   "\n" + readFileSync(new URL("./procedure-catalog.js", import.meta.url), "utf8") +
+  "\n" + readFileSync(new URL("./surgical-catalog.js", import.meta.url), "utf8") +
   "\n" + readFileSync(new URL("./app.js", import.meta.url), "utf8");
 const storageKey = "northstar-ehr-state-v3";
 
@@ -34,10 +35,25 @@ test("procedure catalog is bounded, unique, and searchable by name and specialty
   assert.equal(vm.runInContext('searchProcedures("no such procedure").length', context), 0);
 });
 
+test("surgical operations are unique, bounded, and searchable alongside existing procedures", () => {
+  const { context } = setup();
+  const operations = context.window.NORTHSTAR_SURGICAL_OPERATIONS;
+  assert.ok(operations.length > 200 && operations.length <= 1000);
+  assert.equal(new Set(operations.map((entry) => entry.name.toLowerCase())).size, operations.length);
+  assert.ok(operations.every((entry) => entry.name && entry.category));
+  assert.equal(vm.runInContext('searchProcedures("coronary artery bypass", "surgical")[0].name', context), "Coronary artery bypass grafting");
+  assert.ok(vm.runInContext('searchProcedures("orthopedic fracture", "surgical").length', context) > 0);
+  assert.equal(vm.runInContext('searchProcedures("colonoscopy", "surgical").length', context), 0);
+  assert.equal(vm.runInContext('searchProcedures("appendectomy").filter(item => item.name === "Appendectomy").length', context), 1);
+  assert.equal(vm.runInContext('searchProcedures("cardiology pacemaker insertion").length', context), 1);
+  assert.equal(vm.runInContext('new Set(procedureCatalog.map(item => item.name.toLowerCase())).size === procedureCatalog.length', context), true);
+  assert.ok(vm.runInContext('searchProcedures("", "surgical").every(item => item.surgical)', context));
+});
+
 test("procedure results paginate, reset on new searches, and honor order permissions", () => {
   const { context } = setup();
   const elements = new Map([
-    ["procedureSearch", { value: "" }],
+    ["procedureSearch", { value: "" }], ["procedureKind", { value: "all" }],
     ["procedureSearchStatus", {}], ["procedureResults", {}], ["procedurePage", {}],
     ["procedurePrevious", {}], ["procedureNext", {}]
   ]);
@@ -67,7 +83,7 @@ test("catalog selection fills a procedure order, which persists with structured 
     category: { value: "Procedure" }, title: { value: "" },
     procedureName: { value: "", focus() {} }
   } };
-  context.document = { getElementById: (id) => id === "orderForm" ? form : { value: "colonoscopy" } };
+  context.document = { getElementById: (id) => id === "orderForm" ? form : { value: id === "procedureKind" ? "all" : "colonoscopy" } };
   vm.runInContext("selectCatalogProcedure(0)", context);
   assert.equal(form.elements.title.value, "Colonoscopy");
   assert.equal(form.elements.procedureName.value, "Colonoscopy");
@@ -87,6 +103,30 @@ test("catalog selection fills a procedure order, which persists with structured 
   assert.equal(vm.runInContext("patients[0].orders[0].title", restored.context), "Colonoscopy");
   assert.equal(vm.runInContext('createOrderForPatient(patients[0], {category:"Procedure", title:"Manual procedure", procedureName:"Manual procedure"}, "staff").allowed', context), false);
   assert.equal(vm.runInContext('createOrderForPatient(patients[0], {category:"Procedure", title:"Manual procedure", procedureName:"Manual procedure"}).allowed', context), true);
+});
+
+test("selecting a filtered surgical operation saves and restores a procedure order", () => {
+  const { context, storage } = setup();
+  const form = { elements: {
+    category: { value: "Procedure" }, title: { value: "" },
+    procedureName: { value: "", focus() {} }
+  } };
+  const elements = {
+    orderForm: form, procedureSearch: { value: "coronary artery bypass" }, procedureKind: { value: "surgical" }
+  };
+  context.document = { getElementById: (id) => elements[id] };
+  vm.runInContext("selectCatalogProcedure(0)", context);
+  assert.equal(form.elements.title.value, "Coronary artery bypass grafting");
+  assert.equal(form.elements.procedureName.value, form.elements.title.value);
+  context.orderData = {
+    category: "Procedure", title: form.elements.title.value, procedureName: form.elements.procedureName.value,
+    procedureIndication: "Demo indication", procedureConsent: "Pending", procedureSedation: "Anesthesia review required"
+  };
+  assert.equal(vm.runInContext("createOrderForPatient(patients[0], orderData).allowed", context), true);
+  const restored = setup("clinician", storage);
+  assert.equal(vm.runInContext("patients[0].orders[0].title", restored.context), form.elements.title.value);
+  assert.equal(vm.runInContext('patients[0].orders[0].fields.find(field => field.label === "Procedure").value', restored.context), form.elements.title.value);
+  assert.equal(vm.runInContext('createOrderForPatient(patients[0], orderData, "staff").allowed', context), false);
 });
 
 test("registration creates a persistent intake profile and opens triage without inventing clinical data", () => {

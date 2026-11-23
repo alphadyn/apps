@@ -4599,17 +4599,26 @@ let activeOrderTemplate = "";
 let activeDocumentTemplate = "";
 let procedurePage = 0;
 const procedurePageSize = 15;
+const surgicalOperationNames = new Set(window.NORTHSTAR_SURGICAL_OPERATIONS.map((operation) => operation.name.toLowerCase()));
+const procedureCategories = new Map(window.NORTHSTAR_PROCEDURES.map((procedure) => [procedure.name.toLowerCase(), procedure.category]));
+const procedureCatalog = [
+  ...window.NORTHSTAR_PROCEDURES.filter((procedure) => !surgicalOperationNames.has(procedure.name.toLowerCase()))
+    .map((procedure) => ({ ...procedure, surgical: false })),
+  ...window.NORTHSTAR_SURGICAL_OPERATIONS.map((operation) => ({
+    ...operation, surgical: true, originalCategory: procedureCategories.get(operation.name.toLowerCase()) || ""
+  }))
+];
 
-function searchProcedures(query) {
+function searchProcedures(query, kind = "all") {
   const terms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
-  return window.NORTHSTAR_PROCEDURES.filter((procedure) => {
-    const text = `${procedure.name} ${procedure.category}`.toLowerCase();
-    return terms.every((term) => text.includes(term));
+  return procedureCatalog.filter((procedure) => {
+    const text = `${procedure.name} ${procedure.category} ${procedure.originalCategory || ""} ${procedure.surgical ? "surgical operation" : ""}`.toLowerCase();
+    return (kind !== "surgical" || procedure.surgical) && terms.every((term) => text.includes(term));
   });
 }
 
 function renderProcedureCatalog() {
-  const matches = searchProcedures(document.getElementById("procedureSearch").value);
+  const matches = searchProcedures(document.getElementById("procedureSearch").value, document.getElementById("procedureKind").value);
   const pages = Math.max(1, Math.ceil(matches.length / procedurePageSize));
   procedurePage = Math.min(procedurePage, pages - 1);
   const start = procedurePage * procedurePageSize;
@@ -4618,7 +4627,7 @@ function renderProcedureCatalog() {
   document.getElementById("procedureResults").innerHTML = matches.length
     ? matches.slice(start, start + procedurePageSize).map((procedure, index) => `
       <button class="ghost-btn procedure-result" type="button" data-procedure-index="${start + index}">
-        <strong>${escapeHtml(procedure.name)}</strong><span>${escapeHtml(procedure.category)}</span>
+        <strong>${escapeHtml(procedure.name)}</strong><span>${escapeHtml(procedure.category)}${procedure.surgical ? " · Surgical operation" : ""}</span>
       </button>`).join("")
     : '<p class="empty-state">No matching procedures. Try another search or enter a procedure manually below.</p>';
   document.getElementById("procedurePage").textContent = `Page ${procedurePage + 1} of ${pages}`;
@@ -4631,7 +4640,7 @@ function renderProcedureCatalog() {
 function selectCatalogProcedure(index) {
   const form = document.getElementById("orderForm");
   if (!hasPermission(currentUser.role, "order:create") || form.elements.category.value !== "Procedure") return;
-  const procedure = searchProcedures(document.getElementById("procedureSearch").value)[index];
+  const procedure = searchProcedures(document.getElementById("procedureSearch").value, document.getElementById("procedureKind").value)[index];
   if (!procedure) return;
   form.elements.title.value = procedure.name;
   form.elements.procedureName.value = procedure.name;
@@ -5339,6 +5348,10 @@ function attachEvents() {
   document.getElementById("documentForm").addEventListener("submit", handleDocumentSubmit);
   document.querySelector('#orderForm [name="category"]').addEventListener("change", renderOrderFields);
   document.getElementById("procedureSearch").addEventListener("input", () => {
+    procedurePage = 0;
+    renderProcedureCatalog();
+  });
+  document.getElementById("procedureKind").addEventListener("change", () => {
     procedurePage = 0;
     renderProcedureCatalog();
   });

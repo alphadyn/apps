@@ -76,8 +76,9 @@ follows the demo encounter-create role permission; dispensing remains separate.
   Laboratory requests link to results; medication requests link to the prescription
   and dispensing workflow. Completing an order does not create a lab result or
   record administration/dispensing.
-- **Procedure catalog:** In a selected patient's Orders, choose **Procedure** and
-  search by name or specialty. Browse results with Previous and Next, and select
+- **Procedure and surgical operation catalog:** In a selected patient's Orders,
+  choose **Procedure** and search by name or specialty. Use the catalog filter to
+  show surgical operations. Browse results with Previous and Next, and select
   a procedure to fill the request and procedure fields. Complete the remaining
   required details before saving; free-text procedure orders remain available.
   The catalog is an illustrative, non-exhaustive list, not validated clinical

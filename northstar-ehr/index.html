@@ -406,11 +406,17 @@
               </div>
               <section id="procedureCatalog" class="procedure-catalog" aria-labelledby="procedureCatalogHeading" hidden>
                 <div>
-                  <strong id="procedureCatalogHeading">Procedure catalog</strong>
-                  <p class="muted-copy">Search by procedure or specialty, then select a result to fill the order. You can also enter a procedure manually.</p>
+                  <strong id="procedureCatalogHeading">Procedure and surgical operation catalog</strong>
+                  <p class="muted-copy">Search by name or specialty, then select a result to fill the order. You can also enter a procedure manually.</p>
                 </div>
                 <label for="procedureSearch">Search procedures
                   <input id="procedureSearch" type="search" placeholder="e.g., colonoscopy or cardiology" autocomplete="off" />
+                </label>
+                <label for="procedureKind">Catalog filter
+                  <select id="procedureKind">
+                    <option value="all">All procedures and operations</option>
+                    <option value="surgical">Surgical operations</option>
+                  </select>
                 </label>
                 <p id="procedureSearchStatus" class="muted-copy" role="status" aria-live="polite"></p>
                 <div id="procedureResults" class="procedure-results"></div>
@@ -661,6 +667,7 @@
     <script src="medication-catalog.js?v=1"></script>
     <script src="rxnorm-catalog.js?v=1"></script>
     <script src="procedure-catalog.js?v=1"></script>
-    <script src="app.js?v=17"></script>
+    <script src="surgical-catalog.js?v=1"></script>
+    <script src="app.js?v=18"></script>
   </body>
 </html>

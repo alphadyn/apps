@@ -830,7 +830,7 @@ textarea {
   margin-top: 12px;
 }
 
-.pharmacy-patient-context .treatment-navigation {
+.pharmacy-patient-context .treatment-navigation:not(.pharmacy-navigation) {
   display: none;
 }
 

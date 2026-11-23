@@ -3871,7 +3871,7 @@ function renderPatientTreatmentNavigation() {
   container.classList.toggle("pharmacy-patient-context", currentView === "dispensary");
   const routes = [
     ["patients", "Chart"], ["orders", "Orders"], ["labs", "Labs & results"],
-    ["medications", "Medications"], ["dispensary", "Formulary & dispensing"]
+    ["medications", "Medications"], ["dispensary", "Formulary"]
   ];
   container.innerHTML = `
     <div class="treatment-context">
@@ -3886,6 +3886,13 @@ function renderPatientTreatmentNavigation() {
     </nav>
     <p id="treatmentStatus" class="status-message" role="status"></p>`;
   container.querySelector("#treatmentPatient").value = `${patient.name} · ${patient.mrn}`;
+}
+
+function positionPharmacyNavigation() {
+  const navigation = document.querySelector("#extendedContent .pharmacy-navigation, #patientWorkflowSection .pharmacy-navigation");
+  if (!navigation) return;
+  const target = document.getElementById(pharmacyMode === "dispensing" ? "patientWorkflowSection" : "extendedContent");
+  target.prepend(navigation);
 }
 
 function openTreatmentWorkflow(view, patientId = selectedPatientId) {
@@ -4024,6 +4031,7 @@ function renderDispensaryView(container) {
     if (!button) return;
     pharmacyMode = button.dataset.pharmacyMode;
     applyPharmacyMode();
+    positionPharmacyNavigation();
   });
   applyPharmacyMode();
   const medicationSelect = container.querySelector("#dispensaryMedication");
@@ -4833,6 +4841,7 @@ function render() {
   renderPatientList();
   renderPatientDetail();
   renderPatientTreatmentNavigation();
+  positionPharmacyNavigation();
   renderAppointments();
   renderOutpatientAppointments();
   renderSnapshot();

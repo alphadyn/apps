@@ -3831,6 +3831,36 @@ textarea {
   padding-bottom: 16px;
 }
 
+.order-record-details,
+.order-scheduler {
+  margin-top: 12px;
+}
+
+.order-record-details > summary,
+.order-scheduler > summary {
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.order-record-details > summary:focus-visible,
+.order-scheduler > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.order-record-details[open] > summary,
+.order-scheduler[open] > summary {
+  margin-bottom: 12px;
+}
+
+.order-scheduler .clinical-form {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #f8fcfb;
+}
+
 .document-fields {
   background: #fff;
 }

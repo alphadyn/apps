@@ -35,6 +35,28 @@ test("procedure catalog is bounded, unique, and searchable by name and specialty
   assert.equal(vm.runInContext('searchProcedures("no such procedure").length', context), 0);
 });
 
+test("orders screen starts with a collapsed composer and keeps saved details available", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /<details id="orderComposer" class="document-composer order-composer">/);
+  assert.match(html, /<strong>New order<\/strong>/);
+  const { context } = setup();
+  vm.runInContext(`patients[0].orders = [{
+    id: "demo-order", category: "Procedure", priority: "Routine", status: "Pending",
+    title: "Demo procedure", details: "Demo instructions", time: "Today",
+    fields: [{ label: "Procedure", value: "Demo procedure" }]
+  }]`, context);
+  const elements = new Map([["ordersList", {}], ["orderCount", {}], ["orderComposer", { open: false }]]);
+  context.document = { getElementById: (id) => elements.get(id) };
+  vm.runInContext("renderOrders()", context);
+  const rendered = elements.get("ordersList").innerHTML;
+  assert.match(rendered, /<details class="order-record-details">/);
+  assert.match(rendered, /Demo instructions/);
+  assert.match(rendered, /Schedule this order/);
+  assert.match(rendered, /Acknowledge/);
+  vm.runInContext("openOrderComposer()", context);
+  assert.equal(elements.get("orderComposer").open, true);
+});
+
 test("surgical operations are unique, bounded, and searchable alongside existing procedures", () => {
   const { context } = setup();
   const operations = context.window.NORTHSTAR_SURGICAL_OPERATIONS;

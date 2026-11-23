@@ -25,7 +25,7 @@
     <meta name="twitter:description" content="Explore fictional patient charts, admissions, care teams, timelines, orders, and notes." />
     <meta name="twitter:image" content="https://alphadyn.github.io/apps/northstar-ehr/social-preview.png" />
     <meta name="twitter:image:alt" content="Northstar EHR clinical operations demo, showing a fictional patient chart and timeline." />
-    <link rel="stylesheet" href="styles.css?v=19" />
+    <link rel="stylesheet" href="styles.css?v=20" />
   </head>
   <body>
     <main id="loginScreen" class="login-screen">
@@ -396,6 +396,12 @@
               </div>
               <span class="pill" id="orderCount">0 orders</span>
             </div>
+            <details id="orderComposer" class="document-composer order-composer">
+              <summary>
+                <span class="document-composer-icon" aria-hidden="true">+</span>
+                <span class="document-composer-heading"><strong>New order</strong><span>Choose a category and add a request</span></span>
+                <span class="document-composer-chevron" aria-hidden="true"></span>
+              </summary>
             <form id="orderForm" class="clinical-form">
               <p class="muted-copy">Use <button class="text-btn" type="button" data-treatment-view="medications">Medications &amp; prescriptions</button> for a catalog-based prescription, or record a general medication request here.</p>
               <div class="row">
@@ -441,7 +447,11 @@
               <button class="primary-btn" type="submit">Add order</button>
               <p class="form-caution">Demo only: orders are not transmitted, verified, or executed. A licensed clinician must review all clinical decisions.</p>
             </form>
-            <div id="ordersList" class="record-list"></div>
+            </details>
+            <section class="saved-documents" aria-labelledby="savedOrdersTitle">
+              <h4 id="savedOrdersTitle">Patient orders</h4>
+              <div id="ordersList" class="record-list"></div>
+            </section>
           </div>
 
           <div class="panel clinical-subview documents-panel" data-clinical-panel="documents">
@@ -672,6 +682,6 @@
     <script src="rxnorm-catalog.js?v=1"></script>
     <script src="procedure-catalog.js?v=1"></script>
     <script src="surgical-catalog.js?v=1"></script>
-    <script src="app.js?v=23"></script>
+    <script src="app.js?v=24"></script>
   </body>
 </html>

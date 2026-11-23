@@ -4818,6 +4818,10 @@ function renderOrderFields() {
   if (category === "Procedure") renderProcedureCatalog();
 }
 
+function openOrderComposer() {
+  document.getElementById("orderComposer").open = true;
+}
+
 function renderDocumentFields() {
   const type = document.querySelector('#documentForm [name="type"]').value;
   const form = document.getElementById("documentForm");
@@ -4853,13 +4857,16 @@ function renderOrders() {
             </div>
             <span class="status-pill status-${escapeHtml(order.status.toLowerCase())}">${escapeHtml(order.status)}</span>
           </div>
-          ${order.details ? `<p>${escapeHtml(order.details)}</p>` : ""}
-          ${order.fields?.length ? `<dl class="structured-record-fields">
-            ${order.fields.map((field) => `<div><dt>${escapeHtml(field.label)}</dt><dd>${escapeHtml(field.value)}</dd></div>`).join("")}
-          </dl>` : ""}
+          ${order.details || order.fields?.length ? `<details class="order-record-details">
+            <summary>Order details</summary>
+            ${order.details ? `<p>${escapeHtml(order.details)}</p>` : ""}
+            ${order.fields?.length ? `<dl class="structured-record-fields">
+              ${order.fields.map((field) => `<div><dt>${escapeHtml(field.label)}</dt><dd>${escapeHtml(field.value)}</dd></div>`).join("")}
+            </dl>` : ""}
+          </details>` : ""}
           ${appointments.map((appointment) => `<p>Appointment: ${escapeHtml(formatDisplayDate(appointment.scheduledAt))} at ${escapeHtml(appointment.time)} · ${escapeHtml(appointment.status)}
             <button class="text-btn" type="button" data-order-appointment="${escapeHtml(appointment.id)}">View appointment</button></p>`).join("")}
-          ${canSchedule ? `<details><summary>Schedule this order</summary>
+          ${canSchedule ? `<details class="order-scheduler"><summary>Schedule this order</summary>
             <form class="clinical-form" data-schedule-order="${escapeHtml(order.id)}">
               <div class="row"><label>Date<input name="scheduledAt" type="date" required /></label><label>Time<input name="time" type="time" required /></label></div>
               <label>Provider<input name="provider" type="text" value="${escapeHtml(patient.provider || "")}" required /></label>
@@ -5192,6 +5199,7 @@ function handleOrderSubmit(event) {
   form.reset();
   procedurePage = 0;
   renderOrderFields();
+  document.getElementById("orderComposer").open = false;
   render();
 }
 
@@ -5332,6 +5340,7 @@ function attachEvents() {
     }
     render();
     if (navigation.dataset.orderCategory) {
+      openOrderComposer();
       const category = document.getElementById("orderForm").elements.category;
       category.value = navigation.dataset.orderCategory;
       renderOrderFields();
@@ -5378,6 +5387,7 @@ function attachEvents() {
       openTreatmentWorkflow("orders", matches[0].id);
       render();
       const form = document.getElementById("orderForm");
+      openOrderComposer();
       form.elements.category.value = "Procedure";
       renderOrderFields();
       delete orderFieldDrafts.Procedure;
@@ -5396,7 +5406,7 @@ function attachEvents() {
     const profileOrder = event.target.closest("[data-profile-order]");
     if (profileOrder) {
       const result = openTreatmentWorkflow("orders", profileOrder.dataset.profileOrder);
-      if (result.allowed) { render(); scrollToWorkspaceTop(); }
+      if (result.allowed) { render(); openOrderComposer(); scrollToWorkspaceTop(); }
       return;
     }
     if (event.target.closest("[data-register-patient]")) {

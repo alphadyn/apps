@@ -1,6 +1,6 @@
 import { TYPES, createProject, floorArea, projectStats, propertyStats, bounds, isOutdoor, exteriorRoomWalls, roomOutline, roomArea, roomCentroid, validateRoom, validateProject, validateProperty, makeRoom, parseProject, readProjectFile, hasRectangularOutline } from "./model.js?v=20261117-1";
-import { renderPropertyView } from "./property-view.js";
-import { renderFloor3D } from "./floor-view.js";
+import { renderPropertyView } from "./property-view.js?v=20261122-3";
+import { renderFloor3D } from "./floor-view.js?v=20261122-1";
 import { cameraFromDrag, createCamera, DEFAULT_CAMERA, normalizeCamera } from "./camera.js";
 import { SAMPLE_DESIGNS, createSampleDesign } from "./samples.js";
 import { featureHost, featureVertices, featureMarkup, fenceSettings, FEATURE_MATERIALS } from "./architecture.js";

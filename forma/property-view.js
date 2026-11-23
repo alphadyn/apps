@@ -60,7 +60,14 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
   const worldText = (x, y, label, z = 0, options = "") => { const v = point(x, y, z); return text(v.x, v.y, label, options); };
   const features = propertyFeatures(project);
   let markup = `<g class="property-scene" transform="translate(${450 + pan.x} ${345 + pan.y}) scale(${zoom}) translate(-450 -345)">`;
-  markup += `<defs><pattern id="property-grass" width="13" height="13" patternUnits="userSpaceOnUse"><path d="m3 5 1-2m4 7 1-2" stroke="#859e70" stroke-width=".6" opacity=".22"/></pattern></defs>`;
+  markup += `<defs>
+    <pattern id="property-grass" width="13" height="13" patternUnits="userSpaceOnUse"><path d="m3 5 1-2m4 7 1-2" stroke="#859e70" stroke-width=".6" opacity=".22"/></pattern>
+    <pattern id="property-roof" width="18" height="18" patternUnits="userSpaceOnUse"><rect width="18" height="18" fill="#d9dece"/><path d="M0 9h18M9 0v9" fill="none" stroke="#89917e" stroke-width=".45" opacity=".35"/></pattern>
+    <pattern id="property-facade" width="12" height="12" patternUnits="userSpaceOnUse"><path d="M0 11.5h12" fill="none" stroke="#b3b5a8" stroke-width=".45" opacity=".45"/></pattern>
+    <linearGradient id="property-glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d0e0d9"/><stop offset=".48" stop-color="#75958d"/><stop offset="1" stop-color="#526d68"/></linearGradient>
+    <linearGradient id="property-facade-light" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f0eee4"/><stop offset="1" stop-color="#d9ddd1"/></linearGradient>
+    <linearGradient id="property-facade-shade" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d7ddd1"/><stop offset="1" stop-color="#bfc9bc"/></linearGradient>
+  </defs>`;
   markup += polygon(rect(0, 0, p.width, p.depth, -.15), "#b5c5a1", 'data-property-lot="true"');
   markup += polygon(rect(0, 0, p.width, p.depth), "#d8e2c6");
   markup += polygon(rect(0, 0, p.width, p.depth), "url(#property-grass)", 'style="stroke:none"');
@@ -81,6 +88,16 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
   }
 
   if (iso) {
+    if (allRooms.length) {
+      const houseX = p.houseX + b.x, houseY = p.houseY + b.y;
+      markup += polygon(rect(houseX + .55, houseY + .8, b.width, b.depth, -.08), "#56634b30", 'style="stroke:none" data-house-shadow="true"');
+      if (features.driveway) {
+        const d = features.driveway;
+        for (let y = d.y + .7; y < p.depth; y += 1.4) {
+          markup += `<polyline points="${points([[d.x, y, .01], [d.x + d.width, y, .01]])}" fill="none" stroke="#a9aaa0" stroke-width=".45" opacity=".5"/>`;
+        }
+      }
+    }
     const scene = [];
     const addFace = (vertices, fill, extra, floor, index) => {
       scene.push({ vertices, markup: polygon(vertices, fill, extra), floor, index });
@@ -92,10 +109,10 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
       for (const r of f.rooms) {
         const x = r.x + p.houseX, y = r.y + p.houseY;
         const isDeck = isOutdoor(r);
-        const vertices = roomVertices(r).map(([px, py]) => [px + p.houseX, py + p.houseY, z + .08]);
+        const vertices = roomVertices(r).map(([px, py]) => [px + p.houseX, py + p.houseY, z]);
         let surface = polygon(vertices, isDeck ? "#b9b696" : "#cbd0bf");
         if (isDeck && !r.outline) {
-          for (let step = .35; step < r.width; step += .35) surface += `<polyline points="${points([[x + step, y, z + .08], [x + step, y + r.depth, z + .08]])}" stroke="#9c9e7d" stroke-width=".5" fill="none"/>`;
+          for (let step = .35; step < r.width; step += .35) surface += `<polyline points="${points([[x + step, y, z], [x + step, y + r.depth, z]])}" stroke="#9c9e7d" stroke-width=".5" fill="none"/>`;
         }
         scene.push({ vertices, markup: surface, floor: f, index });
       }
@@ -107,19 +124,30 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
         const wallPoint = (along, up) => vertical ? [at, along, up] : [along, at, up];
         const wallHeight = roof ? project.ceiling : Math.min(project.ceiling * .5, 1.5);
         const wallRect = (a, b, low, high) => [wallPoint(a, low), wallPoint(b, low), wallPoint(b, high), wallPoint(a, high)];
-        const vertices = wallRect(from, to, z + .08, z + wallHeight);
-        let surface = polygon(vertices, vertical ? "#bfc9b7" : "#e7e8dc", `data-exterior-wall="${wall.axis}"`);
-        surface += polygon(wallRect(from, to, z + wallHeight - .14, z + wallHeight), "#f2f1e7");
+        const vertices = wallRect(from, to, z, z + wallHeight);
+        const facade = vertical ? "url(#property-facade-shade)" : "url(#property-facade-light)";
+        let surface = polygon(vertices, facade, `data-exterior-wall="${wall.axis}"`);
+        surface += polygon(vertices, "url(#property-facade)", 'style="stroke:none" data-facade-finish="true"');
+        surface += polygon(wallRect(from, to, z, z + .26), "#b8bbae", 'style="stroke:none" data-facade-plinth="true"');
+        surface += `<polyline points="${points([wallPoint(from, z + wallHeight - .12), wallPoint(to, z + wallHeight - .12)])}" fill="none" stroke="#f5f2e8" stroke-width="1.2" opacity=".8"/>`;
         const span = to - from;
         const specified = (project.features || []).filter(item => item.floorId === f.id && item.roomId === wall.room.id);
         if (!specified.length && roof && span > 1.1 && wall.room.type !== "stairs") {
           const inset = Math.min(.55, span * .17);
           const low = wall.room.type === "garage" ? z + .15 : z + project.ceiling * .25;
           const high = z + project.ceiling * .79;
-          const glass = wall.room.type === "garage" ? "#a4ad97" : "#8fa89e";
-          surface += polygon(wallRect(from + inset, to - inset, low, high), glass, 'style="stroke:#738a7b;stroke-width:.7" data-exterior-window="true"');
-          const middle = (from + to) / 2;
-          surface += `<polyline points="${points([wallPoint(middle, low), wallPoint(middle, high)])}" fill="none" stroke="#dce4d8" stroke-width="1"/>`;
+          const windowFrom = from + inset, windowTo = to - inset;
+          surface += polygon(wallRect(windowFrom, windowTo, low, high), "#596b63", 'style="stroke:#596b63;stroke-width:1" data-exterior-window="true"');
+          surface += polygon(wallRect(windowFrom + .08, windowTo - .08, low + .08, high - .08), wall.room.type === "garage" ? "#a4ad97" : "url(#property-glass)", 'style="stroke:#d9e1d7;stroke-width:.5" data-window-glass="true"');
+          const mullionCount = Math.max(1, Math.floor((windowTo - windowFrom) / 1.6));
+          for (let mullion = 1; mullion <= mullionCount; mullion++) {
+            const at = windowFrom + (windowTo - windowFrom) * mullion / (mullionCount + 1);
+            surface += polygon(wallRect(at - .025, at + .025, low + .04, high - .04), "#d8dfd5", 'style="stroke:none" data-window-mullion="true"');
+          }
+          surface += polygon(wallRect(windowFrom - .08, windowTo + .08, low - .1, low - .025), "#e8e5d9", 'style="stroke:none" data-window-sill="true"');
+          const reflectionTop = wallPoint(windowFrom + (windowTo - windowFrom) * .16, high - .14);
+          const reflectionBottom = wallPoint(windowFrom + (windowTo - windowFrom) * .4, low + .1);
+          surface += `<polyline points="${points([reflectionTop, reflectionBottom])}" fill="none" stroke="#e4eee6" stroke-width=".8" opacity=".55"/>`;
           if (wall.room.type === "garage") {
             for (let h = low + .3; h < high; h += .3) surface += `<polyline points="${points([wallPoint(from + inset, h), wallPoint(to - inset, h)])}" fill="none" stroke="#7c8b73" stroke-width=".6"/>`;
           }
@@ -138,7 +166,7 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
       for (const wall of exteriorRoomWalls(enclosed).filter(edge => Math.abs(edge.b[0] - edge.a[0]) > 1e-8 && Math.abs(edge.b[1] - edge.a[1]) > 1e-8 && edge.normal[0] * camera.toward.x + edge.normal[1] * camera.toward.y > 0)) {
         const edge = (point, up) => [point[0] + p.houseX, point[1] + p.houseY, up];
         const wallHeight = roof ? project.ceiling : Math.min(project.ceiling * .5, 1.5);
-        const vertices = [edge(wall.a, z + .08), edge(wall.b, z + .08), edge(wall.b, z + wallHeight), edge(wall.a, z + wallHeight)];
+        const vertices = [edge(wall.a, z), edge(wall.b, z), edge(wall.b, z + wallHeight), edge(wall.a, z + wallHeight)];
         scene.push({ vertices, markup: polygon(vertices, "#d5dbce", 'data-exterior-wall="custom"'), floor: f, index });
       }
       for (const wall of exteriorRoomWalls(f.rooms).filter(w => w.room.railing)) {
@@ -147,7 +175,7 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
         scene.push({ vertices, markup: railingMarkup(vertices, point), floor: f, index });
       }
       if (roof) {
-        for (const r of enclosed) addFace(roomVertices(r).map(([x, y]) => [x + p.houseX, y + p.houseY, z + project.ceiling]), index === project.floors.length - 1 ? "#d9dece" : "#ecece0", `style="stroke:#a8b39c;stroke-width:.5" data-roof-level="${index}"`, f, index);
+        for (const r of enclosed) addFace(roomVertices(r).map(([x, y]) => [x + p.houseX, y + p.houseY, z + project.ceiling]), index === project.floors.length - 1 ? "url(#property-roof)" : "#ecece0", `style="stroke:${index === project.floors.length - 1 ? "#d9dece" : "#ecece0"};stroke-width:.5;stroke-linejoin:round" data-roof-level="${index}"`, f, index);
       }
     });
     for (const segment of fenceSegments) {
@@ -208,6 +236,6 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
   function tree3d(tree) {
     const base = point(tree.x, tree.y), top = point(tree.x, tree.y, tree.radius * 1.8);
     const radius = tree.radius * scale;
-    return `<g data-landscape-tree="true" pointer-events="none"><path d="M${base.x} ${base.y}V${top.y}" stroke="#8b9b77" stroke-width="2"/><ellipse cx="${top.x}" cy="${top.y}" rx="${radius}" ry="${radius * .8}" fill="#b5c99d" stroke="#96ae7f" stroke-width=".8"/><ellipse cx="${top.x - radius * .15}" cy="${top.y - radius * .2}" rx="${radius * .7}" ry="${radius * .6}" fill="#c6d6b3" stroke="#a8be93" stroke-width=".6"/></g>`;
+    return `<g data-landscape-tree="true" data-tree-canopy="true" pointer-events="none"><path d="M${base.x} ${base.y}L${top.x} ${top.y + radius * .38}" stroke="#887b61" stroke-width="${Math.max(1, radius * .1)}"/><ellipse cx="${top.x}" cy="${top.y + radius * .28}" rx="${radius}" ry="${radius * .55}" fill="#78906c" opacity=".4"/><ellipse cx="${top.x}" cy="${top.y}" rx="${radius * .78}" ry="${radius * .68}" fill="#a2bc88" stroke="#819b6f" stroke-width=".7"/><ellipse cx="${top.x - radius * .32}" cy="${top.y + radius * .12}" rx="${radius * .48}" ry="${radius * .48}" fill="#b5c99d" stroke="#91a980" stroke-width=".55"/><ellipse cx="${top.x + radius * .32}" cy="${top.y + radius * .08}" rx="${radius * .46}" ry="${radius * .45}" fill="#c1d2a7" stroke="#9bb387" stroke-width=".55"/><ellipse cx="${top.x}" cy="${top.y - radius * .22}" rx="${radius * .42}" ry="${radius * .38}" fill="#c8d8ae" opacity=".8"/></g>`;
   }
 }

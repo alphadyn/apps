@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createProject } from "./model.js";
+import { createProject, createRoom } from "./model.js";
 import { renderPropertyView, propertyFeatures } from "./property-view.js";
 
 test("site plan shows the lot, street, ground rooms and all upper footprints", () => {
@@ -35,6 +35,47 @@ test("full-house 3D stacks every floor with exterior windows and optional roofs"
   assert.ok(open.includes("OPEN-TOP STUDY"));
   assert.ok(!open.includes("data-roof-level"));
   assert.ok(!open.includes("data-exterior-window"));
+});
+
+test("full-house 3D adds layered facade, window, roof, shadow, and landscape detail", () => {
+  const { markup } = renderPropertyView(createProject(), { view: "3d" });
+  for (const marker of ['data-facade-finish="true"', 'data-facade-plinth="true"', 'data-window-glass="true"', 'data-window-mullion="true"', 'data-window-sill="true"', 'url(#property-roof)', 'data-house-shadow="true"', 'data-tree-canopy="true"']) {
+    assert.ok(markup.includes(marker), marker);
+  }
+  assert.doesNotMatch(markup, /NaN|undefined|Infinity/);
+});
+
+test("roof textures have an opaque base so lower floors cannot show through", () => {
+  const { markup } = renderPropertyView(createProject(), { view: "3d" });
+  const pattern = markup.match(/<pattern id="property-roof"[^>]*>([\s\S]*?)<\/pattern>/)[1];
+  assert.match(pattern, /<rect width="18" height="18" fill="#d9dece"\/>/);
+  assert.match(markup, /style="stroke:#d9dece;stroke-width:\.5;stroke-linejoin:round" data-roof-level=/);
+});
+
+test("stacked facades meet exactly at floor elevations throughout orbit and tilt", () => {
+  for (const outline of [undefined, [[0, 0], [6, 0], [6, 2], [3, 5], [0, 5]]]) {
+    const project = createProject();
+    project.floors = ["lower", "upper"].map(id => ({
+      id, name: id, rooms: [{ ...createRoom(`${id}-room`, "living", id, 0, 0, 6, 5), ...(outline ? { outline } : {}) }],
+    }));
+    for (const yaw of [0, 45, 90, 135, 180, 225, 270, 315]) {
+      for (const pitch of [10, 30, 70, 80]) {
+        const { markup } = renderPropertyView(project, { view: "3d", camera: { yaw, pitch } });
+        const levels = { lower: new Map(), upper: new Map() };
+        for (const group of markup.matchAll(/<g class="property-floor" data-property-floor="([^"]+)"[^>]*>([\s\S]*?)<\/g>/g)) {
+          for (const face of group[2].matchAll(/<polygon points="([^"]+)"[^>]*data-exterior-wall="([^"]+)"/g)) {
+            levels[group[1]].set(face[2], face[1].split(" "));
+          }
+        }
+        assert.ok(levels.lower.size > 0, `visible facade at ${yaw}/${pitch}`);
+        assert.equal(levels.lower.size, levels.upper.size);
+        for (const [side, lower] of levels.lower) {
+          const upper = levels.upper.get(side);
+          assert.deepEqual([lower[3], lower[2]], upper.slice(0, 2), `${side} joins at ${yaw}/${pitch}`);
+        }
+      }
+    }
+  }
 });
 
 test("landscape and driveway settings are reflected in both property views", () => {

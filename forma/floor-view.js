@@ -1,4 +1,4 @@
-import { bounds, isOutdoor, TYPES, exteriorRoomWalls, roomVertices, roomCentroid } from "./model.js";
+import { bounds, isOutdoor, TYPES, exteriorWalls, exteriorRoomWalls, roomVertices, roomCentroid } from "./model.js";
 import { createCamera, DEFAULT_CAMERA, sortFaces } from "./camera.js";
 import { featureVertices, featureMarkup, railingMarkup } from "./architecture.js";
 
@@ -14,26 +14,94 @@ export function renderFloor3D(rooms, { camera: angles = DEFAULT_CAMERA, ceiling 
   const minY = Math.min(...projected.map(p => p.y)), maxY = Math.max(...projected.map(p => p.y));
   const scale = Math.min(Math.min(660, Math.max(100, viewportWidth - 140)) / (maxX - minX), 460 / (maxY - minY));
   const point = v => { const p = camera.project(...v); return { x: (p.x - (minX + maxX) / 2) * scale + 450, y: (p.y - (minY + maxY) / 2) * scale + 350 }; };
-  const polygon = (vertices, fill, extra = "") => `<polygon points="${vertices.map(v => { const p = point(v); return `${p.x},${p.y}`; }).join(" ")}" fill="${fill}" stroke="#7b8d72" stroke-width="1" ${extra}/>`;
+  const points = vertices => vertices.map(v => { const p = point(v); return `${p.x},${p.y}`; }).join(" ");
+  const polygon = (vertices, fill, extra = "") => `<polygon points="${points(vertices)}" fill="${fill}" stroke="#7b8d72" stroke-width="1" ${extra}/>`;
   const scene = [];
   const add = (vertices, fill, room, extra = "") => scene.push({ vertices, markup: polygon(vertices, fill, extra), room });
+  const box = (room, x, y, w, d, z, height, top, side, kind) => {
+    const tag = `data-furniture="${kind}"`;
+    const face = (vertices, fill) => add(vertices, fill, room, tag);
+    face(rect(x, y, w, d, z + height), top);
+    if (camera.toward.x >= 0) face([[x + w, y, z], [x + w, y + d, z], [x + w, y + d, z + height], [x + w, y, z + height]], side);
+    else face([[x, y + d, z], [x, y, z], [x, y, z + height], [x, y + d, z + height]], side);
+    if (camera.toward.y >= 0) face([[x, y + d, z], [x + w, y + d, z], [x + w, y + d, z + height], [x, y + d, z + height]], side);
+    else face([[x + w, y, z], [x, y, z], [x, y, z + height], [x + w, y, z + height]], side);
+  };
+  const addFurnishings = room => {
+    const { x, y, width: w, depth: d } = room;
+    if (room.type === "bedroom") {
+      const bx = x + w * .17, by = y + d * .12, bw = w * .66, bd = d * .72;
+      box(room, bx, by, bw, bd, .04, .18, "#987f65", "#806b57", "bed-frame");
+      box(room, bx + .06, by + .04, bw - .12, bd - .1, .22, .08, "#f0ece1", "#d4cfc2", "mattress");
+      box(room, bx + .08, by + bd * .38, bw - .16, bd * .52, .31, .035, "#d5d9c9", "#c4cbb9", "duvet");
+      box(room, bx + .1, by + .08, bw * .34, bd * .17, .32, .025, "#fbf8ef", "#ddd8cc", "pillow");
+      box(room, bx + bw * .56, by + .08, bw * .34, bd * .17, .32, .025, "#fbf8ef", "#ddd8cc", "pillow");
+    } else if (room.type === "living") {
+      const sx = x + w * .15, sy = y + d * .16, sw = w * .7, sd = d * .3;
+      box(room, sx, sy, sw, sd, .04, .2, "#8b9b84", "#75836e", "sofa-base");
+      box(room, sx + .04, sy + sd * .67, sw - .08, sd * .33, .2, .34, "#73856f", "#63745f", "sofa-back");
+      box(room, sx, sy, sw * .13, sd, .2, .2, "#869781", "#71816d", "sofa-arm");
+      box(room, sx + sw * .87, sy, sw * .13, sd, .2, .2, "#869781", "#71816d", "sofa-arm");
+      box(room, x + w * .35, y + d * .57, w * .3, d * .18, .04, .24, "#a68d70", "#8d775f", "coffee-table");
+    } else if (room.type === "dining") {
+      const tx = x + w * .24, ty = y + d * .27, tw = w * .52, td = d * .35;
+      box(room, tx, ty, tw, td, .28, .07, "#9c8060", "#80684f", "dining-table");
+      for (const [cx, cy] of [[tx + tw * .08, ty - d * .13], [tx + tw * .62, ty - d * .13], [tx + tw * .08, ty + td + d * .05], [tx + tw * .62, ty + td + d * .05]]) {
+        box(room, cx, cy, tw * .3, d * .12, .04, .12, "#87927c", "#707c68", "dining-chair");
+        box(room, cx + tw * .04, cy + d * .08, tw * .22, d * .04, .16, .18, "#77846e", "#64715e", "chair-back");
+      }
+    } else if (room.type === "kitchen") {
+      const counter = "#e5e1d4", cabinet = "#a9a28d";
+      box(room, x + w * .08, y + d * .12, w * .84, d * .17, .04, .72, counter, cabinet, "kitchen-counter");
+      box(room, x + w * .08, y + d * .29, w * .84, d * .015, .42, .025, "#f5f2e8", "#f5f2e8", "counter-edge");
+      box(room, x + w * .08, y + d * .12, w * .17, d * .62, .04, .72, counter, cabinet, "kitchen-island");
+    } else if (room.type === "office") {
+      box(room, x + w * .16, y + d * .14, w * .68, d * .26, .34, .07, "#9b8060", "#80684f", "desk");
+      box(room, x + w * .38, y + d * .55, w * .24, d * .16, .16, .22, "#77846e", "#64715e", "office-chair");
+      box(room, x + w * .39, y + d * .68, w * .22, d * .06, .38, .19, "#6b7965", "#5a6855", "chair-back");
+    } else if (room.type === "bathroom") {
+      box(room, x + w * .09, y + d * .12, w * .42, d * .2, .04, .72, "#e5e2d7", "#c6c7bb", "vanity");
+      box(room, x + w * .16, y + d * .18, w * .28, d * .08, .76, .025, "#fbfaf4", "#e7e5dc", "basin");
+      box(room, x + w * .58, y + d * .16, w * .3, d * .56, .04, .18, "#f2f1e9", "#d8d9d0", "bath");
+      box(room, x + w * .62, y + d * .2, w * .22, d * .45, .22, .018, "#d4e0dc", "#c2cfca", "bath-water");
+    } else if (room.type === "terrace" || room.type === "balcony") {
+      box(room, x + w * .35, y + d * .28, w * .3, d * .32, .14, .06, "#a18a69", "#887353", "outdoor-table");
+      for (const [cx, cy] of [[x + w * .14, y + d * .34], [x + w * .72, y + d * .34], [x + w * .4, y + d * .68]]) {
+        box(room, cx, cy, w * .16, d * .13, .04, .1, "#9ba28d", "#7d8773", "outdoor-chair");
+      }
+    }
+  };
+  const floorTexture = (room, index) => {
+    const material = room.material || "oak";
+    const colors = { oak: "#d8cfb9", tile: "#d5ddd7", deck: "#c5c2a8", concrete: "#c9cdc6" };
+    const boundary = roomVertices(room).map(([x, y]) => [x, y, .006]);
+    const id = `floor-material-${index}`;
+    let detail = "";
+    const line = vertices => `<path d="M${vertices.map(v => { const p = point(v); return `${p.x} ${p.y}`; }).join("L")}" fill="none" stroke="#66715e" stroke-width=".55" opacity=".22"/>`;
+    if (material === "oak" || material === "deck") {
+      const step = material === "deck" ? .22 : .3;
+      for (let row = 1, y = room.y + step; y < room.y + room.depth; row++, y += step) {
+        detail += line([[room.x, y, .008], [room.x + room.width, y, .008]]);
+        const joint = room.x + room.width * (row % 2 ? .35 : .68);
+        detail += line([[joint, y - step, .008], [joint, y, .008]]);
+      }
+    } else if (material === "tile") {
+      for (let x = room.x + .6; x < room.x + room.width; x += .6) detail += line([[x, room.y, .008], [x, room.y + room.depth, .008]]);
+      for (let y = room.y + .6; y < room.y + room.depth; y += .6) detail += line([[room.x, y, .008], [room.x + room.width, y, .008]]);
+    }
+    return `<defs><clipPath id="${id}"><polygon points="${points(boundary)}"/></clipPath></defs><g clip-path="url(#${id})">${polygon(roomVertices(room).map(([x, y]) => [x, y, .004]), colors[material] || colors.oak, 'style="stroke:none"')}${detail}</g>`;
+  };
   let markup = `<g class="floor-scene" transform="translate(${450 + pan.x} ${345 + pan.y}) scale(${zoom}) translate(-450 -345)">`;
   markup += polygon(rect(b.x - .6, b.y - .6, b.width + 1.2, b.depth + 1.2, -.2), "#d8e1c9");
-  for (const room of rooms) {
+  for (const [roomIndex, room] of rooms.entries()) {
     const { x, y, width: w, depth: d } = room;
     const h = isOutdoor(room) ? .13 : wallHeight;
-    add(roomVertices(room).map(([px, py]) => [px, py, 0]), TYPES[room.type].color, room, room.id === selected ? 'style="stroke:#38885c;stroke-width:3"' : "");
+    const floor = roomVertices(room).map(([px, py]) => [px, py, 0]);
+    scene.push({ vertices: floor, room, markup: polygon(floor, TYPES[room.type].color, room.id === selected ? 'style="stroke:#38885c;stroke-width:3"' : "") + floorTexture(room, roomIndex) });
     if (furniture && !room.outline) {
       if (room.type === "stairs") {
         for (let i = 1; i < 10; i++) add(rect(x + .1, y + d * i / 10, w - .2, d / 10, .03), i % 2 ? "#e5e7db" : "#cbd2bd", room);
-      } else {
-        const fx = x + w * .24, fy = y + d * .25, fw = w * .48, fd = d * .3;
-        const nearX = camera.toward.x >= 0 ? fx + fw : fx;
-        const nearY = camera.toward.y >= 0 ? fy + fd : fy;
-        add([[nearX, fy, 0], [nearX, fy + fd, 0], [nearX, fy + fd, .15], [nearX, fy, .15]], "#b9c3aa", room);
-        add([[fx, nearY, 0], [fx + fw, nearY, 0], [fx + fw, nearY, .15], [fx, nearY, .15]], "#b9c3aa", room);
-        add(rect(fx, fy, fw, fd, .15), room.type === "bedroom" ? "#f1eee3" : "#d1d6c3", room);
-      }
+      } else addFurnishings(room);
     }
     if (labels) {
       const [cx, cy] = roomCentroid(room), location = [x + cx, y + cy, .02], p = point(location);

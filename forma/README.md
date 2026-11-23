@@ -27,7 +27,7 @@ Metadata changes appear on the public URL after deployment. Messaging apps and r
 - Enable **Adjust adjoining rooms** in **Space properties** to also reshape touching rooms on the active floor. Partial shared edges gain matching corners at junctions; disconnected rooms and other floors are unchanged. This option is off by default, so existing single-room editing remains available.
 - Add or remove corners for custom outlines of up to 12 corners. Rectangular wall resizing retains door/window specifications when they still fit. Remove specifications before making a host room nonrectangular. Invalid edits (including too-small rooms, crossing walls, excess corners, or openings that no longer fit) are rejected with an error; invalid drags roll back the entire gesture. Each valid drag is one undoable edit and stays pending until **Apply changes**.
 - Add up to eight floors, switch floors, and remove floors with undo support.
-- Explore the active floor in 2D or an axonometric 3D concept view with partial-height walls.
+- Explore the active floor in 2D or an axonometric 3D concept view with partial-height walls, material-specific floor detailing, and room-appropriate illustrative furniture.
 - Pan, zoom, fit the plan, and toggle dimensions, furniture, labels, and the grid.
 - Undo and redo up to 60 project edits. Shortcuts are available at the bottom of the workspace.
 - Design edits stay pending until **Apply changes**; **Revert** discards everything since the last apply. Reloading also discards pending changes after a confirmation.
@@ -114,7 +114,8 @@ Roof access, edge protection, loading, drainage, waterproofing, staircase geomet
 Select **House & property** in the sidebar, or **Property** above the canvas:
 
 - **Site plan** shows the entire rectangular lot, ground-floor spaces, dashed upper-floor footprints, landscaping, driveway, street frontage, and lot dimensions.
-- **3D view** assembles every floor at its actual level into one contemporary exterior concept on the lot. Windows, roofs, deck surfaces, trees, and the street are illustrative. Toggle **Show full-height walls & roofs** for an open-top study, or select a floor to edit its interior.
+- **3D view** assembles every floor at its actual level into one contemporary exterior concept on the lot, with shaded facades, framed glazing, a finished roof surface, and layered landscaping. Windows, roofs, deck surfaces, shadows, trees, and paving are illustrative, not construction details. Toggle **Show full-height walls & roofs** for an open-top study, or select a floor to edit its interior.
+- Full-house roofs are opaque and exterior walls join at floor elevations, keeping the closed exterior solid as you rotate or tilt. Only the open-top study intentionally exposes the interior.
 - **Edit property** controls lot width/depth (8–200 m), the house origin, street name, landscaping, and the driveway. These controls are also available through project settings.
 - House X/Y offsets locate the common origin of every floor relative to the left/rear boundaries. Room X/Y positions stay relative to the house origin. The street is along the front/bottom boundary.
 - The overview reports lot area, building footprint, site coverage, and house height. Footprint is the union of enclosed room projections across all floors, excluding terraces and balconies; overlapping spaces count once for this metric.

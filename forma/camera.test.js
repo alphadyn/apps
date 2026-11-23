@@ -89,6 +89,19 @@ test("both 3D renderers support all orbit angles and leave the project unchanged
   assert.equal(renderFloor3D([]), "");
 });
 
+test("3D floor cutaways use material details and furnishings that match each room", () => {
+  const project = createProject(), rooms = project.floors.flatMap(floor => floor.rooms);
+  const rendered = type => renderFloor3D(rooms.filter(room => room.type === type));
+  assert.match(rendered("living"), /floor-material-0/);
+  assert.match(rendered("living"), /data-furniture="sofa-back"/);
+  assert.match(rendered("bedroom"), /data-furniture="bed-frame"/);
+  assert.match(rendered("kitchen"), /data-furniture="kitchen-counter"/);
+  assert.match(rendered("bathroom"), /data-furniture="bath"/);
+  assert.match(rendered("terrace"), /data-furniture="outdoor-table"/);
+  assert.doesNotMatch(renderFloor3D(rooms, { furniture: false }), /data-furniture=/);
+  assert.doesNotMatch(renderFloor3D(rooms), /NaN|undefined|Infinity/);
+});
+
 test("2D plans ignore orbit, while horizontal and vertical rotation change 3D geometry", () => {
   const p = createProject();
   assert.equal(renderPropertyView(p).markup, renderPropertyView(p, { camera: { yaw: 225, pitch: 75 } }).markup);

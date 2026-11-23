@@ -25,7 +25,7 @@
     <meta name="twitter:description" content="Explore fictional patient charts, admissions, care teams, timelines, orders, and notes." />
     <meta name="twitter:image" content="https://alphadyn.github.io/apps/northstar-ehr/social-preview.png" />
     <meta name="twitter:image:alt" content="Northstar EHR clinical operations demo, showing a fictional patient chart and timeline." />
-    <link rel="stylesheet" href="styles.css?v=15" />
+    <link rel="stylesheet" href="styles.css?v=16" />
   </head>
   <body>
     <main id="loginScreen" class="login-screen">
@@ -404,6 +404,23 @@
                 </label>
                 <label>Priority<select name="priority"><option>Routine</option><option>Urgent</option><option>STAT</option></select></label>
               </div>
+              <section id="procedureCatalog" class="procedure-catalog" aria-labelledby="procedureCatalogHeading" hidden>
+                <div>
+                  <strong id="procedureCatalogHeading">Procedure catalog</strong>
+                  <p class="muted-copy">Search by procedure or specialty, then select a result to fill the order. You can also enter a procedure manually.</p>
+                </div>
+                <label for="procedureSearch">Search procedures
+                  <input id="procedureSearch" type="search" placeholder="e.g., colonoscopy or cardiology" autocomplete="off" />
+                </label>
+                <p id="procedureSearchStatus" class="muted-copy" role="status" aria-live="polite"></p>
+                <div id="procedureResults" class="procedure-results"></div>
+                <div class="procedure-pagination">
+                  <button id="procedurePrevious" class="ghost-btn" type="button">Previous</button>
+                  <span id="procedurePage"></span>
+                  <button id="procedureNext" class="ghost-btn" type="button">Next</button>
+                </div>
+                <p class="form-caution">Illustrative names only; not a validated clinical order set or billing terminology.</p>
+              </section>
               <label>Order / request
                 <input name="title" type="text" placeholder="Specify the requested care, test, medication, or referral" required />
               </label>
@@ -643,6 +660,7 @@
     <script src="interop.js"></script>
     <script src="medication-catalog.js?v=1"></script>
     <script src="rxnorm-catalog.js?v=1"></script>
-    <script src="app.js?v=16"></script>
+    <script src="procedure-catalog.js?v=1"></script>
+    <script src="app.js?v=17"></script>
   </body>
 </html>

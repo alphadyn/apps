@@ -76,6 +76,13 @@ follows the demo encounter-create role permission; dispensing remains separate.
   Laboratory requests link to results; medication requests link to the prescription
   and dispensing workflow. Completing an order does not create a lab result or
   record administration/dispensing.
+- **Procedure catalog:** In a selected patient's Orders, choose **Procedure** and
+  search by name or specialty. Browse results with Previous and Next, and select
+  a procedure to fill the request and procedure fields. Complete the remaining
+  required details before saving; free-text procedure orders remain available.
+  The catalog is an illustrative, non-exhaustive list, not validated clinical
+  terminology, billing codes, or an order set. Orders remain browser-local demo
+  records and are not transmitted or performed.
 - **Labs & results:** Recorded fictional results and laboratory requests only.
   **Order a lab test** opens Orders with the Laboratory category selected.
 - **Medications & prescriptions:** Medication/allergy context, formulary search,

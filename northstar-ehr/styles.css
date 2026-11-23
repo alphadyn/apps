@@ -709,6 +709,43 @@ textarea {
   margin-bottom: 16px;
 }
 
+.procedure-catalog:not([hidden]) {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.procedure-catalog p {
+  margin: 0;
+}
+
+.procedure-results {
+  display: grid;
+  gap: 6px;
+}
+
+.procedure-result {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  width: 100%;
+  text-align: left;
+}
+
+.procedure-result span {
+  color: var(--muted);
+}
+
+.procedure-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
 .formulary-patient-choice:not([hidden]) {
   display: grid;
   gap: 10px;

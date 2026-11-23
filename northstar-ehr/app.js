@@ -4597,6 +4597,46 @@ const orderFieldDrafts = {};
 const documentFieldDrafts = {};
 let activeOrderTemplate = "";
 let activeDocumentTemplate = "";
+let procedurePage = 0;
+const procedurePageSize = 15;
+
+function searchProcedures(query) {
+  const terms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  return window.NORTHSTAR_PROCEDURES.filter((procedure) => {
+    const text = `${procedure.name} ${procedure.category}`.toLowerCase();
+    return terms.every((term) => text.includes(term));
+  });
+}
+
+function renderProcedureCatalog() {
+  const matches = searchProcedures(document.getElementById("procedureSearch").value);
+  const pages = Math.max(1, Math.ceil(matches.length / procedurePageSize));
+  procedurePage = Math.min(procedurePage, pages - 1);
+  const start = procedurePage * procedurePageSize;
+  document.getElementById("procedureSearchStatus").textContent =
+    `${matches.length} ${matches.length === 1 ? "procedure" : "procedures"} found.`;
+  document.getElementById("procedureResults").innerHTML = matches.length
+    ? matches.slice(start, start + procedurePageSize).map((procedure, index) => `
+      <button class="ghost-btn procedure-result" type="button" data-procedure-index="${start + index}">
+        <strong>${escapeHtml(procedure.name)}</strong><span>${escapeHtml(procedure.category)}</span>
+      </button>`).join("")
+    : '<p class="empty-state">No matching procedures. Try another search or enter a procedure manually below.</p>';
+  document.getElementById("procedurePage").textContent = `Page ${procedurePage + 1} of ${pages}`;
+  const canCreate = hasPermission(currentUser.role, "order:create");
+  document.getElementById("procedurePrevious").disabled = !canCreate || procedurePage === 0;
+  document.getElementById("procedureNext").disabled = !canCreate || procedurePage >= pages - 1;
+  document.querySelectorAll("#procedureResults button").forEach((button) => { button.disabled = !canCreate; });
+}
+
+function selectCatalogProcedure(index) {
+  const form = document.getElementById("orderForm");
+  if (!hasPermission(currentUser.role, "order:create") || form.elements.category.value !== "Procedure") return;
+  const procedure = searchProcedures(document.getElementById("procedureSearch").value)[index];
+  if (!procedure) return;
+  form.elements.title.value = procedure.name;
+  form.elements.procedureName.value = procedure.name;
+  form.elements.procedureName.focus();
+}
 
 function renderOrderFields() {
   const category = document.querySelector('#orderForm [name="category"]').value;
@@ -4611,6 +4651,8 @@ function renderOrderFields() {
   Object.entries(orderFieldDrafts[category] || {}).forEach(([name, value]) => {
     if (form.elements[name]) form.elements[name].value = value;
   });
+  document.getElementById("procedureCatalog").hidden = category !== "Procedure";
+  if (category === "Procedure") renderProcedureCatalog();
 }
 
 function renderDocumentFields() {
@@ -4719,6 +4761,7 @@ function renderPermissions() {
       field.disabled = !allowed;
     });
   });
+  if (!document.getElementById("procedureCatalog").hidden) renderProcedureCatalog();
 }
 
 function summarizeList(items, limit = 2) {
@@ -4970,6 +5013,7 @@ function handleOrderSubmit(event) {
     delete orderFieldDrafts[order.category];
     activeOrderTemplate = "";
     form.reset();
+    procedurePage = 0;
     renderOrderFields();
   }
   render();
@@ -5294,6 +5338,22 @@ function attachEvents() {
   document.getElementById("orderForm").addEventListener("submit", handleOrderSubmit);
   document.getElementById("documentForm").addEventListener("submit", handleDocumentSubmit);
   document.querySelector('#orderForm [name="category"]').addEventListener("change", renderOrderFields);
+  document.getElementById("procedureSearch").addEventListener("input", () => {
+    procedurePage = 0;
+    renderProcedureCatalog();
+  });
+  document.getElementById("procedurePrevious").addEventListener("click", () => {
+    procedurePage -= 1;
+    renderProcedureCatalog();
+  });
+  document.getElementById("procedureNext").addEventListener("click", () => {
+    procedurePage += 1;
+    renderProcedureCatalog();
+  });
+  document.getElementById("procedureResults").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-procedure-index]");
+    if (button) selectCatalogProcedure(Number(button.dataset.procedureIndex));
+  });
   document.querySelector('#documentForm [name="type"]').addEventListener("change", renderDocumentFields);
 
   document.getElementById("ordersList").addEventListener("click", (event) => {

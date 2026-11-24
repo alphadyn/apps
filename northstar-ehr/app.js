@@ -2194,7 +2194,6 @@ function applyViewState() {
   const showWorklist = currentView === "patients" && !patientCareHomeActive;
   document.getElementById("patientQueuePanel").classList.toggle("hidden-section", !showWorklist);
   document.getElementById("recordsSection").classList.toggle("patient-record-focused", !showWorklist);
-  document.getElementById("clinicalBanner").classList.toggle("hidden-section", currentView === "orders");
 }
 
 function parseVitalsInput(rawVitals) {
@@ -3666,15 +3665,6 @@ function renderClinicalWorkspace() {
     clinicalStatusPatientId = patient.id;
   }
   const clinical = patient.clinical;
-  document.getElementById("clinicalPatientHeading").textContent = patient.name;
-  document.getElementById("clinicalPatientMeta").textContent =
-    `${patient.mrn} · ${patient.age} years · ${patient.sex} · ${patient.provider || "Provider unassigned"}`;
-  document.getElementById("workflowSummary").innerHTML = `
-    <span class="workflow-chip">${escapeHtml(clinical.stage)}</span>
-    <span class="workflow-chip">${escapeHtml(clinical.location)}</span>
-    <span class="workflow-chip">${escapeHtml(clinical.disposition || "Disposition pending")}</span>
-  `;
-
   const workflowForm = document.getElementById("workflowForm");
   const selectOptions = (select, options, selected, emptyLabel) => {
     const optionNames = options.map((option) => typeof option === "string" ? option : option.name);

@@ -519,9 +519,6 @@ test("encounter status is cleared when switching patients but retained for the s
   const { context } = setup();
   const elements = new Map([
     ["clinicalStatus", { textContent: "" }],
-    ["clinicalPatientHeading", {}],
-    ["clinicalPatientMeta", {}],
-    ["workflowSummary", {}],
     ["workflowForm", { elements: {} }],
     ["workflowDepartment", {}],
     ["workflowNurse", {}],
@@ -1277,6 +1274,10 @@ test("Patient care home uses the header patient search and presents patient-spec
 
 test("patient context details include care location, diagnosis, allergies, and encounter information", () => {
   const { context } = setup();
+  vm.runInContext(`
+    Object.assign(patients[0], { name: "Context Patient", mrn: "MRN-CONTEXT", age: 45, sex: "Female", provider: "Dr. Context" });
+    Object.assign(patients[0].clinical, { location: "Room 12", stage: "Treatment", disposition: "Admitted" });
+  `, context);
   const markup = vm.runInContext("renderPatientContextDetails(patients[0])", context);
   for (const label of ["Age / sex", "Unit / department", "Location", "Diagnosis", "Allergies", "Encounter stage", "Disposition", "Provider"]) {
     assert.ok(markup.includes(`<dt>${label}</dt>`), label);
@@ -1285,9 +1286,16 @@ test("patient context details include care location, diagnosis, allergies, and e
   const container = { innerHTML: "", classList: { toggle() {} }, querySelector: () => ({ value: "" }) };
   context.document = { getElementById: () => container };
   vm.runInContext("renderPatientContext()", context);
-  assert.match(container.innerHTML, /<dt>Unit \/ department<\/dt>/);
-  assert.match(container.innerHTML, /<dt>Allergies<\/dt>/);
   assert.doesNotMatch(container.innerHTML, /treatmentPatient|<input/);
+  const directMarkup = container.innerHTML;
+  vm.runInContext("renderPatientCareHome(document.getElementById('patientCareHomeContent'))", context);
+  for (const rendered of [directMarkup, container.innerHTML]) {
+    for (const value of ["Context Patient", "MRN-CONTEXT", "45 years · Female", "Room 12", "Treatment", "Admitted", "Dr. Context"]) {
+      assert.ok(rendered.includes(value), value);
+    }
+    assert.match(rendered, /<dt>Unit \/ department<\/dt>/);
+    assert.match(rendered, /<dt>Allergies<\/dt>/);
+  }
   vm.runInContext('patients[0].clinical.location = "<Room & 1>"', context);
   assert.match(vm.runInContext("renderPatientContextDetails(patients[0])", context), /&lt;Room &amp; 1&gt;/);
 });
@@ -1309,7 +1317,7 @@ test("patient workflow views hide the worklist while the standalone chart retain
   const { context } = setup();
   const states = {};
   const element = (id) => ({ classList: { toggle: (name, value) => { states[`${id}:${name}`] = value; } } });
-  const elements = new Map(["patientQueuePanel", "recordsSection", "clinicalBanner"].map((id) => [id, element(id)]));
+  const elements = new Map(["patientQueuePanel", "recordsSection"].map((id) => [id, element(id)]));
   context.document = { getElementById: (id) => elements.get(id), querySelectorAll: () => [] };
   vm.runInContext('currentView = "patients"; patientCareHomeActive = false; applyViewState()', context);
   assert.equal(states["patientQueuePanel:hidden-section"], false);
@@ -1341,21 +1349,10 @@ test("outpatient scheduling uses the patient in context rather than a form patie
   assert.match(status.textContent, /scheduled/);
 });
 
-test("orders hides the duplicate encounter banner without hiding status messages", () => {
+test("patient workflows retain status messages without a duplicate encounter banner", () => {
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
-  assert.match(html, /id="clinicalBanner"[\s\S]*?<\/div>\s*<p id="clinicalStatus"/);
-  const { context } = setup();
-  let bannerHidden;
-  const banner = { classList: { toggle: (name, hidden) => { bannerHidden = hidden; } } };
-  const section = { classList: { toggle() {} } };
-  context.document = {
-    getElementById: (id) => id === "clinicalBanner" ? banner : section,
-    querySelectorAll: () => []
-  };
-  vm.runInContext('currentView = "orders"; applyViewState()', context);
-  assert.equal(bannerHidden, true);
-  vm.runInContext('currentView = "clinical"; applyViewState()', context);
-  assert.equal(bannerHidden, false);
+  assert.doesNotMatch(html, /clinicalBanner|clinicalPatientHeading|clinicalPatientMeta|workflowSummary|Encounter workspace/);
+  assert.match(html, /<p id="clinicalStatus" class="status-message clinical-status" role="status"><\/p>/);
 });
 
 test("patient care workflow remains compact and restores its context after reload", () => {

@@ -662,7 +662,7 @@ textarea {
   transition: transform 140ms ease;
 }
 
-.patients-menu[open] .menu-chevron {
+.patients-menu[open] > summary .menu-chevron {
   transform: rotate(90deg);
 }
 
@@ -1139,8 +1139,7 @@ textarea {
 }
 
 .nav-subgroup {
-  display: grid;
-  gap: 2px;
+  min-width: 0;
 }
 
 .nav-subgroup + .nav-subgroup {
@@ -1148,13 +1147,44 @@ textarea {
   border-top: 1px solid #35515e;
 }
 
-.nav-subgroup-title {
-  margin: 0 0 2px;
-  padding: 0 10px;
+.nav-subgroup > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: 8px 10px;
   color: #9ab5bd;
-  font-size: 0.65rem;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+  border-radius: 8px;
+}
+
+.nav-subgroup > summary::-webkit-details-marker {
+  display: none;
+}
+
+.nav-subgroup > summary::after {
+  content: "+";
+}
+
+.nav-subgroup[open] > summary::after {
+  content: "-";
+}
+
+.nav-subgroup > summary:hover {
+  background: #183e4d;
+}
+
+.nav-subgroup > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.nav-subgroup > div {
+  display: grid;
+  gap: 2px;
 }
 
 .nav-submenu .nav-link {
@@ -3697,13 +3727,12 @@ textarea {
 }
 
 .patient-registration {
-  margin-bottom: 16px;
-  padding: 14px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto 16px;
 }
 
-.patient-registration h4 {
+.patient-registration h3 {
   margin: 0;
   color: var(--text);
 }
@@ -3714,12 +3743,18 @@ textarea {
 
 .patient-registration .clinical-form {
   margin-top: 12px;
+  gap: 20px;
+}
+
+#newPatientAdmissionFields[hidden] {
+  display: none;
 }
 
 .registration-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  padding-top: 4px;
 }
 
 .registration-error {

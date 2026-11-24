@@ -25,7 +25,7 @@
     <meta name="twitter:description" content="Explore fictional patient charts, admissions, care teams, timelines, orders, and notes." />
     <meta name="twitter:image" content="https://alphadyn.github.io/apps/northstar-ehr/social-preview.png" />
     <meta name="twitter:image:alt" content="Northstar EHR clinical operations demo, showing a fictional patient chart and timeline." />
-    <link rel="stylesheet" href="styles.css?v=28" />
+    <link rel="stylesheet" href="styles.css?v=31" />
   </head>
   <body>
     <main id="loginScreen" class="login-screen">
@@ -123,16 +123,19 @@
             <summary><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m20 0v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /><circle cx="9" cy="7" r="4" /></svg><span class="patient-menu-label">Patient care</span><span id="patientContextMrn" class="patient-context-mrn" hidden></span><svg class="menu-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg></summary>
             <div class="nav-submenu">
               <button class="nav-link" type="button" data-view="patient-care">Patient care home</button>
-              <div class="nav-subgroup">
-                <p class="nav-subgroup-title">Patient workflows</p>
+              <button class="ghost-btn" type="button" data-admit-patient>Admit new patient</button>
+              <details class="nav-subgroup">
+                <summary>Patient workflows</summary>
                 <div id="patientWorkflowNavigation"></div>
-              </div>
-              <div class="nav-subgroup">
-                <p class="nav-subgroup-title">Care operations</p>
+              </details>
+              <details class="nav-subgroup">
+                <summary>Care operations</summary>
+                <div>
                 <button class="nav-link" type="button" data-view="patients">Worklist &amp; charts</button>
                 <button class="nav-link" type="button" data-view="admissions">Admissions</button>
                 <button class="nav-link" type="button" data-view="nursing">Nursing station</button>
-              </div>
+                </div>
+              </details>
             </div>
           </details>
           <div class="nav-group">
@@ -230,6 +233,53 @@
         </section>
 
         <section id="patientWorkflowSection" class="panel view-section hidden-section" aria-label="Patient in context"></section>
+
+        <section id="patientRegistration" class="panel patient-registration view-section hidden-section" aria-labelledby="registrationTitle">
+          <h3 id="registrationTitle">Register a patient</h3>
+          <p id="registrationHelp" class="muted-copy">Create a profile, then continue to intake and triage.</p>
+          <p class="muted-copy">Complete all fields except those marked optional.</p>
+          <p class="form-caution">Check for an existing record before creating a new patient.</p>
+          <form id="patientRegistrationForm" class="clinical-form">
+            <fieldset class="workflow-fieldset">
+              <legend>Patient identity</legend>
+              <div class="row">
+                <label>Patient name<input name="name" type="text" maxlength="120" required /></label>
+                <label>MRN<input name="mrn" type="text" maxlength="50" required /></label>
+              </div>
+              <div class="row">
+                <label>Age in years<input name="age" type="number" min="0" max="130" step="1" required /></label>
+                <label>Sex
+                  <select name="sex" required>
+                    <option value="">Select...</option>
+                    <option>Female</option><option>Male</option><option>Other</option><option>Not recorded</option>
+                  </select>
+                </label>
+              </div>
+            </fieldset>
+            <fieldset id="newPatientAdmissionFields" class="workflow-fieldset" hidden disabled>
+              <legend>Admission details</legend>
+              <div class="row">
+                <label>Department / service<select name="department" id="newPatientDepartment" required></select></label>
+                <label>Bed / care location<input name="location" type="text" required placeholder="Ward and bed, or ICU location" /></label>
+              </div>
+              <div class="row">
+                <label>Admission type
+                  <select name="disposition" required>
+                    <option value="">Select...</option><option>Admit to ward</option><option>Admit to ICU</option>
+                  </select>
+                </label>
+                <label>Attending provider (optional)<select name="attending" id="newPatientAttending"></select></label>
+              </div>
+              <label>Assigned nurse (optional)<select name="assignedNurse" id="newPatientNurse"></select></label>
+              <label>Reason for admission (optional)<input name="chiefComplaint" type="text" placeholder="Reason for admission" /></label>
+            </fieldset>
+            <div class="registration-actions">
+              <button id="savePatientRegistration" class="primary-btn" type="submit">Create profile &amp; open triage</button>
+              <button id="cancelPatientRegistration" class="ghost-btn" type="button">Cancel</button>
+            </div>
+            <p id="patientRegistrationStatus" class="status-message registration-error" role="alert"></p>
+          </form>
+        </section>
 
         <section id="overviewSection" class="stats-grid view-section">
           <button type="button" class="stat-card accent-blue" data-stat-filter="all" aria-pressed="false">
@@ -505,32 +555,8 @@
                 <h3>Active records</h3>
               </div>
               <span class="pill" id="patientListCount">23 records</span>
-              <button id="registerPatientBtn" class="ghost-btn" type="button" aria-controls="patientRegistration" aria-expanded="false">Register patient</button>
+              <button id="registerPatientBtn" class="ghost-btn" type="button">Register patient</button>
             </div>
-            <section id="patientRegistration" class="patient-registration" aria-labelledby="registrationTitle" hidden>
-              <p class="eyebrow">Step 1 of 2</p>
-              <h4 id="registrationTitle">Register a patient</h4>
-              <p class="muted-copy">Create a profile, then continue to intake and triage. All fields are required.</p>
-              <p class="form-caution">Check the worklist for an existing record first.</p>
-              <form id="patientRegistrationForm" class="clinical-form">
-                <label>Patient name<input name="name" type="text" maxlength="120" required /></label>
-                <label>MRN<input name="mrn" type="text" maxlength="50" required /></label>
-                <div class="row">
-                  <label>Age in years<input name="age" type="number" min="0" max="130" step="1" required /></label>
-                  <label>Sex
-                    <select name="sex" required>
-                      <option value="">Select...</option>
-                      <option>Female</option><option>Male</option><option>Other</option><option>Not recorded</option>
-                    </select>
-                  </label>
-                </div>
-                <div class="registration-actions">
-                  <button class="primary-btn" type="submit">Create profile &amp; open triage</button>
-                  <button id="cancelPatientRegistration" class="ghost-btn" type="button">Cancel</button>
-                </div>
-                <p id="patientRegistrationStatus" class="status-message registration-error" role="alert"></p>
-              </form>
-            </section>
             <div id="activeFilterBar" class="filter-bar hidden-section">
               <span id="activeFilterLabel"></span>
               <button id="clearFilterBtn" class="ghost-btn" type="button">Clear filter</button>
@@ -685,6 +711,6 @@
     <script src="procedure-catalog.js?v=1"></script>
     <script src="surgical-catalog.js?v=1"></script>
     <script src="radiology-catalog.js?v=1"></script>
-    <script src="app.js?v=34"></script>
+    <script src="app.js?v=38"></script>
   </body>
 </html>

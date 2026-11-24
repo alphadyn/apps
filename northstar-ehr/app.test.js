@@ -515,6 +515,105 @@ test("registration rejects duplicate MRNs, invalid input, unauthorized roles, an
   assert.equal(vm.runInContext("auditTrail.length", context), 0);
 });
 
+test("one-step admission saves identity and admission together without inventing clinical assessments", () => {
+  for (const role of ["clinician", "midlevel", "nurse"]) {
+    const { api, context, storage } = setup();
+    let saves = 0;
+    const save = context.localStorage.setItem;
+    context.localStorage.setItem = (key, value) => { saves += 1; save(key, value); };
+    const result = api.admitNewPatient({
+      name: "New Admission", mrn: "ADMISSION-TEST", age: "42", sex: "Female",
+      department: "Medicine", location: "Ward 4 / Bed 2", disposition: "Admit to ward",
+      attending: "Dr. Elena Ruiz", assignedNurse: "Jordan Lee", chiefComplaint: "Reason entered by user"
+    }, role);
+    assert.equal(result.allowed, true, role);
+    assert.equal(saves, 1, "registration and admission persist in a single write");
+    assert.equal(result.patient.clinical.stage, "Admission");
+    assert.equal(result.patient.clinical.department, "Medicine");
+    assert.equal(result.patient.provider, "Dr. Elena Ruiz");
+    assert.equal(result.patient.room, "Ward 4 / Bed 2");
+    assert.ok(result.patient.clinical.admissionAt);
+    assert.equal(result.patient.clinical.chiefComplaint, "Reason entered by user");
+    assert.equal(result.patient.vitalReadings.length, 0);
+    assert.equal(result.patient.diagnosis, "Not recorded");
+    assert.equal(result.patient.medicationReviewed, false);
+    assert.equal(vm.runInContext("getAdmittedPatients().some(patient => patient.mrn === 'ADMISSION-TEST')", context), true);
+    const saved = JSON.parse(storage.get(storageKey));
+    assert.equal(saved.currentView, "clinical");
+    assert.equal(saved.patientCareHomeActive, true);
+    const restored = setup("clinician", storage);
+    assert.equal(vm.runInContext("getSelectedPatient().clinical.stage", restored.context), "Admission");
+    assert.equal(saved.auditTrail.filter((entry) => entry.patientName === "New Admission").length, 2);
+  }
+});
+
+test("one-step admission validates input and rolls back both registration and admission on storage failure", () => {
+  const { api, context, storage } = setup();
+  const valid = { name: "Admission Test", mrn: "ADMISSION-TEST", age: "40", sex: "Other", department: "Medicine", location: "Ward 4", disposition: "Admit to ICU" };
+  for (const changes of [
+    { department: "" }, { department: "Unknown" }, { location: " " },
+    { disposition: "" }, { disposition: "Discharge home" }, { attending: "Unknown provider" },
+    { assignedNurse: "Unknown nurse" }, { mrn: "MRN-10482" }, { age: "-1" }
+  ]) {
+    assert.equal(api.admitNewPatient({ ...valid, ...changes }).allowed, false);
+  }
+  for (const role of ["staff", "admin"]) assert.equal(api.admitNewPatient(valid, role).allowed, false);
+  assert.equal(storage.has(storageKey), false);
+  const count = vm.runInContext("patients.length", context);
+  vm.runInContext('currentView = "registration"; patientCareHomeActive = false', context);
+  context.console = { warn() {} };
+  context.localStorage.setItem = () => { throw new Error("blocked"); };
+  const result = api.admitNewPatient(valid);
+  assert.equal(result.allowed, false);
+  assert.match(result.message, /Unable to save/);
+  assert.equal(vm.runInContext("patients.length", context), count);
+  assert.equal(vm.runInContext("auditTrail.length", context), 0);
+  assert.equal(vm.runInContext("currentView", context), "registration");
+  assert.equal(vm.runInContext("getSelectedPatient().id", context), 1);
+});
+
+test("admission entry points remain hidden from nonclinical roles", () => {
+  const { context } = setup();
+  context.container = { innerHTML: "" };
+  for (const role of ["clinician", "midlevel", "nurse", "staff", "admin"]) {
+    context.testRole = role;
+    vm.runInContext("currentUser.role = testRole; renderPatientCareHome(container)", context);
+    assert.equal(context.container.innerHTML.includes("data-admit-patient"), ["clinician", "midlevel", "nurse"].includes(role));
+  }
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.equal((html.match(/id="patientRegistrationForm"/g) || []).length, 1);
+  assert.match(html, /id="newPatientAdmissionFields"[^>]*hidden disabled/);
+});
+
+test("cancelling registration restores the encounter draft and previous workflow", () => {
+  const { context } = setup();
+  const form = { elements: { chiefComplaint: { value: "Saved complaint" } } };
+  const search = { focus() { context.searchFocused = true; } };
+  context.document = { getElementById: (id) => id === "workflowForm" ? form : search };
+  vm.runInContext(`
+    render = () => {};
+    scrollToWorkspaceTop = () => {};
+    currentView = "registration";
+    registrationReturnView = "clinical";
+    registrationReturnHomeActive = true;
+    registrationReturnClinicalDraft = { chiefComplaint: "Unsaved complaint" };
+    cancelPatientRegistration();
+  `, context);
+  assert.equal(form.elements.chiefComplaint.value, "Unsaved complaint");
+  assert.equal(vm.runInContext('currentView === "clinical" && patientCareHomeActive', context), true);
+  assert.equal(vm.runInContext("Object.keys(registrationReturnClinicalDraft).length", context), 0);
+  assert.equal(context.searchFocused, true);
+});
+
+test("shared select options escape values and retain the selected option", () => {
+  const { context } = setup();
+  context.select = { innerHTML: "", value: "" };
+  vm.runInContext('populateSelectOptions(select, ["Service & care", "<Other>"], "Service & care", "Choose service")', context);
+  assert.equal(context.select.value, "Service & care");
+  assert.match(context.select.innerHTML, /value="Service &amp; care"/);
+  assert.match(context.select.innerHTML, /&lt;Other&gt;/);
+});
+
 test("encounter status is cleared when switching patients but retained for the same patient", () => {
   const { context } = setup();
   const elements = new Map([
@@ -699,6 +798,57 @@ test("menu workflow navigation uses patient care home and requires a patient", (
   vm.runInContext("selectedPatientId = null", context);
   assert.equal(vm.runInContext('openPatientCareWorkflow("patients")', context), false);
   assert.equal(vm.runInContext('currentView === "patient-care" && !patientCareHomeActive', context), true);
+});
+
+test("patient menu expands the active group without overriding a user's collapse on rerender", () => {
+  const { context } = setup();
+  const workflows = { open: false };
+  const operations = { open: false };
+  context.menu = { querySelectorAll: () => [workflows, operations] };
+  context.workflowLink = { closest: () => workflows };
+  context.operationsLink = { closest: () => operations };
+  vm.runInContext('currentView = "orders"; syncPatientMenuGroups(menu, workflowLink)', context);
+  assert.equal(workflows.open, true);
+  assert.equal(operations.open, false);
+  workflows.open = false;
+  vm.runInContext("syncPatientMenuGroups(menu, workflowLink)", context);
+  assert.equal(workflows.open, false);
+  vm.runInContext('currentView = "admissions"; syncPatientMenuGroups(menu, operationsLink)', context);
+  assert.equal(operations.open, true);
+  assert.equal(workflows.open, false);
+  vm.runInContext('currentView = "patient-care"; syncPatientMenuGroups(menu, null)', context);
+  assert.equal(operations.open, false);
+});
+
+test("open encounter selects a patient when needed and continues to the clinical workflow", () => {
+  const { context } = setup();
+  const status = { textContent: "" };
+  const search = { focus() { context.searchFocused = true; } };
+  context.document = { getElementById: (id) => id === "patientSearch" ? search : status };
+  vm.runInContext(`
+    closeMobileNavigation = () => {};
+    render = () => {};
+    scrollToWorkspaceTop = () => {};
+    focusEncounterWorkflow = () => { window.encounterFocused = true; };
+    confirmPatientChange = () => true;
+    selectedPatientId = null;
+    openQuickEncounter();
+  `, context);
+  assert.equal(context.searchFocused, true);
+  assert.match(status.textContent, /Select a patient.*open an encounter/);
+  assert.equal(vm.runInContext('currentView === "patient-care" && pendingQuickEncounter', context), true);
+  const result = vm.runInContext("selectHeaderPatient(patients[1].id)", context);
+  assert.equal(result.allowed, true);
+  assert.equal(result.openEncounter, true);
+  assert.equal(vm.runInContext('currentView === "clinical" && patientCareHomeActive && !pendingQuickEncounter', context), true);
+  assert.equal(vm.runInContext("getSelectedPatient().id === patients[1].id", context), true);
+  vm.runInContext('currentView = "overview"; openQuickEncounter()', context);
+  assert.equal(vm.runInContext('currentView === "clinical" && patientCareHomeActive', context), true);
+  assert.equal(context.window.encounterFocused, true);
+  vm.runInContext('selectedPatientId = null; openQuickEncounter(); setCurrentView("overview")', context);
+  assert.equal(vm.runInContext("pendingQuickEncounter", context), false);
+  assert.equal(vm.runInContext("selectHeaderPatient(patients[0].id).openEncounter", context), false);
+  assert.equal(vm.runInContext("currentView", context), "patient-profiles");
 });
 
 test("desktop navigation collapses, persists, and restores without changing the current view", () => {

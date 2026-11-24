@@ -43,7 +43,7 @@ The deployed URL is `https://alphadyn.github.io/apps/northstar-ehr/`.
 - Nursing station dashboard with nurse assignment filtering, patient location, demographics, diagnosis, observations, allergies, and direct chart navigation
 - Organization directories for ED, MICU, SICU, NICU, radiology, surgery, OB/GYN, pediatrics, neurology, telemetry, and medicine, with locations and illustrative occupancy
 - Staff directory and profiles for administrators, physicians, PAs, nurses, and midlevels; admin demo role can add fictional directory entries
-- Header patient search, plus a separate Staff directory search that finds staff by name and profile details; results open profiles, except that patient selection stays in Patient care home when it is active
+- Header patient search, plus a separate Staff directory search that finds staff by name and profile details; patient selection stays in the active patient workflow
 - Patient profile pages and staff directory profiles with care-team and encounter context
 - Guided fictional patient registration from the worklist or admissions dashboard, followed by intake and triage in the selected patient's encounter
 - Patient status dashboard with current encounter status, allergy visibility, vital-sign history, imaging/report counts, and latest radiology summary
@@ -67,7 +67,8 @@ to find medications by name, ingredient, class, strength,
 form, route, adverse effect, or listed interaction. Each result shows its class
 when supplied and offers an expandable review of source and safety details.
 Use **Select for prescription** for the desired product or strength, then select
-the patient by name or MRN to open their form in **Medications & prescriptions**.
+the patient by name or MRN in the independent formulary, or continue with the
+patient already in context from Patient care, to open **Medications & prescriptions**.
 Patient-specific interaction notices appear in the prescription workflow. Review the patient
 and complete quantity, refills, and directions before saving. Searching or opening
 the form does not create a prescription or dispense medication. Prescribing

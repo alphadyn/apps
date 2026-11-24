@@ -1287,8 +1287,58 @@ test("patient context details include care location, diagnosis, allergies, and e
   vm.runInContext("renderPatientContext()", context);
   assert.match(container.innerHTML, /<dt>Unit \/ department<\/dt>/);
   assert.match(container.innerHTML, /<dt>Allergies<\/dt>/);
+  assert.doesNotMatch(container.innerHTML, /treatmentPatient|<input/);
   vm.runInContext('patients[0].clinical.location = "<Room & 1>"', context);
   assert.match(vm.runInContext("renderPatientContextDetails(patients[0])", context), /&lt;Room &amp; 1&gt;/);
+});
+
+test("patient profiles use the current patient and retain staff-only selection", () => {
+  const { context } = setup();
+  const selector = { value: "" };
+  context.container = { innerHTML: "", querySelector: () => selector };
+  vm.runInContext('currentView = "patient-profiles"; selectedPatientId = patients[1].id; selectedProfile = {type: "patient", id: patients[0].id}; renderProfilesView(container)', context);
+  assert.match(context.container.innerHTML, /Jonathan Lee/);
+  assert.doesNotMatch(context.container.innerHTML, /profileSelector|Select patient/);
+  assert.equal(vm.runInContext("selectedProfile.id === selectedPatientId", context), true);
+  vm.runInContext('currentView = "profiles"; renderProfilesView(container)', context);
+  assert.match(context.container.innerHTML, /Select staff member/);
+  assert.match(selector.value, /^staff:/);
+});
+
+test("patient workflow views hide the worklist while the standalone chart retains it", () => {
+  const { context } = setup();
+  const states = {};
+  const element = (id) => ({ classList: { toggle: (name, value) => { states[`${id}:${name}`] = value; } } });
+  const elements = new Map(["patientQueuePanel", "recordsSection", "clinicalBanner"].map((id) => [id, element(id)]));
+  context.document = { getElementById: (id) => elements.get(id), querySelectorAll: () => [] };
+  vm.runInContext('currentView = "patients"; patientCareHomeActive = false; applyViewState()', context);
+  assert.equal(states["patientQueuePanel:hidden-section"], false);
+  vm.runInContext("patientCareHomeActive = true; applyViewState()", context);
+  assert.equal(states["patientQueuePanel:hidden-section"], true);
+  assert.equal(states["recordsSection:patient-record-focused"], true);
+  vm.runInContext('currentView = "labs"; patientCareHomeActive = false; applyViewState()', context);
+  assert.equal(states["patientQueuePanel:hidden-section"], true);
+});
+
+test("outpatient scheduling uses the patient in context rather than a form patient", () => {
+  const { context } = setup();
+  const status = { textContent: "" };
+  const form = { reset() { context.formReset = true; } };
+  context.document = { getElementById: () => status };
+  context.FormData = class {
+    get(name) { return ({ patientId: "999", scheduledAt: "2026-12-10", time: "09:00", provider: "Provider", reason: "Visit" })[name] || ""; }
+  };
+  context.event = { currentTarget: form, preventDefault() {} };
+  vm.runInContext(`
+    selectedPatientId = patients[1].id;
+    createAppointmentForPatient = (patientId, data) => { window.scheduledPatient = patientId; window.scheduledData = data; return { allowed: true }; };
+    render = () => {};
+    handleOutpatientAppointmentSubmit(event);
+  `, context);
+  assert.equal(context.window.scheduledPatient, vm.runInContext("patients[1].id", context));
+  assert.equal(context.window.scheduledData.title, "Visit");
+  assert.equal(context.formReset, true);
+  assert.match(status.textContent, /scheduled/);
 });
 
 test("orders hides the duplicate encounter banner without hiding status messages", () => {
@@ -1297,8 +1347,9 @@ test("orders hides the duplicate encounter banner without hiding status messages
   const { context } = setup();
   let bannerHidden;
   const banner = { classList: { toggle: (name, hidden) => { bannerHidden = hidden; } } };
+  const section = { classList: { toggle() {} } };
   context.document = {
-    getElementById: (id) => id === "clinicalBanner" ? banner : null,
+    getElementById: (id) => id === "clinicalBanner" ? banner : section,
     querySelectorAll: () => []
   };
   vm.runInContext('currentView = "orders"; applyViewState()', context);
@@ -1794,7 +1845,7 @@ test("patient context follows patient-specific workspaces and separates focused 
   vm.runInContext('currentView = "patient-profiles"; selectedProfile = { type: "patient", id: patients[1].id }', context);
   assert.equal(vm.runInContext("hasPatientContext()", context), true);
   vm.runInContext('selectedProfile = { type: "staff", id: "staff-1" }', context);
-  assert.equal(vm.runInContext("hasPatientContext()", context), false);
+  assert.equal(vm.runInContext("hasPatientContext()", context), true);
   for (const view of ["clinical", "documents", "billing"]) {
     vm.runInContext(`currentView = "${view}"`, context);
     assert.equal(vm.runInContext("hasPatientContext()", context), true);

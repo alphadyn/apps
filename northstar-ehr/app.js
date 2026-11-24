@@ -1999,7 +1999,7 @@ function getVisibleSections(view) {
     patientCareHomeSection: view === "patient-care" || patientCareHomeActive,
     patientWorkflowSection: !patientCareHomeActive && (
       ["patients", "orders", "labs", "medications", "outpatient", "appointments", "clinical", "documents", "billing"].includes(view) ||
-      (view === "patient-profiles" && selectedProfile.type === "patient") ||
+      view === "patient-profiles" ||
       (view === "dispensary" && (pharmacyPatientContext || pharmacyMode === "dispensing"))
     ),
     recordsSection: ["patients", "labs", "medications", "billing"].includes(view),
@@ -2013,7 +2013,7 @@ function getVisibleSections(view) {
 
 function hasPatientContext(view = currentView) {
   if (view === "patient-care") return true;
-  if (view === "patient-profiles") return selectedProfile.type === "patient";
+  if (view === "patient-profiles") return true;
   return ["patients", "orders", "labs", "medications", "outpatient", "appointments", "clinical", "documents", "billing"].includes(view) ||
     (view === "dispensary" && (pharmacyPatientContext || pharmacyMode === "dispensing"));
 }
@@ -2191,6 +2191,9 @@ function applyViewState() {
   document.querySelectorAll(".clinical-subview").forEach((panel) => {
     panel.classList.toggle("hidden-section", panel.dataset.clinicalPanel !== currentView);
   });
+  const showWorklist = currentView === "patients" && !patientCareHomeActive;
+  document.getElementById("patientQueuePanel").classList.toggle("hidden-section", !showWorklist);
+  document.getElementById("recordsSection").classList.toggle("patient-record-focused", !showWorklist);
   document.getElementById("clinicalBanner").classList.toggle("hidden-section", currentView === "orders");
 }
 
@@ -3498,14 +3501,7 @@ function renderOutpatientAppointments() {
   const form = document.getElementById("outpatientAppointmentForm");
   if (form) {
     form.querySelector("button[type='submit']").disabled = !canCreate;
-    const patientSelect = document.getElementById("outpatientPatient");
     const providerSelect = document.getElementById("outpatientProvider");
-    if (patientSelect) {
-      patientSelect.innerHTML = patients.map((record) =>
-        `<option value="${escapeHtml(record.id)}">${escapeHtml(record.name)} · ${escapeHtml(record.mrn)}</option>`
-      ).join("");
-      patientSelect.value = String(patient.id);
-    }
     if (providerSelect) {
       const providers = staffDirectory
         .filter((staff) => staff.status === "Active" && ["Provider", "PA", "Midlevel"].includes(staff.role))
@@ -3984,15 +3980,11 @@ function renderPatientContext() {
   container.classList.toggle("pharmacy-patient-context", currentView === "dispensary");
   container.innerHTML = `
     <div class="treatment-context">
-      <label for="treatmentPatient">Patient in context
-        <input id="treatmentPatient" type="search" list="treatmentPatientOptions" placeholder="Search by name or MRN" autocomplete="off" />
-        <datalist id="treatmentPatientOptions">${patients.map((record) => `<option value="${escapeHtml(`${record.name} · ${record.mrn}`)}"></option>`).join("")}</datalist>
-      </label>
+      <div><p class="eyebrow">Patient in context</p><strong>${escapeHtml(patient.name)} · ${escapeHtml(patient.mrn)}</strong></div>
       <button class="ghost-btn patient-care-home-return" type="button" data-patient-care-home>Back to Patient care home</button>
     </div>
     ${renderPatientContextDetails(patient)}
     <p id="treatmentStatus" class="status-message" role="status"></p>`;
-  container.querySelector("#treatmentPatient").value = `${patient.name} · ${patient.mrn}`;
 }
 
 function positionPharmacyNavigation() {
@@ -4019,6 +4011,7 @@ function openTreatmentWorkflow(view, patientId = selectedPatientId) {
 
 function renderDispensaryView(container) {
   const patient = getSelectedPatient();
+  const patientInContext = patientCareHomeActive || pharmacyPatientContext || pharmacyMode === "dispensing";
   const selectedPrescription = dispensingPrescriptionId
     ? patient.prescriptions.find((item) => item.id === dispensingPrescriptionId && item.status === "Active")
     : null;
@@ -4055,10 +4048,10 @@ function renderDispensaryView(container) {
       <p id="formularyStatus" class="status-message formulary-status" role="status"></p>
       <div id="formularyPatientChoice" class="formulary-patient-choice" hidden>
         <p id="formularySelectedMedication"></p>
-        <label for="formularyPatient">Patient for prescription
+        ${patientInContext ? `<p>Patient in context: ${escapeHtml(patient.name)} · ${escapeHtml(patient.mrn)}</p>` : `<label for="formularyPatient">Patient for prescription
           <input id="formularyPatient" type="search" list="formularyPatientOptions" placeholder="Search by name or MRN" autocomplete="off" aria-describedby="formularyStatus" />
           <datalist id="formularyPatientOptions">${patients.map((record) => `<option value="${escapeHtml(`${record.name} · ${record.mrn}`)}"></option>`).join("")}</datalist>
-        </label>
+        </label>`}
         <div class="formulary-patient-actions">
           <button id="formularyContinuePrescription" class="primary-btn" type="button">Continue to prescription</button>
           <button id="formularyCancelPrescription" class="ghost-btn" type="button">Cancel</button>
@@ -4249,10 +4242,10 @@ function renderDispensaryView(container) {
     }
     selectedFormularyMedication = medicationValue;
     container.querySelector("#formularySelectedMedication").textContent = `Prescription medication: ${medicationValue}`;
-    patientInput.value = "";
+    if (patientInput) patientInput.value = "";
     formularyStatus.textContent = "";
     patientChoice.hidden = false;
-    patientInput.focus();
+    (patientInput || container.querySelector("#formularyContinuePrescription")).focus();
   });
   container.querySelector("#formularyCancelPrescription").addEventListener("click", () => {
     patientChoice.hidden = true;
@@ -4260,7 +4253,7 @@ function renderDispensaryView(container) {
     formularyStatus.textContent = "";
     catalogSearch.focus();
   });
-  patientInput.addEventListener("keydown", (event) => {
+  patientInput?.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
       event.preventDefault();
       container.querySelector("#formularyContinuePrescription").click();
@@ -4271,7 +4264,7 @@ function renderDispensaryView(container) {
       formularyStatus.textContent = "Your current role cannot prescribe medications.";
       return;
     }
-    const matches = findPatientsByText(patientInput.value);
+    const matches = patientInContext ? [getSelectedPatient()] : findPatientsByText(patientInput.value);
     if (matches.length !== 1) {
       formularyStatus.textContent = matches.length
         ? "More than one patient matched. Select a patient by name and MRN."
@@ -4590,10 +4583,10 @@ function renderStaffView(container) {
 
 function renderProfilesView(container) {
   const profileType = currentView === "patient-profiles" ? "patient" : "staff";
-  if (selectedProfile.type !== profileType) {
-    selectedProfile = profileType === "patient"
-      ? { type: "patient", id: selectedPatientId }
-      : { type: "staff", id: staffDirectory[0]?.id || "" };
+  if (profileType === "patient") {
+    selectedProfile = { type: "patient", id: selectedPatientId };
+  } else if (selectedProfile.type !== "staff") {
+    selectedProfile = { type: "staff", id: staffDirectory[0]?.id || "" };
   }
   const currentStaff = staffDirectory.find((staff) => staff.id === selectedProfile.id);
   const currentPatient = patients.find((patient) => Number(patient.id) === Number(selectedProfile.id));
@@ -4602,14 +4595,12 @@ function renderProfilesView(container) {
   const profile = selectedProfile.type === "patient"
     ? patients.find((patient) => Number(patient.id) === Number(selectedProfile.id))
     : staffDirectory.find((staff) => staff.id === selectedProfile.id);
-  const selector = `
-    <label class="profile-selector" for="profileSelector">${profileType === "staff" ? "Select staff member" : "Select patient"}
+  const selector = profileType === "staff" ? `
+    <label class="profile-selector" for="profileSelector">Select staff member
       <select id="profileSelector">
-        ${profileType === "staff"
-          ? staffDirectory.map((staff) => `<option value="staff:${escapeHtml(staff.id)}">${escapeHtml(formatStaffProfileName(staff))} · ${escapeHtml(staff.role)}</option>`).join("")
-          : patients.map((patient) => `<option value="patient:${escapeHtml(patient.id)}">${escapeHtml(patient.name)} · ${escapeHtml(patient.mrn)}</option>`).join("")}
+        ${staffDirectory.map((staff) => `<option value="staff:${escapeHtml(staff.id)}">${escapeHtml(formatStaffProfileName(staff))} · ${escapeHtml(staff.role)}</option>`).join("")}
       </select>
-    </label>`;
+    </label>` : "";
   if (!profile) {
     container.innerHTML = `<div class="panel"><div class="panel-header"><div><p class="eyebrow">Profiles</p><h3>People in Northstar</h3></div></div>${selector}<p class="empty-state">No profile is available.</p></div>`;
     return;
@@ -4648,7 +4639,7 @@ function renderProfilesView(container) {
     <div class="panel-header"><div><p class="eyebrow">${isPatient ? "Identity & care team" : "People & workforce"}</p><h3>${isPatient ? "Patient profile" : "Staff profile"}</h3></div>${selector}</div>
     ${profileBody}
   </div>`;
-  container.querySelector("#profileSelector").value = `${selectedProfile.type}:${selectedProfile.id}`;
+  if (profileType === "staff") container.querySelector("#profileSelector").value = `staff:${selectedProfile.id}`;
 }
 
 function renderPatientCareHome(container) {
@@ -5416,6 +5407,24 @@ function handleOrderSubmit(event) {
   openSavedOrderScheduler(result.order.id);
 }
 
+function handleOutpatientAppointmentSubmit(event) {
+  event.preventDefault();
+  const data = new FormData(event.currentTarget);
+  const result = createAppointmentForPatient(selectedPatientId, {
+    scheduledAt: data.get("scheduledAt"),
+    time: data.get("time"),
+    visitType: data.get("visitType"),
+    provider: data.get("provider"),
+    reason: data.get("reason"),
+    title: data.get("reason"),
+    location: data.get("location")
+  });
+  const status = document.getElementById("outpatientStatus");
+  status.textContent = result.allowed ? "Outpatient appointment scheduled." : result.message;
+  if (result.allowed) event.currentTarget.reset();
+  render();
+}
+
 function handleDocumentSubmit(event) {
   event.preventDefault();
   const form = event.currentTarget;
@@ -5496,10 +5505,7 @@ function attachEvents() {
         activeHeaderSearch = null;
         selectedPatientId = Number(searchId);
         selectedProfile = { type: "patient", id: selectedPatientId };
-        const keepPatientCareHome = currentView === "patient-care" || patientCareHomeActive;
-        if (keepPatientCareHome) {
-          patientCareHomeActive = currentView !== "patient-care";
-        } else {
+        if (!patientCareHomeActive && !hasPatientContext()) {
           setCurrentView("patient-profiles");
         }
       } else if (searchType === "staff") {
@@ -5514,24 +5520,6 @@ function attachEvents() {
     });
   });
   document.getElementById("patientListSearch").addEventListener("input", renderPatientList);
-  document.getElementById("main-content").addEventListener("change", (event) => {
-    if (event.target.id !== "treatmentPatient") return;
-    const matches = findPatientsByText(event.target.value);
-    if (matches.length !== 1) {
-      document.getElementById("treatmentStatus").textContent = matches.length
-        ? `More than one patient matched. Selected patient remains ${getSelectedPatient().name} · ${getSelectedPatient().mrn}.`
-        : `Patient not found. Selected patient remains ${getSelectedPatient().name} · ${getSelectedPatient().mrn}.`;
-      event.target.value = `${getSelectedPatient().name} · ${getSelectedPatient().mrn}`;
-      return;
-    }
-    const result = openTreatmentWorkflow(currentView, matches[0].id);
-    if (!result.allowed) {
-      document.getElementById("treatmentStatus").textContent = result.message;
-      event.target.value = `${getSelectedPatient().name} · ${getSelectedPatient().mrn}`;
-      return;
-    }
-    render();
-  });
   document.getElementById("main-content").addEventListener("click", (event) => {
     if (event.target.closest("[data-patient-care-home]")) {
       patientCareHomeActive = false;
@@ -5771,8 +5759,8 @@ function attachEvents() {
       nursingFilter = event.target.value;
       render();
     } else if (event.target.id === "profileSelector") {
-      const [type, ...idParts] = event.target.value.split(":");
-      selectedProfile = { type, id: type === "patient" ? Number(idParts.join(":")) : idParts.join(":") };
+      const [, ...idParts] = event.target.value.split(":");
+      selectedProfile = { type: "staff", id: idParts.join(":") };
       render();
     }
   });
@@ -5956,41 +5944,7 @@ function attachEvents() {
     document.getElementById("clinicalStatus").textContent = `Appointment scheduled for ${patient.name}.`;
   });
 
-  document.getElementById("outpatientAppointmentForm").addEventListener("submit", (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const patientId = String(data.get("patientId") || selectedPatientId);
-    if (!confirmPatientChange(patientId)) return;
-    const result = createAppointmentForPatient(patientId, {
-      scheduledAt: data.get("scheduledAt"),
-      time: data.get("time"),
-      visitType: data.get("visitType"),
-      provider: data.get("provider"),
-      reason: data.get("reason"),
-      title: data.get("reason"),
-      location: data.get("location")
-    });
-    const status = document.getElementById("outpatientStatus");
-    status.textContent = result.allowed ? "Outpatient appointment scheduled." : result.message;
-    if (result.allowed) {
-      selectedPatientId = patientId;
-      saveState();
-      event.currentTarget.reset();
-    }
-    render();
-  });
-
-  document.getElementById("outpatientPatient").addEventListener("change", (event) => {
-    const patientId = event.target.value;
-    if (!patients.some((patient) => String(patient.id) === String(patientId))) return;
-    if (!confirmPatientChange(patientId)) {
-      event.target.value = String(selectedPatientId);
-      return;
-    }
-    selectedPatientId = patientId;
-    saveState();
-    render();
-  });
+  document.getElementById("outpatientAppointmentForm").addEventListener("submit", handleOutpatientAppointmentSubmit);
 
   document.getElementById("outpatientAppointmentsList").addEventListener("click", (event) => {
     const action = event.target.closest("[data-outpatient-action]");

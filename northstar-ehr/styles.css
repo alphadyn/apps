@@ -1853,6 +1853,14 @@ button.stat-card {
   gap: 12px;
 }
 
+#recordsSection.patient-record-focused {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+#patientQueuePanel.hidden-section {
+  display: none;
+}
+
 #patientQueuePanel,
 #patientDetailPanel {
   padding: clamp(14px, 1.5vw, 20px);

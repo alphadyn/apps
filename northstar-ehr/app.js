@@ -4984,7 +4984,7 @@ function renderIndependentProcedureCatalog(container) {
   container.innerHTML = `<section class="panel">
     <div class="panel-header"><div><p class="eyebrow">Clinical catalog</p><h3>Procedures &amp; operations</h3></div></div>
     <div class="clinical-form">
-      <p class="muted-copy">Search by name, specialty, or type. Expand a result to review it; choose a patient only if you want to order. Catalog entries do not provide clinical descriptions.</p>
+      <p class="muted-copy">Search by name, specialty, or type. Expand a result to review it; choose a patient only if you want to order.</p>
       <label for="independentProcedureSearch">Search procedures and operations
         <input id="independentProcedureSearch" type="search" placeholder="e.g., knee arthroscopy, cardiology, surgical operation" />
       </label>

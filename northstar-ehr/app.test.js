@@ -1122,7 +1122,7 @@ test("worklist selection focuses the chart and scrolls to the top of its card", 
     ["patientDetailPanel", panel],
     ["orderForm", { elements: [] }]
   ]);
-  context.document = { getElementById: (id) => elements.get(id) };
+  context.document = { getElementById: (id) => elements.get(id), querySelectorAll: () => [] };
   context.window.matchMedia = (query) => ({
     matches: query === "(prefers-reduced-motion: reduce)" && reduceMotion
   });

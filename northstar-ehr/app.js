@@ -1605,6 +1605,7 @@ const patientCareWorkflows = [
   ["clinical", "ED & inpatient", "Document encounters, triage, and care-team updates"],
   ["orders", "Orders & requests", "Create and track care requests"],
   ["labs", "Labs & results", "Review results and laboratory requests"],
+  ["radiology", "Radiology", "Review imaging studies and radiology reports"],
   ["medications", "Medications", "Review medications and create prescriptions"],
   ["outpatient", "Outpatient care", "Schedule and manage ambulatory visits"],
   ["appointments", "Appointments", "Review the patient appointment schedule"],
@@ -2009,11 +2010,11 @@ function getVisibleSections(view) {
     patientCareHomeSection: view === "patient-care" || patientCareHomeActive,
     patientRegistration: view === "registration",
     patientWorkflowSection: Boolean(getSelectedPatient()) && !patientCareHomeActive && (
-      ["patients", "orders", "labs", "medications", "outpatient", "appointments", "clinical", "documents", "billing"].includes(view) ||
+      ["patients", "orders", "labs", "radiology", "medications", "outpatient", "appointments", "clinical", "documents", "billing"].includes(view) ||
       view === "patient-profiles" ||
       (view === "dispensary" && (pharmacyPatientContext || pharmacyMode === "dispensing"))
     ),
-    recordsSection: ["patients", "labs", "medications", "billing"].includes(view),
+    recordsSection: ["patients", "labs", "radiology", "medications", "billing"].includes(view),
     operationsSection: view === "appointments",
     outpatientSection: view === "outpatient",
     encounterSection: view === "patients" && Boolean(getSelectedPatient()),
@@ -2025,7 +2026,7 @@ function getVisibleSections(view) {
 function hasPatientContext(view = currentView) {
   if (view === "patient-care") return true;
   if (view === "patient-profiles") return true;
-  return ["patients", "orders", "labs", "medications", "outpatient", "appointments", "clinical", "documents", "billing"].includes(view) ||
+  return ["patients", "orders", "labs", "radiology", "medications", "outpatient", "appointments", "clinical", "documents", "billing"].includes(view) ||
     (view === "dispensary" && (pharmacyPatientContext || pharmacyMode === "dispensing"));
 }
 
@@ -2159,6 +2160,7 @@ function initializeWorkspaceNavigation() {
     outpatient: "M4 5h16v16H4zM8 2v6m8-6v6M4 11h16",
     documents: "M14 2H5v20h14V7zM14 2v6h5M8 12h8m-8 4h8",
     labs: "M9 3h6m-5 0v7l-6 9v2h16v-2l-6-9V3M7 16h10",
+    radiology: "M4 3h16v18H4zM8 7h8M8 12h8M8 17h8",
     medications: "M9 3h6v4h3v14H6V7h3V3M9 7h6m-3 4v6m-3-3h6",
     dispensary: "M9 3h6v4h3v14H6V7h3V3M9 7h6m-3 4v6m-3-3h6",
     departments: "M9 21V3h12v18H3V9h6m4-2h4m-4 4h4m-4 4h4M6 13v4",
@@ -3299,6 +3301,32 @@ function renderPatientDetail() {
       <section class="mini-card"><h4>Laboratory requests (${labOrders.length})</h4>
         ${labOrders.map((order) => `<article class="dispensary-record"><strong>${escapeHtml(order.title)}</strong><p>${escapeHtml(order.status)} · ${escapeHtml(order.priority)}</p>
           <button class="ghost-btn" type="button" data-treatment-view="orders" data-treatment-target="patient-order-${escapeHtml(order.id)}">View request</button></article>`).join("") || '<p class="empty-state">No laboratory requests.</p>'}
+      </section>`;
+    return;
+  }
+
+  if (currentView === "radiology") {
+    const imagingOrders = patient.orders.filter((order) =>
+      ["Imaging", "Imaging / Radiology"].includes(order.category)
+    );
+    detail.innerHTML = `
+      <div class="detail-header"><div><p class="eyebrow">Patient radiology</p><h3 id="patientDetailHeading" tabindex="-1">${escapeHtml(patient.name)}</h3><p>${escapeHtml(patient.mrn)}</p></div>
+        <button class="primary-btn" type="button" data-treatment-view="orders" data-order-category="Imaging / Radiology">Order a radiology study</button></div>
+      <section class="mini-card detail-notes imaging-records">
+        <div class="panel-header"><div><p class="eyebrow">Imaging & radiology</p><h4>Radiology results (${patient.imaging.length})</h4></div></div>
+        ${patient.imaging.length ? patient.imaging.map((record) => `
+          <article class="imaging-record" id="patient-imaging-${escapeHtml(record.id)}">
+            <div class="record-card-header"><div><span class="record-category">${escapeHtml(record.modality)} · ${escapeHtml(record.bodySite)}</span><h4>${escapeHtml(record.study)}</h4></div>
+              <span class="status-pill ${record.status === "Final" ? "status-completed" : "status-acknowledged"}">${escapeHtml(record.status)}</span></div>
+            <p><strong>Performed:</strong> ${escapeHtml(record.performedAt)} · <strong>Radiologist:</strong> ${escapeHtml(record.radiologist)}</p>
+            ${record.indication ? `<p><strong>Indication:</strong> ${escapeHtml(record.indication)}</p>` : ""}
+            ${record.report ? `<p><strong>Report:</strong> ${escapeHtml(record.report)}</p>` : ""}
+            ${record.image ? `<figure class="imaging-preview"><img src="${escapeHtml(record.image.src)}" alt="Reference ${escapeHtml(record.modality)} example for ${escapeHtml(record.bodySite)}; not this patient's scan" loading="lazy" /><figcaption>Reference example only—not this patient's scan or a diagnostic report. Source: <a href="${escapeHtml(record.image.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(record.image.creator)}, Wikimedia Commons</a> · <a href="${escapeHtml(record.image.licenseUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(record.image.license)}</a></figcaption></figure>` : ""}
+          </article>`).join("") : '<p class="empty-state">No imaging or radiology results for this patient.</p>'}
+      </section>
+      <section class="mini-card"><h4>Radiology requests (${imagingOrders.length})</h4>
+        ${imagingOrders.map((order) => `<article class="dispensary-record"><strong>${escapeHtml(order.title)}</strong><p>${escapeHtml(order.status)} · ${escapeHtml(order.priority)}</p>
+          <button class="ghost-btn" type="button" data-treatment-view="orders" data-treatment-target="patient-order-${escapeHtml(order.id)}">View request</button></article>`).join("") || '<p class="empty-state">No radiology requests.</p>'}
       </section>`;
     return;
   }

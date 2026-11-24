@@ -1637,6 +1637,13 @@ test("cancelling a patient change leaves chart and treatment navigation unchange
   assert.equal(vm.runInContext("currentView", context), "overview");
 });
 
+test("Radiology workflow renders the selected patient's imaging results", () => {
+  const { context, elements } = setup();
+  vm.runInContext('patientCareHomeActive = true; setCurrentView("radiology"); renderPatientDetail()', context);
+  assert.match(elements.get("patientDetail").innerHTML, /Patient radiology/);
+  assert.match(elements.get("patientDetail").innerHTML, /Radiology results/);
+});
+
 test("Billing immediately renders the selected patient's billing information", () => {
   for (const accountId of ["clinician", "admin"]) {
     const { api, context } = setup(accountId);

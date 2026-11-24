@@ -4053,6 +4053,21 @@ textarea {
   margin: 12px 0 0;
 }
 
+.imaging-expand {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.imaging-expand:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
 .imaging-preview img {
   display: block;
   width: 100%;
@@ -4067,6 +4082,62 @@ textarea {
   margin-top: 5px;
   color: var(--muted);
   font-size: 0.72rem;
+}
+
+.radiology-examples {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: 16px;
+}
+
+.radiology-image-viewer {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  border: 0;
+  background: #101923;
+  color: #fff;
+}
+
+.radiology-image-viewer[open] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.radiology-image-viewer form {
+  align-self: flex-end;
+}
+
+.radiology-image-close {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid #aebdcb;
+  border-radius: 8px;
+  background: #273746;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.radiology-image-close:focus-visible {
+  outline: 3px solid #84d6c6;
+  outline-offset: 3px;
+}
+
+.radiology-image-viewer > img {
+  min-height: 0;
+  max-width: 100%;
+  max-height: calc(100% - 56px);
+  object-fit: contain;
 }
 
 .record-card-header,

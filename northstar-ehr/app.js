@@ -192,6 +192,33 @@ const initialPatients = [
   }
 ];
 
+const radiologyReferenceImages = [
+  {
+    title: "Thyroid ultrasound",
+    src: "assets/imaging/thyroid-ultrasound.jpg",
+    creator: "Drahreg01",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:SD-Sono002.jpg",
+    license: "CC BY-SA 4.0",
+    licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  {
+    title: "Shoulder MRI",
+    src: "assets/imaging/shoulder-mri.png",
+    creator: "Hellerhoff",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Post_Dislocated_shoulder_MRI_01.png",
+    license: "CC BY-SA 3.0",
+    licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/"
+  },
+  {
+    title: "Brain CT",
+    src: "assets/imaging/brain-ct.png",
+    creator: "Department of Radiology, Uppsala University Hospital; uploaded by Mikael Häggström",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Computed_tomography_of_human_brain_-_large.png",
+    license: "CC0 1.0",
+    licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/"
+  }
+];
+
 const demoPatientScenarios = [
   ["Avery Bennett", 27, "Female", "Migraine without aura", "Recurrent unilateral headaches; family history of migraine; no prior surgery.", "Ibuprofen", "None listed", "Brain MRI without contrast", "MRI", "Brain", "Recurrent headaches", "No acute intracranial abnormality in this fictional sample report."],
   ["Noah Patel", 63, "Male", "Knee osteoarthritis", "Chronic knee pain; prior meniscal repair; walks daily.", "Sulfa drugs", "Acetaminophen as needed", "Right knee radiographs, 3 views", "X-ray", "Right knee", "Chronic knee pain", "Mild medial compartment joint-space narrowing; no acute fracture.", {
@@ -213,13 +240,7 @@ const demoPatientScenarios = [
   }],
   ["Mia Johnson", 24, "Female", "Ankle sprain", "Twisted left ankle during recreation; no prior fractures.", "None listed", "None listed", "Left ankle radiographs, 3 views", "X-ray", "Left ankle", "Left ankle pain after twisting injury", "No acute fracture or dislocation identified."],
   ["Benjamin Clark", 59, "Male", "Lumbar radiculopathy", "Recurrent low-back pain with leg symptoms; remote lifting injury.", "Morphine", "Naproxen as needed", "Lumbar spine MRI without contrast", "MRI", "Lumbar spine", "Persistent low-back symptoms", "Mild multilevel degenerative changes; no acute osseous finding."],
-  ["Amara Okafor", 44, "Female", "Thyroid nodule", "Incidental thyroid nodule on prior imaging; no neck surgery.", "Iodinated contrast", "Levothyroxine", "Thyroid ultrasound", "Ultrasound", "Thyroid", "Nodule follow-up", "Stable-appearing right thyroid nodule; comparison with prior study recommended.", {
-    src: "assets/imaging/thyroid-ultrasound.jpg",
-    creator: "Drahreg01",
-    sourceUrl: "https://commons.wikimedia.org/wiki/File:SD-Sono002.jpg",
-    license: "CC BY-SA 4.0",
-    licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/"
-  }, {
+  ["Amara Okafor", 44, "Female", "Thyroid nodule", "Incidental thyroid nodule on prior imaging; no neck surgery.", "Iodinated contrast", "Levothyroxine", "Thyroid ultrasound", "Ultrasound", "Thyroid", "Nodule follow-up", "Stable-appearing right thyroid nodule; comparison with prior study recommended.", radiologyReferenceImages[0], {
     study: "Repeat thyroid ultrasound",
     modality: "Ultrasound",
     bodySite: "Thyroid",
@@ -229,24 +250,12 @@ const demoPatientScenarios = [
   ["Oliver Davis", 68, "Male", "Heart failure with preserved ejection fraction", "Hypertension; prior admission for fluid overload; followed by cardiology.", "Aspirin", "Furosemide, losartan", "Chest radiograph, 2 views", "X-ray", "Chest", "Follow-up of exertional breathlessness", "Mild cardiomegaly; no focal air-space opacity in this sample report."],
   ["Chloe Martin", 31, "Female", "Endometriosis", "Pelvic pain; prior diagnostic laparoscopy; under gynecology care.", "None listed", "Combined oral contraceptive", "Pelvic MRI", "MRI", "Pelvis", "Pelvic pain evaluation", "Small endometrioma-like lesion described; correlate with specialist assessment."],
   ["Samuel Wilson", 56, "Male", "Diverticulosis", "Intermittent abdominal discomfort; prior colonoscopy; no abdominal surgery.", "Metronidazole", "None listed", "CT abdomen and pelvis with contrast", "CT", "Abdomen and pelvis", "Abdominal discomfort", "Colonic diverticulosis without acute inflammatory change."],
-  ["Layla Hassan", 39, "Female", "Rotator cuff tendinopathy", "Shoulder pain after repetitive work; prior physical therapy.", "None listed", "Topical diclofenac", "Right shoulder MRI without contrast", "MRI", "Right shoulder", "Persistent shoulder pain", "Mild supraspinatus tendinopathy; no full-thickness tear described.", {
-    src: "assets/imaging/shoulder-mri.png",
-    creator: "Hellerhoff",
-    sourceUrl: "https://commons.wikimedia.org/wiki/File:Post_Dislocated_shoulder_MRI_01.png",
-    license: "CC BY-SA 3.0",
-    licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/"
-  }],
+  ["Layla Hassan", 39, "Female", "Rotator cuff tendinopathy", "Shoulder pain after repetitive work; prior physical therapy.", "None listed", "Topical diclofenac", "Right shoulder MRI without contrast", "MRI", "Right shoulder", "Persistent shoulder pain", "Mild supraspinatus tendinopathy; no full-thickness tear described.", radiologyReferenceImages[1]],
   ["Henry Moore", 74, "Male", "Osteoporosis", "Prior wrist fracture; treated for low bone density; former smoker.", "None listed", "Calcium, vitamin D", "DEXA bone density study", "DEXA", "Lumbar spine and hips", "Bone density monitoring", "Bone mineral density remains below the expected range for age in this sample."],
   ["Zoe Thompson", 29, "Female", "Sinusitis", "Recurrent sinus symptoms; seasonal rhinitis; no facial surgery.", "Amoxicillin", "Cetirizine", "CT paranasal sinuses without contrast", "CT", "Paranasal sinuses", "Recurrent sinus symptoms", "Mild maxillary mucosal thickening; no fluid level identified."],
   ["Daniel Garcia", 61, "Male", "Carotid artery stenosis", "Hyperlipidemia; former smoker; prior vascular clinic follow-up.", "Shellfish", "Atorvastatin", "Carotid duplex ultrasound", "Ultrasound", "Carotid arteries", "Surveillance study", "Mild plaque bilaterally without hemodynamically significant stenosis described."],
   ["Priya Nair", 48, "Female", "Breast cyst", "Prior benign breast cyst; routine imaging follow-up; no breast surgery.", "None listed", "None listed", "Diagnostic mammogram and breast ultrasound", "Mammogram / Ultrasound", "Breasts", "Follow-up of known breast cyst", "Stable benign-appearing cystic finding; routine follow-up suggested in this mock report."],
-  ["Caleb Turner", 19, "Male", "Concussion, subsequent visit", "Sports-related head impact; no loss of consciousness reported; no prior neurologic history.", "None listed", "None listed", "Head CT without contrast", "CT", "Head", "Follow-up after head injury", "No acute intracranial finding identified in this fictional sample.", {
-    src: "assets/imaging/brain-ct.png",
-    creator: "Department of Radiology, Uppsala University Hospital; uploaded by Mikael Häggström",
-    sourceUrl: "https://commons.wikimedia.org/wiki/File:Computed_tomography_of_human_brain_-_large.png",
-    license: "CC0 1.0",
-    licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/"
-  }],
+  ["Caleb Turner", 19, "Male", "Concussion, subsequent visit", "Sports-related head impact; no loss of consciousness reported; no prior neurologic history.", "None listed", "None listed", "Head CT without contrast", "CT", "Head", "Follow-up after head injury", "No acute intracranial finding identified in this fictional sample.", radiologyReferenceImages[2]],
   ["Nora Williams", 66, "Female", "Peripheral neuropathy", "Type 2 diabetes; chronic foot numbness; prior podiatry visits.", "Gabapentin", "Metformin", "Left foot radiographs, 3 views", "X-ray", "Left foot", "Chronic foot symptoms", "No acute fracture; mild first metatarsophalangeal degenerative change."],
   ["Mateo Silva", 42, "Male", "Hepatic steatosis", "Elevated liver enzymes on prior screening; no abdominal surgery.", "None listed", "None listed", "Abdominal ultrasound", "Ultrasound", "Liver and biliary system", "Follow-up of liver enzyme elevation", "Increased hepatic echogenicity compatible with steatosis in this mock report."]
 ];
@@ -3286,6 +3295,20 @@ function openTimelineRecord(button) {
   window.setTimeout(() => target.classList.remove("timeline-target-highlight"), 2200);
 }
 
+function renderRadiologyImage(image, description) {
+  return `<button class="imaging-expand" type="button" data-expand-radiology-image aria-label="Expand ${escapeHtml(description)}">
+    <img src="${escapeHtml(image.src)}" alt="${escapeHtml(description)}" loading="lazy" />
+  </button>`;
+}
+
+function openRadiologyImage(button) {
+  const image = button.querySelector("img");
+  const viewerImage = document.getElementById("radiologyViewerImage");
+  viewerImage.src = image.src;
+  viewerImage.alt = image.alt;
+  document.getElementById("radiologyImageViewer").showModal();
+}
+
 function renderPatientDetail() {
   const detail = document.getElementById("patientDetail");
   const patient = getSelectedPatient();
@@ -3321,8 +3344,18 @@ function renderPatientDetail() {
             <p><strong>Performed:</strong> ${escapeHtml(record.performedAt)} · <strong>Radiologist:</strong> ${escapeHtml(record.radiologist)}</p>
             ${record.indication ? `<p><strong>Indication:</strong> ${escapeHtml(record.indication)}</p>` : ""}
             ${record.report ? `<p><strong>Report:</strong> ${escapeHtml(record.report)}</p>` : ""}
-            ${record.image ? `<figure class="imaging-preview"><img src="${escapeHtml(record.image.src)}" alt="Reference ${escapeHtml(record.modality)} example for ${escapeHtml(record.bodySite)}; not this patient's scan" loading="lazy" /><figcaption>Reference example only—not this patient's scan or a diagnostic report. Source: <a href="${escapeHtml(record.image.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(record.image.creator)}, Wikimedia Commons</a> · <a href="${escapeHtml(record.image.licenseUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(record.image.license)}</a></figcaption></figure>` : ""}
+            ${record.image ? `<figure class="imaging-preview">${renderRadiologyImage(record.image, `Reference ${record.modality} image; not this patient's scan`)}<figcaption>Reference image, not a patient scan · <a href="${escapeHtml(record.image.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(record.image.creator)}, Wikimedia Commons</a> · <a href="${escapeHtml(record.image.licenseUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(record.image.license)}</a></figcaption></figure>` : ""}
           </article>`).join("") : '<p class="empty-state">No imaging or radiology results for this patient.</p>'}
+      </section>
+      <section class="mini-card" aria-labelledby="radiologyExamplesHeading">
+        <h4 id="radiologyExamplesHeading">Reference images (not patient scans)</h4>
+        <div class="radiology-examples">
+          ${radiologyReferenceImages.map((image) => `
+            <figure class="imaging-preview">
+              ${renderRadiologyImage(image, `${image.title} reference image; not a patient scan`)}
+              <figcaption><strong>${escapeHtml(image.title)}</strong> · <a href="${escapeHtml(image.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(image.creator)}, Wikimedia Commons</a> · <a href="${escapeHtml(image.licenseUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(image.license)}</a></figcaption>
+            </figure>`).join("")}
+        </div>
       </section>
       <section class="mini-card"><h4>Radiology requests (${imagingOrders.length})</h4>
         ${imagingOrders.map((order) => `<article class="dispensary-record"><strong>${escapeHtml(order.title)}</strong><p>${escapeHtml(order.status)} · ${escapeHtml(order.priority)}</p>
@@ -3507,7 +3540,7 @@ function renderPatientDetail() {
             ${record.report ? `<p><strong>Report:</strong> ${escapeHtml(record.report)}</p>` : ""}
             ${record.image ? `
               <figure class="imaging-preview">
-                <img src="${escapeHtml(record.image.src)}" alt="Reference ${escapeHtml(record.modality)} example for ${escapeHtml(record.bodySite)}; not this patient's scan" loading="lazy" />
+                ${renderRadiologyImage(record.image, `Reference ${record.modality} example for ${record.bodySite}; not this patient's scan`)}
                 <figcaption>Reference example only—not this patient's scan or a diagnostic report. Source: <a href="${escapeHtml(record.image.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(record.image.creator)}, Wikimedia Commons</a> · <a href="${escapeHtml(record.image.licenseUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(record.image.license)}</a></figcaption>
               </figure>` : ""}
           </article>`).join("")
@@ -5685,6 +5718,13 @@ function handleDocumentSubmit(event) {
 
 function attachEvents() {
   initializeWorkspaceNavigation();
+  document.getElementById("radiologyImageViewer").addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      event.currentTarget.close();
+    }
+  });
   careTeamSearches.forEach(({ searchId, selectId, statusId, roles, emptyLabel }) => {
     document.getElementById(searchId).addEventListener("input", () => {
       filterCareTeamOptions(searchId, selectId, statusId, roles, emptyLabel, document.getElementById(selectId).value);
@@ -6217,6 +6257,11 @@ function attachEvents() {
   });
 
   document.getElementById("patientDetail").addEventListener("click", (event) => {
+    const imageButton = event.target.closest("[data-expand-radiology-image]");
+    if (imageButton) {
+      openRadiologyImage(imageButton);
+      return;
+    }
     const recordButton = event.target.closest("[data-timeline-target]");
     if (recordButton) {
       openTimelineRecord(recordButton);

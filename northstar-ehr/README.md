@@ -52,7 +52,7 @@ The deployed URL is `https://alphadyn.github.io/apps/northstar-ehr/`.
 - Intake and triage capture for arrival mode, chief complaint, acuity, nursing note, vital signs, pain score, and location
 - Disposition tracking for ward/ICU admission, home discharge, PCP or specialist referral, and transfer
 - Type-specific structured details for nursing, vitals, diagnosis, H&P, laboratory, imaging/radiology, procedure, medication, consult, and referral orders
-- Per-patient imaging and radiology records with modality, body site, indication, report, status, and radiologist; selected charts display attributed, openly licensed radiology examples clearly marked as reference images, not patient scans
+- Per-patient imaging and radiology records with modality, body site, indication, report, status, and radiologist. Every patient's Radiology workflow also shows shared, attributed reference images, clearly separated from the patient's studies and reports. Select an image to open a full-screen viewer; close it with the Close button or Escape.
 - Workflow-specific structured drafts for ED, history and physical, admission, SOAP/progress, consult, nursing, procedure, discharge, and referral documents
 - Patient workflow assignment to a department, care location, attending provider, and nurse; clinician and nurse workflow roles, an admin review role, and an activity audit trail
 - Client-side demo sign-in with a consolidated warning screen requiring acknowledgment on each sign-in; not real authentication or server-enforced authorization
@@ -233,7 +233,7 @@ The proposed secure backend, profiles, permission model, encryption, and release
 
 ### Radiology example image attribution
 
-The following images are downloaded from Wikimedia Commons and shown only as external educational examples. They are not images of the fictional patients or evidence for the accompanying fictional reports. Original creator and license links are also shown beside each image.
+The following images are downloaded from Wikimedia Commons and shown in every patient's Radiology workflow as shared educational examples. They are not images of the fictional patients or evidence for their fictional reports. Original creator and license links are also shown beside each image.
 
 - Thyroid ultrasound: [Drahreg01, *SD-Sono002.jpg*](https://commons.wikimedia.org/wiki/File:SD-Sono002.jpg), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
 - Shoulder MRI: [Hellerhoff, *Post Dislocated shoulder MRI 01.png*](https://commons.wikimedia.org/wiki/File:Post_Dislocated_shoulder_MRI_01.png), [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)

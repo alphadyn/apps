@@ -1638,10 +1638,49 @@ test("cancelling a patient change leaves chart and treatment navigation unchange
 });
 
 test("Radiology workflow renders the selected patient's imaging results", () => {
-  const { context, elements } = setup();
+  const { context } = setup();
+  const detail = { innerHTML: "" };
+  context.document = { getElementById: (id) => id === "patientDetail" ? detail : null };
   vm.runInContext('patientCareHomeActive = true; setCurrentView("radiology"); renderPatientDetail()', context);
-  assert.match(elements.get("patientDetail").innerHTML, /Patient radiology/);
-  assert.match(elements.get("patientDetail").innerHTML, /Radiology results/);
+  assert.match(detail.innerHTML, /Patient radiology/);
+  assert.match(detail.innerHTML, /Radiology results/);
+});
+
+test("every patient sees separately labelled shared radiology examples", () => {
+  const { context } = setup();
+  const detail = { innerHTML: "" };
+  context.document = { getElementById: (id) => id === "patientDetail" ? detail : null };
+  const count = vm.runInContext("patients.length", context);
+  for (let index = 0; index < count; index += 1) {
+    context.patientIndex = index;
+    vm.runInContext('selectedPatientId = patients[patientIndex].id; currentView = "radiology"; renderPatientDetail()', context);
+    assert.match(detail.innerHTML, /Reference images \(not patient scans\)/);
+    for (const image of ["thyroid-ultrasound.jpg", "shoulder-mri.png", "brain-ct.png"]) {
+      assert.match(detail.innerHTML, new RegExp(image.replace(".", "\\.")));
+    }
+  }
+  vm.runInContext("patients[0].imaging = []; selectedPatientId = patients[0].id; renderPatientDetail()", context);
+  assert.match(detail.innerHTML, /No imaging or radiology results for this patient/);
+  assert.match(detail.innerHTML, /Reference images \(not patient scans\)/);
+});
+
+test("radiology images open in the viewer with their source and description", () => {
+  const { context } = setup();
+  const viewerImage = {};
+  const viewer = { showModal() { this.open = true; } };
+  context.document = {
+    getElementById: (id) => id === "radiologyViewerImage" ? viewerImage : viewer
+  };
+  context.imageButton = {
+    querySelector: () => ({ src: "https://example.test/scan.png", alt: "Reference scan; not a patient scan" })
+  };
+  const markup = vm.runInContext('renderRadiologyImage({ src: "image.png" }, "Reference <scan>")', context);
+  assert.match(markup, /<button[^>]*data-expand-radiology-image/);
+  assert.match(markup, /aria-label="Expand Reference &lt;scan&gt;"/);
+  vm.runInContext("openRadiologyImage(imageButton)", context);
+  assert.equal(viewerImage.src, "https://example.test/scan.png");
+  assert.equal(viewerImage.alt, "Reference scan; not a patient scan");
+  assert.equal(viewer.open, true);
 });
 
 test("Billing immediately renders the selected patient's billing information", () => {

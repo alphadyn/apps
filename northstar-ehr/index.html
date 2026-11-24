@@ -25,7 +25,7 @@
     <meta name="twitter:description" content="Explore fictional patient charts, admissions, care teams, timelines, orders, and notes." />
     <meta name="twitter:image" content="https://alphadyn.github.io/apps/northstar-ehr/social-preview.png" />
     <meta name="twitter:image:alt" content="Northstar EHR clinical operations demo, showing a fictional patient chart and timeline." />
-    <link rel="stylesheet" href="styles.css?v=31" />
+    <link rel="stylesheet" href="styles.css?v=32" />
   </head>
   <body>
     <main id="loginScreen" class="login-screen">
@@ -704,12 +704,19 @@
       </main>
     </div>
 
+    <dialog id="radiologyImageViewer" class="radiology-image-viewer" aria-label="Radiology image viewer">
+      <form method="dialog">
+        <button class="radiology-image-close" type="submit" autofocus aria-label="Close image viewer">Close <span aria-hidden="true">&times;</span></button>
+      </form>
+      <img id="radiologyViewerImage" alt="" />
+    </dialog>
+
     <script src="interop.js"></script>
     <script src="medication-catalog.js?v=1"></script>
     <script src="rxnorm-catalog.js?v=1"></script>
     <script src="procedure-catalog.js?v=1"></script>
     <script src="surgical-catalog.js?v=1"></script>
     <script src="radiology-catalog.js?v=1"></script>
-    <script src="app.js?v=38"></script>
+    <script src="app.js?v=39"></script>
   </body>
 </html>

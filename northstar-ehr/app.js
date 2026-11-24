@@ -6063,7 +6063,6 @@ function attachEvents() {
 
   document.getElementById("encounterForm").addEventListener("submit", handleEncounterSubmit);
   document.getElementById("registerPatientBtn").addEventListener("click", () => openPatientRegistration());
-  document.querySelector("#patientsMenu [data-admit-patient]").addEventListener("click", () => openPatientRegistration(true));
   document.getElementById("cancelPatientRegistration").addEventListener("click", cancelPatientRegistration);
   document.getElementById("patientRegistrationForm").addEventListener("submit", handlePatientRegistration);
   document.getElementById("workflowForm").addEventListener("submit", handleWorkflowSubmit);

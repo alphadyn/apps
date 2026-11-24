@@ -4117,9 +4117,11 @@ textarea {
 }
 
 .radiology-image-close {
-  min-width: 44px;
-  min-height: 44px;
-  padding: 8px 14px;
+  display: grid;
+  place-items: center;
+  min-width: 52px;
+  min-height: 52px;
+  padding: 8px 16px;
   border: 1px solid #aebdcb;
   border-radius: 8px;
   background: #273746;
@@ -4136,7 +4138,7 @@ textarea {
 .radiology-image-viewer > img {
   min-height: 0;
   max-width: 100%;
-  max-height: calc(100% - 56px);
+  max-height: calc(100% - 64px);
   object-fit: contain;
 }
 

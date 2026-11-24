@@ -1453,9 +1453,11 @@ test("Patient care home uses the header patient search and presents patient-spec
   assert.doesNotMatch(container.innerHTML, /patientCareSearch/);
   assert.match(container.innerHTML, /Patient in context/);
   assert.match(container.innerHTML, /<dt>Allergies<\/dt>/);
+  assert.match(container.innerHTML, /<dt>Current medications<\/dt>/);
   assert.match(container.innerHTML, /data-patient-care-view="orders"/);
   assert.match(container.innerHTML, /data-patient-care-view="documents"/);
-  assert.match(container.innerHTML, /data-patient-care-view="dispensary"/);
+  assert.match(container.innerHTML, /data-patient-care-view="medications"/);
+  assert.doesNotMatch(container.innerHTML, /data-patient-care-view="dispensary"/);
   assert.doesNotMatch(container.innerHTML, /data-patient-care-view="billing"/);
 });
 
@@ -1466,7 +1468,7 @@ test("patient context details include care location, diagnosis, allergies, and e
     Object.assign(patients[0].clinical, { location: "Room 12", stage: "Treatment", disposition: "Admitted" });
   `, context);
   const markup = vm.runInContext("renderPatientContextDetails(patients[0])", context);
-  for (const label of ["Age / sex", "Unit / department", "Location", "Diagnosis", "Allergies", "Encounter stage", "Disposition", "Provider"]) {
+  for (const label of ["Age / sex", "Priority", "Unit / department", "Location", "Diagnosis", "Allergies", "Current medications", "Encounter stage", "Disposition", "Provider"]) {
     assert.ok(markup.includes(`<dt>${label}</dt>`), label);
   }
   assert.match(markup, /Type 2 diabetes, hypertension/);
@@ -2137,6 +2139,7 @@ test("patient context follows patient-specific workspaces and separates focused 
   vm.runInContext("patientCareHomeActive = false", context);
   assert.equal(api.getVisibleSections("labs").encounterSection, false);
   assert.equal(api.getVisibleSections("medications").recordsSection, true);
+  assert.equal(api.getVisibleSections("medications").extendedSection, true);
   assert.equal(api.getVisibleSections("dispensary").extendedSection, true);
   assert.equal(api.openTreatmentWorkflow("not-a-view", patient.id).allowed, false);
   assert.equal(api.openTreatmentWorkflow("medications", "missing").allowed, false);

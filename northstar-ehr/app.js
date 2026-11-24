@@ -1615,11 +1615,10 @@ const patientCareWorkflows = [
   ["orders", "Orders & requests", "Create and track care requests"],
   ["labs", "Labs & results", "Review results and laboratory requests"],
   ["radiology", "Radiology", "Review imaging studies and radiology reports"],
-  ["medications", "Medications", "Review medications and create prescriptions"],
+  ["medications", "Medications", "Review current medications, search the formulary, and record dispensing"],
   ["outpatient", "Outpatient care", "Schedule and manage ambulatory visits"],
   ["appointments", "Appointments", "Review the patient appointment schedule"],
-  ["documents", "Notes & documents", "Review or create clinical documents"],
-  ["dispensary", "Formulary", "Search medications for the patient"]
+  ["documents", "Notes & documents", "Review or create clinical documents"]
 ];
 let patientCareHomeActive = loadWorkspacePreference("patientCareHomeActive", false) === true &&
   patientCareWorkflows.some(([view]) => view === currentView);
@@ -2010,7 +2009,7 @@ function getDetailCardsForView(patient, openTasks) {
 }
 
 function getVisibleSections(view) {
-  const extendedViews = ["my-patients", "inbox", "admissions", "nursing", "departments", "locations", "staff", "profiles", "patient-profiles", "dispensary", "procedure-catalog", "radiology-catalog"];
+  const extendedViews = ["my-patients", "inbox", "admissions", "nursing", "departments", "locations", "staff", "profiles", "patient-profiles", "dispensary", "medications", "procedure-catalog", "radiology-catalog"];
   return {
     overviewSection: view === "overview",
     operationsOverviewSection: view === "overview",
@@ -3407,9 +3406,9 @@ function renderPatientDetail() {
       <div>
         <p class="eyebrow">Current patient</p>
         <h3 id="patientDetailHeading" tabindex="-1">${escapeHtml(patient.name)}</h3>
-        <p>${escapeHtml(patient.mrn)} • ${escapeHtml(patient.age)} years • ${escapeHtml(patient.sex)}</p>
+        <p>${escapeHtml(patient.mrn)}${currentView === "medications" ? "" : ` • ${escapeHtml(patient.age)} years • ${escapeHtml(patient.sex)}`}</p>
       </div>
-      <span class="pill">${escapeHtml(patient.priority)}</span>
+      ${currentView !== "medications" ? `<span class="pill">${escapeHtml(patient.priority)}</span>` : ""}
     </div>
 
     ${currentView === "patients" ? `<section class="mini-card">
@@ -3423,11 +3422,7 @@ function renderPatientDetail() {
         <button class="ghost-btn" type="button" data-treatment-view="outpatient">Appointments</button>
       </div>
     </section>` : ""}
-    ${currentView !== "medications" ? renderPatientStatusDashboard(patient) + renderPatientTimeline(patient) : `
-      <section class="mini-card"><h4>Medication context</h4>
-        <p><strong>Allergies:</strong> ${escapeHtml(patient.allergies.join(", ") || "None recorded")}</p>
-        <p><strong>Current medication list:</strong> ${escapeHtml(patient.medications.join(", ") || "None recorded")}</p>
-      </section>`}
+    ${currentView !== "medications" ? renderPatientStatusDashboard(patient) + renderPatientTimeline(patient) : ""}
 
     ${currentView !== "medications" ? `<div class="detail-grid">
       ${detailCards
@@ -3489,22 +3484,6 @@ function renderPatientDetail() {
         </form>
       </section>
 
-      <section class="mini-card patient-prescription-history">
-        <h4>Active prescriptions (${patient.prescriptions.filter((item) => item.status === "Active").length})</h4>
-        ${patient.prescriptions.length ? `
-          <ul>
-            ${patient.prescriptions.map((prescription) => `
-              <li id="patient-prescription-${escapeHtml(prescription.id)}" class="${prescription.interactionWarnings?.length ? "prescription-with-warning" : ""}">
-                <strong>${escapeHtml(prescription.medication)}</strong> · ${escapeHtml(prescription.medicationClass)}
-                <p>${escapeHtml(prescription.quantity)} quantity · ${escapeHtml(prescription.refills)} refills · ${escapeHtml(prescription.instructions)}</p>
-                ${prescription.interactionWarnings?.length ? `<div class="interaction-warning"><strong>Interaction notices</strong>${prescription.interactionWarnings.map((warning) => `<p>${escapeHtml(warning)}</p>`).join("")}</div>` : ""}
-                <small>${escapeHtml(prescription.status)} · ${escapeHtml(prescription.prescribedBy || "Prescribing user")}</small>
-                ${prescription.status === "Active" ? `<button class="ghost-btn" type="button" data-dispense-prescription="${escapeHtml(prescription.id)}">Open in dispensing</button>` : ""}
-              </li>
-            `).join("")}
-          </ul>
-        ` : '<p class="empty-state">No prescriptions in this patient record.</p>'}
-      </section>
     ` : ""}
 
     ${currentView !== "medications" ? `<div class="mini-card detail-notes">
@@ -4065,7 +4044,7 @@ function handleInboxAction(action, itemId) {
 
 const formularyWorkflow = { search: "", page: 0 };
 let dispensingPrescriptionId = "";
-let pharmacyMode = "formulary";
+let pharmacyMode = "current";
 
 function findPatientsByText(value) {
   const term = value.trim().toLowerCase();
@@ -4081,10 +4060,12 @@ function renderPatientContextDetails(patient) {
   const clinical = patient.clinical;
   const details = [
     ["Age / sex", `${patient.age} years · ${patient.sex}`],
+    ["Priority", patient.priority || "Not recorded"],
     ["Unit / department", clinical.department || "Not recorded"],
     ["Location", clinical.location || "Not recorded"],
     ["Diagnosis", patient.diagnosis || "Not recorded"],
     ["Allergies", patient.allergies.join(", ") || "None recorded"],
+    ["Current medications", patient.medications.join(", ") || "None recorded"],
     ["Encounter stage", clinical.stage || "Not recorded"],
     ["Disposition", clinical.disposition || "Disposition pending"],
     ["Provider", patient.provider || "Provider unassigned"]
@@ -4101,7 +4082,7 @@ function renderPatientContext() {
     container.innerHTML = "";
     return;
   }
-  container.classList.toggle("pharmacy-patient-context", currentView === "dispensary");
+  container.classList.toggle("pharmacy-patient-context", currentView === "dispensary" || currentView === "medications");
   container.innerHTML = `
     <div class="treatment-context">
       <div><p class="eyebrow">Patient in context</p><strong>${escapeHtml(patient.name)} · ${escapeHtml(patient.mrn)}</strong></div>
@@ -4114,7 +4095,7 @@ function renderPatientContext() {
 
 function positionPharmacyNavigation() {
   const navigation = document.querySelector("#extendedContent .pharmacy-navigation, #patientWorkflowSection .pharmacy-navigation");
-  if (!navigation) return;
+  if (!navigation || currentView !== "dispensary") return;
   const target = document.getElementById(
     !patientCareHomeActive && pharmacyMode === "dispensing" ? "patientWorkflowSection" : "extendedContent"
   );
@@ -4130,13 +4111,15 @@ function openTreatmentWorkflow(view, patientId = selectedPatientId) {
   if (!confirmPatientChange(patient.id)) return { allowed: false, message: "Patient change cancelled; the order draft was kept." };
   selectedPatientId = patient.id;
   dispensingPrescriptionId = "";
+  if (view === "medications") pharmacyMode = "current";
   setCurrentView(view);
   return { allowed: true, patient };
 }
 
 function renderDispensaryView(container) {
+  if (currentView === "dispensary" && pharmacyMode === "current") pharmacyMode = "formulary";
   const patient = getSelectedPatient();
-  const patientInContext = patientCareHomeActive || pharmacyPatientContext || pharmacyMode === "dispensing";
+  const patientInContext = currentView === "medications" || patientCareHomeActive || pharmacyPatientContext || pharmacyMode === "dispensing";
   const selectedPrescription = patient && dispensingPrescriptionId
     ? patient.prescriptions.find((item) => item.id === dispensingPrescriptionId && item.status === "Active")
     : null;
@@ -4146,10 +4129,59 @@ function renderDispensaryView(container) {
     String(b.dispensedAt).localeCompare(String(a.dispensedAt))
   );
   container.innerHTML = `
-    <nav class="treatment-navigation pharmacy-navigation" aria-label="Pharmacy workflows">
+    <nav class="treatment-navigation pharmacy-navigation" aria-label="${currentView === "medications" ? "Medication workflows" : "Pharmacy workflows"}">
+      ${currentView === "medications" ? '<button class="ghost-btn" type="button" data-pharmacy-mode="current">Current medications</button>' : ""}
       <button class="ghost-btn" type="button" data-pharmacy-mode="formulary">Search formulary</button>
       <button class="ghost-btn" type="button" data-pharmacy-mode="dispensing">Patient dispensing</button>
     </nav>
+    ${currentView === "medications" ? `
+      <section class="panel current-medications-panel">
+        <div class="panel-header">
+          <div><p class="eyebrow">Medication list</p><h3>Current medications</h3></div>
+          <span class="pill">${patient.medications.length + activePrescriptions.length} ${patient.medications.length + activePrescriptions.length === 1 ? "record" : "records"}</span>
+        </div>
+        <div class="current-medication-groups">
+          <section aria-labelledby="chartMedicationListHeading">
+            <h4 id="chartMedicationListHeading">Patient medication list</h4>
+            ${patient.medications.length ? `
+              <ul class="current-medication-list">
+                ${patient.medications.map((medication, index) => `
+                  <li class="current-medication-card" id="current-medication-${index}">
+                    <strong>${escapeHtml(String(medication))}</strong>
+                    <span class="status-pill">On medication list</span>
+                    <p>Dose, directions, and status are not recorded separately for this entry.</p>
+                  </li>
+                `).join("")}
+              </ul>
+            ` : '<p class="empty-state">No medications are recorded on the patient medication list.</p>'}
+          </section>
+          <section aria-labelledby="activePrescriptionListHeading">
+            <h4 id="activePrescriptionListHeading">Active prescriptions (${activePrescriptions.length})</h4>
+            ${activePrescriptions.length ? `
+              <ul class="current-medication-list">
+                ${activePrescriptions.map((prescription) => `
+                  <li class="current-medication-card ${prescription.interactionWarnings?.length ? "prescription-with-warning" : ""}" id="current-prescription-${escapeHtml(prescription.id)}">
+                    <div class="current-medication-heading">
+                      <strong>${escapeHtml(prescription.medication)}</strong>
+                      <span class="status-pill status-completed">${escapeHtml(prescription.status)}</span>
+                    </div>
+                    <dl class="current-medication-details">
+                      <div><dt>Class</dt><dd>${escapeHtml(prescription.medicationClass)}</dd></div>
+                      <div><dt>Quantity</dt><dd>${escapeHtml(prescription.quantity)}</dd></div>
+                      <div><dt>Refills</dt><dd>${escapeHtml(prescription.refills)}</dd></div>
+                      <div><dt>Directions</dt><dd>${escapeHtml(prescription.instructions || "Not recorded")}</dd></div>
+                      <div><dt>Prescriber</dt><dd>${escapeHtml(prescription.prescribedBy || "Not recorded")}</dd></div>
+                    </dl>
+                    ${prescription.interactionWarnings?.length ? `<div class="interaction-warning"><strong>Interaction notices</strong>${prescription.interactionWarnings.map((warning) => `<p>${escapeHtml(warning)}</p>`).join("")}</div>` : ""}
+                    <button class="ghost-btn" type="button" data-dispense-prescription="${escapeHtml(prescription.id)}">Open in dispensing</button>
+                  </li>
+                `).join("")}
+              </ul>
+            ` : '<p class="empty-state">No active prescriptions in this patient record.</p>'}
+          </section>
+        </div>
+      </section>
+    ` : ""}
     <div class="universal-medication-search">
       <label for="universalMedicationSearch">Search formulary
         <input id="universalMedicationSearch" type="search" placeholder="Name, ingredient, class, strength, form, or route" autocomplete="off" />
@@ -4244,6 +4276,7 @@ function renderDispensaryView(container) {
   `;
   const pharmacyNavigation = container.querySelector(".pharmacy-navigation");
   const applyPharmacyMode = () => {
+    container.querySelector(".current-medications-panel")?.classList.toggle("hidden-section", pharmacyMode !== "current");
     container.querySelector(".dispensary-catalog-panel").classList.toggle("hidden-section", pharmacyMode !== "formulary");
     container.querySelector(".dispensary-grid").classList.toggle("hidden-section", pharmacyMode !== "dispensing");
     applyViewState();
@@ -4410,6 +4443,7 @@ function renderDispensaryView(container) {
     }
     if (!confirmPatientChange(matches[0].id)) return;
     selectedPatientId = matches[0].id;
+    pharmacyMode = "formulary";
     setCurrentView("medications");
     render();
     const prescriptionMedication = document.getElementById("patientMedicationSelect");
@@ -4815,6 +4849,7 @@ function openPatientCareWorkflow(view) {
     pharmacyPatientContext = true;
     pharmacyMode = "formulary";
   }
+  if (view === "medications") pharmacyMode = "current";
   setCurrentView(view);
   dispensingPrescriptionId = "";
   return true;
@@ -4862,7 +4897,8 @@ function renderExtendedWorkspace() {
     case "departments": renderDepartmentsView(container); break;
     case "locations": renderLocationsView(container); break;
     case "staff": renderStaffView(container); break;
-    case "dispensary": renderDispensaryView(container); break;
+    case "dispensary":
+    case "medications": renderDispensaryView(container); break;
     case "procedure-catalog": renderIndependentProcedureCatalog(container); break;
     case "radiology-catalog": renderIndependentRadiologyCatalog(container); break;
     case "profiles": renderProfilesView(container); break;
@@ -5838,7 +5874,7 @@ function attachEvents() {
         return;
       }
       pharmacyPatientContext = true;
-      const result = openTreatmentWorkflow("dispensary");
+      const result = openTreatmentWorkflow("medications");
       if (!result.allowed) {
         document.getElementById("treatmentStatus").textContent = result.message;
         return;

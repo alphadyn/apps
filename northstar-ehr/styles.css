@@ -1103,19 +1103,65 @@ textarea {
   grid-column: 1 / -1;
 }
 
-.patient-prescription-history ul {
+.current-medications-panel {
+  margin-bottom: 16px;
+}
+
+.current-medication-groups {
   display: grid;
-  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 20px;
+}
+
+.current-medication-groups h4 {
+  margin: 0 0 10px;
+}
+
+.current-medication-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.patient-prescription-history li {
+.current-medication-card {
   display: grid;
-  gap: 5px;
-  padding: 10px;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
+  overflow-wrap: anywhere;
+}
+
+.current-medication-card > p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.current-medication-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.current-medication-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.current-medication-details dt {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.current-medication-details dd {
+  margin: 2px 0 0;
 }
 
 .dispensary-empty {

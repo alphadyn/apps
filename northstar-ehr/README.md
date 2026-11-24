@@ -62,17 +62,21 @@ The deployed URL is `https://alphadyn.github.io/apps/northstar-ehr/`.
 
 ### Formulary review and demo prescribing
 
-In **Formulary**, use **Search formulary** without selecting a patient
-to find medications by name, ingredient, class, strength,
-form, route, adverse effect, or listed interaction. Each result shows its class
+In the patient’s **Medications** workflow—or in the independent sidebar
+**Formulary** workspace—use **Search formulary** to find medications by name,
+ingredient, class, strength, form, route, adverse effect, or listed interaction.
+The independent search does not require a patient. Each result shows its class
 when supplied and offers an expandable review of source and safety details.
-Use **Select for prescription** for the desired product or strength, then select
-the patient by name or MRN in the independent formulary, or continue with the
-patient already in context from Patient care, to open **Medications & prescriptions**.
+Choose a product or strength with **Select for prescription**. In the
+independent Formulary, select the patient by name or MRN; in the patient
+workflow, the patient is already in context. This opens the prescription form
+in **Medications**.
 Patient-specific interaction notices appear in the prescription workflow. Review the patient
 and complete quantity, refills, and directions before saving. Searching or opening
-the form does not create a prescription or dispense medication. Prescribing
-follows the demo encounter-create role permission; dispensing remains separate.
+the form does not create a prescription or dispense medication. Patient dispensing
+and dispensation history are available in the same **Medications** workflow.
+Prescribing follows the demo encounter-create role permission; dispensing follows
+the demo order-create role permission.
 
 ### Orders, results, medications, and pharmacy
 
@@ -104,19 +108,22 @@ follows the demo encounter-create role permission; dispensing remains separate.
   permissions also apply here.
 - **Labs & results:** Recorded fictional results and laboratory requests only.
   **Order a lab test** opens Orders with the Laboratory category selected.
-- **Medications & prescriptions:** Medication/allergy context, formulary search,
-  prescription details, and links to dispensing. Saving a prescription creates one
+- **Medications:** A **Current medications** view lists the patient medication list
+  and active prescriptions with recorded quantity, refills, directions, class,
+  prescriber, and interaction notices. The workflow also includes formulary search,
+  prescription details, and patient dispensing/history. Saving a prescription creates one
   linked medication request in Orders. Cancelling that request cancels its linked
   prescription; legacy chart medications remain available for reconciliation.
-- **Formulary:** Separate **Search formulary** and **Patient dispensing**
-  modes share one medication search. Searching does not change a record.
+- **Formulary:** The sidebar remains available for independent medication searches.
+  Searching does not change a record.
   **Open in dispensing** from a prescription preserves the patient, medication,
   quantity, and instructions. The dispensing record retains the prescription ID;
   general unlinked dispensing remains available
   for legacy/demo chart records. Recording dispensing does not consume refills or
   infer that the medication has been administered.
 - Patient care home links to patient-specific chart, encounter, orders, results,
-  medication, formulary, scheduling, documents, and billing workspaces. Use the
+  medications (including formulary search and dispensing), scheduling, documents,
+  and billing workspaces. Use the
   header patient search to select a patient; the Patient care menu shows the
   current patient's MRN. An open workflow remains under the patient context;
   expand Patient workflows to switch workspaces. Switching patients with an

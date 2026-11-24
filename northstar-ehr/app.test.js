@@ -621,7 +621,7 @@ const automaticSignInKey = "northstar-ehr-automatic-sign-in";
 function setupNavigation(mobile = false, storage = new Map()) {
   const { context } = setup("clinician", storage);
   const elements = new Map();
-  for (const id of ["appShell", "workspaceSidebar", "main-content", "navigationToggle", "navigationBackdrop", "closeNavigationBtn", "navigationStatus"]) {
+  for (const id of ["appShell", "workspaceSidebar", "main-content", "navigationToggle", "navigationBackdrop", "closeNavigationBtn", "navigationStatus", "patientWorkflowNavigation"]) {
     elements.set(id, {
       dataset: {},
       attributes: {},
@@ -652,6 +652,10 @@ test("every workspace navigation link receives an icon path", () => {
       dataset: { view: match[1] },
       insertAdjacentHTML(position, markup) { this.markup = markup; }
     }));
+  const workflowMarkup = vm.runInContext("renderPatientWorkflowNavigation()", context);
+  for (const match of workflowMarkup.matchAll(/data-view="([^"]+)"/g)) {
+    links.push({ dataset: { view: match[1] }, insertAdjacentHTML(position, markup) { this.markup = markup; } });
+  }
   assert.ok(links.some((link) => link.dataset.view === "patient-care"));
   context.document.querySelectorAll = () => links;
   context.document.addEventListener = () => {};
@@ -661,6 +665,40 @@ test("every workspace navigation link receives an icon path", () => {
   for (const link of links) {
     assert.match(link.markup, /<path d="M[^"]+" \/>/, `Missing icon for ${link.dataset.view}`);
   }
+});
+
+test("patient menu mirrors workflows and distinguishes the worklist and independent formulary", () => {
+  const { context } = setup();
+  const menu = vm.runInContext("renderPatientWorkflowNavigation()", context);
+  const workflows = vm.runInContext("patientCareWorkflows.map(([view, title]) => ({ view, title }))", context);
+  const links = [...menu.matchAll(/data-view="([^"]+)" data-patient-workflow-menu>([^<]+)<\/button>/g)];
+  assert.deepEqual(links.map((match) => [match[1], match[2].replace(/&amp;/g, "&")]), Array.from(workflows, ({ view, title }) => [view, title]));
+  const makeLink = (view, workflow) => ({ dataset: { view }, hasAttribute: () => workflow });
+  context.workflowLink = makeLink("patients", true);
+  context.worklistLink = makeLink("patients", false);
+  context.patientFormulary = makeLink("dispensary", true);
+  context.independentFormulary = makeLink("dispensary", false);
+  vm.runInContext('currentView = "patients"; patientCareHomeActive = true', context);
+  assert.equal(vm.runInContext("isActiveNavigationLink(workflowLink)", context), true);
+  assert.equal(vm.runInContext("isActiveNavigationLink(worklistLink)", context), false);
+  vm.runInContext("patientCareHomeActive = false", context);
+  assert.equal(vm.runInContext("isActiveNavigationLink(worklistLink)", context), true);
+  vm.runInContext('currentView = "dispensary"; pharmacyPatientContext = false; pharmacyMode = "formulary"', context);
+  assert.equal(vm.runInContext("isActiveNavigationLink(independentFormulary)", context), true);
+  vm.runInContext("pharmacyPatientContext = true", context);
+  assert.equal(vm.runInContext("isActiveNavigationLink(patientFormulary)", context), true);
+  assert.equal(vm.runInContext("isActiveNavigationLink(independentFormulary)", context), false);
+});
+
+test("menu workflow navigation uses patient care home and requires a patient", () => {
+  const { context } = setup();
+  vm.runInContext('openPatientCareWorkflow("patients")', context);
+  assert.equal(vm.runInContext('currentView === "patients" && patientCareHomeActive', context), true);
+  vm.runInContext('openPatientCareWorkflow("dispensary")', context);
+  assert.equal(vm.runInContext('currentView === "dispensary" && patientCareHomeActive && pharmacyPatientContext', context), true);
+  vm.runInContext("selectedPatientId = null", context);
+  assert.equal(vm.runInContext('openPatientCareWorkflow("patients")', context), false);
+  assert.equal(vm.runInContext('currentView === "patient-care" && !patientCareHomeActive', context), true);
 });
 
 test("desktop navigation collapses, persists, and restores without changing the current view", () => {
@@ -1298,6 +1336,53 @@ test("patient context details include care location, diagnosis, allergies, and e
   }
   vm.runInContext('patients[0].clinical.location = "<Room & 1>"', context);
   assert.match(vm.runInContext("renderPatientContextDetails(patients[0])", context), /&lt;Room &amp; 1&gt;/);
+});
+
+test("clearing patient context can be cancelled and persists an empty state across reloads", () => {
+  const { context, storage } = setup();
+  const elements = Object.fromEntries(
+    ["documentForm", "encounterForm", "outpatientAppointmentForm", "workflowForm"].map((id) => [id, { reset() {} }])
+  );
+  elements.clinicalStatus = { textContent: "Previous status" };
+  elements.encounterStatus = { textContent: "Previous status" };
+  context.document = { getElementById: (id) => elements[id] };
+  vm.runInContext(`
+    render = () => saveState();
+    renderDocumentFields = () => {};
+    confirmPatientChange = () => false;
+    currentView = "orders";
+    patientCareHomeActive = true;
+  `, context);
+  assert.equal(vm.runInContext("clearPatientContext()", context), false);
+  assert.equal(vm.runInContext("getSelectedPatient().id === patients[0].id", context), true);
+  vm.runInContext("confirmPatientChange = () => true", context);
+  assert.equal(vm.runInContext("clearPatientContext()", context), true);
+  assert.equal(vm.runInContext("getSelectedPatient()", context), null);
+  assert.equal(vm.runInContext("currentView", context), "patient-care");
+  assert.equal(vm.runInContext("patientCareHomeActive", context), false);
+  assert.equal(elements.clinicalStatus.textContent, "");
+  const restored = setup("clinician", storage);
+  assert.equal(vm.runInContext("getSelectedPatient()", restored.context), null);
+  const container = { innerHTML: "" };
+  restored.context.container = container;
+  vm.runInContext("renderPatientCareHome(container)", restored.context);
+  assert.match(container.innerHTML, /No patient in context/);
+  assert.doesNotMatch(container.innerHTML, /data-patient-care-view|data-clear-patient/);
+  vm.runInContext('setCurrentView("orders")', restored.context);
+  assert.equal(vm.runInContext("currentView", restored.context), "patient-care");
+  assert.equal(vm.runInContext('getVisibleSections("patients").encounterSection', restored.context), false);
+  vm.runInContext('selectedPatientId = patients[1].id; setCurrentView("orders")', restored.context);
+  assert.equal(vm.runInContext('getSelectedPatient().id === patients[1].id && currentView === "orders"', restored.context), true);
+});
+
+test("clearing prompts before discarding patient workflow changes", () => {
+  const { context } = setup();
+  const prompts = [];
+  context.document = {};
+  context.window.confirm = (message) => { prompts.push(message); return false; };
+  vm.runInContext("hasUnsavedOrderDraft = () => false; hasUnsavedPatientForms = () => true", context);
+  assert.equal(vm.runInContext("confirmPatientChange(null)", context), false);
+  assert.match(prompts[0], /unsaved patient workflow changes/);
 });
 
 test("patient profiles use the current patient and retain staff-only selection", () => {

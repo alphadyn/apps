@@ -123,19 +123,15 @@
             <summary><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m20 0v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /><circle cx="9" cy="7" r="4" /></svg><span class="patient-menu-label">Patient care</span><span id="patientContextMrn" class="patient-context-mrn" hidden></span><svg class="menu-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg></summary>
             <div class="nav-submenu">
               <button class="nav-link" type="button" data-view="patient-care">Patient care home</button>
-              <button class="nav-link" type="button" data-view="patients">Worklist &amp; charts</button>
-              <button class="nav-link" type="button" data-view="patient-profiles">Patient profiles</button>
-              <button class="nav-link" type="button" data-view="admissions">Admissions</button>
-              <button class="nav-link" type="button" data-view="nursing">Nursing station</button>
-              <button class="nav-link" type="button" data-view="outpatient">Outpatient care</button>
-              <button class="nav-link" type="button" data-view="appointments">Appointments</button>
-              <button class="nav-link" type="button" data-view="clinical">ED &amp; inpatient</button>
               <div class="nav-subgroup">
-                <p class="nav-subgroup-title">Orders &amp; treatment</p>
-                <button class="nav-link" type="button" data-view="orders">Orders &amp; requests</button>
-                <button class="nav-link" type="button" data-view="labs">Labs &amp; results</button>
-                <button class="nav-link" type="button" data-view="medications">Medications &amp; prescriptions</button>
-                <button class="nav-link" type="button" data-view="documents">Notes &amp; documents</button>
+                <p class="nav-subgroup-title">Patient workflows</p>
+                <div id="patientWorkflowNavigation"></div>
+              </div>
+              <div class="nav-subgroup">
+                <p class="nav-subgroup-title">Care operations</p>
+                <button class="nav-link" type="button" data-view="patients">Worklist &amp; charts</button>
+                <button class="nav-link" type="button" data-view="admissions">Admissions</button>
+                <button class="nav-link" type="button" data-view="nursing">Nursing station</button>
               </div>
             </div>
           </details>
@@ -153,10 +149,6 @@
             <button class="nav-link" type="button" data-view="departments">Departments</button>
             <button class="nav-link" type="button" data-view="locations">Locations</button>
             <button class="nav-link" type="button" data-view="staff">Staff directory</button>
-          </div>
-          <div class="nav-group">
-            <p class="nav-group-title">Administration</p>
-            <button class="nav-link" type="button" data-view="billing">Billing</button>
           </div>
         </nav>
 
@@ -226,6 +218,7 @@
                 </select>
                 <button class="ghost-btn" id="exportBtn" type="button">Export</button>
                 <button class="ghost-btn" id="importBtn" type="button">Import</button>
+                <p id="exchangeStatus" class="status-message" role="status"></p>
                 <input id="importFile" type="file" accept=".json,.csv,application/json,text/csv" hidden />
               </div>
             </details>
@@ -692,6 +685,6 @@
     <script src="procedure-catalog.js?v=1"></script>
     <script src="surgical-catalog.js?v=1"></script>
     <script src="radiology-catalog.js?v=1"></script>
-    <script src="app.js?v=32"></script>
+    <script src="app.js?v=34"></script>
   </body>
 </html>

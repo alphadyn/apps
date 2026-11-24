@@ -18,6 +18,9 @@ page. Pharmacy panels stack on tablets, and pharmacy mode controls use wrapping
 two-column layouts with 44-pixel touch targets on phones. Dispensing history uses
 normal page scrolling on phones. Wide census and location tables retain local
 horizontal scrolling, with a visible hint on narrower screens and keyboard access.
+Patient workflow cards adapt to the available desktop width and stack on phones;
+navigation, workflow selectors, inbox controls, and section toggles have larger
+touch targets on mobile devices.
 
 ## Brand and link preview
 
@@ -40,7 +43,7 @@ The deployed URL is `https://alphadyn.github.io/apps/northstar-ehr/`.
 - Nursing station dashboard with nurse assignment filtering, patient location, demographics, diagnosis, observations, allergies, and direct chart navigation
 - Organization directories for ED, MICU, SICU, NICU, radiology, surgery, OB/GYN, pediatrics, neurology, telemetry, and medicine, with locations and illustrative occupancy
 - Staff directory and profiles for administrators, physicians, PAs, nurses, and midlevels; admin demo role can add fictional directory entries
-- Header patient search, plus a separate Staff directory search that finds staff by name and profile details; patient and staff results open their profiles
+- Header patient search, plus a separate Staff directory search that finds staff by name and profile details; results open profiles, except that patient selection stays in Patient care home when it is active
 - Patient profile pages and staff directory profiles with care-team and encounter context
 - Guided fictional patient registration from the worklist or admissions dashboard, followed by intake and triage in the selected patient's encounter
 - Patient status dashboard with current encounter status, allergy visibility, vital-sign history, imaging/report counts, and latest radiology summary
@@ -114,7 +117,9 @@ follows the demo encounter-create role permission; dispensing remains separate.
 - Patient care home links to patient-specific chart, encounter, orders, results,
   medication, formulary, scheduling, documents, and billing workspaces. Use the
   header patient search to select a patient; the Patient care menu shows the
-  current patient's MRN.
+  current patient's MRN. An open workflow remains under the patient context;
+  expand Patient workflows to switch workspaces. Switching patients with an
+  unsaved order asks for confirmation before discarding the draft.
   Prescribing uses the demo encounter-create permission; recording dispensing uses
   the demo order-create permission.
 

@@ -327,7 +327,8 @@ test("independent procedure search starts empty, searches details, and clears re
   assert.match(elements.get("independentProcedureResults").innerHTML, /<details class="procedure-review">/);
   assert.match(elements.get("independentProcedureResults").innerHTML, /<dt>Specialty<\/dt>/);
   assert.match(elements.get("independentProcedureResults").innerHTML, /Select for patient order/);
-  assert.match(elements.get("independentProcedureResults").innerHTML, /does not provide clinical descriptions/);
+  assert.doesNotMatch(elements.get("independentProcedureResults").innerHTML, /does not provide clinical descriptions/);
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /do not provide clinical descriptions/);
   elements.get("independentProcedureSearch").value = "surgical operation";
   vm.runInContext("renderIndependentProcedureResults()", context);
   assert.equal(elements.get("independentProcedurePagination").hidden, false);
@@ -721,6 +722,14 @@ test("navigation uses the same tablet breakpoint for layout and interactions", (
   assert.match(css, /@media \(max-width: 900px\)\s*\{[\s\S]*?\.app-shell\[data-navigation-open="false"\]/);
 });
 
+test("responsive workspace controls retain tablet touch targets and adaptable workflow columns", () => {
+  const css = readFileSync(new URL("./styles.css", import.meta.url), "utf8");
+  assert.match(css, /\.patient-care-workflow-grid\s*\{[^}]*grid-template-columns:\s*repeat\(auto-fit,\s*minmax\(min\(100%,\s*240px\),\s*1fr\)\)/);
+  assert.match(css, /@media \(max-width: 900px\)\s*\{\s*\.inbox-filter,\s*\.inline-link,\s*\.patient-care-workflows summary,\s*\.exchange-menu > summary\s*\{\s*min-height:\s*44px/);
+  assert.match(css, /\.collapse-toggle\s*\{\s*width:\s*44px;\s*height:\s*44px;\s*min-width:\s*44px;\s*min-height:\s*44px/);
+  assert.match(css, /\.navigation-toggle,\s*\.sidebar-close\s*\{\s*width:\s*44px;\s*height:\s*44px/);
+});
+
 test("navigation preference storage errors are visible without changing the layout", () => {
   const { context, elements } = setupNavigation();
   const warnings = [];
@@ -744,10 +753,9 @@ test("each demo account resolves to its own staff profile", () => {
   for (const [accountId, expectedProfileId] of accountProfiles) {
     vm.runInContext(`currentUser = normalizeCurrentUser({ accountId: "${accountId}" })`, context);
     assert.equal(vm.runInContext("getCurrentUserStaffProfile()?.id", context), expectedProfileId);
-    assert.match(
-      vm.runInContext("renderStaffAvatar(getCurrentUserStaffProfile())", context),
-      /class="staff-avatar staff-photo"/
-    );
+    const avatar = vm.runInContext("renderStaffAvatar(getCurrentUserStaffProfile())", context);
+    if (accountId === "admin") assert.match(avatar, /class="staff-avatar" aria-hidden="true">AM/);
+    else assert.match(avatar, /class="staff-avatar staff-photo"/);
   }
 });
 
@@ -927,7 +935,8 @@ test("worklist selection focuses the chart and scrolls to the top of its card", 
   const panel = { scrollIntoView: (options) => scrolls.push(options) };
   const elements = new Map([
     ["patientDetailHeading", heading],
-    ["patientDetailPanel", panel]
+    ["patientDetailPanel", panel],
+    ["orderForm", { elements: [] }]
   ]);
   context.document = { getElementById: (id) => elements.get(id) };
   context.window.matchMedia = (query) => ({
@@ -1259,10 +1268,90 @@ test("Patient care home uses the header patient search and presents patient-spec
   assert.doesNotMatch(container.innerHTML, /Search patients/);
   assert.doesNotMatch(container.innerHTML, /patientCareSearch/);
   assert.match(container.innerHTML, /Patient in context/);
+  assert.match(container.innerHTML, /<dt>Allergies<\/dt>/);
   assert.match(container.innerHTML, /data-patient-care-view="orders"/);
   assert.match(container.innerHTML, /data-patient-care-view="documents"/);
   assert.match(container.innerHTML, /data-patient-care-view="dispensary"/);
   assert.match(container.innerHTML, /data-patient-care-view="billing"/);
+});
+
+test("patient context details include care location, diagnosis, allergies, and encounter information", () => {
+  const { context } = setup();
+  const markup = vm.runInContext("renderPatientContextDetails(patients[0])", context);
+  for (const label of ["Age / sex", "Unit / department", "Location", "Diagnosis", "Allergies", "Encounter stage", "Disposition", "Provider"]) {
+    assert.ok(markup.includes(`<dt>${label}</dt>`), label);
+  }
+  assert.match(markup, /Type 2 diabetes, hypertension/);
+  const container = { innerHTML: "", classList: { toggle() {} }, querySelector: () => ({ value: "" }) };
+  context.document = { getElementById: () => container };
+  vm.runInContext("renderPatientContext()", context);
+  assert.match(container.innerHTML, /<dt>Unit \/ department<\/dt>/);
+  assert.match(container.innerHTML, /<dt>Allergies<\/dt>/);
+  vm.runInContext('patients[0].clinical.location = "<Room & 1>"', context);
+  assert.match(vm.runInContext("renderPatientContextDetails(patients[0])", context), /&lt;Room &amp; 1&gt;/);
+});
+
+test("orders hides the duplicate encounter banner without hiding status messages", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /id="clinicalBanner"[\s\S]*?<\/div>\s*<p id="clinicalStatus"/);
+  const { context } = setup();
+  let bannerHidden;
+  const banner = { classList: { toggle: (name, hidden) => { bannerHidden = hidden; } } };
+  context.document = {
+    getElementById: (id) => id === "clinicalBanner" ? banner : null,
+    querySelectorAll: () => []
+  };
+  vm.runInContext('currentView = "orders"; applyViewState()', context);
+  assert.equal(bannerHidden, true);
+  vm.runInContext('currentView = "clinical"; applyViewState()', context);
+  assert.equal(bannerHidden, false);
+});
+
+test("patient care workflow remains compact and restores its context after reload", () => {
+  const { context, storage } = setup();
+  context.patientCareContainer = { innerHTML: "" };
+  vm.runInContext('patientCareHomeActive = true; setCurrentView("orders"); renderPatientCareHome(patientCareContainer)', context);
+  assert.match(context.patientCareContainer.innerHTML, /<details class="patient-care-workflows"\s*>/);
+  assert.match(context.patientCareContainer.innerHTML, /Patient workflows<\/strong> <span>· Orders &amp; requests<\/span>/);
+  assert.match(context.patientCareContainer.innerHTML, /data-patient-care-view="orders" aria-current="page"/);
+  const restored = setup("clinician", storage);
+  assert.equal(vm.runInContext('currentView === "orders" && patientCareHomeActive', restored.context), true);
+  assert.equal(restored.api.getVisibleSections("orders").patientCareHomeSection, true);
+  vm.runInContext('setCurrentView("overview")', restored.context);
+  assert.equal(vm.runInContext("patientCareHomeActive", setup("clinician", storage).context), false);
+});
+
+test("patient changes protect unsaved order fields and stored category drafts", () => {
+  const { context } = setup();
+  const field = { type: "text", value: "", defaultValue: "" };
+  context.document = { getElementById: () => ({ elements: [field] }) };
+  const prompts = [];
+  context.window.confirm = (message) => { prompts.push(message); return false; };
+  assert.equal(vm.runInContext("confirmPatientChange(patients[1].id)", context), true);
+  field.value = "CBC";
+  assert.equal(vm.runInContext("confirmPatientChange(patients[0].id)", context), true);
+  assert.equal(vm.runInContext("confirmPatientChange(patients[1].id)", context), false);
+  assert.match(prompts[0], /discard the unsaved order draft/);
+  field.value = "";
+  vm.runInContext('orderFieldDrafts.Laboratory = { title: "CBC", priority: "Routine" }', context);
+  assert.equal(vm.runInContext("confirmPatientChange(patients[1].id)", context), false);
+  context.window.confirm = () => true;
+  assert.equal(vm.runInContext("confirmPatientChange(patients[1].id)", context), true);
+});
+
+test("cancelling a patient change leaves chart and treatment navigation unchanged", () => {
+  const { context } = setup();
+  context.document = {
+    getElementById: () => ({ elements: [{ type: "text", value: "draft", defaultValue: "" }] })
+  };
+  context.window.confirm = () => false;
+  const originalId = vm.runInContext("selectedPatientId", context);
+  vm.runInContext("handlePatientSelection(patients[1].id); openPatientChart(patients[1].id)", context);
+  const result = vm.runInContext('openTreatmentWorkflow("orders", patients[1].id)', context);
+  assert.equal(result.allowed, false);
+  assert.match(result.message, /draft was kept/);
+  assert.equal(vm.runInContext("selectedPatientId", context), originalId);
+  assert.equal(vm.runInContext("currentView", context), "overview");
 });
 
 test("Billing immediately renders the selected patient's billing information", () => {

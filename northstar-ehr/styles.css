@@ -2571,9 +2571,23 @@ button.stat-card {
   background: #fff;
 }
 
-.patient-care-workflows h4 {
-  margin: 0;
+.patient-care-workflows summary {
   color: var(--text);
+  cursor: pointer;
+}
+
+.patient-care-workflows summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.patient-care-workflows summary span {
+  color: var(--muted);
+}
+
+.patient-care-workflow[aria-current="page"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
 }
 
 .patient-care-context > .eyebrow {
@@ -2591,13 +2605,35 @@ button.stat-card {
   font-size: 0.84rem;
 }
 
+.patient-context-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: 12px 16px;
+  margin: 14px 0 0;
+}
+
+.patient-context-details > div {
+  min-width: 0;
+}
+
+.patient-context-details dt {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.patient-context-details dd {
+  margin: 2px 0 0;
+  overflow-wrap: anywhere;
+}
+
 .patient-care-workflows {
   margin-top: 20px;
 }
 
 .patient-care-workflow-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
   gap: 9px;
   margin-top: 10px;
 }
@@ -3588,6 +3624,10 @@ textarea {
   background: linear-gradient(120deg, #f3faf8 0, #fff 58%);
 }
 
+.clinical-banner.hidden-section {
+  display: none;
+}
+
 .clinical-banner h3 {
   margin: 0;
   font-size: 1.25rem;
@@ -3598,7 +3638,11 @@ textarea {
   margin: 4px 0 0;
 }
 
-.clinical-banner .status-message:empty {
+.clinical-status {
+  margin: 0;
+}
+
+.clinical-status:empty {
   display: none;
 }
 
@@ -4177,6 +4221,16 @@ textarea:focus-visible {
     display: inline-grid;
   }
 
+  .navigation-toggle,
+  .sidebar-close {
+    width: 44px;
+    height: 44px;
+  }
+
+  .sidebar .quick-action-card .primary-btn {
+    min-height: 44px;
+  }
+
   .nav-link,
   .nav-submenu .nav-link,
   .patients-menu > summary,
@@ -4557,7 +4611,6 @@ h4.collapse-head .collapse-toggle {
   .ghost-btn,
   .text-btn,
   .action-btn,
-  .collapse-toggle,
   .formulary-review summary,
   .formulary-provenance summary {
     min-height: 44px;
@@ -4654,22 +4707,6 @@ h4.collapse-head .collapse-toggle {
     flex-wrap: wrap;
   }
 
-  .collapse-toggle {
-    width: 36px;
-    height: 36px;
-  }
-}
-
-@media (max-width: 360px) {
-  .quick-action-card {
-    justify-content: flex-start;
-  }
-
-  .quick-action-card .primary-btn {
-    width: auto;
-    padding: 8px 5px;
-    font-size: 0.78rem;
-  }
 }
 
 .inbox-panel {
@@ -4922,5 +4959,30 @@ h4.collapse-head .collapse-toggle {
   .inbox-item-time {
     flex-basis: 100%;
     margin-left: 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .inbox-filter,
+  .inline-link,
+  .patient-care-workflows summary,
+  .exchange-menu > summary {
+    min-height: 44px;
+  }
+
+  .inline-link {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .patient-care-workflows summary {
+    padding-block: 10px;
+  }
+
+  .collapse-toggle {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
   }
 }

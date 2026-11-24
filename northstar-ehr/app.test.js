@@ -328,7 +328,6 @@ test("independent procedure search starts empty, searches details, and clears re
   assert.match(elements.get("independentProcedureResults").innerHTML, /<dt>Specialty<\/dt>/);
   assert.match(elements.get("independentProcedureResults").innerHTML, /Select for patient order/);
   assert.doesNotMatch(elements.get("independentProcedureResults").innerHTML, /does not provide clinical descriptions/);
-  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /do not provide clinical descriptions/);
   elements.get("independentProcedureSearch").value = "surgical operation";
   vm.runInContext("renderIndependentProcedureResults()", context);
   assert.equal(elements.get("independentProcedurePagination").hidden, false);

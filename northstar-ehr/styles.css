@@ -4572,6 +4572,35 @@ h4.collapse-head .collapse-toggle {
     padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
   }
 
+  .warning-card {
+    max-height: calc(100svh - 24px);
+    padding: 14px;
+    overflow-y: auto;
+  }
+
+  .warning-card h1 {
+    margin: 4px 0;
+    font-size: 1.35rem;
+  }
+
+  .warning-card .eyebrow {
+    margin: 0;
+  }
+
+  .warning-list {
+    margin: 8px 0;
+    padding-left: 18px;
+    font-size: 0.82rem;
+  }
+
+  .warning-list li {
+    margin: 7px 0;
+  }
+
+  .warning-actions {
+    margin-top: 8px;
+  }
+
   .app-shell {
     min-height: 100vh;
     min-height: 100svh;

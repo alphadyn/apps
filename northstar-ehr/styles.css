@@ -84,14 +84,19 @@
   stroke-linejoin: round;
 }
 
-.sidebar-close {
-  display: none;
+.sidebar-close,
+.radiology-image-close {
   color: #d7e8ee;
   border-color: #46606c;
   background: transparent;
 }
 
-.sidebar-close:hover {
+.sidebar-close {
+  display: none;
+}
+
+.sidebar-close:hover,
+.radiology-image-close:hover {
   background: #294453;
 }
 
@@ -4117,28 +4122,14 @@ textarea {
 }
 
 .radiology-image-close {
-  display: grid;
-  place-items: center;
-  min-width: 52px;
-  min-height: 52px;
-  padding: 8px 16px;
-  border: 1px solid #aebdcb;
-  border-radius: 8px;
-  background: #273746;
-  color: #fff;
-  font: inherit;
-  cursor: pointer;
-}
-
-.radiology-image-close:focus-visible {
-  outline: 3px solid #84d6c6;
-  outline-offset: 3px;
+  width: 44px;
+  height: 44px;
 }
 
 .radiology-image-viewer > img {
   min-height: 0;
   max-width: 100%;
-  max-height: calc(100% - 64px);
+  max-height: calc(100% - 56px);
   object-fit: contain;
 }
 

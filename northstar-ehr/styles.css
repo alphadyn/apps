@@ -1107,19 +1107,10 @@ textarea {
   margin-bottom: 16px;
 }
 
-.current-medication-groups {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
-  gap: 20px;
-}
-
-.current-medication-groups h4 {
-  margin: 0 0 10px;
-}
-
 .current-medication-list {
   display: grid;
   gap: 10px;
+  max-width: 1080px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -1138,6 +1129,44 @@ textarea {
 .current-medication-card > p {
   margin: 0;
   color: var(--muted);
+}
+
+.current-medication-card > button {
+  justify-self: start;
+}
+
+.current-medication-directions {
+  font-size: 0.88rem;
+}
+
+.medication-add,
+.active-prescription-list {
+  margin-top: 20px;
+}
+
+.current-medications-panel h4 {
+  margin: 18px 0 10px;
+}
+
+.medication-list-editor {
+  flex: 1 1 100%;
+}
+
+.medication-list-editor summary {
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 0;
+}
+
+.medication-list-editor summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.medication-list-form {
+  max-width: 760px;
+  padding: 12px 0;
 }
 
 .current-medication-heading {

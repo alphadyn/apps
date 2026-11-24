@@ -792,8 +792,8 @@ test("menu workflow navigation uses patient care home and requires a patient", (
   const { context } = setup();
   vm.runInContext('openPatientCareWorkflow("patients")', context);
   assert.equal(vm.runInContext('currentView === "patients" && patientCareHomeActive', context), true);
-  vm.runInContext('openPatientCareWorkflow("dispensary")', context);
-  assert.equal(vm.runInContext('currentView === "dispensary" && patientCareHomeActive && pharmacyPatientContext', context), true);
+  vm.runInContext('openPatientCareWorkflow("medications")', context);
+  assert.equal(vm.runInContext('currentView === "medications" && patientCareHomeActive && pharmacyMode === "current"', context), true);
   vm.runInContext("selectedPatientId = null", context);
   assert.equal(vm.runInContext('openPatientCareWorkflow("patients")', context), false);
   assert.equal(vm.runInContext('currentView === "patient-care" && !patientCareHomeActive', context), true);
@@ -1489,6 +1489,65 @@ test("patient context details include care location, diagnosis, allergies, and e
   assert.match(vm.runInContext("renderPatientContextDetails(patients[0])", context), /&lt;Room &amp; 1&gt;/);
 });
 
+test("Current medications separates editable chart entries from active prescriptions", () => {
+  const { context } = setup();
+  const markup = vm.runInContext("renderCurrentMedicationList(patients[0], [])", context);
+  for (const value of ["Current medications", "Metformin 500 mg", "500 mg", "Oral", "Twice daily with meals", "Type 2 diabetes", "Atorvastatin 20 mg"]) {
+    assert.ok(markup.includes(value), value);
+  }
+  assert.match(markup, /3 list entries/);
+  assert.match(markup, /Add medication to list/);
+  assert.match(markup, /Edit medication details/);
+
+  context.testPrescription = {
+    id: "rx-current-med",
+    medication: "Metformin 500 mg",
+    medicationClass: "Biguanide",
+    quantity: 30,
+    refills: 1,
+    instructions: "Take as directed",
+    prescribedBy: "Demo prescriber",
+    status: "Active",
+    interactionWarnings: []
+  };
+  const prescriptionMarkup = vm.runInContext("renderCurrentMedicationList(patients[0], [testPrescription])", context);
+  assert.match(prescriptionMarkup, /3 list entries/);
+  assert.match(prescriptionMarkup, /Active prescriptions \(1\)/);
+  assert.match(prescriptionMarkup, /Dose<\/dt><dd>500 mg/);
+  assert.match(prescriptionMarkup, /Route<\/dt><dd>Oral/);
+  assert.match(prescriptionMarkup, /Frequency<\/dt><dd>Twice daily with meals/);
+  assert.match(prescriptionMarkup, /Take as directed/);
+  assert.match(prescriptionMarkup, /Dose<\/dt><dd>Not separately recorded/);
+  vm.runInContext('currentUser.role = "nurse"', context);
+  const nurseMarkup = vm.runInContext("renderCurrentMedicationList(patients[0], [])", context);
+  assert.doesNotMatch(nurseMarkup, /Add medication to list|Edit medication details|data-remove-medication/);
+});
+
+test("medication list updates enforce permissions, preserve prescriptions, and persist", () => {
+  const { context, storage } = setup();
+  vm.runInContext(`
+    patientForTest = patients[0];
+    patientForTest.prescriptions.push({ id: "rx-test", medication: "Metformin 500 mg", instructions: "Original directions", status: "Active" });
+    updateData = { medication: "Metformin revised", dose: "250 mg", route: "Oral", frequency: "Daily" };
+  `, context);
+  assert.equal(vm.runInContext('updatePatientMedicationList(patientForTest, "Metformin 500 mg", updateData, "nurse").allowed', context), false);
+  assert.equal(vm.runInContext('updatePatientMedicationList(patientForTest, "Metformin 500 mg", { medication: "Lisinopril 10 mg" }).allowed', context), false);
+  assert.equal(vm.runInContext('updatePatientMedicationList(patientForTest, "Metformin 500 mg", updateData).allowed', context), true);
+  assert.equal(vm.runInContext('patientForTest.prescriptions[0].instructions', context), "Original directions");
+  assert.equal(vm.runInContext('patientForTest.medicationDetails.find(item => item.medication === "Metformin revised").frequency', context), "Daily");
+  const restored = setup("clinician", storage);
+  assert.equal(vm.runInContext('patients[0].medicationDetails.find(item => item.medication === "Metformin revised").dose', restored.context), "250 mg");
+  assert.equal(vm.runInContext('updatePatientMedicationList(patientForTest, "", { medication: "New medication", route: "Topical" }).allowed', context), true);
+  assert.equal(vm.runInContext('updatePatientMedicationList(patientForTest, "Metformin revised", null).allowed', context), true);
+  assert.equal(vm.runInContext('patientForTest.prescriptions[0].medication', context), "Metformin 500 mg");
+  assert.equal(vm.runInContext('patientForTest.medications.includes("Metformin revised")', context), false);
+  assert.equal(vm.runInContext('updatePatientMedicationList(patientForTest, "missing", null).allowed', context), false);
+  assert.equal(vm.runInContext('buildExportPayload(patientForTest).patient.medicationDetails.some(item => item.medication === "New medication")', context), true);
+  vm.runInContext("safeLocalStorage = () => ({ setItem() { throw new Error('storage failure'); } })", context);
+  assert.equal(vm.runInContext('updatePatientMedicationList(patientForTest, "New medication", null).allowed', context), false);
+  assert.equal(vm.runInContext('patientForTest.medications.includes("New medication")', context), true);
+});
+
 test("clearing patient context can be cancelled and persists an empty state across reloads", () => {
   const { context, storage } = setup();
   const elements = Object.fromEntries(
@@ -1529,7 +1588,7 @@ test("clearing patient context can be cancelled and persists an empty state acro
 test("clearing prompts before discarding patient workflow changes", () => {
   const { context } = setup();
   const prompts = [];
-  context.document = {};
+  context.document = { querySelectorAll: () => [] };
   context.window.confirm = (message) => { prompts.push(message); return false; };
   vm.runInContext("hasUnsavedOrderDraft = () => false; hasUnsavedPatientForms = () => true", context);
   assert.equal(vm.runInContext("confirmPatientChange(null)", context), false);
@@ -1608,7 +1667,7 @@ test("patient care workflow remains compact and restores its context after reloa
 test("patient changes protect unsaved order fields and stored category drafts", () => {
   const { context } = setup();
   const field = { type: "text", value: "", defaultValue: "" };
-  context.document = { getElementById: () => ({ elements: [field] }) };
+  context.document = { getElementById: () => ({ elements: [field] }), querySelectorAll: () => [] };
   const prompts = [];
   context.window.confirm = (message) => { prompts.push(message); return false; };
   assert.equal(vm.runInContext("confirmPatientChange(patients[1].id)", context), true);
@@ -1626,7 +1685,8 @@ test("patient changes protect unsaved order fields and stored category drafts", 
 test("cancelling a patient change leaves chart and treatment navigation unchanged", () => {
   const { context } = setup();
   context.document = {
-    getElementById: () => ({ elements: [{ type: "text", value: "draft", defaultValue: "" }] })
+    getElementById: () => ({ elements: [{ type: "text", value: "draft", defaultValue: "" }] }),
+    querySelectorAll: () => []
   };
   context.window.confirm = () => false;
   const originalId = vm.runInContext("selectedPatientId", context);

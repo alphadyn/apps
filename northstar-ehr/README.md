@@ -109,8 +109,11 @@ the demo order-create role permission.
 - **Labs & results:** Recorded fictional results and laboratory requests only.
   **Order a lab test** opens Orders with the Laboratory category selected.
 - **Medications:** A **Current medications** view lists the patient medication list
-  and active prescriptions with recorded quantity, refills, directions, class,
-  prescriber, and interaction notices. The workflow also includes formulary search,
+  and active prescriptions with recorded dose, route, frequency, form, indication,
+  quantity, refills, directions, status, prescriber, and interaction notices.
+  Missing details are marked as not recorded. Providers and midlevel users can add,
+  edit, or remove medication list entries without changing prescriptions or orders.
+  The workflow also includes formulary search,
   prescription details, and patient dispensing/history. Saving a prescription creates one
   linked medication request in Orders. Cancelling that request cancels its linked
   prescription; legacy chart medications remain available for reconciliation.

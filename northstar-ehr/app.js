@@ -55,6 +55,11 @@ const initialPatients = [
     room: "Suite 3B",
     allergies: ["Penicillin", "Latex"],
     medications: ["Metformin 500 mg", "Lisinopril 10 mg", "Atorvastatin 20 mg"],
+    medicationDetails: [
+      { medication: "Metformin 500 mg", dose: "500 mg", route: "Oral", frequency: "Twice daily with meals", status: "Active", indication: "Type 2 diabetes" },
+      { medication: "Lisinopril 10 mg", dose: "10 mg", route: "Oral", frequency: "Once daily", status: "Active", indication: "Hypertension" },
+      { medication: "Atorvastatin 20 mg", dose: "20 mg", route: "Oral", frequency: "Once nightly", status: "Active", indication: "Hyperlipidemia" }
+    ],
     vitals: { bp: "118/76", hr: 72, temp: "98.4°F", spO2: "98%" },
     labs: ["A1C 6.8", "LDL 96", "Creatinine 0.9"],
     notes: [
@@ -1299,6 +1304,12 @@ function refreshSeedLabels(patient) {
 
 function normalizePatient(patient) {
   patient = refreshSeedLabels(patient);
+  const medicationDetailSeed = allInitialPatients.find((seed) =>
+    String(seed.id) === String(patient.id) && seed.mrn === patient.mrn
+  );
+  const medicationDetails = Array.isArray(patient.medicationDetails)
+    ? patient.medicationDetails
+    : medicationDetailSeed?.medicationDetails || [];
   const clinical = patient.clinical || {};
   const vitals = { ...(patient.vitals || {}), ...(clinical.vitals || {}) };
   const sampleAdmission = sampleAdmissionAssignments[Number(patient.id)];
@@ -1316,6 +1327,16 @@ function normalizePatient(patient) {
     )?.timestamp || "";
   return {
     ...patient,
+    medicationDetails: medicationDetails.map((detail) => ({
+      medication: String(detail.medication || "").trim(),
+      dose: String(detail.dose || "").trim(),
+      route: String(detail.route || "").trim(),
+      frequency: String(detail.frequency || "").trim(),
+      form: String(detail.form || "").trim(),
+      indication: String(detail.indication || "").trim(),
+      status: String(detail.status || "").trim(),
+      lastReviewed: String(detail.lastReviewed || "").trim()
+    })).filter((detail) => detail.medication),
     room: clinical.location || defaultLocation,
     chartCompleted: Boolean(patient.chartCompleted),
     medicationReviewed: patient.medicationReviewed !== false,
@@ -1413,6 +1434,11 @@ function normalizePatient(patient) {
       id: prescription.id || createRecordId("prescription"),
       medication: String(prescription.medication || "").trim(),
       medicationClass: String(prescription.medicationClass || inferMedicationClass(prescription.medication)).trim(),
+      dose: String(prescription.dose || "").trim(),
+      route: String(prescription.route || "").trim(),
+      frequency: String(prescription.frequency || "").trim(),
+      form: String(prescription.form || "").trim(),
+      indication: String(prescription.indication || "").trim(),
       instructions: String(prescription.instructions || "").trim(),
       quantity: Number(prescription.quantity) || 0,
       refills: Number(prescription.refills) || 0,
@@ -2643,6 +2669,57 @@ function getPrescriptionForDispensing(patient, prescriptionId) {
     : { allowed: false, message: "This active prescription is no longer available. Return to Medications to review the patient record." };
 }
 
+function updatePatientMedicationList(patient, originalMedication, data, role = currentUser.role) {
+  const permission = evaluatePermission(role, "encounter:create", patient.name);
+  if (!permission.allowed) return permission;
+  const original = String(originalMedication || "").trim();
+  const index = original ? patient.medications.indexOf(original) : -1;
+  if (original && index < 0) return { allowed: false, message: "Medication no longer exists on this patient's list." };
+  const removing = data === null;
+  if (removing && !original) return { allowed: false, message: "Select a medication to remove." };
+  const medication = removing ? "" : String(data.medication || "").trim();
+  if (!removing && (!medication || /^none (?:listed|recorded)$/i.test(medication))) {
+    return { allowed: false, message: "Enter a medication name." };
+  }
+  if (!removing && patient.medications.some((item, itemIndex) =>
+    itemIndex !== index && item.trim().toLowerCase() === medication.toLowerCase()
+  )) return { allowed: false, message: "This medication is already on the patient medication list." };
+
+  const previousMedications = patient.medications;
+  const previousDetails = patient.medicationDetails;
+  const previousAudit = auditTrail.slice();
+  patient.medications = patient.medications.filter((item, itemIndex) =>
+    itemIndex !== index && !/^none (?:listed|recorded)$/i.test(item.trim())
+  );
+  patient.medicationDetails = (patient.medicationDetails || []).filter((item) =>
+    item.medication.toLowerCase() !== original.toLowerCase() &&
+    (removing || item.medication.toLowerCase() !== medication.toLowerCase())
+  );
+  if (!removing) {
+    patient.medications.splice(index < 0 ? patient.medications.length : Math.min(index, patient.medications.length), 0, medication);
+    patient.medicationDetails.push({
+      medication,
+      ...Object.fromEntries(["dose", "route", "frequency", "form", "indication", "status", "lastReviewed"]
+        .map((field) => [field, String(data[field] || "").trim()]))
+    });
+  }
+  recordAudit("medication:list:update", patient.name,
+    removing ? `Removed ${original} from the patient medication list.` :
+      original ? `Updated ${original} on the patient medication list to ${medication}.` :
+        `Added ${medication} to the patient medication list.`);
+  try {
+    if (!safeLocalStorage()) throw new Error("Browser storage unavailable");
+    saveState();
+  } catch (error) {
+    patient.medications = previousMedications;
+    patient.medicationDetails = previousDetails;
+    auditTrail = previousAudit;
+    console.warn("Unable to save medication list", error);
+    return { allowed: false, message: "Unable to save the medication list. Check browser storage and try again." };
+  }
+  return { allowed: true, message: removing ? "Medication removed from the patient list." : "Medication list updated." };
+}
+
 function updateOrderStatus(patient, orderId, status, role = currentUser.role) {
   const permission = evaluatePermission(role, "order:create", patient.name);
   if (!permission.allowed) return permission;
@@ -2864,6 +2941,10 @@ function buildExportPayload(patient) {
       status: patient.status,
       chartCompleted: patient.chartCompleted,
       medicationReviewed: patient.medicationReviewed,
+      medications: patient.medications,
+      medicationDetails: patient.medicationDetails,
+      prescriptions: patient.prescriptions,
+      dispensations: patient.dispensations,
       vitals: patient.vitals,
       vitalReadings: patient.vitalReadings,
       clinical: patient.clinical,
@@ -4116,6 +4197,100 @@ function openTreatmentWorkflow(view, patientId = selectedPatientId) {
   return { allowed: true, patient };
 }
 
+function renderCurrentMedicationList(patient, activePrescriptions) {
+  const medicationDetails = patient.medicationDetails || [];
+  const medications = [...new Set((patient.medications || [])
+    .map((medication) => String(medication || "").trim())
+    .filter((medication) => medication && !/^none (?:listed|recorded)$/i.test(medication)))];
+  const canEdit = hasPermission(currentUser.role, "encounter:create");
+  const editForm = (medication, details = {}) => `
+    <form class="clinical-form medication-list-form" data-original-medication="${escapeHtml(medication)}">
+      <label>Medication name<input name="medication" type="text" maxlength="200" value="${escapeHtml(medication)}" required /></label>
+      <div class="row">
+        <label>Dose<input name="dose" type="text" maxlength="200" value="${escapeHtml(details.dose || "")}" /></label>
+        <label>Route<input name="route" type="text" maxlength="200" value="${escapeHtml(details.route || "")}" /></label>
+      </div>
+      <div class="row">
+        <label>Frequency<input name="frequency" type="text" maxlength="200" value="${escapeHtml(details.frequency || "")}" /></label>
+        <label>Form<input name="form" type="text" maxlength="200" value="${escapeHtml(details.form || "")}" /></label>
+      </div>
+      <div class="row">
+        <label>Indication<input name="indication" type="text" maxlength="200" value="${escapeHtml(details.indication || "")}" /></label>
+        <label>List status<input name="status" type="text" maxlength="200" value="${escapeHtml(details.status || "")}" /></label>
+      </div>
+      <label>Last reviewed<input name="lastReviewed" type="text" maxlength="200" value="${escapeHtml(details.lastReviewed || "")}" /></label>
+      <div class="formulary-patient-actions">
+        <button class="primary-btn" type="submit">Save medication</button>
+        <button class="ghost-btn" type="button" data-cancel-medication-edit>Cancel</button>
+      </div>
+      <p class="status-message" role="status"></p>
+    </form>`;
+  const medicationCard = (medication, index) => {
+    const details = medicationDetails.find((item) => item.medication.toLowerCase() === medication.toLowerCase()) || {};
+    const optionalFields = [
+      ["Form", details.form],
+      ["Indication", details.indication],
+      ["Last reviewed", details.lastReviewed]
+    ].filter(([, value]) => value);
+    return `<li class="current-medication-card" id="current-medication-${index}">
+      <div class="current-medication-heading"><strong>${escapeHtml(medication)}</strong><span class="status-pill">${escapeHtml(details.status || "On medication list")}</span></div>
+      <dl class="current-medication-details">
+        ${[["Dose", details.dose], ["Route", details.route], ["Frequency", details.frequency], ...optionalFields]
+          .map(([label, value]) => `<div><dt>${label}</dt><dd>${escapeHtml(value || "Not recorded")}</dd></div>`).join("")}
+      </dl>
+      ${canEdit ? `<div class="formulary-patient-actions">
+        <details class="medication-list-editor">
+          <summary>Edit medication details</summary>
+          ${editForm(medication, details)}
+        </details>
+        <button class="ghost-btn" type="button" data-remove-medication="${escapeHtml(medication)}" aria-label="Remove ${escapeHtml(medication)} from medication list">Remove from list</button>
+      </div>` : ""}
+    </li>`;
+  };
+  const prescriptionCard = (prescription) => {
+    return `<li class="current-medication-card ${prescription.interactionWarnings?.length ? "prescription-with-warning" : ""}" id="current-prescription-${escapeHtml(prescription.id)}">
+      <div class="current-medication-heading">
+        <strong>${escapeHtml(prescription.medication)}</strong>
+        <span class="status-pill status-completed">${escapeHtml(prescription.status)}</span>
+      </div>
+      <dl class="current-medication-details">
+        <div><dt>Dose</dt><dd>${escapeHtml(prescription.dose || "Not separately recorded")}</dd></div>
+        <div><dt>Route</dt><dd>${escapeHtml(prescription.route || "Not separately recorded")}</dd></div>
+        <div><dt>Frequency</dt><dd>${escapeHtml(prescription.frequency || "See directions")}</dd></div>
+        ${prescription.form ? `<div><dt>Form</dt><dd>${escapeHtml(prescription.form)}</dd></div>` : ""}
+        ${prescription.indication ? `<div><dt>Indication</dt><dd>${escapeHtml(prescription.indication)}</dd></div>` : ""}
+        <div><dt>Class</dt><dd>${escapeHtml(prescription.medicationClass)}</dd></div>
+        <div><dt>Quantity</dt><dd>${escapeHtml(prescription.quantity)}</dd></div>
+        <div><dt>Refills</dt><dd>${escapeHtml(prescription.refills)}</dd></div>
+        <div><dt>Prescriber</dt><dd>${escapeHtml(prescription.prescribedBy || "Not recorded")}</dd></div>
+      </dl>
+      <p class="current-medication-directions"><strong>Directions:</strong> ${escapeHtml(prescription.instructions || "Not recorded")}</p>
+      ${prescription.interactionWarnings?.length ? `<div class="interaction-warning"><strong>Interaction notices</strong>${prescription.interactionWarnings.map((warning) => `<p>${escapeHtml(warning)}</p>`).join("")}</div>` : ""}
+      <button class="ghost-btn" type="button" data-dispense-prescription="${escapeHtml(prescription.id)}">Open in dispensing</button>
+    </li>`;
+  };
+  return `
+    <section class="panel current-medications-panel">
+      <div class="panel-header">
+        <div><p class="eyebrow">Medication list</p><h3>Current medications</h3></div>
+        <span class="pill">${medications.length} list ${medications.length === 1 ? "entry" : "entries"}</span>
+      </div>
+      <p class="muted-copy">Medication list changes do not change prescriptions or medication orders.</p>
+      <p id="medicationListStatus" class="status-message" role="status" aria-live="polite"></p>
+      ${canEdit ? `<details class="medication-list-editor medication-add">
+        <summary>Add medication to list</summary>${editForm("")}
+      </details>` : ""}
+      <section aria-labelledby="chartMedicationListHeading">
+        <h4 id="chartMedicationListHeading">Patient medication list</h4>
+        ${medications.length ? `<ul class="current-medication-list">${medications.map(medicationCard).join("")}</ul>` : '<p class="empty-state">No medications are recorded on the patient medication list.</p>'}
+      </section>
+      <section class="active-prescription-list" aria-labelledby="activePrescriptionListHeading">
+        <h4 id="activePrescriptionListHeading">Active prescriptions (${activePrescriptions.length})</h4>
+        ${activePrescriptions.length ? `<ul class="current-medication-list">${activePrescriptions.map(prescriptionCard).join("")}</ul>` : '<p class="empty-state">No active prescriptions in this patient record.</p>'}
+      </section>
+    </section>`;
+}
+
 function renderDispensaryView(container) {
   if (currentView === "dispensary" && pharmacyMode === "current") pharmacyMode = "formulary";
   const patient = getSelectedPatient();
@@ -4134,54 +4309,7 @@ function renderDispensaryView(container) {
       <button class="ghost-btn" type="button" data-pharmacy-mode="formulary">Search formulary</button>
       <button class="ghost-btn" type="button" data-pharmacy-mode="dispensing">Patient dispensing</button>
     </nav>
-    ${currentView === "medications" ? `
-      <section class="panel current-medications-panel">
-        <div class="panel-header">
-          <div><p class="eyebrow">Medication list</p><h3>Current medications</h3></div>
-          <span class="pill">${patient.medications.length + activePrescriptions.length} ${patient.medications.length + activePrescriptions.length === 1 ? "record" : "records"}</span>
-        </div>
-        <div class="current-medication-groups">
-          <section aria-labelledby="chartMedicationListHeading">
-            <h4 id="chartMedicationListHeading">Patient medication list</h4>
-            ${patient.medications.length ? `
-              <ul class="current-medication-list">
-                ${patient.medications.map((medication, index) => `
-                  <li class="current-medication-card" id="current-medication-${index}">
-                    <strong>${escapeHtml(String(medication))}</strong>
-                    <span class="status-pill">On medication list</span>
-                    <p>Dose, directions, and status are not recorded separately for this entry.</p>
-                  </li>
-                `).join("")}
-              </ul>
-            ` : '<p class="empty-state">No medications are recorded on the patient medication list.</p>'}
-          </section>
-          <section aria-labelledby="activePrescriptionListHeading">
-            <h4 id="activePrescriptionListHeading">Active prescriptions (${activePrescriptions.length})</h4>
-            ${activePrescriptions.length ? `
-              <ul class="current-medication-list">
-                ${activePrescriptions.map((prescription) => `
-                  <li class="current-medication-card ${prescription.interactionWarnings?.length ? "prescription-with-warning" : ""}" id="current-prescription-${escapeHtml(prescription.id)}">
-                    <div class="current-medication-heading">
-                      <strong>${escapeHtml(prescription.medication)}</strong>
-                      <span class="status-pill status-completed">${escapeHtml(prescription.status)}</span>
-                    </div>
-                    <dl class="current-medication-details">
-                      <div><dt>Class</dt><dd>${escapeHtml(prescription.medicationClass)}</dd></div>
-                      <div><dt>Quantity</dt><dd>${escapeHtml(prescription.quantity)}</dd></div>
-                      <div><dt>Refills</dt><dd>${escapeHtml(prescription.refills)}</dd></div>
-                      <div><dt>Directions</dt><dd>${escapeHtml(prescription.instructions || "Not recorded")}</dd></div>
-                      <div><dt>Prescriber</dt><dd>${escapeHtml(prescription.prescribedBy || "Not recorded")}</dd></div>
-                    </dl>
-                    ${prescription.interactionWarnings?.length ? `<div class="interaction-warning"><strong>Interaction notices</strong>${prescription.interactionWarnings.map((warning) => `<p>${escapeHtml(warning)}</p>`).join("")}</div>` : ""}
-                    <button class="ghost-btn" type="button" data-dispense-prescription="${escapeHtml(prescription.id)}">Open in dispensing</button>
-                  </li>
-                `).join("")}
-              </ul>
-            ` : '<p class="empty-state">No active prescriptions in this patient record.</p>'}
-          </section>
-        </div>
-      </section>
-    ` : ""}
+    ${currentView === "medications" ? renderCurrentMedicationList(patient, activePrescriptions) : ""}
     <div class="universal-medication-search">
       <label for="universalMedicationSearch">Search formulary
         <input id="universalMedicationSearch" type="search" placeholder="Name, ingredient, class, strength, form, or route" autocomplete="off" />
@@ -4275,6 +4403,39 @@ function renderDispensaryView(container) {
     </div>
   `;
   const pharmacyNavigation = container.querySelector(".pharmacy-navigation");
+  const medicationPanel = container.querySelector(".current-medications-panel");
+  medicationPanel?.addEventListener("submit", (event) => {
+    const form = event.target.closest(".medication-list-form");
+    if (!form) return;
+    event.preventDefault();
+    if (hasUnsavedMedicationListForms(form) &&
+        !window.confirm("Saving this medication will discard other unsaved medication list changes. Continue?")) return;
+    const result = updatePatientMedicationList(patient, form.dataset.originalMedication, Object.fromEntries(new FormData(form)));
+    if (!result.allowed) {
+      form.querySelector(".status-message").textContent = result.message;
+      return;
+    }
+    render();
+    document.getElementById("medicationListStatus").textContent = result.message;
+  });
+  medicationPanel?.addEventListener("click", (event) => {
+    const cancel = event.target.closest("[data-cancel-medication-edit]");
+    if (cancel) {
+      const form = cancel.closest("form");
+      form.reset();
+      form.querySelector(".status-message").textContent = "";
+      form.closest("details").open = false;
+      return;
+    }
+    const remove = event.target.closest("[data-remove-medication]");
+    if (!remove) return;
+    const medication = remove.dataset.removeMedication;
+    const draftWarning = hasUnsavedMedicationListForms() ? " Unsaved medication list changes will be discarded." : "";
+    if (!window.confirm(`Remove "${medication}" from the patient medication list? Prescriptions and orders will not be changed.${draftWarning}`)) return;
+    const result = updatePatientMedicationList(patient, medication, null);
+    if (result.allowed) render();
+    document.getElementById("medicationListStatus").textContent = result.message;
+  });
   const applyPharmacyMode = () => {
     container.querySelector(".current-medications-panel")?.classList.toggle("hidden-section", pharmacyMode !== "current");
     container.querySelector(".dispensary-catalog-panel").classList.toggle("hidden-section", pharmacyMode !== "formulary");
@@ -5230,7 +5391,7 @@ function hasUnsavedPatientForms() {
   });
   const clinicalForm = document.getElementById("workflowForm");
   const clinicalValues = JSON.stringify([...clinicalForm.elements].filter((field) => field.name).map((field) => [field.name, field.value]));
-  const additionalForms = document.querySelectorAll("#patientPrescriptionForm, #dispensaryForm, #ordersList [data-schedule-order]");
+  const additionalForms = document.querySelectorAll("#patientPrescriptionForm, #dispensaryForm, #ordersList [data-schedule-order], .medication-list-form");
   return (clinicalFormBaseline && clinicalValues !== clinicalFormBaseline) ||
     Object.values(documentFieldDrafts).some((draft) => Object.values(draft).some(Boolean)) ||
     formHasChanges(document.getElementById("documentForm")) || formHasChanges(document.getElementById("encounterForm")) ||
@@ -5238,14 +5399,23 @@ function hasUnsavedPatientForms() {
     [...additionalForms].some((form) => formHasChanges(form));
 }
 
+function hasUnsavedMedicationListForms(exceptForm = null) {
+  return [...document.querySelectorAll(".medication-list-form")].some((form) =>
+    form !== exceptForm && [...form.elements].some((field) => field.name && field.value !== field.defaultValue)
+  );
+}
+
 function confirmPatientChange(patientId) {
   if (String(patientId) === String(selectedPatientId) || typeof document === "undefined") return true;
   const orderDraft = hasUnsavedOrderDraft();
+  const medicationDraft = hasUnsavedMedicationListForms();
   const otherDraft = patientId === null && hasUnsavedPatientForms();
-  if (!orderDraft && !otherDraft) return true;
+  if (!orderDraft && !otherDraft && !medicationDraft) return true;
   return window.confirm(patientId === null
     ? `Clearing the patient will discard ${otherDraft ? "unsaved patient workflow changes" : "the unsaved order draft"}. Continue?`
-    : "Switching patients will discard the unsaved order draft. Continue?");
+    : medicationDraft
+      ? "Switching patients will discard unsaved medication list changes and any unsaved order draft. Continue?"
+      : "Switching patients will discard the unsaved order draft. Continue?");
 }
 
 function clearPatientContext() {
@@ -5754,6 +5924,19 @@ function handleDocumentSubmit(event) {
 
 function attachEvents() {
   initializeWorkspaceNavigation();
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest(".nav-link, [data-patient-care-view], [data-patient-care-home], [data-treatment-view], [data-dispense-prescription], #quickEncounterBtn, #viewProfileBtn, [data-admit-patient]")) return;
+    if (hasUnsavedMedicationListForms() &&
+        !window.confirm("Leaving this workflow will discard unsaved medication list changes. Continue?")) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }, true);
+  window.addEventListener("beforeunload", (event) => {
+    if (!hasUnsavedMedicationListForms()) return;
+    event.preventDefault();
+    event.returnValue = "";
+  });
   document.getElementById("radiologyImageViewer").addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       event.preventDefault();

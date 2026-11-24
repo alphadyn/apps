@@ -1457,7 +1457,7 @@ test("Patient care home uses the header patient search and presents patient-spec
   assert.match(container.innerHTML, /data-patient-care-view="orders"/);
   assert.match(container.innerHTML, /data-patient-care-view="documents"/);
   assert.match(container.innerHTML, /data-patient-care-view="dispensary"/);
-  assert.match(container.innerHTML, /data-patient-care-view="billing"/);
+  assert.doesNotMatch(container.innerHTML, /data-patient-care-view="billing"/);
 });
 
 test("patient context details include care location, diagnosis, allergies, and encounter information", () => {

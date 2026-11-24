@@ -1609,8 +1609,7 @@ const patientCareWorkflows = [
   ["outpatient", "Outpatient care", "Schedule and manage ambulatory visits"],
   ["appointments", "Appointments", "Review the patient appointment schedule"],
   ["documents", "Notes & documents", "Review or create clinical documents"],
-  ["dispensary", "Formulary", "Search medications for the patient"],
-  ["billing", "Billing", "Review billing and insurance details"]
+  ["dispensary", "Formulary", "Search medications for the patient"]
 ];
 let patientCareHomeActive = loadWorkspacePreference("patientCareHomeActive", false) === true &&
   patientCareWorkflows.some(([view]) => view === currentView);
@@ -1883,7 +1882,7 @@ function updateAccountRoles(accountId, roles) {
 
 function setCurrentView(view) {
   pendingQuickEncounter = false;
-  if (!getSelectedPatient() && patientCareWorkflows.some(([workflow]) => workflow === view) && view !== "patients" && view !== "dispensary") {
+  if (!getSelectedPatient() && ((patientCareWorkflows.some(([workflow]) => workflow === view) && view !== "patients" && view !== "dispensary") || view === "billing")) {
     view = "patient-care";
   }
   if (!patientCareWorkflows.some(([workflow]) => workflow === view)) patientCareHomeActive = false;

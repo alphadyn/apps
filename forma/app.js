@@ -1,5 +1,5 @@
 import { TYPES, SITE_STRUCTURE_TYPES, createProject, floorArea, projectStats, propertyStats, bounds, isOutdoor, exteriorRoomWalls, roomOutline, roomArea, roomCentroid, validateRoom, validateProject, validateProperty, makeRoom, parseProject, readProjectFile, hasRectangularOutline } from "./model.js?v=20261125-1";
-import { renderPropertyView } from "./property-view.js?v=20261125-1";
+import { renderPropertyView } from "./property-view.js?v=20261125-2";
 import { propertyFeatures, propertyItem, movePropertyItem, updatePropertyItem, addPropertyItem, removePropertyItem } from "./property-edit.js?v=20261125-1";
 import { setupResponsiveUI } from "./responsive-ui.js?v=20261125-2";
 import { renderFloor3D } from "./floor-view.js?v=20261122-5";
@@ -11,6 +11,7 @@ import { railingSettings } from "./envelope.js?v=20261122-5";
 import { architectureDialog } from "./architecture-ui.js?v=20261117-1";
 import { documentationDialog } from "./documentation.js";
 import { shiftSpaceBoundary } from "./space-edit.js?v=20261117-1";
+import { alignItems } from "./alignment.js?v=20261125-1";
 import { shiftOpening, openingEditMarkup } from "./opening-edit.js";
 import { openingInspectorMarkup, roomElementActionsMarkup, roomBoundaryControlsMarkup } from "./inspector-ui.js";
 import { areaUnit, fromMeters, formatArea as formatAreaValue, inputLength, inputLengthLimit, lengthUnit, toMeters, UNIT_SYSTEMS } from "./units.js";
@@ -76,6 +77,8 @@ let selected = null;
 let selectedOpening = null;
 let selectedSite = null;
 let selectedCorner = null;
+let multiSelect = false;
+let multiSelection = [];
 let shiftSharedBoundaries = false;
 let keepRightAngles = true;
 let view = "2d";
@@ -158,10 +161,10 @@ function commit(before) {
   redoStack = [];
   render();
 }
-function change(action) {
+function change(action, keepMultiSelection = false) {
   const before = snapshot();
   const previousFloor = activeFloor, previousSelection = selected, previousScope = scope;
-  try { action(); validateProject(project); commit(before); return true; }
+  try { action(); validateProject(project); if (!keepMultiSelection) clearMultiSelection(); commit(before); return true; }
   catch (error) { project = JSON.parse(before); activeFloor = previousFloor; selected = previousSelection; scope = previousScope; toast(error.message, true); render(); return false; }
 }
 function history(redo = false) {
@@ -169,16 +172,22 @@ function history(redo = false) {
   if (!source.length) return;
   (redo ? undoStack : redoStack).push(snapshot());
   project = JSON.parse(source.pop());
+  clearMultiSelection();
   if (!project.floors.some(item => item.id === activeFloor)) activeFloor = project.floors[0].id;
   if (!selection()) selected = null;
   render();
 }
 function selectFloor(id) {
-  activeFloor = id; scope = "floor"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; render();
+  clearMultiSelection(); activeFloor = id; scope = "floor"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; render();
   responsiveUI.closeNavigation();
 }
 function setScope(value) {
-  scope = value; selected = null; zoom = 1; pan = { x: 0, y: 0 }; render();
+  clearMultiSelection(); scope = value; selected = null; zoom = 1; pan = { x: 0, y: 0 }; render();
+}
+function clearMultiSelection() { multiSelect = false; multiSelection = []; }
+function toggleMultiItem(id) {
+  multiSelection = multiSelection.includes(id) ? multiSelection.filter(item => item !== id) : [...multiSelection, id];
+  render();
 }
 function render() {
   if (scope !== "property" || view !== "2d") selectedSite = null;
@@ -236,6 +245,10 @@ function render() {
   $("#view-3d").classList.toggle("active", view === "3d");
   $("#view-2d").setAttribute("aria-pressed", view === "2d");
   $("#view-3d").setAttribute("aria-pressed", view === "3d");
+  $("#alignment-toolbar").hidden = view !== "2d";
+  $("#multi-select").setAttribute("aria-pressed", multiSelect);
+  $("#alignment-count").textContent = multiSelect ? `${multiSelection.length} selected · Select items on the plan` : "Select multiple items to align";
+  $("#alignment-toolbar").querySelectorAll("[data-align]").forEach(button => { button.disabled = !multiSelect || multiSelection.length < 2; });
   $("#zoom-value").textContent = `${Math.round(zoom * 100)}%`;
   $("#empty-floor").hidden = scope === "property" || floor().rooms.length > 0;
   $("#canvas-help").textContent = tool === "pan" ? "Drag the canvas to pan · V to select" : view === "3d" ? "Drag to rotate · Click to edit · H to pan" : scope === "property" ? "Drag site items · Arrow keys to nudge · H to pan" : "Click a room to edit · Drag to rearrange";
@@ -289,7 +302,7 @@ function renderPlan() {
   const viewportWidth = Math.min(900, 690 * surface.width / Math.max(surface.height, 1));
   $("#plan").setAttribute("viewBox", `${450 - viewportWidth / 2} 0 ${viewportWidth} 690`);
   if (scope === "property") {
-    const result = renderPropertyView(project, { view, zoom, pan, dimensions, labels: $("#layer-labels").checked, roof: showRoof, viewportWidth, camera, units: unitSystem, editable: true, selectedSite, framing: drag?.mode === "site" ? drag.framing : null });
+    const result = renderPropertyView(project, { view, zoom, pan, dimensions, labels: $("#layer-labels").checked, roof: showRoof, viewportWidth, camera, units: unitSystem, editable: true, selectedSite, selectedSites: multiSelect ? multiSelection : null, framing: drag?.mode === "site" ? drag.framing : null });
     drawing.scale = result.scale;
     drawing.framing = result.framing;
     $("#plan").setAttribute("aria-label", `${project.name}, ${view === "3d" ? "full-house 3D view" : "property site plan"}, ${project.floors.length} floors on a ${lengthText(project.property.width)} by ${lengthText(project.property.depth)} lot`);
@@ -324,7 +337,8 @@ function renderPlan() {
     const labelSize = Math.min(10, Math.max(6, w / (item.name.length * .67)));
     const isStairs = item.type === "stairs";
     const [cx, cy] = roomCentroid(item);
-    markup += `<g class="room-shape ${item.id === selected ? "selected" : ""}" data-room="${escape(item.id)}" transform="translate(${x} ${y})" tabindex="0" role="button" aria-label="${escape(item.name)}, ${areaText(roomArea(item))}"><title>${escape(item.name)} · ${lengthText(item.width)} × ${lengthText(item.depth)}</title><defs><clipPath id="room-clip-${roomIndex}"><polygon points="${points}"/></clipPath></defs><polygon class="room-outline" points="${points}" fill="${spec.color}" stroke="#58644b" stroke-width="4"/><polygon points="${points}" fill="${item.material === "concrete" ? "#b9bdb42a" : `url(#${item.material})`}" pointer-events="none"/>`;
+    const isSelected = multiSelect ? multiSelection.includes(item.id) : item.id === selected;
+    markup += `<g class="room-shape ${isSelected ? "selected" : ""}" data-room="${escape(item.id)}" transform="translate(${x} ${y})" tabindex="0" role="button" aria-pressed="${isSelected}" aria-label="${escape(item.name)}, ${areaText(roomArea(item))}"><title>${escape(item.name)} · ${lengthText(item.width)} × ${lengthText(item.depth)}</title><defs><clipPath id="room-clip-${roomIndex}"><polygon points="${points}"/></clipPath></defs><polygon class="room-outline" points="${points}" fill="${spec.color}" stroke="#58644b" stroke-width="4"/><polygon points="${points}" fill="${item.material === "concrete" ? "#b9bdb42a" : `url(#${item.material})`}" pointer-events="none"/>`;
     if ($("#layer-furniture").checked) markup += `<g clip-path="url(#room-clip-${roomIndex})">${furniture(item.type, w, h)}</g>`;
     if ($("#layer-labels").checked) markup += `<g class="room-label"><text x="${cx * scale}" y="${cy * scale}" text-anchor="middle" class="room-name" style="font-size:${labelSize}px;letter-spacing:${w < 90 ? .6 : 1.3}px">${escape(item.name.toUpperCase())}</text><text x="${cx * scale}" y="${cy * scale + 15}" text-anchor="middle" class="room-area" style="font-size:${w < 75 ? 7 : 9}px">${areaText(roomArea(item))}${w > 110 ? ` <tspan fill="#abb39b">/</tspan> ${lengthText(item.width)} × ${lengthText(item.depth)}` : ""}</text></g>`;
     if (!item.outline && !isOutdoor(item) && !(project.features || []).some(f => f.roomId === item.id)) {
@@ -337,7 +351,7 @@ function renderPlan() {
     } else if (isOutdoor(item)) {
       markup += `<g clip-path="url(#room-clip-${roomIndex})">${plant(13, h - 13, 8)}${plant(w - 13, h - 13, 8)}</g>`;
     }
-    if (item.id === selected && !selectedOpening) {
+    if (item.id === selected && !selectedOpening && !multiSelect) {
       boundaryHandles = `<g data-room="${escape(item.id)}" transform="translate(${x} ${y})">`;
       outline.forEach(([px, py], index) => {
         const [nx, ny] = outline[(index + 1) % outline.length];
@@ -579,6 +593,7 @@ function revertDialog() {
   $("#cancel-revert").onclick = closeDialog;
   $("#confirm-revert").onclick = () => {
     project = JSON.parse(appliedDesign);
+    clearMultiSelection();
     activeFloor = project.floors[0].id;
     selected = null; scope = "floor"; view = "2d"; tool = "select";
     zoom = 1; pan = { x: 0, y: 0 }; camera = { ...DEFAULT_CAMERA };
@@ -798,7 +813,7 @@ document.addEventListener("click", event => {
   const floorButton = event.target.closest("[data-floor]");
   if (floorButton) selectFloor(floorButton.dataset.floor);
   const roomButton = event.target.closest("[data-select-room]");
-  if (roomButton) { selectedOpening = null; selected = roomButton.dataset.selectRoom; render(); }
+  if (roomButton) { clearMultiSelection(); selectedOpening = null; selected = roomButton.dataset.selectRoom; render(); }
   const directoryButton = event.target.closest("[data-directory-room]");
   if (directoryButton) { selectFloor(directoryButton.dataset.directoryFloor); selected = directoryButton.dataset.directoryRoom; render(); closeDialog(); }
   const panel = event.target.closest("[data-panel]");
@@ -816,6 +831,11 @@ document.addEventListener("click", event => {
 });
 $("#plan").addEventListener("pointerdown", event => {
   if (event.button !== 0 || drag) return;
+  if (multiSelect && view === "2d" && tool !== "pan") {
+    const item = scope === "property" ? event.target.closest("[data-site-item]") : event.target.closest(".room-shape");
+    if (item) { event.preventDefault(); toggleMultiItem(scope === "property" ? item.dataset.siteItem : item.dataset.room); }
+    return;
+  }
   const featureId = event.target.closest("[data-feature]")?.dataset.feature;
   const feature = (project.features || []).find(item => item.id === featureId);
   if (featureId && tool !== "pan" && view === "2d" && (scope !== "floor" || feature?.type === "gate")) { event.preventDefault(); architecturalFeatures(featureId); return; }
@@ -959,6 +979,18 @@ $("#plan").addEventListener("pointercancel", event => endDrag(event, true));
 $("#plan").addEventListener("lostpointercapture", event => endDrag(event, true));
 $("#plan").addEventListener("keydown", event => {
   if (drag) return;
+  if (multiSelect && view === "2d" && tool !== "pan" && (event.key === "Enter" || event.key === " ")) {
+    const item = scope === "property" ? event.target.closest("[data-site-item]") : event.target.closest(".room-shape");
+    if (item) {
+      event.preventDefault();
+      const id = scope === "property" ? item.dataset.siteItem : item.dataset.room;
+      toggleMultiItem(id);
+      const selector = scope === "property" ? "[data-site-item]" : ".room-shape";
+      [...$("#plan").querySelectorAll(selector)].find(element => (scope === "property" ? element.dataset.siteItem : element.dataset.room) === id)?.focus();
+    }
+    return;
+  }
+  if (multiSelect) return;
   const handle = event.target.closest("[data-wall], [data-corner]");
   const arrows = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
   const siteId = event.target.closest("[data-site-item]")?.dataset.siteItem;
@@ -1027,8 +1059,20 @@ $("#scope-property").onclick = () => setScope("property");
 $("#empty-add").onclick = addDialog;
 $("#undo").onclick = () => history();
 $("#redo").onclick = () => history(true);
-$("#view-2d").onclick = () => { view = "2d"; render(); };
-$("#view-3d").onclick = () => { view = "3d"; render(); };
+$("#view-2d").onclick = () => { clearMultiSelection(); view = "2d"; render(); };
+$("#view-3d").onclick = () => { clearMultiSelection(); view = "3d"; render(); };
+$("#multi-select").onclick = () => {
+  multiSelect = !multiSelect;
+  multiSelection = [];
+  selectedOpening = null;
+  if (multiSelect) tool = "select";
+  render();
+};
+$("#alignment-toolbar").addEventListener("click", event => {
+  const button = event.target.closest("[data-align]");
+  if (!button || button.disabled) return;
+  if (change(() => { project = alignItems(project, scope, activeFloor, multiSelection, button.dataset.align); }, true)) toast("Selected items aligned.");
+});
 $("#camera-yaw").oninput = event => setCamera({ ...camera, yaw: Number(event.target.value) });
 $("#camera-pitch").oninput = event => setCamera({ ...camera, pitch: Number(event.target.value) });
 $("#reset-camera").onclick = () => { camera = { ...DEFAULT_CAMERA }; zoom = 1; pan = { x: 0, y: 0 }; render(); };
@@ -1060,14 +1104,15 @@ document.addEventListener("keydown", event => {
   if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "z") { event.preventDefault(); history(event.shiftKey); }
   else if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") { event.preventDefault(); roomDirectory(); }
   else if (event.key === "Escape") {
-    if (selectedOpening) selectedOpening = null;
+    if (multiSelect) clearMultiSelection();
+    else if (selectedOpening) selectedOpening = null;
     else selected = null;
     responsiveUI.closeNavigation(); render();
   }
   else if (event.key.toLowerCase() === "v") setTool("select");
   else if (event.key.toLowerCase() === "h") setTool("pan");
   else if (event.key.toLowerCase() === "r") addDialog();
-  else if ((event.key === "Delete" || event.key === "Backspace") && selection()) {
+  else if ((event.key === "Delete" || event.key === "Backspace") && !multiSelect && selection()) {
     event.preventDefault();
     if (!event.target.closest("[data-feature]")) deleteRoom(selection());
   }

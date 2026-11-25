@@ -9,7 +9,7 @@ export { propertyFeatures } from "./property-edit.js?v=20261125-1";
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const number = value => Number(value.toFixed(2));
 
-export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 0, y: 0 }, dimensions = true, labels = true, roof = true, viewportWidth = 900, camera: angles = DEFAULT_CAMERA, units = "metric", idPrefix = "", editable = false, selectedSite = null, framing = null } = {}) {
+export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 0, y: 0 }, dimensions = true, labels = true, roof = true, viewportWidth = 900, camera: angles = DEFAULT_CAMERA, units = "metric", idPrefix = "", editable = false, selectedSite = null, selectedSites = null, framing = null } = {}) {
   const iso = view === "3d";
   const camera = createCamera(angles), projectPoint = camera.project;
   const p = project.property;
@@ -43,7 +43,10 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
   const text = (x, y, label, options = "") => `<text x="${x}" y="${y}" fill="#687f5c" font-family="Arial,sans-serif" font-size="8" text-anchor="middle" pointer-events="none" ${options}>${escape(label)}</text>`;
   const worldText = (x, y, label, z = 0, options = "") => { const v = point(x, y, z); return text(v.x, v.y, label, options); };
   const features = propertyFeatures(project);
-  const itemAttrs = (id, name) => !iso && editable ? `data-site-item="${id}" class="site-item${id === selectedSite ? " site-selected" : ""}" tabindex="0" role="button" aria-label="Move ${name}" aria-pressed="${id === selectedSite}"` : "";
+  const itemAttrs = (id, name) => {
+    const selected = selectedSites ? selectedSites.includes(id) : id === selectedSite;
+    return !iso && editable ? `data-site-item="${id}" class="site-item${selected ? " site-selected" : ""}" tabindex="0" role="button" aria-label="Move ${name}" aria-pressed="${selected}"` : "";
+  };
   const roofSpec = roofSettings(project);
   let markup = `<g class="property-scene" transform="translate(${450 + pan.x} ${345 + pan.y}) scale(${zoom}) translate(-450 -345)">`;
   markup += `<defs>

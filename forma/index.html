@@ -24,9 +24,9 @@
   <meta name="twitter:image" content="https://alphadyn.github.io/apps/forma/preview.png?v=20261117">
   <meta name="twitter:image:alt" content="Forma home design studio: a space for possibility, with an illustrated floor plan.">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=20261125-4">
+  <link rel="stylesheet" href="styles.css?v=20261125-5">
   <link rel="stylesheet" href="responsive.css?v=20261125-4">
-  <script type="module" src="app.js?v=20261125-4"></script>
+  <script type="module" src="app.js?v=20261125-5"></script>
 </head>
 <body>
   <aside class="sidebar" id="workspace-navigation" aria-label="Workspace navigation">
@@ -89,6 +89,14 @@
         <div class="editor-body">
           <div class="canvas-column">
             <div class="canvas-toolbar"><div class="tool-group" aria-label="Canvas tools"><button class="tool active" id="tool-select" aria-label="Select and move rooms" title="Select & move (V)"><span data-icon="cursor"></span></button><button class="tool" id="tool-pan" aria-label="Pan canvas" title="Pan (H)"><span data-icon="hand"></span></button><span class="tool-separator"></span><button class="tool" id="toolbar-add" aria-label="Add room" title="Add a space (R)"><span data-icon="room-add"></span></button><button class="tool active" id="toggle-dimensions" aria-label="Toggle dimensions" aria-pressed="true" title="Dimensions"><span data-icon="ruler"></span></button><span class="tool-separator"></span><button class="tool" id="undo" aria-label="Undo" title="Undo (⌘Z)" disabled><span data-icon="undo"></span></button><button class="tool" id="redo" aria-label="Redo" title="Redo (⌘⇧Z)" disabled><span data-icon="redo"></span></button></div><button class="layers-button" id="layers-button" aria-expanded="false"><span data-icon="layers"></span>Layers<span class="layers-number">3</span></button></div>
+            <div class="alignment-toolbar" id="alignment-toolbar">
+              <button id="multi-select" aria-pressed="false">Select multiple</button>
+              <span id="alignment-count" aria-live="polite">Select multiple items to align</span>
+              <div class="alignment-actions" role="group" aria-label="Align selected items">
+                <button data-align="left">Left</button><button data-align="centerX">Center X</button><button data-align="right">Right</button>
+                <button data-align="top">Top</button><button data-align="centerY">Center Y</button><button data-align="bottom">Bottom</button>
+              </div>
+            </div>
             <div class="drawing-surface" id="drawing-surface">
               <div class="canvas-caption"><span class="canvas-status-dot"></span><span id="plan-caption">GROUND FLOOR</span><span class="caption-separator">/</span><span id="canvas-view-caption">FLOOR PLAN</span></div>
               <svg id="plan" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 690" role="img" aria-label="Interactive home floor plan"></svg>

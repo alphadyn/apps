@@ -54,6 +54,10 @@ The deployed URL is `https://alphadyn.github.io/apps/northstar-ehr/`.
 - Type-specific structured details for nursing, vitals, diagnosis, H&P, laboratory, imaging/radiology, procedure, medication, consult, and referral orders
 - Per-patient imaging and radiology records with modality, body site, indication, report, status, and radiologist. Every patient's Radiology workflow also shows shared, attributed reference images, clearly separated from the patient's studies and reports. Select an image to open a full-screen viewer; close it with the Close button or Escape.
 - Grouped clinical note drafts for ED, history and physical, admission, progress, consult, nursing, discharge, disposition, preoperative, operative, postoperative, procedure, delivery, postpartum, and referral workflows; each note type appears once in the composer
+- Editable local note drafts with author, update details, prior versions, and warnings before discarding unsaved edits; no legal signatures
+- Patient-chart allergy review with substance, reaction, severity, and explicit not-reviewed / no-known-allergies status; legacy allergy lists are not assumed to be reviewed
+- Laboratory result review with reviewer and timestamp, optional patient-specific laboratory-request links, and local In Basket entries; reading an inbox item is not result review
+- Filterable local operational reports for active admissions, open orders, unreviewed laboratory results, and appointment status, with timestamped CSV export
 - Patient workflow assignment to a department, care location, attending provider, and nurse; clinician and nurse workflow roles, an admin review role, and an activity audit trail
 - Client-side demo sign-in with a consolidated warning screen requiring acknowledgment on each sign-in; not real authentication or server-enforced authorization
 - Joe Spartan, MD is automatically signed in as a Provider on first load, with sign-in remembered across browser restarts until explicit sign-out. After signing out, use `joe.spartan` / `northstar` to sign in again.
@@ -89,7 +93,13 @@ the demo order-create role permission.
   use **Schedule this order** to create a linked appointment with date, time,
   provider, and optional location. Both records link to each other; cancelling or
   completing one does not change the other. Cancel an existing appointment before
-  rescheduling an open order. Appointments are local demo records, not bookings.
+  rescheduling an open order. A duration is required for new appointments. The app
+  warns about overlapping local appointments for the same provider or location,
+  and about same-day records with an unknown duration; users may proceed after
+  reviewing the warning. Matching uses provider and location names; records
+  without a usable date and time cannot be checked. Older records retain an
+  unknown duration. These checks cannot establish real availability, and
+  appointments are not real bookings.
 - **Procedure and surgical operation catalog:** In a selected patient's Orders,
   choose **Procedure** and search by name or specialty. Use the catalog filter to
   show surgical operations. Results appear only after entering a search; browse

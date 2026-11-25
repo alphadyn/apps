@@ -92,7 +92,7 @@ test("selected radiology study saves and schedules as a linked patient order", (
   const result = vm.runInContext("createOrderForPatient(patients[0], orderData)", context);
   assert.equal(result.allowed, true);
   const appointment = api.createAppointmentForPatient(patient.id, {
-    orderId: result.order.id, scheduledAt: "2026-12-10", time: "10:30", provider: "Demo provider", location: "Radiology"
+    orderId: result.order.id, scheduledAt: "2026-12-10", time: "10:30", durationMinutes: 30, provider: "Demo provider", location: "Radiology"
   });
   assert.equal(appointment.allowed, true);
   const restored = setup("clinician", storage);
@@ -401,7 +401,7 @@ test("linked appointments schedule orders for the correct patient and persist in
     category: "Laboratory", title: "Demo test", labTest: "Demo test",
     labSpecimen: "Blood", labTiming: "Routine"
   }).order`, context);
-  const input = { orderId: order.id, scheduledAt: "2026-12-10", time: "10:30", provider: "Demo provider", location: "Lab" };
+  const input = { orderId: order.id, scheduledAt: "2026-12-10", time: "10:30", durationMinutes: 30, provider: "Demo provider", location: "Lab" };
   assert.equal(api.createAppointmentForPatient(patient.id, input, "staff").allowed, false);
   assert.equal(api.createAppointmentForPatient(2, input).allowed, false);
   assert.equal(api.createAppointmentForPatient(patient.id, { ...input, scheduledAt: "2026-02-30" }).allowed, false);
@@ -423,7 +423,7 @@ test("linked appointment cancellation allows rescheduling and storage failure ro
   const { context, api } = setup();
   const patient = vm.runInContext("patients[0]", context);
   const order = vm.runInContext('createOrderForPatient(patients[0], {category:"Follow-up", title:"Demo follow-up"}).order', context);
-  const input = { orderId: order.id, scheduledAt: "2026-12-10", time: "10:30", provider: "Demo provider" };
+  const input = { orderId: order.id, scheduledAt: "2026-12-10", time: "10:30", durationMinutes: 30, provider: "Demo provider" };
   const first = api.createAppointmentForPatient(patient.id, input);
   assert.equal(api.updateAppointmentStatus(patient.id, first.appointment.id, "Cancelled").allowed, true);
   const before = patient.appointments.length;
@@ -455,7 +455,7 @@ test("completing a linked appointment does not complete the order or change pati
   const originalStatus = patient.status;
   const order = vm.runInContext('createOrderForPatient(patients[0], {category:"Imaging / Radiology", title:"Demo imaging"}).order', context);
   const result = api.createAppointmentForPatient(patient.id, {
-    orderId: order.id, scheduledAt: "2026-12-10", time: "10:30", provider: "Demo provider"
+    orderId: order.id, scheduledAt: "2026-12-10", time: "10:30", durationMinutes: 30, provider: "Demo provider"
   });
   assert.equal(api.updateAppointmentStatus(patient.id, result.appointment.id, "Completed").allowed, true);
   assert.equal(order.status, "Pending");
@@ -766,6 +766,121 @@ test("providers can save drafts for every requested clinical note type", () => {
     assert.equal(result.document.sections[fieldName], "Recorded details");
     assert.equal(patient.documents[0].id, result.document.id);
   }
+});
+
+test("note edits retain prior versions and survive reload without changing finalized notes", () => {
+  const { context, storage } = setup();
+  const patient = vm.runInContext("patients[0]", context);
+  const created = vm.runInContext('createDocumentForPatient(patients[0], { type: "Progress Note", title: "Original", subjective: "Initial" })', context);
+  assert.equal(created.allowed, true);
+  context.noteId = created.document.id;
+  assert.equal(vm.runInContext('updateDocumentForPatient(patients[0], noteId, { title: "Edited", subjective: "Updated" }, "staff").allowed', context), false);
+  assert.equal(vm.runInContext('updateDocumentForPatient(patients[0], noteId, { title: "Edited", subjective: "Updated" }).allowed', context), true);
+  const note = patient.documents.find((item) => item.id === context.noteId);
+  assert.equal(note.author, vm.runInContext("currentUser.label", context));
+  assert.equal(note.updatedBy, vm.runInContext("currentUser.label", context));
+  assert.equal(note.sections.subjective, "Updated");
+  assert.equal(note.history[0].sections.subjective, "Initial");
+  assert.equal(patient.notes.find((item) => item.documentId === note.id).title, "Edited");
+  const restored = setup("clinician", storage);
+  restored.context.noteId = note.id;
+  assert.equal(vm.runInContext('patients[0].documents.find(item => item.id === noteId).history[0].title', restored.context), "Original");
+  note.status = "Finalized";
+  assert.equal(vm.runInContext('updateDocumentForPatient(patients[0], noteId, { title: "Changed" }).allowed', context), false);
+});
+
+test("note and allergy changes roll back when browser storage fails", () => {
+  const { context } = setup();
+  const created = vm.runInContext('createDocumentForPatient(patients[0], { type: "Progress Note", title: "Original", subjective: "Initial" })', context);
+  context.noteId = created.document.id;
+  context.console = { warn() {} };
+  context.localStorage.setItem = () => { throw new Error("storage blocked"); };
+  assert.equal(vm.runInContext('updateDocumentForPatient(patients[0], noteId, { title: "Changed" }).allowed', context), false);
+  assert.equal(created.document.title, "Original");
+  assert.equal(created.document.history?.length || 0, 0);
+  assert.equal(vm.runInContext('saveAllergyReview(patients[0], {status: "No known allergies", entries: []}).allowed', context), false);
+  assert.equal(vm.runInContext('patients[0].allergyReview.status', context), "Not reviewed");
+  assert.equal(vm.runInContext('createDocumentForPatient(patients[0], {type: "Progress Note", title: "Unsaved"}).allowed', context), false);
+  assert.equal(vm.runInContext('patients[0].documents.some(item => item.title === "Unsaved")', context), false);
+});
+
+test("allergy review distinguishes unreviewed from none and saves structured details", () => {
+  const { context, storage } = setup();
+  const patient = vm.runInContext("patients[0]", context);
+  assert.equal(patient.allergyReview.status, "Not reviewed");
+  assert.ok(patient.allergyReview.entries.length);
+  context.reviewData = { status: "No known allergies", entries: patient.allergyReview.entries };
+  assert.equal(vm.runInContext("saveAllergyReview(patients[0], reviewData).allowed", context), false);
+  context.reviewData = { status: "Allergies documented", entries: [{ substance: "Example", reaction: "Rash", severity: "Moderate" }] };
+  assert.equal(vm.runInContext('saveAllergyReview(patients[0], reviewData, "staff").allowed', context), false);
+  assert.equal(vm.runInContext("saveAllergyReview(patients[0], reviewData).allowed", context), true);
+  assert.equal(patient.allergies[0], "Example");
+  assert.equal(patient.allergyReview.entries[0].reaction, "Rash");
+  const restored = setup("clinician", storage);
+  assert.equal(vm.runInContext("patients[0].allergyReview.entries[0].severity", restored.context), "Moderate");
+  context.reviewData = { status: "No known allergies", entries: [] };
+  assert.equal(vm.runInContext("saveAllergyReview(patients[0], reviewData).allowed", context), true);
+  assert.equal(patient.allergyReview.status, "No known allergies");
+  const exported = vm.runInContext("buildExportPayload(patients[0]).patient", context);
+  assert.equal(exported.allergyReview.status, "No known allergies");
+  assert.ok(Array.isArray(exported.labRecords));
+});
+
+test("lab results link only to patient laboratory orders and review is persisted to the inbox", () => {
+  const { context, storage } = setup();
+  const patient = vm.runInContext("patients[0]", context);
+  const order = vm.runInContext('createOrderForPatient(patients[0], { category: "Laboratory", title: "Demo lab" }).order', context);
+  context.resultId = patient.labRecords[0].id;
+  context.orderId = order.id;
+  assert.equal(vm.runInContext('updateLabResult(patients[0], resultId, { orderId: "missing" }).allowed', context), false);
+  assert.equal(vm.runInContext('updateLabResult(patients[0], resultId, { orderId }, "staff").allowed', context), false);
+  assert.equal(vm.runInContext('updateLabResult(patients[0], resultId, { orderId }).allowed', context), true);
+  assert.equal(vm.runInContext('updateLabResult(patients[0], resultId, { review: true }).allowed', context), true);
+  assert.ok(patient.labRecords[0].reviewedAt);
+  assert.equal(vm.runInContext('inboxItems.find(item => item.resultId === resultId).status', context), "Reviewed");
+  const restored = setup("clinician", storage);
+  restored.context.resultId = context.resultId;
+  assert.ok(vm.runInContext('patients[0].labRecords.find(item => item.id === resultId).reviewedBy', restored.context));
+  assert.equal(vm.runInContext('patients[0].labRecords.find(item => item.id === resultId).orderId', restored.context), order.id);
+});
+
+test("imported replacement allergy and lab lists do not inherit unrelated review metadata", () => {
+  const { context, api } = setup();
+  const patient = vm.runInContext("patients[0]", context);
+  context.resultId = patient.labRecords[0].id;
+  assert.equal(vm.runInContext('updateLabResult(patients[0], resultId, { review: true }).allowed', context), true);
+  assert.equal(vm.runInContext('saveAllergyReview(patients[0], { status: "No known allergies", entries: [] }).allowed', context), true);
+  const imported = api.importPatientRecords([{ mrn: patient.mrn, name: patient.name, allergies: ["New substance"], labs: ["New result"] }]);
+  assert.equal(imported.allowed, true);
+  assert.equal(vm.runInContext("patients[0].allergyReview.status", context), "Not reviewed");
+  assert.equal(vm.runInContext("patients[0].allergyReview.entries[0].substance", context), "New substance");
+  assert.equal(vm.runInContext("patients[0].labRecords[0].reviewedAt", context), "");
+  const remapped = api.normalizePatient({ name: "Demo", labs: ["Replacement"], labRecords: [{ resultText: "Previous", reviewedAt: "2026-01-01" }] });
+  assert.equal(remapped.labRecords[0].reviewedAt, "");
+});
+
+test("reading inbox items does not mark laboratory results reviewed", () => {
+  const { context, storage } = setup();
+  vm.runInContext('syncResultInbox(); render = () => {}; announceInboxStatus = () => {}; handleInboxAction("mark-all-read")', context);
+  assert.equal(vm.runInContext('patients[0].labRecords[0].reviewedAt', context), "");
+  assert.equal(vm.runInContext('inboxItems.find(item => item.resultId === patients[0].labRecords[0].id).status', context), "Read");
+  const restored = setup("clinician", storage);
+  assert.equal(vm.runInContext('syncResultInbox(); inboxItems.find(item => item.resultId === patients[0].labRecords[0].id).status', restored.context), "Read");
+});
+
+test("operational reports filter records and keep reviewed results out of unreviewed counts", () => {
+  const { context } = setup();
+  const patient = vm.runInContext("patients[0]", context);
+  const initial = vm.runInContext('buildOperationalReport("results")', context);
+  assert.ok(initial.rows.some((row) => row.mrn === patient.mrn));
+  context.resultId = patient.labRecords[0].id;
+  assert.equal(vm.runInContext('updateLabResult(patients[0], resultId, { review: true }).allowed', context), true);
+  const after = vm.runInContext('buildOperationalReport("results")', context);
+  assert.equal(after.rows.length, initial.rows.length - 1);
+  const filtered = vm.runInContext(`buildOperationalReport("census", ${JSON.stringify(patient.mrn)}, "")`, context);
+  assert.ok(filtered.rows.every((row) => row.mrn === patient.mrn));
+  assert.equal(vm.runInContext('buildOperationalReport("appointments", "", "not a status").rows.length', context), 0);
+  assert.throws(() => vm.runInContext('buildOperationalReport("invalid")', context), /valid report/);
 });
 
 const sessionKey = "northstar-ehr-demo-account";
@@ -1644,7 +1759,7 @@ test("clearing patient context can be cancelled and persists an empty state acro
 test("clearing prompts before discarding patient workflow changes", () => {
   const { context } = setup();
   const prompts = [];
-  context.document = { querySelectorAll: () => [] };
+  context.document = { querySelectorAll: () => [], getElementById: () => null };
   context.window.confirm = (message) => { prompts.push(message); return false; };
   vm.runInContext("hasUnsavedOrderDraft = () => false; hasUnsavedPatientForms = () => true", context);
   assert.equal(vm.runInContext("confirmPatientChange(null)", context), false);
@@ -2142,6 +2257,7 @@ test("outpatient care can schedule and normalize an appointment", () => {
   const result = api.createAppointmentForPatient(patient.id, {
     scheduledAt: "2026-12-01",
     time: "09:30",
+    durationMinutes: 30,
     visitType: "Telehealth",
     provider: "Dr. Test",
     reason: "Medication review",
@@ -2169,6 +2285,52 @@ test("outpatient care can schedule and normalize an appointment", () => {
     reason: "Missing details"
   }, "clinician");
   assert.equal(invalid.allowed, false);
+});
+
+test("appointment conflict warnings use duration and preserve unknown legacy durations", () => {
+  const { api, context, storage } = setup();
+  assert.equal(api.normalizePatient({ name: "Legacy", appointments: [{ title: "Undated" }] }).appointments[0].scheduledAt, "");
+  const patient = vm.runInContext("patients[0]", context);
+  const other = vm.runInContext("patients[1]", context);
+  const first = api.createAppointmentForPatient(patient.id, {
+    scheduledAt: "2030-01-02", time: "23:45", durationMinutes: 30, provider: "Conflict Provider", location: "Room 1"
+  });
+  assert.equal(first.allowed, true);
+  const input = { scheduledAt: "2030-01-03", time: "00:00", durationMinutes: 30, provider: " conflict provider ", location: "Room 2" };
+  const warning = api.createAppointmentForPatient(other.id, input);
+  assert.equal(warning.allowed, false);
+  assert.equal(warning.conflicts.length, 1);
+  assert.equal(warning.conflicts[0].sameProvider, true);
+  const roomConflict = api.createAppointmentForPatient(other.id, { ...input, provider: "Other", location: "room 1" });
+  assert.equal(roomConflict.conflicts[0].sameLocation, true);
+  assert.equal(api.createAppointmentForPatient(other.id, { ...input, provider: "Other", location: "Other" }).allowed, true);
+  assert.equal(api.createAppointmentForPatient(other.id, { ...input, confirmConflicts: true }).allowed, true);
+  assert.equal(api.createAppointmentForPatient(other.id, { ...input, time: "00:15", durationMinutes: 0 }).allowed, false);
+  const restored = setup("clinician", storage);
+  assert.equal(vm.runInContext(`patients[0].appointments.find(a => a.id === ${JSON.stringify(first.appointment.id)}).durationMinutes`, restored.context), 30);
+  other.appointments.push({ id: "legacy", scheduledAt: "2030-02-01", time: "10:00", provider: "Legacy Provider", location: "", status: "Scheduled" });
+  const uncertain = api.createAppointmentForPatient(patient.id, { scheduledAt: "2030-02-01", time: "15:00", durationMinutes: 30, provider: "Legacy Provider" });
+  assert.equal(uncertain.conflicts[0].unknownDuration, true);
+  assert.equal(api.createAppointmentForPatient(patient.id, { scheduledAt: "2030-02-02", time: "10:00", durationMinutes: 30, provider: "Legacy Provider" }).allowed, true);
+});
+
+test("FHIR appointment exchange preserves recorded duration without inventing legacy durations", () => {
+  const { context } = setup();
+  context.btoa = btoa;
+  context.atob = atob;
+  vm.runInContext(readFileSync(new URL("./interop.js", import.meta.url), "utf8"), context);
+  const patient = vm.runInContext("patients[0]", context);
+  patient.appointments = [
+    { title: "Duration recorded", time: "10:30", durationMinutes: 45, status: "Scheduled" },
+    { title: "Duration unknown", time: "11:30", durationMinutes: null, status: "Scheduled" }
+  ];
+  const bundle = context.window.NorthstarInterop.buildFhirBundle([patient]);
+  const appointments = bundle.entry.filter((entry) => entry.resource.resourceType === "Appointment").map((entry) => entry.resource);
+  assert.equal(appointments[0].minutesDuration, 45);
+  assert.equal(appointments[1].minutesDuration, undefined);
+  const imported = context.window.NorthstarInterop.patientsFromFhir(bundle);
+  assert.equal(imported[0].appointments[0].durationMinutes, 45);
+  assert.equal(imported[0].appointments[1].durationMinutes, undefined);
 });
 
 test("formulary search supports names, classes, strengths, and empty results", () => {

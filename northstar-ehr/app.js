@@ -1355,8 +1355,10 @@ function normalizeAppointment(appointment) {
     patientName: appointment.patientName || "",
     mrn: appointment.mrn || "",
     createdAt: appointment.createdAt || "",
-    scheduledAt: scheduledAt || getLocalDateKey(),
+    scheduledAt,
     time: appointment.time,
+    durationMinutes: Number.isInteger(Number(appointment.durationMinutes)) && Number(appointment.durationMinutes) > 0 && Number(appointment.durationMinutes) <= 1440
+      ? Number(appointment.durationMinutes) : null,
     title: appointment.title,
     location: appointment.location,
     visitType: appointment.visitType || "Office visit",
@@ -1428,8 +1430,26 @@ function normalizePatient(patient) {
     (patient.events || []).find((event) =>
       event.type === "Admission" || /^patient admitted\b|^admission started\b/i.test(event.title || "")
     )?.timestamp || "";
+  const legacyAllergies = Array.isArray(patient.allergies) ? patient.allergies.filter((item) =>
+    typeof item === "string" && item.trim() && !/^(none (listed|recorded)|no known allergies)$/i.test(item.trim())) : [];
+  const allergyReview = patient.allergyReview && typeof patient.allergyReview === "object" ? patient.allergyReview : {};
   return {
     ...patient,
+    labs: Array.isArray(patient.labs) ? patient.labs : [],
+    allergyReview: {
+      status: ["Not reviewed", "No known allergies", "Allergies documented"].includes(allergyReview.status) ? allergyReview.status : "Not reviewed",
+      entries: Array.isArray(allergyReview.entries) ? allergyReview.entries.map((entry) => ({
+        substance: String(entry.substance || "").trim(), reaction: String(entry.reaction || "").trim(),
+        severity: String(entry.severity || "").trim()
+      })).filter((entry) => entry.substance) : legacyAllergies.map((substance) => ({ substance, reaction: "", severity: "" })),
+      reviewedAt: allergyReview.reviewedAt || "", reviewedBy: allergyReview.reviewedBy || ""
+    },
+    labRecords: (patient.labs || []).map((value, index) => {
+      const saved = patient.labRecords?.[index];
+      const record = saved && (saved.resultText === undefined || saved.resultText === value) ? saved : {};
+      return { ...record, resultText: value, id: record.id || createRecordId("lab"),
+        orderId: record.orderId || "", reviewedAt: record.reviewedAt || "", reviewedBy: record.reviewedBy || "" };
+    }),
     medicationDetails: medicationDetails.map((detail) => ({
       medication: String(detail.medication || "").trim(),
       dose: String(detail.dose || "").trim(),
@@ -1516,6 +1536,10 @@ function normalizePatient(patient) {
     documents: (patient.documents || patient.notes || []).map((document) => ({
       id: document.id || createRecordId("document"),
       createdAt: document.createdAt || "",
+      author: document.author || "",
+      updatedAt: document.updatedAt || "",
+      updatedBy: document.updatedBy || "",
+      history: Array.isArray(document.history) ? document.history : [],
       type: document.type || "Clinical note",
       title: document.title || "Untitled note",
       status: document.status || "Finalized",
@@ -2052,7 +2076,7 @@ function getDetailCardsForView(patient, openTasks) {
       {
         title: "Allergies & meds",
         items: [
-          `Allergies: ${patient.allergies.join(", ")}`,
+          `Allergies: ${allergySummary(patient)}`,
           `Medications: ${patient.medications.join(", ")}`,
           `Medication review: ${patient.medicationReviewed ? "Completed" : "Pending"}`
         ]
@@ -2126,7 +2150,7 @@ function getDetailCardsForView(patient, openTasks) {
       {
         title: "Medication profile",
         items: [
-          `Allergies: ${patient.allergies.join(", ")}`,
+          `Allergies: ${allergySummary(patient)}`,
           `Medications: ${patient.medications.join(", ")}`,
           `Medication review: ${patient.medicationReviewed ? "Completed" : "Pending"}`
         ]
@@ -2866,14 +2890,17 @@ function createDocumentForPatient(patient, document, role = currentUser.role) {
   const savedDocument = {
     id: createRecordId("document"),
     createdAt: new Date().toISOString(),
+    author: currentUser.label,
     type: document.type || "Clinical note",
     title,
     status: "Draft",
     time: new Date().toLocaleString([], { dateStyle: "medium", timeStyle: "short" }),
     sections
   };
+  const previousAudit = auditTrail.slice();
   patient.documents.unshift(savedDocument);
   patient.notes.unshift({
+    documentId: savedDocument.id,
     title: savedDocument.title,
     summary: Object.values(sections)[0] || "Draft saved.",
     type: savedDocument.type,
@@ -2886,8 +2913,81 @@ function createDocumentForPatient(patient, document, role = currentUser.role) {
     actorRole: role,
     actorLabel: getRoleLabel(role)
   });
-  saveState();
+  try {
+    if (!safeLocalStorage()) throw new Error("Browser storage unavailable");
+    saveState();
+  } catch (error) {
+    patient.documents = patient.documents.filter((item) => item.id !== savedDocument.id);
+    patient.notes = patient.notes.filter((item) => item.documentId !== savedDocument.id);
+    auditTrail = previousAudit;
+    console.warn("Unable to save document", error);
+    return { allowed: false, message: "Unable to save the note. Check browser storage and try again." };
+  }
   return { allowed: true, document: savedDocument };
+}
+
+function updateDocumentForPatient(patient, documentId, data, role = currentUser.role) {
+  const permission = evaluatePermission(role, "document:create", patient.name);
+  if (!permission.allowed) return permission;
+  const note = patient.documents.find((item) => item.id === documentId);
+  if (!note || note.status !== "Draft") return { allowed: false, message: "Only an existing draft can be edited." };
+  const fields = documentTypeFields[note.type];
+  if (!fields) return { allowed: false, message: "This older note type cannot be edited with a template." };
+  const title = String(data.title || "").trim();
+  if (!title) return { allowed: false, message: "Enter a note title." };
+  const previous = JSON.parse(JSON.stringify(note));
+  const previousAudit = auditTrail.slice();
+  const linkedNote = patient.notes.find((item) => item.documentId === note.id);
+  const previousLinked = linkedNote ? { ...linkedNote } : null;
+  const sections = { ...note.sections };
+  fields.forEach((field) => {
+    const value = String(data[field.name] || "").trim();
+    if (value) sections[field.name] = value;
+    else delete sections[field.name];
+  });
+  const now = new Date().toISOString();
+  note.history = [...(note.history || []), {
+    title: note.title, sections: { ...note.sections }, savedAt: note.updatedAt || note.createdAt || "",
+    savedBy: note.updatedBy || note.author || ""
+  }];
+  Object.assign(note, { title, sections, updatedAt: now, updatedBy: currentUser.label });
+  if (linkedNote) Object.assign(linkedNote, { title, summary: Object.values(sections)[0] || "Draft saved." });
+  appendAuditEntry({ action: "document:update", patientName: patient.name,
+    details: `Updated ${note.type} draft "${title}".`, actorRole: role, actorLabel: getRoleLabel(role) });
+  try {
+    if (!safeLocalStorage()) throw new Error("Browser storage unavailable");
+    saveState();
+  } catch (error) {
+    Object.keys(note).forEach((key) => delete note[key]);
+    Object.assign(note, previous);
+    if (linkedNote) Object.assign(linkedNote, previousLinked);
+    auditTrail = previousAudit;
+    console.warn("Unable to save note draft", error);
+    return { allowed: false, message: "Unable to save the note. Check browser storage and try again." };
+  }
+  return { allowed: true, document: note };
+}
+
+function findAppointmentConflicts(appointment) {
+  const start = new Date(`${appointment.scheduledAt}T${appointment.time}:00`).getTime();
+  const end = start + appointment.durationMinutes * 60000;
+  const normalize = (value) => String(value || "").trim().toLowerCase();
+  const provider = normalize(appointment.provider);
+  const location = normalize(appointment.location);
+  return patients.flatMap((patient) => patient.appointments.flatMap((existing) => {
+    if (["Cancelled", "No-show"].includes(normalizeAppointmentStatus(existing.status))) return [];
+    const sameProvider = provider && provider === normalize(existing.provider);
+    const sameLocation = location && location === normalize(existing.location);
+    if (!sameProvider && !sameLocation) return [];
+    const existingStart = new Date(`${existing.scheduledAt}T${existing.time}:00`).getTime();
+    if (!Number.isFinite(existingStart)) return [];
+    const unknownDuration = !existing.durationMinutes;
+    const overlaps = unknownDuration
+      ? existing.scheduledAt === appointment.scheduledAt
+      : start < existingStart + existing.durationMinutes * 60000 && existingStart < end;
+    return overlaps ? [{ patientName: patient.name, scheduledAt: existing.scheduledAt, time: existing.time,
+      sameProvider: Boolean(sameProvider), sameLocation: Boolean(sameLocation), unknownDuration }] : [];
+  }));
 }
 
 function createAppointmentForPatient(patientId, appointment, role = currentUser.role) {
@@ -2916,15 +3016,21 @@ function createAppointmentForPatient(patientId, appointment, role = currentUser.
   if (!scheduledAt || !time) {
     return { allowed: false, message: "Choose an appointment date and time." };
   }
-  if (linkedOrder) {
-    const date = new Date(`${scheduledAt}T00:00:00`);
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(scheduledAt) || Number.isNaN(date.getTime()) || getLocalDateKey(date) !== scheduledAt ||
-        !/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) {
-      return { allowed: false, message: "Choose a valid appointment date and time." };
-    }
+  const date = new Date(`${scheduledAt}T00:00:00`);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(scheduledAt) || Number.isNaN(date.getTime()) || getLocalDateKey(date) !== scheduledAt ||
+      !/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) {
+    return { allowed: false, message: "Choose a valid appointment date and time." };
+  }
+  const durationMinutes = Number(appointment.durationMinutes);
+  if (!Number.isInteger(durationMinutes) || durationMinutes < 1 || durationMinutes > 1440) {
+    return { allowed: false, message: "Enter a duration between 1 and 1440 minutes." };
   }
   if (!provider) {
     return { allowed: false, message: "Select an appointment provider." };
+  }
+  const conflicts = findAppointmentConflicts({ scheduledAt, time, durationMinutes, provider, location: appointment.location });
+  if (conflicts.length && !appointment.confirmConflicts) {
+    return { allowed: false, conflicts, message: "Possible provider or location conflict. Review before scheduling." };
   }
 
   const created = normalizeAppointment({
@@ -2937,6 +3043,7 @@ function createAppointmentForPatient(patientId, appointment, role = currentUser.
     provider,
     scheduledAt,
     time,
+    durationMinutes,
     title,
     status: "Scheduled",
     createdAt: new Date().toISOString()
@@ -3045,6 +3152,10 @@ function buildExportPayload(patient) {
       chartCompleted: patient.chartCompleted,
       medicationReviewed: patient.medicationReviewed,
       medications: patient.medications,
+      allergies: patient.allergies,
+      allergyReview: patient.allergyReview,
+      labs: patient.labs,
+      labRecords: patient.labRecords,
       medicationDetails: patient.medicationDetails,
       prescriptions: patient.prescriptions,
       dispensations: patient.dispensations,
@@ -3096,6 +3207,8 @@ function importPatientRecords(records, role = currentUser.role) {
     const index = patients.findIndex((patient) => patient.mrn === incoming.mrn);
     if (index >= 0) {
       incoming.id = patients[index].id;
+      if (Object.hasOwn(incoming, "allergies") && !Object.hasOwn(incoming, "allergyReview")) incoming.allergyReview = undefined;
+      if (Object.hasOwn(incoming, "labs") && !Object.hasOwn(incoming, "labRecords")) incoming.labRecords = undefined;
       patients[index] = normalizePatient({ ...patients[index], ...incoming });
       updated += 1;
     } else {
@@ -3135,7 +3248,7 @@ function renderAdmissionTable(container, admittedPatients) {
           <td>${escapeHtml(patient.clinical.department)}<span>${escapeHtml(patient.clinical.location)}</span></td>
           <td>${escapeHtml(patient.clinical.attending || patient.provider)}</td>
           <td>${escapeHtml(patient.clinical.assignedNurse || "Unassigned")}</td>
-          <td><strong>Allergies: ${escapeHtml(patient.allergies.join(", ") || "None listed")}</strong><span>BP ${escapeHtml(patient.vitals.bp || "—")} · HR ${escapeHtml(patient.vitals.hr || "—")} · SpO₂ ${escapeHtml(patient.vitals.spO2 || "—")}</span></td>
+          <td><strong>Allergies: ${escapeHtml(allergySummary(patient))}</strong><span>BP ${escapeHtml(patient.vitals.bp || "—")} · HR ${escapeHtml(patient.vitals.hr || "—")} · SpO₂ ${escapeHtml(patient.vitals.spO2 || "—")}</span></td>
           <td><span class="status-pill">${escapeHtml(patient.clinical.stage)}</span><span>${escapeHtml(patient.priority)} priority</span></td>
           <td><button class="ghost-btn action-btn" type="button" data-open-patient="${escapeHtml(patient.id)}">Open chart</button></td>
         </tr>`).join("")}</tbody>
@@ -3156,6 +3269,63 @@ function renderOperationsOverview() {
     <p class="muted-copy">Use Patients &amp; care for charts and workflows, or Organization for team and location information.</p>
     <div class="overview-summary">${summaries.map(([label, value]) => `
       <div><strong>${value}</strong><p>${escapeHtml(label)}</p></div>`).join("")}</div>`;
+  const reports = document.getElementById("operationalReports");
+  if (reports) {
+    reports.hidden = !hasPermission(currentUser.role, "report:export");
+    if (reports.hidden) {
+      document.getElementById("operationalReportOutput").innerHTML = "";
+      document.getElementById("exportOperationalReport").disabled = true;
+      operationalReport = null;
+    }
+  }
+}
+
+let operationalReport = null;
+const operationalReportDefinitions = {
+  census: "Active admissions: Admission stage or ward/ICU admit disposition, excluding closed, discharged and transferred encounters.",
+  orders: "Open orders: orders not marked completed or cancelled.",
+  results: "Unreviewed laboratory results: recorded lab results without a review timestamp.",
+  appointments: "Appointment status: all recorded appointments, including completed, cancelled and no-show."
+};
+
+function buildOperationalReport(type, search = "", status = "") {
+  if (!Object.hasOwn(operationalReportDefinitions, type)) throw new Error("Select a valid report.");
+  const rows = patients.flatMap((patient) => {
+    const row = (item, state, date) => ({ patient: patient.name, mrn: patient.mrn,
+      department: patient.clinical.department || "Not recorded", item, status: state, date: date || "Not recorded" });
+    if (type === "census") return isPatientAdmitted(patient) ? [row(patient.diagnosis, patient.clinical.stage, patient.clinical.admissionAt)] : [];
+    if (type === "orders") return patient.orders.filter((order) => !["Completed", "Cancelled"].includes(order.status)).map((order) => row(order.title, order.status, order.createdAt));
+    if (type === "results") return patient.labRecords.flatMap((result, index) => !result.reviewedAt ? [row(patient.labs[index], "Unreviewed", result.recordedAt)] : []);
+    return patient.appointments.map((appointment) => row(appointment.title || appointment.reason, appointment.status, [appointment.scheduledAt, appointment.time].filter(Boolean).join(" ")));
+  });
+  const term = search.trim().toLowerCase();
+  const state = status.trim().toLowerCase();
+  return { type, generatedAt: new Date().toISOString(), search, status, definition: operationalReportDefinitions[type],
+    rows: rows.filter((row) => (!state || row.status.toLowerCase() === state) &&
+      (!term || Object.values(row).some((value) => String(value || "").toLowerCase().includes(term)))) };
+}
+
+function renderOperationalReport(report) {
+  const output = document.getElementById("operationalReportOutput");
+  output.innerHTML = `<p>${escapeHtml(report.definition)}</p><p>Generated ${escapeHtml(report.generatedAt)} · ${report.rows.length} records · Search: ${escapeHtml(report.search || "All")} · Status: ${escapeHtml(report.status || "All")}</p>
+    ${report.rows.length ? `<div class="table-scroll"><table class="data-table"><thead><tr><th>Patient</th><th>MRN</th><th>Department</th><th>Item</th><th>Status</th><th>Date</th></tr></thead><tbody>${report.rows.map((row) =>
+      `<tr>${Object.values(row).map((value) => `<td>${escapeHtml(value || "Not recorded")}</td>`).join("")}</tr>`).join("")}</tbody></table></div>` : '<p class="empty-state">No records match these filters.</p>'}`;
+  document.getElementById("exportOperationalReport").disabled = false;
+}
+
+function exportOperationalReport(report) {
+  const csvCell = window.NorthstarInterop.csvCell;
+  const rows = [
+    ["Generated at", report.generatedAt], ["Report", report.type], ["Definition", report.definition],
+    ["Search filter", report.search], ["Status filter", report.status],
+    ["Patient", "MRN", "Department", "Item", "Status", "Date"],
+    ...report.rows.map((row) => Object.values(row))
+  ];
+  const blob = new Blob([rows.map((row) => row.map(csvCell).join(",")).join("\r\n")], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url; link.download = `northstar-${report.type}-report.csv`; link.click();
+  URL.revokeObjectURL(url);
 }
 
 function renderAccountRoles() {
@@ -3290,7 +3460,7 @@ function renderPatientStatusDashboard(patient) {
   const latestImaging = [...patient.imaging].sort((left, right) =>
     (toTimelineDate(right.performedAt)?.getTime() || 0) - (toTimelineDate(left.performedAt)?.getTime() || 0)
   )[0];
-  const allergyText = patient.allergies.length ? patient.allergies.join(", ") : "None listed";
+  const allergyText = allergySummary(patient);
 
   return `
     <section id="patient-status-dashboard" class="patient-status-dashboard" aria-label="Patient medical status dashboard">
@@ -3308,6 +3478,7 @@ function renderPatientStatusDashboard(patient) {
         </div>
         <p class="allergy-alert"><strong>Allergies:</strong> ${escapeHtml(allergyText)}</p>
       </div>
+      ${renderAllergyReview(patient)}
 
       <div class="clinical-dashboard-grid">
         <section class="clinical-dashboard-card vitals-dashboard" aria-labelledby="vitalsDashboardHeading">
@@ -3371,6 +3542,62 @@ function renderPatientStatusDashboard(patient) {
       </div>
     </section>
   `;
+}
+
+function allergySummary(patient) {
+  const review = patient.allergyReview;
+  if (!review) return "Not reviewed";
+  const names = review.entries.map((entry) => entry.substance).join(", ");
+  return `${review.status}${names ? ` · ${names}` : ""}`;
+}
+
+function renderAllergyReview(patient) {
+  const review = patient.allergyReview;
+  const canEdit = hasPermission(currentUser.role, "workflow:update");
+  return `<p id="allergySaveStatus" class="status-message" role="status"></p><details class="mini-card"><summary>Allergy review</summary>
+    <p class="muted-copy">${escapeHtml(review.status)}${review.reviewedAt ? ` · ${escapeHtml(review.reviewedBy)} · ${escapeHtml(review.reviewedAt)}` : ""}. Demo documentation only; not a medication safety check.</p>
+    <form class="clinical-form allergy-review-form">
+      <label>Review status<select name="status" ${canEdit ? "" : "disabled"}>
+        ${["Not reviewed", "No known allergies", "Allergies documented"].map((status) => `<option ${status === review.status ? "selected" : ""}>${escapeHtml(status)}</option>`).join("")}
+      </select></label>
+      ${[...review.entries, { substance: "", reaction: "", severity: "" }].map((entry) => `<div class="row">
+        <label>Substance<input name="substance" value="${escapeHtml(entry.substance)}" ${canEdit ? "" : "disabled"} /></label>
+        <label>Reaction<input name="reaction" value="${escapeHtml(entry.reaction)}" ${canEdit ? "" : "disabled"} /></label>
+        <label>Severity<select name="severity" ${canEdit ? "" : "disabled"}>${["", "Mild", "Moderate", "Severe", "Unknown"].map((severity) => `<option value="${severity}" ${severity === entry.severity ? "selected" : ""}>${severity || "Not recorded"}</option>`).join("")}</select></label>
+      </div>`).join("")}
+      <p class="muted-copy">Clear a substance to remove it. Select “No known allergies” only after clearing all entries.</p>
+      <button class="primary-btn" type="submit" ${canEdit ? "" : "disabled"}>Save allergy review</button>
+      <p class="status-message" role="alert"></p>
+    </form></details>`;
+}
+
+function saveAllergyReview(patient, data, role = currentUser.role) {
+  const permission = evaluatePermission(role, "workflow:update", patient.name);
+  if (!permission.allowed) return permission;
+  if (!["Not reviewed", "No known allergies", "Allergies documented"].includes(data.status)) return { allowed: false, message: "Select a valid allergy review status." };
+  const entries = data.entries.map((entry) => ({
+    substance: String(entry.substance || "").trim(), reaction: String(entry.reaction || "").trim(), severity: String(entry.severity || "").trim()
+  })).filter((entry) => entry.substance);
+  if (entries.some((entry) => !["", "Mild", "Moderate", "Severe", "Unknown"].includes(entry.severity))) return { allowed: false, message: "Select a valid severity." };
+  if (data.status === "No known allergies" && entries.length) return { allowed: false, message: "Remove the documented allergies before selecting no known allergies." };
+  if (data.status === "Allergies documented" && !entries.length) return { allowed: false, message: "Add at least one allergy or choose another review status." };
+  const previous = patient.allergyReview;
+  const oldAllergies = patient.allergies;
+  const previousAudit = auditTrail.slice();
+  patient.allergyReview = { status: data.status, entries,
+    reviewedAt: data.status === "Not reviewed" ? "" : new Date().toISOString(),
+    reviewedBy: data.status === "Not reviewed" ? "" : currentUser.label };
+  patient.allergies = entries.map((entry) => entry.substance);
+  appendAuditEntry({ action: "allergy:review", patientName: patient.name, details: `Updated allergy review: ${data.status}.`, actorRole: role, actorLabel: getRoleLabel(role) });
+  try {
+    if (!safeLocalStorage()) throw new Error("Browser storage unavailable");
+    saveState();
+  } catch (error) {
+    patient.allergyReview = previous; patient.allergies = oldAllergies; auditTrail = previousAudit;
+    console.warn("Unable to save allergy review", error);
+    return { allowed: false, message: "Unable to save allergy review. Check browser storage and try again." };
+  }
+  return { allowed: true };
 }
 
 function renderPatientTimeline(patient) {
@@ -3498,11 +3725,28 @@ function renderPatientDetail() {
 
   if (currentView === "labs") {
     const labOrders = patient.orders.filter((order) => order.category === "Laboratory");
+    const canReview = hasPermission(currentUser.role, "order:create");
     detail.innerHTML = `
       <div class="detail-header"><div><p class="eyebrow">Patient labs</p><h3 id="patientDetailHeading" tabindex="-1">${escapeHtml(patient.name)}</h3><p>${escapeHtml(patient.mrn)}</p></div>
         <button class="primary-btn" type="button" data-treatment-view="orders" data-order-category="Laboratory">Order a lab test</button></div>
-      <section class="mini-card"><h4>Recorded results</h4>
-        <ul>${patient.labs.map((lab, index) => `<li id="patient-lab-${escapeHtml(patient.id)}-${index}">${escapeHtml(lab)}</li>`).join("") || "<li>No results recorded.</li>"}</ul>
+      <section class="mini-card"><h4>Recorded results</h4><p id="labReviewStatus" class="status-message" role="status"></p>
+        <p class="muted-copy">Review and order links are local demo records; they do not represent clinical verification.</p>
+        ${patient.labs.map((lab, index) => {
+          const record = patient.labRecords[index];
+          return `<article class="dispensary-record" id="patient-lab-${escapeHtml(patient.id)}-${index}">
+            <strong>${escapeHtml(lab)}</strong>
+            <p>${record.reviewedAt ? `Reviewed by ${escapeHtml(record.reviewedBy)} · ${escapeHtml(record.reviewedAt)}` : "Not reviewed"}</p>
+            <form class="clinical-form lab-review-form" data-result-id="${escapeHtml(record.id)}">
+              <label>Linked laboratory request<select name="orderId" ${canReview ? "" : "disabled"}>
+                <option value="">No linked request</option>
+                ${labOrders.map((order) => `<option value="${escapeHtml(order.id)}" ${order.id === record.orderId ? "selected" : ""}>${escapeHtml(order.title)} · ${escapeHtml(order.status)}</option>`).join("")}
+              </select></label>
+              <button class="ghost-btn" type="submit" ${canReview ? "" : "disabled"}>Save request link</button>
+              <p class="status-message" role="alert"></p>
+            </form>
+            ${!record.reviewedAt ? `<button class="primary-btn" type="button" data-review-result="${escapeHtml(record.id)}" ${canReview ? "" : "disabled"}>Mark reviewed</button>` : ""}
+          </article>`;
+        }).join("") || '<p class="empty-state">No results recorded.</p>'}
       </section>
       <section class="mini-card"><h4>Laboratory requests (${labOrders.length})</h4>
         ${labOrders.map((order) => `<article class="dispensary-record"><strong>${escapeHtml(order.title)}</strong><p>${escapeHtml(order.status)} · ${escapeHtml(order.priority)}</p>
@@ -3829,6 +4073,7 @@ function renderOutpatientAppointments() {
           <p><span class="status-pill ${escapeHtml(statusClass)}">${escapeHtml(status)}</span></p>
           <p><strong>Patient:</strong> ${escapeHtml(appointment.patientName || patient.name)} · ${escapeHtml(appointment.mrn || patient.mrn)}</p>
           <p><strong>Provider:</strong> ${escapeHtml(appointment.provider || "Provider not specified")}</p>
+          <p><strong>Duration:</strong> ${appointment.durationMinutes ? `${escapeHtml(appointment.durationMinutes)} minutes` : "Not recorded"}</p>
           <p>${escapeHtml(appointment.visitType || "Office visit")}</p>
           <p class="outpatient-location"><span aria-hidden="true">⌖</span>${escapeHtml(appointment.location || "Location not recorded")}</p>
           ${appointment.orderId ? `<button class="text-btn" type="button" data-treatment-view="orders" data-treatment-target="patient-order-${escapeHtml(appointment.orderId)}">View linked order</button>` : ""}
@@ -3850,6 +4095,7 @@ function renderAppointments() {
           <div>
             <strong>${escapeHtml(formatDisplayDate(appointment.scheduledAt))} · ${escapeHtml(appointment.time)} • ${escapeHtml(appointment.title)}</strong>
             <span>${escapeHtml(appointment.patientName || patient.name)} · ${escapeHtml(appointment.mrn || patient.mrn)}</span>
+            <span>Duration: ${appointment.durationMinutes ? `${escapeHtml(appointment.durationMinutes)} minutes` : "Not recorded"}</span>
             <span>${escapeHtml(appointment.provider || "Provider not specified")} • ${escapeHtml(appointment.location)} • ${escapeHtml(normalizeAppointmentStatus(appointment.status))}</span>
             ${appointment.orderId ? `<button class="text-btn" type="button" data-treatment-view="orders" data-treatment-target="patient-order-${escapeHtml(appointment.orderId)}">View linked order</button>` : ""}
           </div>
@@ -4165,9 +4411,13 @@ function renderInboxView(container) {
               </div>
               <div class="inbox-item-actions">
                 <span class="inbox-status-chip ${unread ? "unread" : taskDone ? "done" : ""}">${escapeHtml(item.status)}</span>
+                ${item.kind === "Result" && item.resultId ? `<button class="ghost-btn action-btn" type="button" data-open-result-patient="${escapeHtml(item.patientId)}">Open results</button>` : ""}
                 ${item.kind === "Task"
                   ? `<button class="primary-btn action-btn" type="button" data-inbox-action="complete-task" data-inbox-id="${escapeHtml(item.id)}" ${taskDone || !canCompleteTasks ? "disabled" : ""}>${taskDone ? "Completed" : "Complete task"}</button>`
-                  : `<button class="ghost-btn action-btn" type="button" data-inbox-action="toggle-read" data-inbox-id="${escapeHtml(item.id)}">${unread ? "Mark read" : "Mark unread"}</button>`}
+                  : item.kind === "Result" && item.resultId && item.status !== "Reviewed"
+                    ? `<button class="primary-btn action-btn" type="button" data-inbox-action="review-result" data-inbox-id="${escapeHtml(item.id)}" ${hasPermission(currentUser.role, "order:create") ? "" : "disabled"}>Mark reviewed</button>`
+                    : item.kind === "Result" && item.status === "Reviewed" ? ""
+                    : `<button class="ghost-btn action-btn" type="button" data-inbox-action="toggle-read" data-inbox-id="${escapeHtml(item.id)}">${unread ? "Mark read" : "Mark unread"}</button>`}
               </div>
             </article>`;
         }).join("") : '<p class="empty-state">No inbox items match this filter.</p>'}
@@ -4184,7 +4434,7 @@ function handleInboxAction(action, itemId) {
   if (action === "mark-all-read") {
     const updatedCount = inboxItems.filter((item) => item.status === "Unread").length;
     inboxItems.forEach((item) => {
-      if (item.status === "Unread") item.status = item.kind === "Result" ? "Reviewed" : "Read";
+      if (item.status === "Unread") item.status = "Read";
     });
     if (updatedCount) recordAudit("inbox:mark-all-read", "Multiple patients", `Marked ${updatedCount} inbox items as read.`);
     saveState();
@@ -4195,9 +4445,16 @@ function handleInboxAction(action, itemId) {
 
   const item = inboxItems.find((entry) => entry.id === itemId);
   if (!item) return;
+  if (action === "review-result" && item.resultId) {
+    const patient = patients.find((entry) => String(entry.id) === String(item.patientId));
+    const result = patient ? updateLabResult(patient, item.resultId, { review: true }) : { allowed: false, message: "Patient not found." };
+    if (result.allowed) render();
+    announceInboxStatus(result.allowed ? "Result marked reviewed." : result.message);
+    return;
+  }
   if (action === "toggle-read") {
     const wasUnread = item.status === "Unread";
-    item.status = wasUnread ? (item.kind === "Result" ? "Reviewed" : "Read") : "Unread";
+    item.status = wasUnread ? "Read" : "Unread";
     recordAudit(wasUnread ? "inbox:item:read" : "inbox:item:unread", item.patientName, `${wasUnread ? "Marked read" : "Marked unread"}: ${item.title}.`);
     saveState();
     render();
@@ -4226,6 +4483,52 @@ function handleInboxAction(action, itemId) {
   }
 }
 
+function syncResultInbox() {
+  const previous = new Map(inboxItems.filter((item) => item.kind === "Result" && item.resultId).map((item) => [`${item.patientId}:${item.resultId}`, item]));
+  inboxItems = inboxItems.filter((item) => item.kind !== "Result" || (!item.resultId && !String(item.id).startsWith("inbox-result-")));
+  patients.forEach((patient) => patient.labRecords.forEach((record, index) => {
+    const old = previous.get(`${patient.id}:${record.id}`);
+    inboxItems.push({
+      id: `result-${patient.id}-${record.id}`, patientId: patient.id, resultId: record.id,
+      patientName: patient.name, mrn: patient.mrn, kind: "Result", source: "Laboratory",
+      title: "Result available", summary: `${patient.labs[index]} · Demo result; no clinical interpretation provided.`,
+      receivedAt: record.recordedAt || "Date not recorded", priority: "Routine",
+      status: record.reviewedAt ? "Reviewed" : old?.status === "Read" ? "Read" : "Unread"
+    });
+  }));
+}
+
+function updateLabResult(patient, resultId, data, role = currentUser.role) {
+  const permission = evaluatePermission(role, "order:create", patient.name);
+  if (!permission.allowed) return permission;
+  const record = patient.labRecords.find((item) => item.id === resultId);
+  if (!record) return { allowed: false, message: "Result not found." };
+  if (data.orderId !== undefined && data.orderId && !patient.orders.some((order) => order.id === data.orderId && order.category === "Laboratory")) {
+    return { allowed: false, message: "Select a laboratory request for this patient." };
+  }
+  const previous = { ...record };
+  const previousAudit = auditTrail.slice();
+  const previousInbox = inboxItems.slice();
+  if (data.orderId !== undefined) record.orderId = data.orderId;
+  if (data.review && !record.reviewedAt) {
+    record.reviewedAt = new Date().toISOString();
+    record.reviewedBy = currentUser.label;
+  }
+  appendAuditEntry({ action: data.review ? "result:review" : "result:link", patientName: patient.name,
+    details: data.review ? "Marked a laboratory result reviewed." : "Updated a laboratory result request link.",
+    actorRole: role, actorLabel: getRoleLabel(role) });
+  try {
+    if (!safeLocalStorage()) throw new Error("Browser storage unavailable");
+    syncResultInbox();
+    saveState();
+  } catch (error) {
+    Object.assign(record, previous); auditTrail = previousAudit; inboxItems = previousInbox;
+    console.warn("Unable to save result review", error);
+    return { allowed: false, message: "Unable to save result changes. Check browser storage and try again." };
+  }
+  return { allowed: true, record };
+}
+
 const formularyWorkflow = { search: "", page: 0 };
 let dispensingPrescriptionId = "";
 let pharmacyMode = "current";
@@ -4248,7 +4551,7 @@ function renderPatientContextDetails(patient) {
     ["Unit / department", clinical.department || "Not recorded"],
     ["Location", clinical.location || "Not recorded"],
     ["Diagnosis", patient.diagnosis || "Not recorded"],
-    ["Allergies", patient.allergies.join(", ") || "None recorded"],
+    ["Allergies", allergySummary(patient)],
     ["Current medications", patient.medications.join(", ") || "None recorded"],
     ["Encounter stage", clinical.stage || "Not recorded"],
     ["Disposition", clinical.disposition || "Disposition pending"],
@@ -4875,7 +5178,7 @@ function renderNursingView(container) {
               <td>${escapeHtml(patient.diagnosis)}</td>
               <td><strong>${escapeHtml(patient.priority)}</strong><span>${escapeHtml(patient.clinical.stage)}</span></td>
               <td>BP ${escapeHtml(patient.vitals.bp || "—")} · HR ${escapeHtml(patient.vitals.hr || "—")}<span>Temp ${escapeHtml(patient.vitals.temp || "—")} · SpO₂ ${escapeHtml(patient.vitals.spO2 || "—")}</span></td>
-              <td>${escapeHtml(patient.allergies.join(", "))}</td>
+              <td>${escapeHtml(allergySummary(patient))}</td>
               <td><button class="ghost-btn action-btn" type="button" data-open-patient="${escapeHtml(patient.id)}">Open chart</button></td>
             </tr>`).join("")}</tbody>
         </table>` : '<p class="empty-state">No patients match this nursing assignment.</p>'}
@@ -5046,7 +5349,7 @@ function renderProfilesView(container) {
       <article><span>Department / location</span><strong>${escapeHtml(profile.clinical.department)} · ${escapeHtml(profile.clinical.location)}</strong></article>
       <article><span>Care team</span><strong>${escapeHtml(profile.clinical.attending || profile.provider)} · ${escapeHtml(profile.clinical.assignedNurse || "Nurse unassigned")}</strong></article>
       <article><span>Primary diagnosis</span><strong>${escapeHtml(profile.diagnosis)}</strong></article>
-      <article><span>Allergies</span><strong>${escapeHtml(profile.allergies.join(", "))}</strong></article>
+      <article><span>Allergies</span><strong>${escapeHtml(allergySummary(profile))}</strong></article>
       <article><span>Current medication list</span><strong>${escapeHtml(profile.medications.join(", "))}</strong></article>
       <article><span>Latest observations</span><strong>BP ${escapeHtml(profile.vitals.bp || "—")} · HR ${escapeHtml(profile.vitals.hr || "—")} · Temp ${escapeHtml(profile.vitals.temp || "—")} · SpO₂ ${escapeHtml(profile.vitals.spO2 || "—")}</strong></article>
       <article><span>Open orders / notes</span><strong>${profile.orders.filter((order) => !["Completed", "Cancelled"].includes(order.status)).length} open orders · ${profile.documents.length} notes</strong></article>
@@ -5207,8 +5510,11 @@ const orderFieldDrafts = {};
 const orderCommonFields = ["title", "details", "priority"];
 let orderDraftPatientId = selectedPatientId;
 const documentFieldDrafts = {};
+let documentDraftPatientId = selectedPatientId;
 let activeOrderTemplate = "";
 let activeDocumentTemplate = "";
+let editingDocumentId = "";
+let editingDocumentBaseline = "";
 let procedurePage = 0;
 const procedurePageSize = 15;
 const surgicalOperationNames = new Set(window.NORTHSTAR_SURGICAL_OPERATIONS.map((operation) => operation.name.toLowerCase()));
@@ -5508,14 +5814,38 @@ function hasUnsavedMedicationListForms(exceptForm = null) {
   );
 }
 
+function hasUnsavedAllergyForm() {
+  return [...document.querySelectorAll(".allergy-review-form")].some((form) =>
+    [...form.elements].some((field) => field.name && (field.type === "select-one"
+      ? field.value !== ([...field.options].find((option) => option.defaultSelected)?.value || field.options[0]?.value || "")
+      : field.value !== field.defaultValue))
+  );
+}
+
+function hasUnsavedDocumentDraft() {
+  const form = document.getElementById("documentForm");
+  if (!form) return false;
+  return [...form.elements].some((field) => field.name && ["text", "textarea"].includes(field.type) && field.value.trim()) ||
+    Object.values(documentFieldDrafts).some((draft) => Object.values(draft).some(Boolean));
+}
+
 function confirmPatientChange(patientId) {
   if (String(patientId) === String(selectedPatientId) || typeof document === "undefined") return true;
+  const editDialog = document.getElementById("editDocumentDialog");
+  if (editDialog?.open) {
+    if (hasUnsavedDocumentEdit() && !window.confirm("Switching patients will discard unsaved note edits. Continue?")) return false;
+    editDialog.close();
+    editingDocumentId = "";
+  }
   const orderDraft = hasUnsavedOrderDraft();
-  const medicationDraft = hasUnsavedMedicationListForms();
+  const medicationDraft = hasUnsavedMedicationListForms() || hasUnsavedAllergyForm();
+  const documentDraft = hasUnsavedDocumentDraft();
   const otherDraft = patientId === null && hasUnsavedPatientForms();
-  if (!orderDraft && !otherDraft && !medicationDraft) return true;
+  if (!orderDraft && !otherDraft && !medicationDraft && !documentDraft) return true;
   return window.confirm(patientId === null
     ? `Clearing the patient will discard ${otherDraft ? "unsaved patient workflow changes" : "the unsaved order draft"}. Continue?`
+    : documentDraft
+      ? "Switching patients will discard the unsaved note draft and other unsaved workflow changes. Continue?"
     : medicationDraft
       ? "Switching patients will discard unsaved medication list changes and any unsaved order draft. Continue?"
       : "Switching patients will discard the unsaved order draft. Continue?");
@@ -5552,6 +5882,16 @@ function syncOrderDraftPatient() {
   renderOrderFields();
   document.getElementById("orderComposer").open = false;
   document.getElementById("clinicalStatus").textContent = selectedPatientId === null ? "" : "Order drafts were cleared for the new patient.";
+}
+
+function syncDocumentDraftPatient() {
+  if (String(documentDraftPatientId) === String(selectedPatientId)) return;
+  const form = document.getElementById("documentForm");
+  form.reset();
+  Object.keys(documentFieldDrafts).forEach((key) => delete documentFieldDrafts[key]);
+  activeDocumentTemplate = "";
+  documentDraftPatientId = selectedPatientId;
+  renderDocumentFields();
 }
 
 function renderDocumentFields() {
@@ -5601,10 +5941,11 @@ function renderOrders() {
           ${canSchedule ? `<details class="order-scheduler"><summary>Schedule this order (optional)</summary>
             <form class="clinical-form" data-schedule-order="${escapeHtml(order.id)}">
               <div class="row"><label>Date<input name="scheduledAt" type="date" required /></label><label>Time<input name="time" type="time" required /></label></div>
+              <label>Duration (minutes)<input name="durationMinutes" type="number" min="1" max="1440" step="1" required /></label>
               <label>Provider<input name="provider" type="text" value="${escapeHtml(patient.provider || "")}" required /></label>
               <label>Location<input name="location" type="text" placeholder="Clinic, laboratory, radiology, or other location" /></label>
               <button class="primary-btn" type="submit">Schedule appointment</button>
-              <p class="muted-copy">Cancelling an order and cancelling the appointment are separate actions.</p>
+              <p class="muted-copy">Conflicts use local demo records and exact provider or location names; records without a usable date or time cannot be checked. This is not real availability. Cancelling an order and cancelling the appointment are separate actions.</p>
               <p class="status-message" role="status"></p>
             </form></details>` : ""}
           <div class="record-card-footer"><span>${escapeHtml(order.time)}</span>
@@ -5632,15 +5973,49 @@ function renderDocuments() {
           </div>
           <span class="status-pill ${document.status === "Draft" ? "status-draft" : ""}">${escapeHtml(document.status)}</span>
         </div>
-        <p class="document-meta">${escapeHtml(document.time)}</p>
+        <p class="document-meta">${escapeHtml(document.time)} · Author: ${escapeHtml(document.author || "Not recorded")}${document.updatedAt ? ` · Updated ${escapeHtml(document.updatedAt)} by ${escapeHtml(document.updatedBy || "Not recorded")}` : ""}</p>
         <div class="document-sections">
           ${Object.entries(document.sections || {}).filter(([, value]) => value).map(([key, value]) => `
             <div><strong>${escapeHtml(documentTypeFields[document.type]?.find((field) => field.name === key)?.label || key.replace(/([A-Z])/g, " $1").replace(/^./, (letter) => letter.toUpperCase()))}</strong>
               <p>${escapeHtml(value)}</p>
             </div>`).join("")}
         </div>
+        ${document.history?.length ? `<details><summary>Draft history (${document.history.length})</summary>
+          ${document.history.map((version) => `<article><p>${escapeHtml(version.savedAt || "Date not recorded")} · ${escapeHtml(version.savedBy || "Author not recorded")}</p><strong>${escapeHtml(version.title)}</strong>
+            ${Object.entries(version.sections || {}).map(([key, value]) => `<p><strong>${escapeHtml(documentTypeFields[document.type]?.find((field) => field.name === key)?.label || key)}</strong>: ${escapeHtml(value)}</p>`).join("")}</article>`).join("")}</details>` : ""}
+        ${document.status === "Draft" && documentTypeFields[document.type] && hasPermission(currentUser.role, "document:create") ? `<button class="ghost-btn" type="button" data-edit-document="${escapeHtml(document.id)}">Edit draft</button>` : ""}
       </article>`).join("")
     : '<p class="empty-state">No clinical documents recorded for this patient.</p>';
+}
+
+function documentEditValues() {
+  return JSON.stringify([...new FormData(document.getElementById("editDocumentForm")).entries()]);
+}
+
+function hasUnsavedDocumentEdit() {
+  return Boolean(editingDocumentId && documentEditValues() !== editingDocumentBaseline);
+}
+
+function closeDocumentEditor() {
+  if (hasUnsavedDocumentEdit() && !window.confirm("Discard unsaved note edits?")) return;
+  document.getElementById("editDocumentDialog").close();
+  editingDocumentId = "";
+}
+
+function openDocumentEditor(id) {
+  const note = getSelectedPatient()?.documents.find((item) => item.id === id);
+  if (!note || note.status !== "Draft" || !documentTypeFields[note.type] || !hasPermission(currentUser.role, "document:create")) return;
+  const form = document.getElementById("editDocumentForm");
+  form.elements.title.value = note.title;
+  renderStructuredFields("editDocumentFields", documentTypeFields[note.type].map((field) => ({ ...field, required: false })), "Note details", "Complete the fields relevant to this draft.");
+  Object.entries(note.sections || {}).forEach(([name, value]) => {
+    if (form.elements[name]) form.elements[name].value = value;
+  });
+  editingDocumentId = id;
+  editingDocumentBaseline = documentEditValues();
+  document.getElementById("editDocumentStatus").textContent = "";
+  document.getElementById("editDocumentDialog").showModal();
+  form.elements.title.focus();
 }
 
 function renderPermissions() {
@@ -5801,7 +6176,9 @@ function initCollapsibles() {
 
 function render() {
   if (typeof document === "undefined") return;
+  syncResultInbox();
   syncOrderDraftPatient();
+  syncDocumentDraftPatient();
   renderNavigation();
   applyViewState();
   if (currentView === "patient-care" || patientCareHomeActive) {
@@ -5987,12 +6364,29 @@ function handleOrderSubmit(event) {
   openSavedOrderScheduler(result.order.id);
 }
 
+function scheduleWithConflictConfirmation(patientId, appointment) {
+  const result = createAppointmentForPatient(patientId, appointment);
+  if (!result.conflicts?.length) return result;
+  const details = result.conflicts.map((conflict) =>
+    `${conflict.patientName}: ${conflict.scheduledAt} ${conflict.time} (${[
+      conflict.sameProvider ? "same provider" : "",
+      conflict.sameLocation ? "same location" : "",
+      conflict.unknownDuration ? "duration not recorded; overlap uncertain" : "overlaps"
+    ].filter(Boolean).join(", ")})`
+  ).join("\n");
+  if (!window.confirm(`Possible conflicts in local demo records:\n${details}\n\nSchedule anyway?`)) {
+    return { allowed: false, message: "Appointment not scheduled; review the possible conflict." };
+  }
+  return createAppointmentForPatient(patientId, { ...appointment, confirmConflicts: true });
+}
+
 function handleOutpatientAppointmentSubmit(event) {
   event.preventDefault();
   const data = new FormData(event.currentTarget);
-  const result = createAppointmentForPatient(selectedPatientId, {
+  const result = scheduleWithConflictConfirmation(selectedPatientId, {
     scheduledAt: data.get("scheduledAt"),
     time: data.get("time"),
+    durationMinutes: data.get("durationMinutes"),
     visitType: data.get("visitType"),
     provider: data.get("provider"),
     reason: data.get("reason"),
@@ -6028,15 +6422,15 @@ function handleDocumentSubmit(event) {
 function attachEvents() {
   initializeWorkspaceNavigation();
   document.addEventListener("click", (event) => {
-    if (!event.target.closest(".nav-link, [data-patient-care-view], [data-patient-care-home], [data-treatment-view], [data-dispense-prescription], #quickEncounterBtn, #viewProfileBtn, [data-admit-patient]")) return;
-    if (hasUnsavedMedicationListForms() &&
-        !window.confirm("Leaving this workflow will discard unsaved medication list changes. Continue?")) {
+    if (!event.target.closest(".nav-link, [data-patient-care-view], [data-patient-care-home], [data-treatment-view], [data-open-result-patient], [data-dispense-prescription], #quickEncounterBtn, #viewProfileBtn, [data-admit-patient]")) return;
+    if ((hasUnsavedMedicationListForms() || hasUnsavedAllergyForm()) &&
+        !window.confirm("Leaving this workflow will discard unsaved medication or allergy changes. Continue?")) {
       event.preventDefault();
       event.stopPropagation();
     }
   }, true);
   window.addEventListener("beforeunload", (event) => {
-    if (!hasUnsavedMedicationListForms()) return;
+    if (!hasUnsavedMedicationListForms() && !hasUnsavedAllergyForm() && !hasUnsavedDocumentEdit() && !hasUnsavedDocumentDraft()) return;
     event.preventDefault();
     event.returnValue = "";
   });
@@ -6293,6 +6687,13 @@ function attachEvents() {
       handleInboxAction(inboxAction.dataset.inboxAction, inboxAction.dataset.inboxId);
       return;
     }
+    const resultPatient = event.target.closest("[data-open-result-patient]");
+    if (resultPatient) {
+      const result = openTreatmentWorkflow("labs", resultPatient.dataset.openResultPatient);
+      if (result.allowed) { render(); scrollToWorkspaceTop(); }
+      else announceInboxStatus(result.message);
+      return;
+    }
     const inboxFilterButton = event.target.closest("[data-inbox-filter]");
     if (inboxFilterButton) {
       inboxFilter = normalizeInboxFilter(inboxFilterButton.dataset.inboxFilter);
@@ -6457,6 +6858,53 @@ function attachEvents() {
   document.getElementById("workflowForm").addEventListener("submit", handleWorkflowSubmit);
   document.getElementById("orderForm").addEventListener("submit", handleOrderSubmit);
   document.getElementById("documentForm").addEventListener("submit", handleDocumentSubmit);
+  document.getElementById("operationalReportForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (!hasPermission(currentUser.role, "report:export")) {
+      document.getElementById("operationalReportStatus").textContent = "Your role cannot access operational reports.";
+      return;
+    }
+    const data = new FormData(event.currentTarget);
+    operationalReport = buildOperationalReport(data.get("report"), data.get("search"), data.get("status"));
+    renderOperationalReport(operationalReport);
+    document.getElementById("operationalReportStatus").textContent = "Report generated from local demo data.";
+  });
+  document.getElementById("exportOperationalReport").addEventListener("click", () => {
+    if (!operationalReport || !hasPermission(currentUser.role, "report:export")) {
+      document.getElementById("operationalReportStatus").textContent = "Generate a report with an authorized role before exporting.";
+      return;
+    }
+    try {
+      exportOperationalReport(operationalReport);
+      recordAudit("report:export", "Multiple patients", `Exported ${operationalReport.type} operational report.`);
+      saveState();
+      document.getElementById("operationalReportStatus").textContent = "Report exported.";
+    } catch (error) {
+      console.warn("Unable to export operational report", error);
+      document.getElementById("operationalReportStatus").textContent = "Unable to complete export or record its audit entry. Check browser storage and try again.";
+    }
+  });
+  document.getElementById("documentsList").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-edit-document]");
+    if (button) openDocumentEditor(button.dataset.editDocument);
+  });
+  document.getElementById("cancelDocumentEdit").addEventListener("click", closeDocumentEditor);
+  document.getElementById("editDocumentDialog").addEventListener("cancel", (event) => {
+    event.preventDefault();
+    closeDocumentEditor();
+  });
+  document.getElementById("editDocumentForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const result = updateDocumentForPatient(getSelectedPatient(), editingDocumentId, Object.fromEntries(new FormData(event.currentTarget).entries()));
+    if (!result.allowed) {
+      document.getElementById("editDocumentStatus").textContent = result.message;
+      return;
+    }
+    editingDocumentId = "";
+    document.getElementById("editDocumentDialog").close();
+    render();
+    document.getElementById("clinicalStatus").textContent = "Note draft updated.";
+  });
   document.querySelector('#orderForm [name="category"]').addEventListener("change", renderOrderFields);
   document.getElementById("procedureSearch").addEventListener("input", () => {
     procedurePage = 0;
@@ -6531,10 +6979,11 @@ function attachEvents() {
       return;
     }
     const data = new FormData(form);
-    const result = createAppointmentForPatient(patient.id, {
+    const result = scheduleWithConflictConfirmation(patient.id, {
       orderId: order.id, title: order.title, reason: order.title,
       visitType: order.category === "Follow-up" ? "Follow-up" : `${order.category} appointment`,
       scheduledAt: data.get("scheduledAt"), time: data.get("time"),
+      durationMinutes: data.get("durationMinutes"),
       provider: data.get("provider"), location: data.get("location")
     });
     if (!result.allowed) {
@@ -6579,6 +7028,13 @@ function attachEvents() {
   });
 
   document.getElementById("patientDetail").addEventListener("click", (event) => {
+    const reviewButton = event.target.closest("[data-review-result]");
+    if (reviewButton) {
+      const result = updateLabResult(getSelectedPatient(), reviewButton.dataset.reviewResult, { review: true });
+      if (result.allowed) render();
+      document.getElementById("labReviewStatus").textContent = result.allowed ? "Result marked reviewed." : result.message;
+      return;
+    }
     const imageButton = event.target.closest("[data-expand-radiology-image]");
     if (imageButton) {
       openRadiologyImage(imageButton);
@@ -6604,6 +7060,27 @@ function attachEvents() {
       ? "Marked the next open care task as done."
       : "No open care tasks remain for this patient.";
     render();
+  });
+  document.getElementById("patientDetail").addEventListener("submit", (event) => {
+    const form = event.target;
+    if (form.matches(".allergy-review-form")) {
+      event.preventDefault();
+      const data = new FormData(form);
+      const substances = data.getAll("substance"), reactions = data.getAll("reaction"), severities = data.getAll("severity");
+      const result = saveAllergyReview(getSelectedPatient(), { status: data.get("status"),
+        entries: substances.map((substance, index) => ({ substance, reaction: reactions[index], severity: severities[index] })) });
+      if (result.allowed) {
+        render();
+        document.getElementById("allergySaveStatus").textContent = "Allergy review saved.";
+      } else form.querySelector('[role="alert"]').textContent = result.message;
+    } else if (form.matches(".lab-review-form")) {
+      event.preventDefault();
+      const result = updateLabResult(getSelectedPatient(), form.dataset.resultId, { orderId: new FormData(form).get("orderId") });
+      if (result.allowed) {
+        render();
+        document.getElementById("labReviewStatus").textContent = "Laboratory request link saved.";
+      } else form.querySelector('[role="alert"]').textContent = result.message;
+    }
   });
 
   document.getElementById("exportBtn").addEventListener("click", () => {

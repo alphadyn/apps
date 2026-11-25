@@ -25,7 +25,7 @@
     <meta name="twitter:description" content="Explore fictional patient charts, admissions, care teams, timelines, orders, and notes." />
     <meta name="twitter:image" content="https://alphadyn.github.io/apps/northstar-ehr/social-preview.png" />
     <meta name="twitter:image:alt" content="Northstar EHR clinical operations demo, showing a fictional patient chart and timeline." />
-    <link rel="stylesheet" href="styles.css?v=35" />
+    <link rel="stylesheet" href="styles.css?v=36" />
   </head>
   <body>
     <main id="loginScreen" class="login-screen">
@@ -312,6 +312,25 @@
             <button class="ghost-btn" type="button" data-open-view="admissions">View admissions</button>
           </div>
           <div id="operationsOverview"></div>
+          <details id="operationalReports" class="document-composer">
+            <summary><span class="document-composer-heading"><strong>Operational reports</strong><span>Review and export local demo data</span></span></summary>
+            <form id="operationalReportForm" class="clinical-form">
+              <label>Report
+                <select name="report">
+                  <option value="census">Active admissions census</option>
+                  <option value="orders">Open orders</option>
+                  <option value="results">Unreviewed laboratory results</option>
+                  <option value="appointments">Appointment status</option>
+                </select>
+              </label>
+              <div class="row"><label>Search patient, MRN, item, or department<input name="search" type="search" /></label>
+                <label>Status filter<input name="status" type="search" placeholder="Optional exact status" /></label></div>
+              <div class="registration-actions"><button class="primary-btn" type="submit">Generate report</button>
+                <button class="ghost-btn" id="exportOperationalReport" type="button" disabled>Export CSV</button></div>
+            </form>
+            <p id="operationalReportStatus" class="status-message" role="status"></p>
+            <div id="operationalReportOutput"></div>
+          </details>
           <p id="accountRoleStatus" class="status-message" role="status" aria-live="polite"></p>
         </section>
 
@@ -612,6 +631,10 @@
                   <input name="time" type="time" required />
                 </label>
               </div>
+              <label>Duration (minutes)
+                <input name="durationMinutes" type="number" min="1" max="1440" step="1" required />
+              </label>
+              <p class="muted-copy">Conflicts use local demo records and exact provider or location names. Records without a usable date or time cannot be checked; this is not real availability.</p>
               <label>Reason for visit
                 <input name="reason" type="text" placeholder="Symptoms or follow-up" required />
               </label>
@@ -723,6 +746,19 @@
       </main>
     </div>
 
+    <dialog id="editDocumentDialog" aria-labelledby="editDocumentTitle">
+      <h3 id="editDocumentTitle">Edit note draft</h3>
+      <p class="muted-copy">Changes stay in this browser and are not clinical signatures.</p>
+      <form id="editDocumentForm" class="clinical-form">
+        <label>Note title<input name="title" type="text" required /></label>
+        <div id="editDocumentFields" class="structured-fields document-fields"></div>
+        <div class="registration-actions">
+          <button class="primary-btn" type="submit">Save changes</button>
+          <button id="cancelDocumentEdit" class="ghost-btn" type="button">Cancel</button>
+        </div>
+        <p id="editDocumentStatus" class="status-message" role="alert"></p>
+      </form>
+    </dialog>
     <dialog id="radiologyImageViewer" class="radiology-image-viewer" aria-label="Radiology image viewer">
       <form method="dialog">
         <button class="icon-button radiology-image-close" type="submit" autofocus aria-label="Close image viewer">
@@ -732,12 +768,12 @@
       <img id="radiologyViewerImage" alt="" />
     </dialog>
 
-    <script src="interop.js"></script>
+    <script src="interop.js?v=2"></script>
     <script src="medication-catalog.js?v=1"></script>
     <script src="rxnorm-catalog.js?v=1"></script>
     <script src="procedure-catalog.js?v=1"></script>
     <script src="surgical-catalog.js?v=1"></script>
     <script src="radiology-catalog.js?v=1"></script>
-    <script src="app.js?v=41"></script>
+    <script src="app.js?v=42"></script>
   </body>
 </html>

@@ -133,6 +133,7 @@
       status: { Scheduled: "booked", Completed: "fulfilled", Cancelled: "cancelled" }[appointment.status] || "booked",
       description: appointment.title,
       comment: [appointment.time, appointment.location].filter(Boolean).join(" · "),
+      ...(appointment.durationMinutes ? { minutesDuration: appointment.durationMinutes } : {}),
       participant: [{ actor: ref, status: "accepted" }]
     }));
 
@@ -312,6 +313,7 @@
           title: resource.description || "Appointment",
           time,
           location,
+          durationMinutes: resource.minutesDuration,
           status: { fulfilled: "Completed", cancelled: "Cancelled" }[resource.status] || "Scheduled"
         });
       } else if (type === "DocumentReference") {
@@ -381,7 +383,7 @@
     return { format, patients };
   }
 
-  const api = { FORMATS, MAX_IMPORT_BYTES, buildFhirBundle, buildCsv, buildExport, parseCsv, parseImport, patientsFromFhir };
+  const api = { FORMATS, MAX_IMPORT_BYTES, buildFhirBundle, buildCsv, csvCell, buildExport, parseCsv, parseImport, patientsFromFhir };
   root.NorthstarInterop = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;
 })(typeof window !== "undefined" ? window : globalThis);

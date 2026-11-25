@@ -4051,6 +4051,25 @@ textarea {
   padding-bottom: 16px;
 }
 
+#editDocumentDialog {
+  width: min(760px, calc(100% - 32px));
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--text);
+}
+
+#editDocumentDialog::backdrop {
+  background: rgb(15 23 42 / 55%);
+}
+
+#operationalReportOutput .table-scroll {
+  overflow-x: auto;
+}
+
 .order-record-details,
 .order-scheduler {
   margin-top: 12px;

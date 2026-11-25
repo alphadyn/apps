@@ -91,8 +91,12 @@ Click the app icon in the header to reload the entry page and return the globe t
 - `street-map.js` — Web Mercator tile selection, spherical projection, and tile loading/disposal
 - `location-search.js` — submitted geocoding searches, result selection, and error reporting
 - `styles.css` — layout and visual styling
+- `assets/earth-blue-marble.jpg` — Blue Marble Earth texture used to render the icon and sharing card
+- `app-icon.png` — high-resolution Earth icon used in the header and as the favicon
 - `social-preview.png` — 1200 × 630 sharing card used by Open Graph and Twitter metadata
 - `generate_social_preview.py` — regenerate the sharing card with `python3 earth-explorer/generate_social_preview.py` from the repository root (requires Pillow)
+
+The Blue Marble texture is from the `three-globe` example assets and is NASA Earth imagery.
 
 ## Notes
 - Search queries are sent to the public Nominatim service only on submission, not while

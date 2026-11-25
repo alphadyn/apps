@@ -25,7 +25,7 @@
     <meta name="twitter:description" content="Explore fictional patient charts, admissions, care teams, timelines, orders, and notes." />
     <meta name="twitter:image" content="https://alphadyn.github.io/apps/northstar-ehr/social-preview.png" />
     <meta name="twitter:image:alt" content="Northstar EHR clinical operations demo, showing a fictional patient chart and timeline." />
-    <link rel="stylesheet" href="styles.css?v=39" />
+    <link rel="stylesheet" href="styles.css?v=40" />
   </head>
   <body>
     <main id="loginScreen" class="login-screen">
@@ -618,41 +618,37 @@
               </div>
             </div>
             <form id="outpatientAppointmentForm" class="clinical-form outpatient-form">
-              <div class="row">
-                <label>Provider
-                  <select name="provider" id="outpatientProvider" required></select>
-                </label>
-              </div>
+              <label>Provider
+                <select name="provider" id="outpatientProvider" aria-describedby="outpatientConflictHelp" required></select>
+              </label>
               <div class="row">
                 <label>Appointment date
-                  <input name="scheduledAt" type="date" required />
+                  <input name="scheduledAt" type="date" aria-describedby="outpatientConflictHelp" required />
                 </label>
                 <label>Appointment time
-                  <input name="time" type="time" required />
+                  <input name="time" type="time" aria-describedby="outpatientConflictHelp" required />
                 </label>
               </div>
               <label>Duration (minutes)
-                <input name="durationMinutes" type="number" min="1" max="1440" step="1" required />
+                <input name="durationMinutes" type="number" min="1" max="1440" step="1" aria-describedby="outpatientConflictHelp" required />
               </label>
-              <p class="muted-copy">Conflicts use local demo records and exact provider or location names. Records without a usable date or time cannot be checked; this is not real availability.</p>
+              <p id="outpatientConflictHelp" class="outpatient-conflict-help">Conflicts use local demo records and exact provider or location names. Records without a usable date or time cannot be checked; this is not real availability.</p>
               <label>Reason for visit
                 <input name="reason" type="text" placeholder="Symptoms or follow-up" required />
               </label>
-              <div class="row">
-                <label>Visit type
-                  <select name="visitType">
-                    <option>Office visit</option>
-                    <option>Primary care</option>
-                    <option>Specialist consult</option>
-                    <option>Post-op follow-up</option>
-                    <option>Telehealth</option>
-                    <option>Annual wellness</option>
-                    <option>Procedure visit</option>
-                  </select>
-                </label>
-              </div>
+              <label>Visit type
+                <select name="visitType">
+                  <option>Office visit</option>
+                  <option>Primary care</option>
+                  <option>Specialist consult</option>
+                  <option>Post-op follow-up</option>
+                  <option>Telehealth</option>
+                  <option>Annual wellness</option>
+                  <option>Procedure visit</option>
+                </select>
+              </label>
               <label>Location
-                <input name="location" type="text" placeholder="Clinic or telehealth" />
+                <input name="location" type="text" placeholder="Clinic or telehealth" aria-describedby="outpatientConflictHelp" />
               </label>
               <button class="primary-btn" type="submit">Schedule appointment</button>
               <p id="outpatientStatus" class="status-message" role="status"></p>
@@ -774,6 +770,6 @@
     <script src="procedure-catalog.js?v=1"></script>
     <script src="surgical-catalog.js?v=1"></script>
     <script src="radiology-catalog.js?v=1"></script>
-    <script src="app.js?v=44"></script>
+    <script src="app.js?v=45"></script>
   </body>
 </html>

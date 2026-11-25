@@ -26,7 +26,8 @@ Admissions, nursing, locations, and report tables share the same scrolling
 controls and hints. Draft histories are grouped beneath their current notes.
 Patient workflow cards adapt to the available desktop width and stack on phones;
 navigation, workflow selectors, inbox controls, and section toggles have larger
-touch targets on mobile devices.
+touch targets on mobile devices. Outpatient scheduling and appointment cards
+adapt to the available workspace width, including when the sidebar is open.
 
 ## Brand and link preview
 

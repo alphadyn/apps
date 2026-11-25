@@ -1871,6 +1871,33 @@ test("outpatient scheduling uses the patient in context rather than a form patie
   assert.match(status.textContent, /scheduled/);
 });
 
+test("outpatient appointment cards retain details, actions, and escaped content", () => {
+  const { context } = setup();
+  const container = { innerHTML: "" };
+  context.document = { getElementById: (id) => id === "outpatientAppointmentsList" ? container : null };
+  vm.runInContext(`
+    selectedPatientId = patients[0].id;
+    patients[0].appointments = [{
+      id: "test-appointment", scheduledAt: "2026-12-10", time: "09:00",
+      reason: "<Follow-up>", status: "Scheduled", provider: "Dr. Example",
+      durationMinutes: 30, visitType: "Telehealth", location: "Clinic", orderId: "test-order"
+    }];
+    renderOutpatientAppointments();
+  `, context);
+  assert.match(container.innerHTML, /&lt;Follow-up&gt;/);
+  assert.match(container.innerHTML, /Scheduled/);
+  assert.match(container.innerHTML, /09:00/);
+  assert.match(container.innerHTML, /Dr\. Example/);
+  assert.match(container.innerHTML, /30 minutes/);
+  assert.match(container.innerHTML, /Telehealth/);
+  assert.match(container.innerHTML, /Clinic/);
+  assert.match(container.innerHTML, /data-outpatient-action="check-in"/);
+  assert.match(container.innerHTML, /data-outpatient-action="cancel"/);
+  assert.match(container.innerHTML, /data-treatment-target="patient-order-test-order"/);
+  vm.runInContext('patients[0].appointments[0].status = "Completed"; renderOutpatientAppointments()', context);
+  assert.match(container.innerHTML, /No upcoming appointments/);
+});
+
 test("patient workflows retain status messages without a duplicate encounter banner", () => {
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
   assert.doesNotMatch(html, /clinicalBanner|clinicalPatientHeading|clinicalPatientMeta|workflowSummary|Encounter workspace/);

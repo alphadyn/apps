@@ -4074,15 +4074,19 @@ function renderOutpatientAppointments() {
       : "";
     return `
       <article class="outpatient-appointment ${escapeHtml(statusClass)}" id="patient-appointment-${escapeHtml(appointment.id)}">
-        <div class="outpatient-time-block"><strong>${escapeHtml(appointment.time || "—")}</strong><span>${escapeHtml(appointment.scheduledAt ? formatDisplayDate(appointment.scheduledAt) : "Date not recorded")}</span></div>
         <div class="outpatient-appointment-body">
-          <div class="outpatient-appointment-heading"><strong>${escapeHtml(appointment.reason || appointment.title || "Outpatient visit")}</strong></div>
-          <p><span class="status-pill ${escapeHtml(statusClass)}">${escapeHtml(status)}</span></p>
-          <p><strong>Patient:</strong> ${escapeHtml(appointment.patientName || patient.name)} · ${escapeHtml(appointment.mrn || patient.mrn)}</p>
-          <p><strong>Provider:</strong> ${escapeHtml(appointment.provider || "Provider not specified")}</p>
-          <p><strong>Duration:</strong> ${appointment.durationMinutes ? `${escapeHtml(appointment.durationMinutes)} minutes` : "Not recorded"}</p>
-          <p>${escapeHtml(appointment.visitType || "Office visit")}</p>
-          <p class="outpatient-location"><span aria-hidden="true">⌖</span>${escapeHtml(appointment.location || "Location not recorded")}</p>
+          <div class="outpatient-appointment-heading">
+            <strong>${escapeHtml(appointment.reason || appointment.title || "Outpatient visit")}</strong>
+            <span class="status-pill ${escapeHtml(statusClass)}">${escapeHtml(status)}</span>
+          </div>
+          <div class="outpatient-time-block"><strong>${escapeHtml(appointment.time || "—")}</strong><span>${escapeHtml(appointment.scheduledAt ? formatDisplayDate(appointment.scheduledAt) : "Date not recorded")}</span></div>
+          <div class="outpatient-appointment-details">
+            <p><strong>Patient:</strong> ${escapeHtml(appointment.patientName || patient.name)} · ${escapeHtml(appointment.mrn || patient.mrn)}</p>
+            <p><strong>Provider:</strong> ${escapeHtml(appointment.provider || "Provider not specified")}</p>
+            <p><strong>Duration:</strong> ${appointment.durationMinutes ? `${escapeHtml(appointment.durationMinutes)} minutes` : "Not recorded"}</p>
+            <p><strong>Visit type:</strong> ${escapeHtml(appointment.visitType || "Office visit")}</p>
+            <p><strong>Location:</strong> ${escapeHtml(appointment.location || "Location not recorded")}</p>
+          </div>
           ${appointment.orderId ? `<button class="text-btn" type="button" data-treatment-view="orders" data-treatment-target="patient-order-${escapeHtml(appointment.orderId)}">View linked order</button>` : ""}
         </div>
         <div class="appointment-actions">${actions}${cancelAction}</div>

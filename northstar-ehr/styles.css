@@ -3427,7 +3427,7 @@ button.stat-card {
 #outpatientSection {
   width: 100%;
   max-width: 100%;
-  grid-template-columns: minmax(260px, 0.72fr) minmax(0, 1.28fr);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
   gap: 16px;
   align-items: start;
   overflow: hidden;
@@ -3440,6 +3440,21 @@ button.stat-card {
 .outpatient-form {
   gap: 12px;
   min-width: 0;
+}
+
+.outpatient-form .row {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+}
+
+.outpatient-conflict-help {
+  margin: 0;
+  padding: 10px 12px;
+  border-left: 3px solid #9dbbb8;
+  border-radius: 0 8px 8px 0;
+  background: #f2f8f6;
+  color: #465e65;
+  font-size: 0.82rem;
+  line-height: 1.5;
 }
 
 .outpatient-form .row,
@@ -3460,49 +3475,46 @@ button.stat-card {
 .outpatient-appointments-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .outpatient-appointment {
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  display: grid;
-  grid-template-columns: 72px minmax(0, 1fr) 88px;
-  align-items: center;
-  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
   border: 1px solid var(--border);
   border-left: 3px solid #4a9a9c;
   border-radius: 12px;
-  padding: 12px;
+  padding: 16px;
   background: #fff;
 }
 
 .outpatient-time-block {
-  padding-right: 10px;
-  border-right: 1px solid #e5ecec;
-}
-
-.outpatient-time-block strong,
-.outpatient-time-block span {
-  display: block;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin-top: 8px;
 }
 
 .outpatient-time-block strong {
   color: #18595d;
   font-size: 1.1rem;
-  margin-bottom: 3px;
 }
 
 .outpatient-time-block span,
-.outpatient-appointment-body p {
+.outpatient-appointment-details p {
   color: var(--muted);
   font-size: 0.82rem;
 }
 
 .outpatient-appointment-heading {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 8px;
 }
@@ -3519,28 +3531,24 @@ button.stat-card {
   min-width: 0;
 }
 
-.outpatient-appointment-body p {
-  margin: 5px 0 0;
+.outpatient-appointment-details {
+  display: grid;
+  gap: 4px;
+  margin-top: 10px;
 }
 
-.outpatient-location {
-  display: flex;
-  align-items: center;
-  gap: 5px;
+.outpatient-appointment-details p {
+  margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .outpatient-appointment .appointment-actions {
-  width: 88px;
-  flex-direction: column;
-  align-items: stretch;
+  padding-top: 12px;
+  border-top: 1px solid #e5ecec;
 }
 
 .outpatient-appointment-heading .status-pill {
-  max-width: 82px;
-  flex: 0 0 auto;
-  text-align: center;
-  white-space: normal;
-  overflow-wrap: anywhere;
+  flex: 0 1 auto;
   font-size: 0.72rem;
 }
 
@@ -3567,25 +3575,9 @@ button.stat-card {
   margin: 5px 0 0;
 }
 
-@media (max-width: 900px) {
-  #outpatientSection {
-    grid-template-columns: 1fr;
-  }
-}
-
 @media (max-width: 560px) {
-  .outpatient-appointment {
-    grid-template-columns: 72px minmax(0, 1fr);
-  }
-
-  .outpatient-appointment .appointment-actions {
-    width: 100%;
-    grid-column: 1 / -1;
-    flex-direction: row;
-  }
-
-  .outpatient-appointment-heading {
-    flex-direction: column;
+  .outpatient-appointment .appointment-action {
+    min-height: 44px;
   }
 }
 

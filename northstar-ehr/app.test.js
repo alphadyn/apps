@@ -712,6 +712,62 @@ test("structured fields keep required indicators beside their labels", () => {
   assert.match(container.innerHTML, /Required fields are marked with \*\./);
 });
 
+test("note composer presents a grouped, non-duplicated list of clinical note types", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  const options = html.match(/<select name="type">([\s\S]*?)<\/select>/)[1];
+  const types = [...options.matchAll(/<option>([^<]+)<\/option>/g)].map(([, type]) => type);
+  assert.deepEqual(types, [
+    "ED Provider Note",
+    "History &amp; Physical",
+    "Admission Note",
+    "Progress Note",
+    "Consult Note",
+    "Nursing Note",
+    "Discharge Note",
+    "Preoperative Note",
+    "Operative Note",
+    "Postoperative Note",
+    "Procedure Note",
+    "Delivery Note",
+    "Postpartum Note",
+    "Disposition Note",
+    "Referral Letter"
+  ]);
+  assert.match(options, /<optgroup label="Encounter &amp; inpatient">/);
+  assert.match(options, /<optgroup label="Surgery &amp; procedures">/);
+  assert.match(options, /<optgroup label="Obstetric care">/);
+  assert.match(options, /<optgroup label="Care coordination">/);
+});
+
+test("providers can save drafts for every requested clinical note type", () => {
+  const { api, context } = setup("clinician");
+  const noteTypes = [
+    "Admission Note",
+    "Progress Note",
+    "Preoperative Note",
+    "Operative Note",
+    "Postoperative Note",
+    "Procedure Note",
+    "Delivery Note",
+    "Postpartum Note",
+    "Discharge Note"
+  ];
+  const patient = vm.runInContext("patients[0]", context);
+  assert.equal(api.hasPermission("clinician", "document:create"), true);
+  for (const type of noteTypes) {
+    const fieldName = vm.runInContext(`documentTypeFields[${JSON.stringify(type)}][0].name`, context);
+    const result = api.createDocumentForPatient(patient, {
+      type,
+      title: `${type} draft`,
+      [fieldName]: "Recorded details"
+    });
+    assert.equal(result.allowed, true, `${type} should be available`);
+    assert.equal(result.document.type, type);
+    assert.equal(result.document.sections[fieldName], "Recorded details");
+    assert.equal(patient.documents[0].id, result.document.id);
+  }
+});
+
 const sessionKey = "northstar-ehr-demo-account";
 const acknowledgmentKey = "northstar-ehr-warning-acknowledged";
 const automaticSignInKey = "northstar-ehr-automatic-sign-in";

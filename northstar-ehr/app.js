@@ -709,8 +709,111 @@ const documentTypeFields = {
     noteField("referralSummary", "Clinical summary and relevant history", "Presentation, course, relevant history, medications, and allergies", true),
     noteField("referralInvestigations", "Investigations attached / pending", "Results, imaging, and outstanding tests"),
     noteField("referralRequest", "Requested action / follow-up", "Next steps, communication, and return of recommendations")
+  ],
+  "Preoperative Notes": [
+    textField("preopProcedure", "Planned procedure and indication", "Procedure, diagnosis, and reason for surgery", true),
+    textField("preopSurgeon", "Surgeon / service", "Responsible surgeon and service", true),
+    textField("preopDate", "Planned date / time", "Scheduled procedure date and time"),
+    noteField("preopHistory", "Relevant history and risk factors", "Medical and surgical history, prior anesthesia issues, and risk assessment", true),
+    noteField("preopMedications", "Medications and allergies", "Medication review, anticoagulants, allergies, and reactions", true),
+    noteField("preopExam", "Preoperative examination and vitals", "Relevant exam findings and current vital signs", true),
+    noteField("preopStudies", "Labs, imaging, and other studies", "Results reviewed and outstanding items"),
+    noteField("preopAnesthesia", "Anesthesia assessment / plan", "Anesthesia evaluation, airway, and planned approach"),
+    noteField("preopConsent", "Consent and site verification", "Consent status, procedure, site/laterality, and questions", true),
+    noteField("preopPlan", "Preoperative plan", "Preparation, optimization, prophylaxis, and disposition")
+  ],
+  "Operative Notes": [
+    textField("operativeProcedure", "Procedure performed", "Procedure and indication", true),
+    textField("operativeDateTime", "Date / time", "Procedure start and end time"),
+    textField("operativeTeam", "Surgeon, assistants, and staff", "Names and roles", true),
+    textField("operativeDiagnoses", "Preoperative and postoperative diagnoses", "Diagnoses before and after the procedure", true),
+    textField("operativeAnesthesia", "Anesthesia", "Type and anesthesia team"),
+    noteField("operativeFindings", "Findings", "Key operative findings", true),
+    noteField("operativeTechnique", "Procedure details", "Positioning, preparation, approach, key steps, and closure", true),
+    noteField("operativeSpecimens", "Specimens, implants, and devices", "Items collected, implanted, or used"),
+    noteField("operativeBloodLoss", "Estimated blood loss and fluids", "Blood loss, fluids, and transfusions"),
+    noteField("operativeComplications", "Complications", "Complications or state none"),
+    noteField("operativeDisposition", "Disposition and postoperative plan", "Condition, destination, monitoring, and immediate plan", true)
+  ],
+  "Postoperative Notes": [
+    textField("postopProcedure", "Procedure and date / time", "Procedure performed and when"),
+    textField("postopRecovery", "Recovery location and status", "Recovery area and current status", true),
+    noteField("postopVitals", "Vitals and monitoring", "Current observations and trends"),
+    noteField("postopAssessment", "Postoperative assessment", "Exam, response to procedure, and stability", true),
+    noteField("postopPain", "Pain, nausea, and symptom control", "Symptoms and response to treatment"),
+    noteField("postopWound", "Wound, drains, and devices", "Relevant findings and care"),
+    noteField("postopPlan", "Postoperative plan", "Monitoring, activity, diet, medications, and follow-up", true),
+    noteField("postopInstructions", "Patient instructions and disposition", "Education, destination, and return precautions")
+  ],
+  "Delivery Notes": [
+    textField("deliveryDateTime", "Delivery date / time", "Date and time of birth", true),
+    textField("deliveryClinician", "Delivering clinician and team", "Clinician and assistants"),
+    noteField("deliveryLaborCourse", "Labor and delivery course", "Labor progression, induction/augmentation, and relevant events", true),
+    noteField("deliveryMaternalStatus", "Maternal status", "Maternal condition before and after delivery", true),
+    noteField("deliveryFetalStatus", "Fetal status", "Fetal monitoring and presentation"),
+    textField("deliveryMode", "Mode of delivery", "Vaginal, assisted, cesarean, or other", true),
+    noteField("deliveryAnesthesia", "Anesthesia / analgesia", "Type and relevant details"),
+    noteField("deliveryNewborn", "Newborn details", "Newborn status and resuscitation, if applicable", true),
+    noteField("deliveryPlacenta", "Placenta and cord", "Delivery, inspection, and disposition"),
+    noteField("deliveryLacerations", "Lacerations and repair", "Findings and repair details"),
+    noteField("deliveryBloodLoss", "Estimated blood loss and complications", "Blood loss and maternal or newborn complications"),
+    noteField("deliveryDisposition", "Maternal and newborn disposition", "Destination and immediate care plan", true)
+  ],
+  "Postpartum Notes": [
+    textField("postpartumDay", "Postpartum day / date", "Postpartum day and date", true),
+    noteField("postpartumMaternalStatus", "Maternal interval history and status", "Symptoms, concerns, and recovery", true),
+    noteField("postpartumVitals", "Vitals and examination", "Vital signs and relevant examination findings", true),
+    noteField("postpartumUterus", "Uterus, lochia, and perineum / incision", "Relevant postpartum findings"),
+    noteField("postpartumPain", "Pain and symptom management", "Pain control and other symptoms"),
+    noteField("postpartumFeeding", "Feeding and lactation", "Feeding plan, support, and concerns"),
+    noteField("postpartumNewborn", "Newborn status and care coordination", "Newborn progress and coordination"),
+    noteField("postpartumAssessment", "Assessment", "Postpartum assessment and active problems", true),
+    noteField("postpartumPlan", "Plan and discharge readiness", "Care plan, follow-up, education, and discharge needs", true)
   ]
 };
+
+const canonicalAdmissionNoteFields = [
+  textField("admittingDiagnosis", "Admitting diagnosis", "Primary reason for admission", true),
+  textField("admittingService", "Admitting service / attending", "Service and responsible clinician", true),
+  selectField("levelOfCare", "Level of care", ["Medical ward", "Telemetry", "Step-down", "ICU", "Observation"], true),
+  selectField("codeStatus", "Code status", ["Not reviewed", "Full code", "DNR", "DNI", "See documented goals of care"], true),
+  textField("expectedStay", "Expected length of stay", "Estimate or reassessment point"),
+  noteField("admissionHpi", "Presenting history and reason for admission", "Presentation, workup, and admission rationale", true),
+  noteField("admissionHistoryFull", "Medical, surgical, family, and social history", "Relevant history and source"),
+  noteField("admissionMedsFull", "Medications and allergies", "Medication reconciliation and allergy reactions", true),
+  noteField("admissionReviewFull", "Review of systems", "Pertinent positives and negatives"),
+  noteField("admissionExam", "Admission examination and current condition", "Current status, pertinent findings, and stability", true),
+  noteField("admissionProblems", "Active problems and risk factors", "Problem list, comorbidities, allergies, and precautions"),
+  noteField("admissionPlan", "Initial inpatient plan", "Monitoring, initial management, consultations, and goals", true),
+  noteField("admissionHandoff", "Handoff and outstanding tasks", "Receiving team, pending results, and continuity needs")
+];
+
+Object.assign(documentTypeFields, {
+  "Admission Note": canonicalAdmissionNoteFields,
+  "Progress Note": documentTypeFields["SOAP progress note"],
+  "Preoperative Note": documentTypeFields["Preoperative Notes"],
+  "Operative Note": documentTypeFields["Operative Notes"],
+  "Postoperative Note": documentTypeFields["Postoperative Notes"],
+  "Procedure Note": documentTypeFields["Procedure note"],
+  "Delivery Note": documentTypeFields["Delivery Notes"],
+  "Postpartum Note": documentTypeFields["Postpartum Notes"],
+  "Discharge Note": documentTypeFields["Discharge summary"],
+  "ED Provider Note": documentTypeFields["ED provider note"],
+  "History & Physical": documentTypeFields["History & physical"],
+  "Consult Note": documentTypeFields["Consult note"],
+  "Nursing Note": documentTypeFields["Nursing note"],
+  "Disposition Note": documentTypeFields["Disposition note"],
+  "Referral Letter": documentTypeFields["Referral letter"],
+  "Admission Notes": canonicalAdmissionNoteFields,
+  "Progress Notes": documentTypeFields["Progress Note"],
+  "Preoperative Notes": documentTypeFields["Preoperative Note"],
+  "Operative Notes": documentTypeFields["Operative Note"],
+  "Postoperative Notes": documentTypeFields["Postoperative Note"],
+  "Procedure Notes": documentTypeFields["Procedure Note"],
+  "Delivery Notes": documentTypeFields["Delivery Note"],
+  "Postpartum Notes": documentTypeFields["Postpartum Note"],
+  "Discharge Notes": documentTypeFields["Discharge Note"]
+});
 
 function safeLocalStorage() {
   return typeof localStorage !== "undefined" ? localStorage : null;

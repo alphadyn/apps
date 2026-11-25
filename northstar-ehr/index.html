@@ -519,24 +519,43 @@
             <details class="document-composer">
               <summary>
                 <span class="document-composer-icon" aria-hidden="true">+</span>
-                <span class="document-composer-heading"><strong>New document</strong><span>Choose a template and create a draft</span></span>
+                <span class="document-composer-heading"><strong>New clinical note</strong><span>Choose a note type to start a patient-chart draft</span></span>
                 <span class="document-composer-chevron" aria-hidden="true"></span>
               </summary>
-              <p class="muted-copy">Complete the required fields. Documents are saved as drafts.</p>
+              <p class="muted-copy">Complete the relevant fields. Notes are saved as drafts in this demo.</p>
               <form id="documentForm" class="clinical-form">
                 <div class="row">
-                  <label>Document type
+                  <label>Note type
                     <select name="type">
-                      <option>ED provider note</option><option>History &amp; physical</option><option>Admission note</option>
-                      <option>Admission H&amp;P</option><option>SOAP progress note</option><option>Consult note</option>
-                      <option>Consultation note</option><option>Nursing note</option><option>Procedure note</option>
-                      <option>Discharge summary</option><option>Disposition note</option><option>Referral letter</option>
+                      <optgroup label="Encounter &amp; inpatient">
+                        <option>ED Provider Note</option>
+                        <option>History &amp; Physical</option>
+                        <option>Admission Note</option>
+                        <option>Progress Note</option>
+                        <option>Consult Note</option>
+                        <option>Nursing Note</option>
+                        <option>Discharge Note</option>
+                      </optgroup>
+                      <optgroup label="Surgery &amp; procedures">
+                        <option>Preoperative Note</option>
+                        <option>Operative Note</option>
+                        <option>Postoperative Note</option>
+                        <option>Procedure Note</option>
+                      </optgroup>
+                      <optgroup label="Obstetric care">
+                        <option>Delivery Note</option>
+                        <option>Postpartum Note</option>
+                      </optgroup>
+                      <optgroup label="Care coordination">
+                        <option>Disposition Note</option>
+                        <option>Referral Letter</option>
+                      </optgroup>
                     </select>
                   </label>
-                  <label>Document title<input name="title" type="text" placeholder="e.g., Initial evaluation" required /></label>
+                  <label>Note title<input name="title" type="text" placeholder="e.g., Daily progress update" required /></label>
                 </div>
                 <div id="documentSpecificFields" class="structured-fields document-fields" aria-live="polite"></div>
-                <button class="primary-btn" type="submit">Save document draft</button>
+                <button class="primary-btn" type="submit">Save note draft</button>
               </form>
             </details>
             <section class="saved-documents" aria-labelledby="savedDocumentsTitle">
@@ -719,6 +738,6 @@
     <script src="procedure-catalog.js?v=1"></script>
     <script src="surgical-catalog.js?v=1"></script>
     <script src="radiology-catalog.js?v=1"></script>
-    <script src="app.js?v=40"></script>
+    <script src="app.js?v=41"></script>
   </body>
 </html>

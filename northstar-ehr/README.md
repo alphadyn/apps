@@ -53,7 +53,7 @@ The deployed URL is `https://alphadyn.github.io/apps/northstar-ehr/`.
 - Disposition tracking for ward/ICU admission, home discharge, PCP or specialist referral, and transfer
 - Type-specific structured details for nursing, vitals, diagnosis, H&P, laboratory, imaging/radiology, procedure, medication, consult, and referral orders
 - Per-patient imaging and radiology records with modality, body site, indication, report, status, and radiologist. Every patient's Radiology workflow also shows shared, attributed reference images, clearly separated from the patient's studies and reports. Select an image to open a full-screen viewer; close it with the Close button or Escape.
-- Workflow-specific structured drafts for ED, history and physical, admission, SOAP/progress, consult, nursing, procedure, discharge, and referral documents
+- Grouped clinical note drafts for ED, history and physical, admission, progress, consult, nursing, discharge, disposition, preoperative, operative, postoperative, procedure, delivery, postpartum, and referral workflows; each note type appears once in the composer
 - Patient workflow assignment to a department, care location, attending provider, and nurse; clinician and nurse workflow roles, an admin review role, and an activity audit trail
 - Client-side demo sign-in with a consolidated warning screen requiring acknowledgment on each sign-in; not real authentication or server-enforced authorization
 - Joe Spartan, MD is automatically signed in as a Provider on first load, with sign-in remembered across browser restarts until explicit sign-out. After signing out, use `joe.spartan` / `northstar` to sign in again.

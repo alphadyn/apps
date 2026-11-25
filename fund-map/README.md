@@ -1,5 +1,9 @@
 # Fund Map
 
+**Live app:** [Open Fund Map](https://alphadyn.github.io/apps/fund-map/)
+
+> Part of [Alphadyn Apps](../README.md) · [Browse the catalog](../index.html)
+
 Fund Map is a companion to [Market Map](../market-map/): a viewport-filling, searchable treemap of the curated index mutual funds and ETFs in [Market Insights](../market-insights/). Tiles are grouped by exposure and sized by reported fund net assets. Vanguard mutual-fund and ETF share classes in the same pooled portfolio are combined into a single tile so the shared assets are not counted twice. Search still highlights each ticker; a shared tile links to details for each share class. Hover or keyboard-focus for the readout, select a tile for details, and press Enter in search to open the first match. Funds without net assets are excluded from their own tile but remain searchable and accessible through coverage. If a share class is part of a pooled portfolio with a reported asset value for another class, it remains included in the shared tile. The header icon reloads the app.
 
 ## Run

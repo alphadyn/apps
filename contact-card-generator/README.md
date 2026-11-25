@@ -1,8 +1,8 @@
 # Contact Card Generator
 
-**Deployed application:** [Open the app](https://alphadyn.github.io/apps/contact-card-generator/)
+**Live app:** [Open Contact Card Generator](https://alphadyn.github.io/apps/contact-card-generator/)
 
-> Standalone browser utility for contact cards and QR output. See the [repository catalog](../README.md) for shared setup and deployment context.
+> Part of [Alphadyn Apps](../README.md) · [Browse the catalog](../index.html)
 
 A static browser utility for creating downloadable vCard (.vcf) contact files and scannable QR codes. The app lives in `contact-card-generator/`; it needs no account or application server.
 

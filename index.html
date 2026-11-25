@@ -59,7 +59,7 @@
     .app strong { color: var(--accent); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; }
     .app h2 { margin: 12px 0 7px; font-size: 1.15rem; letter-spacing: -.02em; }
     .app p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.65; }
-    footer { margin-top: 48px; padding-top: 22px; border-top: 1px solid rgba(155, 169, 197, .15); color: var(--muted); font-size: .85rem; text-align: center; }
+    footer { margin-top: 48px; padding-top: 22px; border-top: 1px solid rgba(155, 169, 197, .15); color: var(--muted); font-size: .85rem; text-align: center; } footer a { color: var(--accent); text-decoration-color: rgba(110, 231, 210, .4); text-underline-offset: 3px; }
     @media (max-width: 900px) { header { grid-template-columns: 1fr; gap: 22px; } .intro { max-width: 620px; } .featured .apps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 680px) { main { width: min(100% - 28px, 1200px); padding-top: 24px; } header { gap: 22px; margin-bottom: 46px; padding: 24px 20px 26px; border-radius: 20px; } header::after { top: -185px; right: -200px; } .brand-lockup { gap: 14px; } .brand-mark { width: 58px; } .brand-kicker { margin-bottom: 8px; font-size: .6rem; } h1 { font-size: clamp(2rem, 8vw, 3.2rem); } .intro { font-size: .98rem; line-height: 1.65; } .featured { margin-bottom: 48px; } .section-heading { display: block; } .section-heading h2 { font-size: 1.45rem; } .section-heading p { margin-top: 7px; } .featured .apps { grid-template-columns: 1fr; } .apps { gap: 12px; } .app { padding: 21px; } .app-brand-image { top: 25px; right: 21px; } }
   </style>
@@ -126,7 +126,7 @@
         <a class="app" href="https://alphadyn.github.io/apps/vault/"><img class="app-brand-image" src="vault/favicon.svg" alt="" /><strong>Security</strong><h2>Vault</h2><p>Encrypt and decrypt files and folders privately in your browser.</p></a>
       </div>
     </section>
-    <footer>&copy; <span id="copyright-year"></span> Alphadyn. All rights reserved.</footer>
+    <footer>&copy; <span id="copyright-year"></span> Alphadyn. All rights reserved. <span aria-hidden="true">&nbsp;·&nbsp;</span> <a href="https://github.com/alphadyn/apps">Source</a> <span aria-hidden="true">&nbsp;·&nbsp;</span> <a href="README.md">Documentation</a></footer>
   </main>
   <script>document.getElementById('copyright-year').textContent = new Date().getFullYear();</script>
 </body>

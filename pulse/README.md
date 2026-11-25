@@ -1,6 +1,8 @@
 # Pulse
 
-**Deployed application:** [Open the app](https://alphadyn.github.io/apps/pulse/)
+**Live app:** [Open Pulse](https://alphadyn.github.io/apps/pulse/)
+
+> Part of [Alphadyn Apps](../README.md) · [Browse the catalog](../index.html)
 
 > Supabase-backed social news app with public browsing and authenticated roles. See the [repository catalog](../README.md) and [deployment guide](../DEPLOYMENT.md) for shared context.
 

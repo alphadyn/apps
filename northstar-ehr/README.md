@@ -1,6 +1,8 @@
 # Northstar EHR
 
-**Deployed application:** [Open the app](https://alphadyn.github.io/apps/northstar-ehr/)
+**Live app:** [Open Northstar EHR](https://alphadyn.github.io/apps/northstar-ehr/)
+
+> Part of [Alphadyn Apps](../README.md) · [Browse the catalog](../index.html)
 
 > Northstar is specified as a browser-based clinical information system for emergency and inpatient care. The public GitHub Pages deployment is a functional prototype and is not an approved or production clinical system.
 

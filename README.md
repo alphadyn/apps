@@ -2,9 +2,9 @@
 
 [Explore the live app catalog](https://alphadyn.github.io/apps/) · [View this repository on GitHub](https://github.com/alphadyn/apps)
 
-This repository is a portfolio-style collection of 20 active, independent projects: interactive demos, data visualizations, browser apps, and Python utilities. Each project is designed to be opened, adapted, or expanded on its own. The collection is intentionally mixed: some apps are static browser experiences, while others use Supabase, Flask, or Vercel APIs.
+This repository is a portfolio-style collection of **20 active, independent projects**: interactive demos, data visualizations, browser apps, and Python utilities. Every project is designed to be explored on its own, with its own README and a live GitHub Pages entry whenever applicable. The collection intentionally mixes dependency-free static experiences with apps that use Supabase, Flask, or Vercel APIs.
 
-The [landing page](index.html) links directly to the deployed apps and gives a quick overview of the portfolio. It includes four featured projects and an alphabetical catalog of all 20 apps and experiments.
+The [landing page](index.html) is the visual launch point for the portfolio. It highlights four featured projects and provides an alphabetical catalog of all 20 apps and experiments, each with a short summary, category, icon, and launch link. Project pages link back to this repository and its catalog documentation.
 
 Its social link-preview image is generated from the Signika logo SVGs with `python3 -m scripts.generate_social_preview` (requires Pillow and resvg-py, installable with `python3 -m pip install Pillow resvg-py`). After changing the image, update the version in the landing page's Open Graph and Twitter image URLs to encourage cache refreshes; preview caching is controlled by each sharing platform.
 

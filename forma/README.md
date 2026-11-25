@@ -1,5 +1,9 @@
 # Forma
 
+**Live app:** [Open Forma](https://alphadyn.github.io/apps/forma/)
+
+> Part of [Alphadyn Apps](../README.md) · [Browse the catalog](../index.html)
+
 A dependency-free, browser-based concept studio for contemporary homes. Resize rooms, place doors and windows, and explore floor plans in 2D and 3D. No account needed.
 
 **[Open Forma](https://alphadyn.github.io/apps/forma/)** · [Local preview](http://localhost:8000/forma/)

@@ -1,8 +1,8 @@
 # Fractals
 
-**Deployed application:** [Open the app](https://alphadyn.github.io/apps/fractals/)
+**Live app:** [Open Fractals](https://alphadyn.github.io/apps/fractals/)
 
-> Standalone interactive visualization. See the [repository catalog](../README.md) for shared setup and deployment context.
+> Part of [Alphadyn Apps](../README.md) · [Browse the catalog](../index.html)
 
 A browser-based web app that generates and displays 10 popular fractal patterns on an HTML canvas.
 

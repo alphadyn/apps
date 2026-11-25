@@ -1,6 +1,8 @@
 # Meetings — Video Conferencing App
 
-**Deployed application:** [Open the app](https://alphadyn.github.io/apps/meetings/)
+**Live app:** [Open Meetings — Video Conferencing App](https://alphadyn.github.io/apps/meetings/)
+
+> Part of [Alphadyn Apps](../README.md) · [Browse the catalog](../index.html)
 
 > Browser-based WebRTC meeting app with mobile controls. See the [repository catalog](../README.md) for shared setup and deployment context.
 

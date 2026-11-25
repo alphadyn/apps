@@ -1,5 +1,9 @@
 # Market Map
 
+**Live app:** [Open Market Map](https://alphadyn.github.io/apps/market-map/)
+
+> Part of [Alphadyn Apps](../README.md) · [Browse the catalog](../index.html)
+
 A viewport-filling S&P 500 treemap grouped into industry-sector rectangles. Sector area is proportional to its companies' combined market capitalization, and each company's area within a sector is proportional to its market capitalization. Positive implied DCF upside is green, negative upside is red, and larger magnitudes are progressively darker and more saturated on a continuous, unclipped scale. Gray means unavailable valuation; zero is neutral.
 
 ## Run

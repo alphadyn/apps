@@ -1,8 +1,8 @@
 # Earth Explorer
 
-**Deployed application:** [Open the app](https://alphadyn.github.io/apps/earth-explorer/)
+**Live app:** [Open Earth Explorer](https://alphadyn.github.io/apps/earth-explorer/)
 
-> Standalone Three.js browser visualization. See the [repository catalog](../README.md) for shared setup and deployment context.
+> Part of [Alphadyn Apps](../README.md) · [Browse the catalog](../index.html)
 
 An interactive browser app that renders a 3D model of the Earth, lets you inspect the
 latitude/longitude of any point on its surface, and measure the great-circle (surface)

@@ -1,8 +1,8 @@
 # Photo Gallery
 
-**Deployed application:** [Open the app](https://alphadyn.github.io/apps/photo-gallery/)
+**Live app:** [Open Photo Gallery](https://alphadyn.github.io/apps/photo-gallery/)
 
-> Standalone responsive browser gallery. See the [repository catalog](../README.md) for shared setup and deployment context.
+> Part of [Alphadyn Apps](../README.md) · [Browse the catalog](../index.html)
 
 A browser-based web app that selects 10 distinct catalog entries from a collection of 1,047 on every page load/refresh and displays them in an auto-rotating carousel. The collection combines 987 high-resolution Lorem Picsum photos with 60 supplemental Unsplash images, spanning landscapes, cities, architecture, travel, wildlife, flowers, and space photography. The catalog is bundled locally, so the gallery UI renders without waiting for a catalog service; if a photo cannot load, the local preview image is shown instead.
 

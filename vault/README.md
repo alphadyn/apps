@@ -1,8 +1,8 @@
 # Vault — Secure File Tool
 
-**Deployed application:** [Open the app](https://alphadyn.github.io/apps/vault/)
+**Live app:** [Open Vault — Secure File Tool](https://alphadyn.github.io/apps/vault/)
 
-> Standalone browser tool for encrypting files and TAR+gzip-archived folders; all processing stays on-device. See the [repository catalog](../README.md) for shared setup and deployment context.
+> Part of [Alphadyn Apps](../README.md) · [Browse the catalog](../index.html)
 
 Vault is a static web app for encrypting and decrypting files and folders in your browser. It is designed to be hosted on GitHub Pages: there is no server, account, upload, or build step. Folder contents are archived as TAR, compressed with gzip, and then encrypted; the archive preserves relative paths. The web app files are `index.html`, `styles.css`, `app.js`, and `archive.js`.
 

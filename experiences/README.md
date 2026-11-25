@@ -1,6 +1,8 @@
 # Experiences
 
-**Deployed application:** [Open the app](https://alphadyn.github.io/apps/experiences/)
+**Live app:** [Open Experiences](https://alphadyn.github.io/apps/experiences/)
+
+> Part of [Alphadyn Apps](../README.md) · [Browse the catalog](../index.html)
 
 > Map-based journal and share-preview app. See the [repository catalog](../README.md) for shared setup and deployment context.
 

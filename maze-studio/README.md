@@ -1,5 +1,9 @@
 # Maze Studio
 
+**Live app:** [Open Maze Studio](https://alphadyn.github.io/apps/maze-studio/)
+
+> Part of [Alphadyn Apps](../README.md) · [Browse the catalog](../index.html)
+
 A standalone, dependency-free browser app for random two-dimensional mazes.
 
 ## Use

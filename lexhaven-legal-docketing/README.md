@@ -1,8 +1,8 @@
 # Lexhaven Legal Docketing
 
-**Deployed application:** [Open the app](https://alphadyn.github.io/apps/lexhaven-legal-docketing/)
+**Live app:** [Open Lexhaven Legal Docketing](https://alphadyn.github.io/apps/lexhaven-legal-docketing/)
 
-> Standalone browser workflow for matters and deadlines. See the [repository catalog](../README.md) for shared setup and testing context.
+> Part of [Alphadyn Apps](../README.md) · [Browse the catalog](../index.html)
 
 This folder contains a fully functional, browser-based legal docketing application designed for law firms and legal teams that need to manage matters, deadlines, and tasks in one place.
 

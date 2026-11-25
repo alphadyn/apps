@@ -1,6 +1,8 @@
 # Nexus
 
-**Deployed application:** [Open the app](https://alphadyn.github.io/apps/nexus/)
+**Live app:** [Open Nexus](https://alphadyn.github.io/apps/nexus/)
+
+> Part of [Alphadyn Apps](../README.md) · [Browse the catalog](../index.html)
 
 > Browser-based media workspace with optional Supabase persistence. See the [repository catalog](../README.md) and [deployment guide](../DEPLOYMENT.md) for shared context.
 

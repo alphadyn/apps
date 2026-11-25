@@ -1,6 +1,8 @@
 # Signal
 
-**Deployed application:** [Open the app](https://alphadyn.github.io/apps/signal/)
+**Live app:** [Open Signal](https://alphadyn.github.io/apps/signal/)
+
+> Part of [Alphadyn Apps](../README.md) · [Browse the catalog](../index.html)
 
 > Google News headlines with ranked trends, search, and JSON export. See the [repository catalog](../README.md) for shared setup and deployment context.
 

@@ -1,8 +1,10 @@
 # Market Insights
 
-<img src="apple-touch-icon.png" alt="Market Insights logo: a chart-inspired M with a teal endpoint" width="72" height="72">
+**Live app:** [Open Market Insights](https://alphadyn.github.io/apps/market-insights/)
 
-**Deployed application:** [Open the app](https://alphadyn.github.io/apps/market-insights/)
+> Part of [Alphadyn Apps](../README.md) · [Browse the catalog](../index.html)
+
+<img src="apple-touch-icon.png" alt="Market Insights logo: a chart-inspired M with a teal endpoint" width="72" height="72">
 
 The app and its security share pages have moved to `/apps/market-insights/`. Existing `/apps/sp-insights/` links are not redirected; use the new links when sharing.
 

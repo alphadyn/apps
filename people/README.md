@@ -1,5 +1,9 @@
 # People
 
+**Live app:** [Open People](https://alphadyn.github.io/apps/people/)
+
+> Part of [Alphadyn Apps](../README.md) · [Browse the catalog](../index.html)
+
 People is a professional community with public profiles, searchable skills and experience, resume/CV links, a project gallery, and private one-to-one messages. Email and SMS links open the visitor's own email or messaging application; People does not send email or texts itself.
 
 ## Set up the live platform

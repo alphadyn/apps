@@ -19,11 +19,27 @@ function node(tag, text, className) {
   return element;
 }
 
+function updateDetailsViewport() {
+  const dialog = $('dialog');
+  const viewport = window.visualViewport;
+  const zoomed = dialog.open && dialog.classList.contains('fullscreen') && viewport && viewport.scale > 1;
+  dialog.classList.toggle('visual-zoomed', Boolean(zoomed));
+  dialog.classList.toggle('visual-compact', Boolean(zoomed && viewport.width <= 700));
+  dialog.classList.toggle('visual-narrow', Boolean(zoomed && viewport.width < 280));
+  if (!zoomed) return;
+  dialog.style.setProperty('--viewport-left', `${viewport.offsetLeft}px`);
+  dialog.style.setProperty('--viewport-top', `${viewport.offsetTop}px`);
+  dialog.style.setProperty('--viewport-width', `${viewport.width}px`);
+  dialog.style.setProperty('--viewport-height', `${viewport.height}px`);
+}
+
 function showDialog(title, children, fullscreen = false) {
   $('dialog-title').textContent = title;
   $('dialog-body').replaceChildren(...children);
+  $('dialog-body').scrollTop = 0;
   $('dialog').classList.toggle('fullscreen', fullscreen);
   if (!$('dialog').open) $('dialog').showModal();
+  updateDetailsViewport();
 }
 
 function inspect(company) {
@@ -319,6 +335,9 @@ $('search').addEventListener('keydown', (event) => {
 $('refresh').addEventListener('click', load);
 $('details').addEventListener('click', () => { if (selected) showDetails(selected); });
 $('dialog').addEventListener('click', (event) => { if (event.target === $('dialog')) $('dialog').close(); });
+$('dialog').addEventListener('close', updateDetailsViewport);
+window.visualViewport?.addEventListener('resize', updateDetailsViewport);
+window.visualViewport?.addEventListener('scroll', updateDetailsViewport);
 $('coverage').addEventListener('click', () => {
   const content = [
     node('p', `${market.stockCount} constituent tickers across ${market.companies.length} companies. ${market.mapped.length} companies have a usable market cap. Funds are excluded. Multi-class companies appear once.`),

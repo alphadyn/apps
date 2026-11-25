@@ -28,6 +28,8 @@ Patient workflow cards adapt to the available desktop width and stack on phones;
 navigation, workflow selectors, inbox controls, and section toggles have larger
 touch targets on mobile devices. Outpatient scheduling and appointment cards
 adapt to the available workspace width, including when the sidebar is open.
+Patient profiles group care and clinical information into responsive summaries,
+with chart and order actions kept alongside the patient's identity.
 
 ## Brand and link preview
 

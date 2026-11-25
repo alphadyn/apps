@@ -1828,6 +1828,12 @@ test("patient profiles use the current patient and retain staff-only selection",
   context.container = { innerHTML: "", querySelector: () => selector };
   vm.runInContext('currentView = "patient-profiles"; selectedPatientId = patients[1].id; selectedProfile = {type: "patient", id: patients[0].id}; renderProfilesView(container)', context);
   assert.match(context.container.innerHTML, /Jonathan Lee/);
+  assert.match(context.container.innerHTML, /Care &amp; encounter/);
+  assert.match(context.container.innerHTML, /Clinical summary/);
+  assert.match(context.container.innerHTML, /<dt>Allergies<\/dt><dd>/);
+  assert.match(context.container.innerHTML, /<dt>Latest observations<\/dt><dd>BP/);
+  assert.match(context.container.innerHTML, /data-open-patient=/);
+  assert.match(context.container.innerHTML, /data-profile-order=/);
   assert.doesNotMatch(context.container.innerHTML, /profileSelector|Select patient/);
   assert.equal(vm.runInContext("selectedProfile.id === selectedPatientId", context), true);
   vm.runInContext('currentView = "profiles"; renderProfilesView(container)', context);

@@ -2617,6 +2617,68 @@ button.stat-card {
   margin-left: auto;
 }
 
+.patient-profile-header {
+  flex-wrap: wrap;
+  padding: 0 0 20px;
+}
+
+.patient-profile-header .patient-avatar {
+  width: 64px;
+  height: 64px;
+}
+
+.patient-profile-identity {
+  flex: 1 1 220px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.patient-profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.patient-profile-actions .primary-btn {
+  margin-left: 0;
+}
+
+.patient-profile-section {
+  margin-top: 20px;
+}
+
+.patient-profile-section h4 {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+}
+
+.patient-profile-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.patient-profile-facts > div {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #f8fafb;
+}
+
+.patient-profile-facts dt {
+  color: #526277;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.patient-profile-facts dd {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
 .inline-link {
   border: 0;
   padding: 0;
@@ -4572,6 +4634,20 @@ textarea:focus-visible {
   .staff-profile-header {
     align-items: center;
     flex-direction: row;
+  }
+
+  .patient-profile-header {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    align-items: center;
+  }
+
+  .patient-profile-actions {
+    grid-column: 1 / -1;
+  }
+
+  .patient-profile-actions button {
+    min-height: 44px;
   }
 
   .directory-card .action-btn,

@@ -5343,22 +5343,32 @@ function renderProfilesView(container) {
   }
   const isPatient = selectedProfile.type === "patient";
   const profileBody = isPatient ? `
-    <div class="profile-header">
+    <div class="profile-header patient-profile-header">
       <div class="staff-avatar patient-avatar" aria-hidden="true">${escapeHtml(profile.name.split(/\s+/).map((part) => part[0]).slice(0, 2).join(""))}</div>
-      <div><p class="eyebrow">Patient profile</p><h3>${escapeHtml(profile.name)}</h3><p>${escapeHtml(profile.mrn)} · ${escapeHtml(profile.age)} years · ${escapeHtml(profile.sex)}</p></div>
-      <button class="primary-btn" type="button" data-open-patient="${escapeHtml(profile.id)}">Open full chart</button>
-      <button class="ghost-btn" type="button" data-profile-order="${escapeHtml(profile.id)}">Order &amp; schedule care</button>
+      <div class="patient-profile-identity"><p class="eyebrow">Patient profile</p><h3>${escapeHtml(profile.name)}</h3><p>${escapeHtml(profile.mrn)} · ${escapeHtml(profile.age)} years · ${escapeHtml(profile.sex)}</p></div>
+      <div class="patient-profile-actions">
+        <button class="primary-btn" type="button" data-open-patient="${escapeHtml(profile.id)}">Open full chart</button>
+        <button class="ghost-btn" type="button" data-profile-order="${escapeHtml(profile.id)}">Order &amp; schedule care</button>
+      </div>
     </div>
-    <div class="profile-facts">
-      <article><span>Encounter</span><strong>${escapeHtml(profile.clinical.stage)} · ${escapeHtml(profile.priority)}</strong></article>
-      <article><span>Department / location</span><strong>${escapeHtml(profile.clinical.department)} · ${escapeHtml(profile.clinical.location)}</strong></article>
-      <article><span>Care team</span><strong>${escapeHtml(profile.clinical.attending || profile.provider)} · ${escapeHtml(profile.clinical.assignedNurse || "Nurse unassigned")}</strong></article>
-      <article><span>Primary diagnosis</span><strong>${escapeHtml(profile.diagnosis)}</strong></article>
-      <article><span>Allergies</span><strong>${escapeHtml(allergySummary(profile))}</strong></article>
-      <article><span>Current medication list</span><strong>${escapeHtml(profile.medications.join(", "))}</strong></article>
-      <article><span>Latest observations</span><strong>BP ${escapeHtml(profile.vitals.bp || "—")} · HR ${escapeHtml(profile.vitals.hr || "—")} · Temp ${escapeHtml(profile.vitals.temp || "—")} · SpO₂ ${escapeHtml(profile.vitals.spO2 || "—")}</strong></article>
-      <article><span>Open orders / notes</span><strong>${profile.orders.filter((order) => !["Completed", "Cancelled"].includes(order.status)).length} open orders · ${profile.documents.length} notes</strong></article>
-    </div>` : `
+    <section class="patient-profile-section" aria-labelledby="patientProfileCareHeading">
+      <h4 id="patientProfileCareHeading">Care &amp; encounter</h4>
+      <dl class="patient-profile-facts">
+        <div><dt>Encounter</dt><dd>${escapeHtml(profile.clinical.stage)} · ${escapeHtml(profile.priority)}</dd></div>
+        <div><dt>Department / location</dt><dd>${escapeHtml(profile.clinical.department)} · ${escapeHtml(profile.clinical.location)}</dd></div>
+        <div><dt>Care team</dt><dd>${escapeHtml(profile.clinical.attending || profile.provider)} · ${escapeHtml(profile.clinical.assignedNurse || "Nurse unassigned")}</dd></div>
+        <div><dt>Open orders / notes</dt><dd>${profile.orders.filter((order) => !["Completed", "Cancelled"].includes(order.status)).length} open orders · ${profile.documents.length} ${profile.documents.length === 1 ? "note" : "notes"}</dd></div>
+      </dl>
+    </section>
+    <section class="patient-profile-section" aria-labelledby="patientProfileClinicalHeading">
+      <h4 id="patientProfileClinicalHeading">Clinical summary</h4>
+      <dl class="patient-profile-facts">
+        <div><dt>Primary diagnosis</dt><dd>${escapeHtml(profile.diagnosis)}</dd></div>
+        <div><dt>Allergies</dt><dd>${escapeHtml(allergySummary(profile))}</dd></div>
+        <div><dt>Current medication list</dt><dd>${escapeHtml(profile.medications.join(", ") || "Not recorded")}</dd></div>
+        <div><dt>Latest observations</dt><dd>BP ${escapeHtml(profile.vitals.bp || "—")} · HR ${escapeHtml(profile.vitals.hr || "—")} · Temp ${escapeHtml(profile.vitals.temp || "—")} · SpO₂ ${escapeHtml(profile.vitals.spO2 || "—")}</dd></div>
+      </dl>
+    </section>` : `
     <div class="profile-header staff-profile-header">
       ${renderStaffAvatar(profile)}
       <div><p class="eyebrow">Staff profile</p><h3>${escapeHtml(formatStaffProfileName(profile))}</h3><p>${escapeHtml(profile.title)} · ${escapeHtml(profile.status)}</p></div>
@@ -5371,8 +5381,8 @@ function renderProfilesView(container) {
       <article><span>Patients on care team</span><strong>${patients.filter((patient) => patient.clinical.attending === profile.name || patient.clinical.assignedNurse === profile.name).length}</strong></article>
       <article><span>System access</span><strong>Directory profile only · no account linked</strong></article>
     </div>`;
-  container.innerHTML = `<div class="panel profile-panel">
-    <div class="panel-header"><div><p class="eyebrow">${isPatient ? "Identity & care team" : "People & workforce"}</p><h3>${isPatient ? "Patient profile" : "Staff profile"}</h3></div>${selector}</div>
+  container.innerHTML = `<div class="panel profile-panel${isPatient ? " patient-profile-panel" : ""}">
+    ${isPatient ? "" : `<div class="panel-header"><div><p class="eyebrow">People &amp; workforce</p><h3>Staff profile</h3></div>${selector}</div>`}
     ${profileBody}
   </div>`;
   if (profileType === "staff") container.querySelector("#profileSelector").value = `staff:${selectedProfile.id}`;

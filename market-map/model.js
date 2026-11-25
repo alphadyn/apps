@@ -96,6 +96,10 @@ export function matches(company, query) {
   return !needle || [company.name, ...company.symbols].some((value) => value.toLowerCase().includes(needle));
 }
 
+export function meetsUpsideThreshold(company, threshold) {
+  return threshold === null || (Number.isFinite(company.upside) && company.upside >= threshold);
+}
+
 // Squarified, gapless treemap. Every tile retains its exact share of the outer area.
 export function treemap(companies, width, height) {
   if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) return [];

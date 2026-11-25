@@ -1,4 +1,4 @@
-import { prepareMarket, treemap, upsideColor, upsideTextColor, matches, money, percent } from './model.js';
+import { prepareMarket, treemap, upsideColor, upsideTextColor, matches, meetsUpsideThreshold, money, percent } from './model.js';
 import {
   discountedCashFlowUpside, discountedCashFlowValue, formatMoney, formatPE,
   getSecurityPE, marketCapDescription,
@@ -11,6 +11,29 @@ let selected;
 let buttons = [];
 let sectors = [];
 let buttonsById = new Map();
+let companiesById = new Map();
+let minimumUpside = null;
+
+function setMinimumUpside(value, { updateNumber = true } = {}) {
+  const slider = $('upside-filter');
+  const input = $('upside-minimum');
+  const allValue = Number(slider.min);
+  const sliderValue = value === null
+    ? allValue : Math.round(Math.max(allValue + 1, Math.min(Number(slider.max), value)));
+  minimumUpside = value;
+  slider.value = String(sliderValue);
+  if (updateNumber) input.value = value === null ? '' : String(value);
+  input.removeAttribute('aria-invalid');
+  $('upside-error').textContent = '';
+  $('upside-indicator').textContent = value === null ? 'All' : `≥ ${value > 0 ? '+' : ''}${value}%`;
+  const sliderText = sliderValue === allValue ? 'All securities' : `${sliderValue}%`;
+  $('upside-filter').setAttribute('aria-valuetext', minimumUpside !== null && minimumUpside !== sliderValue
+    ? `${sliderText}; exact minimum set in number field: ${minimumUpside}%` : sliderText);
+}
+
+function upsideThreshold() {
+  return minimumUpside === null ? null : minimumUpside / 100;
+}
 
 function node(tag, text, className) {
   const element = document.createElement(tag);
@@ -152,29 +175,29 @@ function renderLayout() {
 function search() {
   if (!market) return;
   const query = $('search').value;
-  const found = market.companies.filter((company) => matches(company, query));
+  const threshold = upsideThreshold();
+  const found = market.companies.filter((company) => meetsUpsideThreshold(company, threshold) && matches(company, query));
   $('matches').textContent = query.trim() ? `${found.length} found` : '';
-  for (let index = 0; index < buttons.length; index += 1) {
-    const match = matches(market.mapped[index], query);
-    buttons[index].classList.toggle('dim', !match);
-    buttons[index].classList.toggle('match', Boolean(query.trim()) && match);
+  for (const button of buttons) {
+    const company = companiesById.get(button.dataset.id);
+    const match = matches(company, query);
+    button.classList.toggle('dim', !match);
+    button.classList.toggle('match', Boolean(query.trim()) && match);
   }
   if (query.trim() && found.length) inspect(found[0]);
   return found;
 }
 
-function render() {
-  $('total').textContent = money(market.total);
-  $('count').textContent = `${market.companies.length} / ${market.stockCount}`;
-  $('date').textContent = market.quoteAsOf
-    ? new Date(market.quoteAsOf).toLocaleString()
-    : market.liveOnly ? 'No live data' : `Close ${market.priceDate || 'unknown'}`;
-  $('coverage').textContent = `${market.mapped.length} mapped${market.missing.length ? ` / ${market.missing.length} missing cap` : ' / full coverage'}`;
-  $('coverage').disabled = false;
-  $('search').disabled = false;
-  $('message').hidden = market.mapped.length > 0;
-  if (!market.mapped.length) $('message').textContent = 'No market caps are available. Open coverage to explore all companies.';
-  buttons = market.mapped.map((company) => {
+function renderTiles() {
+  const threshold = upsideThreshold();
+  const mapped = market.mapped.filter((company) => meetsUpsideThreshold(company, threshold));
+  $('message').hidden = mapped.length > 0;
+  if (!mapped.length) {
+    $('message').textContent = market.mapped.length
+      ? 'No securities meet the minimum implied upside.'
+      : 'No market caps are available. Open coverage to explore all companies.';
+  }
+  buttons = mapped.map((company) => {
     const button = node('button', undefined, 'tile');
     button.type = 'button';
     button.dataset.id = company.id;
@@ -191,7 +214,7 @@ function render() {
   });
   buttonsById = new Map(buttons.map((button) => [button.dataset.id, button]));
   const grouped = new Map();
-  for (const company of market.mapped) {
+  for (const company of mapped) {
     if (!grouped.has(company.sector)) grouped.set(company.sector, []);
     grouped.get(company.sector).push(company);
   }
@@ -211,13 +234,26 @@ function render() {
   }
   $('tiles').replaceChildren(...sectors.map((sector) => sector.region));
   renderLayout();
-  if (selected) {
-    const updated = market.companies.find((company) => company.id === selected.id);
-    if (updated) inspect(updated);
-  }
+  if (selected && !meetsUpsideThreshold(selected, threshold)) clearInspection();
+  else if (selected) inspect(selected);
   search();
+}
+
+function render() {
+  companiesById = new Map(market.companies.map((company) => [company.id, company]));
+  $('total').textContent = money(market.total);
+  $('count').textContent = `${market.companies.length} / ${market.stockCount}`;
+  $('date').textContent = market.quoteAsOf
+    ? new Date(market.quoteAsOf).toLocaleString()
+    : market.liveOnly ? 'No live data' : `Close ${market.priceDate || 'unknown'}`;
+  $('coverage').textContent = `${market.mapped.length} mapped${market.missing.length ? ` / ${market.missing.length} missing cap` : ' / full coverage'}`;
+  $('coverage').disabled = false;
+  $('search').disabled = false;
+  $('upside-filter').disabled = false;
+  $('upside-minimum').disabled = false;
+  renderTiles();
   const warnings = [];
-  if (market.missing.length) warnings.push(`${market.missing.map((company) => company.symbols.join('/')).join(', ')}: missing market cap; excluded from area and total. See coverage.`);
+  if (market.missing.length) warnings.push(`${market.missing.length} ${market.missing.length === 1 ? 'company is missing a market cap' : 'companies are missing market caps'} and excluded from the map and total. See coverage.`);
   const dataDate = market.quoteAsOf;
   const age = Date.now() - Date.parse(dataDate);
   if (!Number.isFinite(age)) warnings.push('Latest market data date is unavailable.');
@@ -237,6 +273,7 @@ function clearMarketDisplay() {
   buttons = [];
   sectors = [];
   buttonsById = new Map();
+  companiesById = new Map();
   $('total').textContent = '--';
   $('count').textContent = '--';
   $('date').textContent = '--';
@@ -244,6 +281,9 @@ function clearMarketDisplay() {
   $('coverage').disabled = true;
   $('search').value = '';
   $('search').disabled = true;
+  setMinimumUpside(null);
+  $('upside-filter').disabled = true;
+  $('upside-minimum').disabled = true;
   $('matches').textContent = '';
   $('tiles').replaceChildren();
   $('message').textContent = 'Loading the latest live market data...';
@@ -319,6 +359,22 @@ async function load() {
 }
 
 $('search').addEventListener('input', search);
+$('upside-filter').addEventListener('input', () => {
+  const slider = $('upside-filter');
+  const value = Number(slider.value);
+  setMinimumUpside(value === Number(slider.min) ? null : value);
+  if (market) renderTiles();
+});
+$('upside-minimum').addEventListener('input', () => {
+  const input = $('upside-minimum');
+  if (input.validity.badInput || (input.value !== '' && !Number.isFinite(input.valueAsNumber))) {
+    input.setAttribute('aria-invalid', 'true');
+    $('upside-error').textContent = 'Enter a valid percentage or clear the field for all securities.';
+    return;
+  }
+  setMinimumUpside(input.value === '' ? null : input.valueAsNumber, { updateNumber: false });
+  if (market) renderTiles();
+});
 $('map').addEventListener('pointerleave', () => {
   if (!$('map').contains(document.activeElement)) clearInspection();
 });
@@ -353,7 +409,7 @@ $('coverage').addEventListener('click', () => {
 });
 $('about').addEventListener('click', () => {
   showDialog('One market. Every company.', [
-    node('p', 'Companies are grouped into sector rectangles sized by their combined market cap. Within each sector, every company rectangle is proportional to its market cap. Search highlights matches without changing any area. Tiny labels scale down to preserve truthful proportions: hover or focus for the bottom readout, tap for full details, or search and press Enter.'),
+    node('p', 'Companies are grouped into sector rectangles sized by their combined market cap. Within each sector, every company rectangle is proportional to its market cap. Use the minimum implied upside slider or enter a percentage to filter and resize the map; clear the field or select All to include unavailable valuations. Search highlights matches within the filter without changing any area. Tiny labels scale down to preserve truthful proportions: hover or focus for the bottom readout, tap for full details, or search and press Enter.'),
     node('p', 'Green means positive implied upside; red means negative upside (downside). Larger magnitudes are progressively darker and more saturated. Gray means DCF is unavailable; zero upside is neutral. The color scale continues beyond +/-100% and does not cap extreme values.'),
     node('p', 'Implied upside = (DCF value - price) / price. The shared Market Insights model projects positive TTM net income for five years, caps earnings growth at +/-5%, discounts at 10%, and uses 2.5% terminal growth. Shares are estimated from market cap / price.'),
     node('p', 'This simplified earnings-based DCF is not a full free-cash-flow valuation, analyst target, or investment recommendation. Company-wide caps are counted once by SEC CIK; combined tiles list every constituent share class.'),

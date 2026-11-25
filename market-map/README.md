@@ -22,11 +22,12 @@ Constituent names, sectors, and earnings fundamentals are loaded from `../market
 
 ## Explore
 
-- Search a ticker or company to highlight matches **without resizing or removing tiles**. Press Enter to open the first match, including stocks missing market caps.
+- Use **Min implied upside** to show only companies at or above the selected percentage. The slider ranges from -100% to +100% in 1% steps; the number field also accepts decimals and values outside that range. Clear the field or move the slider to **All** to include unavailable valuations. The map resizes to qualifying companies, while summary totals and coverage always describe the full market.
+- Search a ticker or company to highlight matches within the selected upside filter **without resizing or removing tiles**. Press Enter to open the first match, including stocks missing market caps when **All** is selected.
 - Hover or keyboard-focus any tile to read its ticker, cap, and implied upside in the bottom readout. Click or tap to open full-screen details, including market cap, price, estimated DCF fair value per share, and implied upside. All tiles are native keyboard-accessible buttons.
 - Tile labels scale with available space rather than distorting company areas. Small companies' labels may be too small to read at overview scale; search, tooltips, and the details readout provide readable values.
 - Coverage explains missing caps and opens their company details. Unavailable caps are never fabricated or assigned arbitrary area; these companies are excluded from the map and its total but remain searchable.
-- The main map fits the viewport without page scrolling. Full-screen company details and methodology dialogs can scroll independently.
+- The main map fills the available viewport. On short screens or when content needs more space, the page scrolls to keep the map and controls usable. Full-screen company details and methodology dialogs can scroll independently.
 - When pinch-zoomed, company details fit the visible viewport without resetting or disabling browser zoom.
 
 ## Methodology

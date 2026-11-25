@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { prepareMarket, treemap, upsideColor, upsideTextColor, matches, money, percent } from './model.js';
+import { prepareMarket, treemap, upsideColor, upsideTextColor, matches, meetsUpsideThreshold, money, percent } from './model.js';
 
 const stock = (symbol, cap, extra = {}) => ({
   symbol, name: `${symbol} company`, market_cap: cap, price: 100,
@@ -45,6 +45,18 @@ test('missing/nonpositive earnings remain neutral, not a fabricated downside', (
     assert.equal(upsideColor(company.upside), '#454d5c');
     assert.equal(upsideTextColor(company.upside), '#ffffff');
   }
+});
+
+test('upside threshold includes equality and excludes unavailable valuations unless set to all', () => {
+  for (const upside of [null, undefined, NaN, Infinity, -.5, 0, .25, 2]) {
+    assert.equal(meetsUpsideThreshold({ upside }, null), true);
+  }
+  for (const upside of [null, undefined, NaN, Infinity, -.5, 0]) {
+    assert.equal(meetsUpsideThreshold({ upside }, .25), false);
+  }
+  assert.equal(meetsUpsideThreshold({ upside: .25 }, .25), true);
+  assert.equal(meetsUpsideThreshold({ upside: 2 }, .25), true);
+  assert.equal(meetsUpsideThreshold({ upside: -1 }, -1), true);
 });
 
 test('colors retain sign and strictly darken even for extreme upside', () => {

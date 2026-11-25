@@ -32,14 +32,39 @@
   <main class="app">
     <header>
       <a class="brand" href="./" aria-label="Refresh Market Map"><img src="icon.svg" alt="" width="34" height="34"></a>
-      <div class="heading"><span class="eyebrow">ALPHADYN / MARKETS</span><h1>Market Map <span>S&amp;P 500</span></h1></div>
-      <div class="actions"><button id="about" type="button">How to read</button><button id="refresh" type="button">Refresh</button></div>
+      <div class="heading">
+        <span class="eyebrow">ALPHADYN / MARKETS</span>
+        <h1>Market Map <span>S&amp;P 500</span></h1>
+      </div>
+      <div class="actions">
+        <button id="about" type="button">How to read</button>
+        <button id="refresh" type="button">Refresh</button>
+      </div>
     </header>
     <section class="summary" aria-label="Market overview">
       <div><span class="eyebrow">TOTAL MARKET CAP</span><strong id="total">--</strong></div>
       <div><span class="eyebrow">COMPANIES / TICKERS</span><strong id="count">--</strong></div>
       <div class="snapshot"><span class="eyebrow">LATEST MARKET DATA</span><strong id="date">--</strong></div>
-      <label class="search"><span class="sr-only">Find a ticker or company</span><input id="search" type="search" placeholder="Find ticker or company" autocomplete="off" disabled><span id="matches" role="status"></span></label>
+      <div class="upside-filter">
+        <div class="upside-filter-heading">
+          <label for="upside-filter" class="eyebrow">MIN IMPLIED UPSIDE</label>
+          <output id="upside-indicator" for="upside-filter upside-minimum">All</output>
+        </div>
+        <div class="upside-filter-controls">
+          <input id="upside-filter" type="range" min="-101" max="100" step="1" value="-101" aria-valuetext="All securities" disabled>
+          <label class="upside-number">
+            <span class="sr-only">Minimum implied upside in percent; clear for all securities</span>
+            <input id="upside-minimum" type="number" step="any" placeholder="All" aria-describedby="upside-error" disabled>
+            <span aria-hidden="true">%</span>
+          </label>
+        </div>
+        <span id="upside-error" role="status"></span>
+      </div>
+      <label class="search">
+        <span class="sr-only">Find a ticker or company</span>
+        <input id="search" type="search" placeholder="Find ticker or company" autocomplete="off" disabled>
+        <span id="matches" role="status"></span>
+      </label>
     </section>
     <div class="map-heading"><p>Size = market cap <span> / </span> Color = implied upside</p><button id="coverage" type="button" disabled>Loading coverage...</button></div>
     <section id="map" aria-label="S&P 500 market capitalization treemap" aria-busy="true">

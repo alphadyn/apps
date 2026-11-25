@@ -19,10 +19,10 @@ Constituent names, sectors, and earnings fundamentals are loaded from `../market
 ## Explore
 
 - Search a ticker or company to highlight matches **without resizing or removing tiles**. Press Enter to open the first match, including stocks missing market caps.
-- Hover or keyboard-focus any tile to read its ticker, cap, and implied upside in the bottom readout. Click or tap to open full details. All tiles are native keyboard-accessible buttons.
+- Hover or keyboard-focus any tile to read its ticker, cap, and implied upside in the bottom readout. Click or tap to open full-screen details, including market cap, price, estimated DCF fair value per share, and implied upside. All tiles are native keyboard-accessible buttons.
 - Tile labels scale with available space rather than distorting company areas. Small companies' labels may be too small to read at overview scale; search, tooltips, and the details readout provide readable values.
 - Coverage explains missing caps and opens their company details. Unavailable caps are never fabricated or assigned arbitrary area; these companies are excluded from the map and its total but remain searchable.
-- The main map fits the viewport without page scrolling. Details and methodology dialogs can scroll independently.
+- The main map fits the viewport without page scrolling. Full-screen company details and methodology dialogs can scroll independently.
 
 ## Methodology
 

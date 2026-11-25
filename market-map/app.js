@@ -19,9 +19,10 @@ function node(tag, text, className) {
   return element;
 }
 
-function showDialog(title, children) {
+function showDialog(title, children, fullscreen = false) {
   $('dialog-title').textContent = title;
   $('dialog-body').replaceChildren(...children);
+  $('dialog').classList.toggle('fullscreen', fullscreen);
   if (!$('dialog').open) $('dialog').showModal();
 }
 
@@ -47,33 +48,65 @@ function clearInspection() {
 
 function showDetails(company) {
   inspect(company);
-  const facts = node('dl');
+  const summary = node('section', undefined, 'detail-summary');
+  summary.setAttribute('aria-label', 'Valuation summary');
+  for (const [label, value] of [
+    ['Company market cap', money(company.marketCap)],
+    ['Price', money(company.representative.price)],
+    ['Fair value / share (DCF)', money(company.fairValue)],
+    ['Implied upside / downside', percent(company.upside)],
+  ]) {
+    const metric = node('div', undefined, 'detail-metric');
+    metric.append(node('span', label, 'eyebrow'), node('strong', value));
+    if (label === 'Implied upside / downside') {
+      metric.classList.add(company.upside === null ? 'unavailable' : company.upside >= 0 ? 'positive' : 'negative');
+    }
+    summary.append(metric);
+  }
+
+  const factsSection = node('section', undefined, 'detail-section');
+  factsSection.setAttribute('aria-label', 'Company details');
+  factsSection.append(node('h3', 'Company details'));
+  const facts = node('dl', undefined, 'detail-facts');
   for (const [label, value] of [
     ['Tickers', company.symbols.join(' / ')],
     ['Sector', company.sector],
-    ['Company market cap', money(company.marketCap)],
     ['Share of mapped market', company.marketCap ? percent(company.marketCap / market.total) : 'Unavailable'],
     ['Representative ticker', company.id],
-    ['Price', money(company.representative.price)],
     ['Quote as of', company.representative.quote_at
       ? new Date(company.representative.quote_at).toLocaleString() : 'No live quote available'],
     ['Net income (TTM)', formatMoney(company.representative.net_income)],
     ['P/E ratio (TTM)', formatPE(getSecurityPE(company.representative))],
-    ['DCF value / share', money(company.fairValue)],
-    ['Implied upside / downside', percent(company.upside)],
-  ]) facts.append(node('dt', label), node('dd', value));
-  const content = [facts, node('p', marketCapDescription(company.representative))];
+  ]) {
+    const fact = node('div');
+    fact.append(node('dt', label), node('dd', value));
+    facts.append(fact);
+  }
+  factsSection.append(facts);
+  const content = [
+    summary,
+    factsSection,
+    node('p', 'Fair value is an earnings-based DCF estimate using fixed growth and discount assumptions, not a price forecast.', 'detail-note'),
+    node('p', marketCapDescription(company.representative), 'detail-note'),
+  ];
   if (company.classes.length > 1) {
-    content.push(node('p', 'Share classes are combined to avoid counting the company twice. Area and color use the first listed class with a market cap, matching Market Insights. These are company-wide caps, not separate share-class valuations.'));
+    content.push(node('h3', 'Share classes'));
+    content.push(node('p', 'Share classes are combined to avoid counting the company twice. Area and color use the first listed class with a market cap, matching Market Insights. These are company-wide caps, not separate share-class valuations.', 'detail-note'));
     for (const stock of company.classes) {
-      content.push(node('p', `${stock.symbol}: price ${money(stock.price)}, net income (TTM) ${formatMoney(stock.net_income)}, P/E ${formatPE(getSecurityPE(stock))}, DCF ${money(discountedCashFlowValue(stock))}, implied upside ${percent(discountedCashFlowUpside(stock))}.`));
+      const classDetails = node('p', undefined, 'detail-note');
+      classDetails.append(
+        node('strong', stock.symbol),
+        document.createTextNode(`  Price ${money(stock.price)} · Net income (TTM) ${formatMoney(stock.net_income)} · P/E ${formatPE(getSecurityPE(stock))} · DCF ${money(discountedCashFlowValue(stock))} · Implied upside ${percent(discountedCashFlowUpside(stock))}`),
+      );
+      content.push(classDetails);
     }
   }
-  if (company.upside === null) content.push(node('p', 'DCF is unavailable when earnings are non-positive or earnings, price, or market cap are missing. No upside or downside is assumed.'));
+  if (company.upside === null) content.push(node('p', 'DCF is unavailable when earnings are non-positive or earnings, price, or market cap are missing. No upside or downside is assumed.', 'detail-note'));
   const link = node('a', 'Open in Market Insights');
+  link.className = 'detail-link';
   link.href = `../market-insights/#symbol=${encodeURIComponent(company.id)}`;
   content.push(link);
-  showDialog(company.name, content);
+  showDialog(company.name, content, true);
 }
 
 function renderLayout() {
@@ -285,7 +318,6 @@ $('search').addEventListener('keydown', (event) => {
 });
 $('refresh').addEventListener('click', load);
 $('details').addEventListener('click', () => { if (selected) showDetails(selected); });
-$('close').addEventListener('click', () => $('dialog').close());
 $('dialog').addEventListener('click', (event) => { if (event.target === $('dialog')) $('dialog').close(); });
 $('coverage').addEventListener('click', () => {
   const content = [

@@ -129,7 +129,7 @@ function buildSlides(photos) {
     const label = `Photo ${index + 1} of ${photos.length}`;
     const slide = document.createElement("div");
     slide.className = "slide";
-    slide.appendChild(createPhotoImage(photo, { alt: label, width: 1200, loading: index === 0 ? "eager" : "lazy" }));
+    slide.appendChild(createPhotoImage(photo, { alt: "", width: 1200, loading: index === 0 ? "eager" : "lazy" }));
     track.appendChild(slide);
 
     const thumb = document.createElement("button");

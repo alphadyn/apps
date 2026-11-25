@@ -14,10 +14,11 @@ Serve the repository and open the local preview, or launch Forma from the portfo
 
 ## Desktop and mobile workspace
 
-- The sidebar groups the **Design** canvas views and floor/space controls, **Design details** for rooms, openings and materials, and **Project & sharing** for samples, documentation and settings. The highlighted canvas view remains selected while dialogs are open or closed.
+- The sidebar groups the **Design** canvas views and floor/space controls, **Design details** for rooms, openings and materials, and **Project & sharing** for samples, documentation, settings and **About Forma**. The highlighted canvas view remains selected while dialogs are open or closed.
 - The canvas **Add** tool follows the current view: it opens the space library on a floor, or opens the site-feature controls in the property inspector (switching to the 2D site plan if needed). The **R** shortcut and sidebar space library continue to add rooms to the active floor.
 - Desktop keeps the canvas alongside an independently scrolling properties inspector. Tablet and smaller windows use a dismissible navigation drawer, which supports Escape, keyboard focus containment, and tapping outside to close.
 - On phones, the overview is compact and the canvas uses the available viewport height. Select a room or site item, then tap **Properties** to edit it; **Back to canvas** returns to the drawing without losing the selection. Wider windows restore the side-by-side inspector automatically.
+- The mobile editor displays the current save state alongside **Properties**. At narrow widths the toolbar wraps into a balanced grid while retaining touch-sized controls; short landscape screens use a shorter canvas so more of the editor remains visible.
 - Touch-sized tool, zoom, navigation, and form controls support dragging rooms/site items and orbiting 3D views with one finger. Use **Pan canvas** to pan and the **+ / -** buttons to zoom. Scroll the page outside the drawing; the canvas reserves touch gestures for editing. Native browser page zoom remains available.
 - Forms use readable input sizes on phones, dialogs scroll within the screen, and controls respect display safe areas. Resize-triggered drawing updates are coalesced to one per animation frame.
 

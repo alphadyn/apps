@@ -55,7 +55,6 @@ const paths = {
   undo: '<path d="m8 5-5 5 5 5M3 10h11a6 6 0 0 1 0 12"/>',
   redo: '<path d="m16 5 5 5-5 5m5-5H10a6 6 0 0 0 0 12"/>',
   expand: '<path d="M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6"/>',
-  bulb: '<path d="M9 18h6m-5 3h4M8 14a6 6 0 1 1 8 0l-1 2H9l-1-2Z"/>',
   keyboard: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M5 9h1m3 0h1m3 0h1m3 0h1M5 12h1m3 0h1m3 0h1m3 0h1M7 16h10"/>',
   close: '<path d="m6 6 12 12M6 18 18 6"/>',
   menu: '<path d="M3 6h18M3 12h18M3 18h18"/>',
@@ -81,7 +80,6 @@ let shiftSharedBoundaries = false;
 let keepRightAngles = true;
 let view = "2d";
 let scope = "floor";
-let activePanel = "plan";
 let showRoof = true;
 let camera = { ...DEFAULT_CAMERA };
 let tool = "select";
@@ -131,7 +129,9 @@ function updateChangeActions() {
   const pending = hasPendingChanges();
   $("#apply-button").disabled = !pending && saved;
   $("#revert-button").disabled = !pending;
-  $("#save-state").innerHTML = `<i></i>${!saved ? "Not saved locally" : pending ? "Changes not applied" : "All changes applied"}`;
+  const status = !saved ? "Not saved locally" : pending ? "Changes not applied" : "All changes applied";
+  $("#save-state").innerHTML = `<i></i>${status}`;
+  if ($("#mobile-save-state").textContent !== status) $("#mobile-save-state").textContent = status;
 }
 function applyChanges() {
   if (!hasPendingChanges() && saved) return;
@@ -160,9 +160,9 @@ function commit(before) {
 }
 function change(action) {
   const before = snapshot();
-  const previousFloor = activeFloor, previousSelection = selected, previousScope = scope, previousPanel = activePanel;
+  const previousFloor = activeFloor, previousSelection = selected, previousScope = scope;
   try { action(); validateProject(project); commit(before); return true; }
-  catch (error) { project = JSON.parse(before); activeFloor = previousFloor; selected = previousSelection; scope = previousScope; activePanel = previousPanel; toast(error.message, true); render(); return false; }
+  catch (error) { project = JSON.parse(before); activeFloor = previousFloor; selected = previousSelection; scope = previousScope; toast(error.message, true); render(); return false; }
 }
 function history(redo = false) {
   const source = redo ? redoStack : undoStack;
@@ -174,11 +174,11 @@ function history(redo = false) {
   render();
 }
 function selectFloor(id) {
-  activeFloor = id; scope = "floor"; activePanel = "plan"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; render();
+  activeFloor = id; scope = "floor"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; render();
   responsiveUI.closeNavigation();
 }
 function setScope(value) {
-  scope = value; activePanel = value === "property" ? "property" : "plan"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; render();
+  scope = value; selected = null; zoom = 1; pan = { x: 0, y: 0 }; render();
 }
 function render() {
   if (scope !== "property" || view !== "2d") selectedSite = null;
@@ -535,7 +535,7 @@ function propertyDialog() {
     updated.fence = { enabled: data.has("fence-enabled"), height: toMeters(Number(data.get("fence-height")), unitSystem), style: data.get("fence-style"), material: data.get("fence-material") };
     for (const key of ["width", "depth", "houseX", "houseY"]) updated[key] = toMeters(Number(data.get(key)), unitSystem);
     try { validateProperty(updated); } catch (error) { toast(error.message, true); return; }
-    if (change(() => { project.property = updated; scope = "property"; activePanel = "property"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; })) {
+    if (change(() => { project.property = updated; scope = "property"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; })) {
       closeDialog(); toast("Property updated. Your home, in context.");
     }
   };
@@ -546,16 +546,14 @@ function deleteRoom(item) { change(() => {
   selected = null;
 }); }
 function architecturalFeatures(featureId, newFeatureType) {
-  activePanel = "architecture";
   architectureDialog({
     getProject: () => project, showDialog, change, selectedRoomId: selected, featureId, newFeatureType, units: unitSystem,
     onAdded: feature => {
-      selectedOpening = feature.id; activePanel = "plan"; closeDialog(); render();
+      selectedOpening = feature.id; closeDialog(); render();
     },
     reveal: feature => {
       if (feature.type === "gate") { scope = "property"; selected = null; }
       else { activeFloor = feature.floorId; selected = feature.roomId; scope = "floor"; }
-      activePanel = "architecture";
       view = "2d"; zoom = 1; pan = { x: 0, y: 0 }; render();
     },
   });
@@ -571,7 +569,7 @@ function showDialog(title, html, eyebrow = "MAKE IT YOURS") {
 const closeDialog = () => $("#app-dialog").close();
 function openDesign(next) {
   return change(() => {
-    project = next; activeFloor = project.floors[0].id; scope = "floor"; activePanel = "plan"; view = "2d"; tool = "select";
+    project = next; activeFloor = project.floors[0].id; scope = "floor"; view = "2d"; tool = "select";
     selected = null; zoom = 1; pan = { x: 0, y: 0 }; camera = { ...DEFAULT_CAMERA };
   });
 }
@@ -582,7 +580,7 @@ function revertDialog() {
   $("#confirm-revert").onclick = () => {
     project = JSON.parse(appliedDesign);
     activeFloor = project.floors[0].id;
-    selected = null; scope = "floor"; activePanel = "plan"; view = "2d"; tool = "select";
+    selected = null; scope = "floor"; view = "2d"; tool = "select";
     zoom = 1; pan = { x: 0, y: 0 }; camera = { ...DEFAULT_CAMERA };
     saved = appliedDesignSaved;
     undoStack = []; redoStack = [];
@@ -630,7 +628,7 @@ function sampleDetails(id) {
 function addRoom(type) {
   change(() => {
     const item = makeRoom(type, floor().rooms);
-    floor().rooms.push(item); scope = "floor"; activePanel = "plan"; selected = item.id; zoom = 1; pan = { x: 0, y: 0 };
+    floor().rooms.push(item); scope = "floor"; selected = item.id; zoom = 1; pan = { x: 0, y: 0 };
   });
   closeDialog();
 }
@@ -674,7 +672,7 @@ function projectDialog() {
     showDialog("Room for a new beginning.", '<p class="dialog-description">Start a blank home with one ground floor. Your current design will be replaced in this browser. Download a project backup first if you want to keep it. You can also undo this action until you reload.</p><div class="dialog-actions"><button class="button" id="cancel-new">Keep designing</button><button class="button primary" id="confirm-new">Start new project</button></div>', "A CLEAN SLATE");
     $("#cancel-new").onclick = projectDialog;
     $("#confirm-new").onclick = () => {
-      change(() => { project = { ...createProject(), name: "Untitled home", floors: [{ id: crypto.randomUUID(), name: "Ground floor", rooms: [] }] }; activeFloor = project.floors[0].id; scope = "floor"; activePanel = "plan"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; camera = { ...DEFAULT_CAMERA }; });
+      change(() => { project = { ...createProject(), name: "Untitled home", floors: [{ id: crypto.randomUUID(), name: "Ground floor", rooms: [] }] }; activeFloor = project.floors[0].id; scope = "floor"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; camera = { ...DEFAULT_CAMERA }; });
       closeDialog();
     };
   };
@@ -686,7 +684,7 @@ function addFloorDialog() {
     event.preventDefault();
     const name = String(new FormData(event.currentTarget).get("name")).trim();
     if (!name) { toast("Give your floor a name.", true); return; }
-    change(() => { const newFloor = { id: crypto.randomUUID(), name, rooms: [] }; project.floors.push(newFloor); activeFloor = newFloor.id; scope = "floor"; activePanel = "plan"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; });
+    change(() => { const newFloor = { id: crypto.randomUUID(), name, rooms: [] }; project.floors.push(newFloor); activeFloor = newFloor.id; scope = "floor"; selected = null; zoom = 1; pan = { x: 0, y: 0 }; });
     closeDialog();
   };
 }
@@ -776,7 +774,7 @@ function materialsDialog() {
   showDialog("A palette with purpose.", `<p class="dialog-description">Four considered finishes. Select a room on the canvas to change its floor finish.</p>${materials.map(([color, name, description]) => `<div class="material-swatch"><span style="background:${color}"></span><div><strong>${name}</strong><small>${description}</small></div></div>`).join("")}`, "MATERIAL LIBRARY");
 }
 function shortcutsDialog() {
-  showDialog("A little more flow.", [["Select & move", "V"], ["Pan canvas", "H"], ["Add a space", "R"], ["Undo", "⌘ / Ctrl Z"], ["Redo", "⌘ / Ctrl ⇧ Z"], ["Delete selected space", "Delete"], ["Deselect / close", "Esc"]].map(([label, key]) => `<div class="shortcut-row"><span>${label}</span><kbd>${key}</kbd></div>`).join(""), "KEYBOARD SHORTCUTS");
+  showDialog("A little more flow.", [["Select & move", "V"], ["Pan canvas", "H"], ["Add a space", "R"], ["Rooms & spaces", "⌘ / Ctrl K"], ["Undo", "⌘ / Ctrl Z"], ["Redo", "⌘ / Ctrl ⇧ Z"], ["Delete selected space", "Delete"], ["Deselect / close", "Esc"]].map(([label, key]) => `<div class="shortcut-row"><span>${label}</span><kbd>${key}</kbd></div>`).join(""), "KEYBOARD SHORTCUTS");
 }
 function setTool(value) {
   tool = value; render();
@@ -809,13 +807,10 @@ document.addEventListener("click", event => {
     const panels = {
       plan: () => setScope("floor"), property: () => setScope("property"), samples: sampleGallery,
       architecture: () => architecturalFeatures(), documentation: () => {
-        activePanel = "documentation";
-        render();
         documentationDialog({ getProject: () => project, showDialog, download, units: unitSystem });
       },
       rooms: roomDirectory, materials: materialsDialog, settings: projectDialog,
     };
-    activePanel = panel.dataset.panel;
     panels[panel.dataset.panel]();
   }
 });
@@ -953,7 +948,7 @@ function endDrag(event, cancelled = false) {
   else if (previous.mode === "orbit" && !previous.moved) {
     if (previous.featureId) { render(); architecturalFeatures(previous.featureId); return; }
     if (scope === "property" && previous.floorId) {
-      activeFloor = previous.floorId; scope = "floor"; activePanel = "plan"; zoom = 1; pan = { x: 0, y: 0 };
+      activeFloor = previous.floorId; scope = "floor"; zoom = 1; pan = { x: 0, y: 0 };
       selected = previous.roomId || null;
     } else if (scope === "floor") selected = previous.roomId || null;
   }
@@ -1050,7 +1045,10 @@ $("#zoom-fit").onclick = () => { zoom = 1; pan = { x: 0, y: 0 }; render(); };
 $("#close-dialog").onclick = closeDialog;
 $("#app-dialog").addEventListener("click", event => { if (event.target === $("#app-dialog")) { const r = event.currentTarget.getBoundingClientRect(); if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) closeDialog(); } });
 $("#shortcuts-button").onclick = shortcutsDialog;
-$("#about-button").onclick = () => showDialog("A space for possibility.", '<p class="dialog-description">Forma is your personal contemporary home-design studio. Compose spaces, explore proportions, and imagine everyday life in a home that feels like you.</p><p class="dialog-description">Your project stays in this browser. Download a project file to keep a backup or continue in another browser. No account, no cloud, just room to create.</p><p class="dialog-note">The Forma logo returns to this workspace. Concept planning only. Walls, doors, windows, and furniture are illustrative; plans are not code-checked or construction-ready.</p>', "WELCOME TO FORMA");
+$("#about-button").onclick = () => {
+  responsiveUI.closeNavigation();
+  showDialog("A space for possibility.", '<p class="dialog-description">Forma is your personal contemporary home-design studio. Compose spaces, explore proportions, and imagine everyday life in a home that feels like you.</p><p class="dialog-description">Your project stays in this browser. Download a project file to keep a backup or continue in another browser. No account, no cloud, just room to create.</p><p class="dialog-note">The Forma logo returns to this workspace. Concept planning only. Walls, doors, windows, and furniture are illustrative; plans are not code-checked or construction-ready.</p>', "WELCOME TO FORMA");
+};
 document.addEventListener("keydown", event => {
   const editing = ["INPUT", "SELECT", "TEXTAREA"].includes(event.target.tagName);
   if (event.key === "Escape" && ["opening", "site"].includes(drag?.mode)) {
@@ -1081,7 +1079,10 @@ new ResizeObserver(() => {
   resizeFrame = requestAnimationFrame(() => { renderPlan(); updateScale(); });
 }).observe($("#drawing-surface"));
 $(".meta-date").textContent = `${project.style.toUpperCase()} RESIDENTIAL`;
-if (restoreError) $("#save-state").textContent = "Local restore failed";
+if (restoreError) {
+  $("#save-state").textContent = "Local restore failed";
+  $("#mobile-save-state").textContent = "Local restore failed";
+}
 const startupErrors = [restoreError, unitPreferenceError].filter(Boolean);
 if (startupErrors.length) toast(startupErrors.join(" "), true);
 window.addEventListener("beforeunload", event => {

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { createStreetMap } from "./street-map.js?v=3";
+import { createStreetMap } from "./street-map.js?v=4";
 import { setupLocationSearch } from "./location-search.js?v=1";
 
 const EARTH_RADIUS_KM = 6371;
@@ -10,7 +10,7 @@ const DEFAULT_VIEW_LAT = 3.907667;
 const DEFAULT_VIEW_LON = 15.483643;
 const MAX_CAMERA_DISTANCE = 10;
 const ZOOM_STEP = 2;
-const MAX_ZOOM_LEVELS = 16;
+const MAX_ZOOM_LEVELS = 18;
 const FIRST_STREET_ZOOM_LEVEL = 4;
 const MARKER_RADIUS = 0.035;
 const MARKER_DIAMETER_PX = 7;

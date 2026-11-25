@@ -18,9 +18,9 @@ distance between any two points you click.
   earth image, initially centered on Africa;
   drag in any direction to orbit around the globe's fixed center,
   and scroll/pinch-to-zoom via `OrbitControls`
-- **Zoom controls** with 16 surface-relative zoom-in steps from the default view to
+- **Zoom controls** with 18 surface-relative zoom-in steps from the default view to
   the closest level, plus a reset button to restore the original view. The closest camera distance is
-  about 2.000061 for a globe radius of 2, allowing street-level detail; wheel and pinch zoom use reduced sensitivity.
+  about 2.000015 for a globe radius of 2, allowing street-level detail; wheel and pinch zoom use reduced sensitivity.
 - **Shareable views**: share a link containing the current camera-facing latitude,
   longitude, and zoom level, with the current globe image attached where the browser's
   native share sheet supports image sharing. Opening the link restores that globe view.
@@ -33,7 +33,7 @@ distance between any two points you click.
 - **Street map on the globe**: enable **Streets** to project CARTO Voyager basemap tiles
   based on OpenStreetMap onto the Earth's curved surface. Tiles follow globe rotation
   and progressively increase in detail as you zoom closer, using 512px retina tiles
-  for a sharper view on high-density displays, without a separate flat map.
+  up to provider zoom level 20 for a sharper view on high-density displays, without a separate flat map.
   Streets default to off for the first three zoom-in levels and on at deeper levels;
   the checkbox remains manually adjustable until the zoom level changes.
   Tiles appear as they load, with up to six concurrent requests and a bounded cache;
@@ -103,7 +103,7 @@ Click the app icon in the header to reload the entry page and return the globe t
   Tile requests use the same browser-facing CARTO basemap key as Experiences.
   CARTO and OpenStreetMap usage terms apply; review provider limits before a high-traffic deployment.
   Web Mercator tiles stop at about 85.05° latitude, so the poles retain Earth imagery.
-  Tile levels are selected from the current field of view (up to provider level 19);
+  Tile levels are selected from the current field of view (up to provider level 20);
   the request budget can lower the level for wide views. No geocoding requests are needed.
 - Latitude/longitude are derived from the clicked point's position on the sphere; no external
   geocoding service is used.

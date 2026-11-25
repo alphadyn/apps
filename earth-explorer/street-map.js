@@ -3,6 +3,7 @@ import * as THREE from "three";
 const MAX_LATITUDE = 85.05112878;
 const TILE_LIMIT = 64;
 const TILE_SIZE = 512;
+const MAX_TILE_ZOOM = 20;
 const TILE_URL = "https://a.basemaps.cartocdn.com/rastertiles/voyager";
 const CARTO_KEY = "cb1_2w0f_1_82cba88eb21776b6335fa821";
 
@@ -88,7 +89,11 @@ export function createStreetMap(scene, camera, renderer, radius, status) {
     const latitudeScale = Math.max(0.08, Math.hypot(camera.position.x, camera.position.z) / camera.position.length());
     const pixels = renderer.domElement.clientHeight * renderer.getPixelRatio();
     const viewWidth = 2 * altitude * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
-    let zoom = THREE.MathUtils.clamp(Math.ceil(Math.log2(2 * Math.PI * radius * latitudeScale * pixels / (TILE_SIZE * viewWidth))), 0, 19);
+    let zoom = THREE.MathUtils.clamp(
+      Math.ceil(Math.log2(2 * Math.PI * radius * latitudeScale * pixels / (TILE_SIZE * viewWidth))),
+      0,
+      MAX_TILE_ZOOM
+    );
     while (zoom >= 0) {
       const coords = supported.map(({ lat, lon }) => tileCoordinates(lat, lon, zoom));
       const count = 2 ** zoom;
@@ -173,8 +178,8 @@ export function createStreetMap(scene, camera, renderer, radius, status) {
         ? "Some street tiles could not load. Toggle Streets off and on to retry."
         : polar
           ? "Street maps end at 85.05° latitude; polar areas retain Earth imagery."
-          : tiles[0]?.zoom === 19
-            ? "Street map on globe (level 19). Maximum map detail reached."
+          : tiles[0]?.zoom === MAX_TILE_ZOOM
+            ? `Street map on globe (level ${MAX_TILE_ZOOM}). Maximum map detail reached.`
             : `Street map on globe (level ${tiles[0]?.zoom ?? 0}). Zoom closer for more detail.`;
     }
     // Bound abandoned batches even while the user keeps rotating or zooming.

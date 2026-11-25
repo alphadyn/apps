@@ -23,6 +23,8 @@ const shareViewBtn = document.getElementById("shareViewBtn");
 const shareStatus = document.getElementById("shareStatus");
 const fullscreenBtn = document.getElementById("fullscreenBtn");
 const bordersLayer = document.getElementById("bordersLayer");
+const regionalBordersLayer = document.getElementById("regionalBordersLayer");
+const regionalBordersStatus = document.getElementById("regionalBordersStatus");
 const gridLayer = document.getElementById("gridLayer");
 const inspectModeBtn = document.getElementById("inspectModeBtn");
 const measureModeBtn = document.getElementById("measureModeBtn");
@@ -382,11 +384,19 @@ scene.add(atmosphereMesh);
 // Country boundary overlay, drawn just above the earth's surface
 const COUNTRY_BORDERS_URL =
   "https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json";
+const REGIONAL_BORDERS_URL =
+  "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_50m_admin_1_states_provinces_lines.geojson";
 const BORDER_RADIUS = GLOBE_RADIUS * 1.002;
+const REGIONAL_BORDER_RADIUS = GLOBE_RADIUS * 1.003;
 let borderMesh = null;
+let regionalBorderMesh = null;
 
 bordersLayer.addEventListener("change", () => {
   if (borderMesh) borderMesh.visible = bordersLayer.checked;
+});
+
+regionalBordersLayer.addEventListener("change", () => {
+  if (regionalBorderMesh) regionalBorderMesh.visible = regionalBordersLayer.checked;
 });
 
 // Reveal progressively finer coordinate lines as the camera approaches the globe.
@@ -440,14 +450,18 @@ gridLayer.addEventListener("change", updateCoordinateGrids);
 controls.addEventListener("change", updateCoordinateGrids);
 updateCoordinateGrids();
 
-function addRingSegments(ring, positions) {
-  for (let i = 0; i < ring.length - 1; i++) {
-    const [lon1, lat1] = ring[i];
-    const [lon2, lat2] = ring[i + 1];
-    const p1 = latLonToVector3(lat1, lon1, BORDER_RADIUS);
-    const p2 = latLonToVector3(lat2, lon2, BORDER_RADIUS);
+function addPathSegments(path, positions, radius) {
+  for (let i = 0; i < path.length - 1; i++) {
+    const [lon1, lat1] = path[i];
+    const [lon2, lat2] = path[i + 1];
+    const p1 = latLonToVector3(lat1, lon1, radius);
+    const p2 = latLonToVector3(lat2, lon2, radius);
     positions.push(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z);
   }
+}
+
+function addRingSegments(ring, positions) {
+  addPathSegments(ring, positions, BORDER_RADIUS);
 }
 
 async function loadCountryBorders() {
@@ -481,8 +495,46 @@ async function loadCountryBorders() {
   scene.add(borderMesh);
 }
 
+async function loadRegionalBorders() {
+  regionalBordersStatus.textContent = "Loading state and regional borders...";
+  const response = await fetch(REGIONAL_BORDERS_URL);
+  if (!response.ok) throw new Error(`Failed to fetch state and regional borders: ${response.status}`);
+  const geojson = await response.json();
+  if (!Array.isArray(geojson.features)) {
+    throw new Error("State and regional borders returned an invalid response.");
+  }
+
+  const positions = [];
+  for (const feature of geojson.features) {
+    const geometry = feature.geometry;
+    if (!geometry) continue;
+    if (geometry.type === "LineString") {
+      addPathSegments(geometry.coordinates, positions, REGIONAL_BORDER_RADIUS);
+    } else if (geometry.type === "MultiLineString") {
+      geometry.coordinates.forEach((line) => addPathSegments(line, positions, REGIONAL_BORDER_RADIUS));
+    }
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  const material = new THREE.LineBasicMaterial({
+    color: 0xe7f2ff,
+    transparent: true,
+    opacity: 0.78,
+  });
+  regionalBorderMesh = new THREE.LineSegments(geometry, material);
+  regionalBorderMesh.visible = regionalBordersLayer.checked;
+  scene.add(regionalBorderMesh);
+  regionalBordersStatus.textContent = "State and regional boundaries shown where available.";
+}
+
 loadCountryBorders().catch((error) => {
   console.warn("Country borders could not be loaded:", error);
+});
+
+loadRegionalBorders().catch((error) => {
+  console.error("State and regional borders could not be loaded:", error);
+  regionalBordersStatus.textContent = "State and regional borders are unavailable. Check your connection and try again.";
 });
 
 // --- Country lookup (point-in-polygon over the loaded GeoJSON) ------------

@@ -594,7 +594,7 @@ h1 {
   outline-offset: 3px;
 }
 
-:is(#streetMapStatus, #locationSearchStatus, .location-results):empty {
+:is(#regionalBordersStatus, #streetMapStatus, #locationSearchStatus, .location-results):empty {
   display: none;
 }
 
@@ -665,5 +665,499 @@ h1 {
   *::before,
   *::after {
     transition: none !important;
+  }
+}
+
+:root {
+  color-scheme: light;
+  --bg: #f2f4f6;
+  --panel-bg: rgba(255, 255, 255, 0.94);
+  --panel-border: #e6e8eb;
+  --text-primary: #1d1d1f;
+  --text-muted: #73777d;
+  --accent: #0878f9;
+  --accent-soft: rgba(0, 122, 255, 0.08);
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 75% 4%, rgba(201, 222, 244, 0.45), transparent 38%),
+    #f2f4f6;
+  color: var(--text-primary);
+}
+
+.app-shell {
+  width: min(100%, 1720px);
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 18px 24px 14px;
+  gap: 14px;
+}
+
+.topbar {
+  min-height: 62px;
+  flex-wrap: nowrap;
+  padding: 0 2px 12px;
+  border-bottom: 1px solid rgba(30, 45, 60, 0.09);
+}
+
+.brand {
+  gap: 11px;
+}
+
+.brand-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(27, 46, 67, 0.16);
+}
+
+.eyebrow {
+  color: #777e86;
+  letter-spacing: 0.08em;
+}
+
+h1 {
+  font-size: 1.15rem;
+  letter-spacing: -0.025em;
+}
+
+.brand-home-link:hover {
+  color: var(--accent);
+}
+
+.mode-toggle {
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid rgba(30, 45, 60, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 2px 8px rgba(35, 54, 72, 0.06);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.mode-btn {
+  min-height: 36px;
+  padding: 8px 15px;
+  border-radius: 999px;
+  color: #62676d;
+  font-size: 0.8rem;
+}
+
+.mode-btn.active {
+  background: #fff;
+  color: #146fd1;
+  box-shadow: 0 1px 5px rgba(31, 51, 72, 0.14);
+}
+
+.app-grid {
+  flex: 1;
+  min-height: 0;
+  grid-template-columns: 330px minmax(0, 1fr);
+  grid-template-areas: "sidebar map";
+  gap: 16px;
+}
+
+.globe-panel {
+  grid-area: map;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.86);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.57);
+  box-shadow: 0 12px 36px rgba(39, 61, 83, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.workspace-heading {
+  min-height: 42px;
+  margin: 0 4px 8px;
+}
+
+.workspace-heading .eyebrow {
+  margin-bottom: 0;
+}
+
+.workspace-heading h2 {
+  font-size: 0.96rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.workspace-badge {
+  padding: 5px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.66);
+  color: #6a7077;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+#globeContainer {
+  flex: 1;
+  min-height: 360px;
+  aspect-ratio: auto;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 15px;
+  background: #dce8f1;
+  box-shadow: inset 0 1px 10px rgba(18, 38, 58, 0.08);
+}
+
+#globeContainer:fullscreen,
+#globeContainer:-webkit-full-screen,
+#globeContainer.is-fullscreen {
+  border-radius: 0;
+}
+
+.zoom-controls,
+.fullscreen-btn {
+  top: auto;
+  bottom: 14px;
+}
+
+.zoom-controls {
+  left: auto;
+  right: 14px;
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid rgba(32, 49, 66, 0.12);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 3px 14px rgba(22, 38, 56, 0.18);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.fullscreen-btn {
+  right: 14px;
+  bottom: 206px;
+  border-radius: 12px !important;
+}
+
+.zoom-controls button,
+.fullscreen-btn,
+.share-view-btn {
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.94);
+  color: #333a42;
+  box-shadow: none;
+}
+
+.zoom-controls button + button {
+  border-top: 1px solid rgba(32, 49, 66, 0.1);
+}
+
+.zoom-controls button:hover:not(:disabled),
+.zoom-controls button:focus-visible,
+.fullscreen-btn:hover:not(:disabled),
+.fullscreen-btn:focus-visible,
+.share-view-btn:hover:not(:disabled),
+.share-view-btn:focus-visible {
+  border-color: transparent;
+  background: #f0f6fc;
+  color: #086bd6;
+}
+
+.map-layers {
+  gap: 7px;
+  margin: 9px 4px 0;
+  padding-top: 9px;
+  border-top: 1px solid rgba(30, 45, 60, 0.1);
+  color: #343a40;
+}
+
+.layer-heading {
+  color: #747a81;
+  letter-spacing: 0.06em;
+}
+
+.map-layers label {
+  padding: 6px 10px;
+  border-color: rgba(44, 60, 76, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.map-layers label:has(input:checked) {
+  border-color: rgba(0, 122, 255, 0.28);
+  background: #eaf4ff;
+  color: #086bd6;
+}
+
+.map-layers input {
+  accent-color: var(--accent);
+}
+
+.globe-guide {
+  margin: 7px 4px 0;
+  color: #72777d;
+}
+
+.globe-guide strong {
+  color: #454b51;
+}
+
+.hint {
+  color: #747a81;
+}
+
+.side-panel {
+  grid-area: sidebar;
+  gap: 12px;
+  overflow-y: auto;
+  padding: 0 2px 2px 0;
+}
+
+.panel {
+  padding: 19px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 19px;
+  background: var(--panel-bg);
+  box-shadow: 0 6px 22px rgba(39, 61, 83, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.panel .eyebrow {
+  color: #718094;
+}
+
+.panel h2 {
+  margin-bottom: 15px;
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+}
+
+.location-search label {
+  color: #747a81;
+}
+
+.location-search input {
+  padding: 12px 14px;
+  border: 1px solid #e6e8eb;
+  border-radius: 12px;
+  background: #f4f5f7;
+  color: #202327;
+}
+
+.location-search input::placeholder {
+  color: #91969d;
+}
+
+.location-result {
+  padding: 11px 12px;
+  border: 0;
+  border-radius: 11px;
+  background: #f2f6fa;
+  color: #252a30;
+}
+
+.location-result:hover,
+.location-result:focus-visible,
+.location-search input:focus-visible {
+  border-color: #9dcaff;
+  background: #edf6ff;
+}
+
+.side-panel .hint a,
+.wiki-link {
+  color: #0878f9;
+}
+
+.empty-state {
+  border: 1px solid #edf0f3;
+  border-radius: 13px;
+  background: #f7f8f9;
+  color: #73777d;
+}
+
+.empty-icon {
+  stroke: #1481f8;
+}
+
+.empty-state strong {
+  color: #252a30;
+}
+
+.details-list dt,
+.point-label,
+.distance-label {
+  color: #73777d;
+}
+
+.wiki-link {
+  border-color: #e1e7ed;
+  border-radius: 10px;
+}
+
+.wiki-link:hover {
+  border-color: #9dcaff;
+  background: #edf6ff;
+}
+
+.street-map-credit {
+  background: rgba(255, 255, 255, 0.9);
+  color: #3e454c;
+  box-shadow: 0 1px 5px rgba(20, 32, 45, 0.16);
+}
+
+.street-map-credit a {
+  color: #066fd9;
+}
+
+.point-list li {
+  background: #f2f6fa;
+  color: #252a30;
+}
+
+.distance-result {
+  border-color: #d8e8f9;
+  border-radius: 12px;
+  background: #f6faff;
+}
+
+.distance-value {
+  color: #0878f9;
+}
+
+.secondary-btn {
+  border-color: #dfe3e8;
+  border-radius: 11px;
+  color: #30363c;
+}
+
+.secondary-btn:hover {
+  border-color: #9dcaff;
+  background: #edf6ff;
+}
+
+.primary-btn,
+.primary-btn:hover:not(:disabled) {
+  border-color: #0878f9;
+  background: #0878f9;
+  color: #fff;
+}
+
+:is(button, a, input):focus-visible {
+  outline-color: #1683ff;
+}
+
+.app-footer {
+  color: #7a8087;
+  font-size: 0.66rem;
+}
+
+@media (max-width: 980px) {
+  .app-grid {
+    grid-template-columns: minmax(250px, 34vw) minmax(0, 1fr);
+    grid-template-areas: "sidebar map";
+  }
+}
+
+@media (max-width: 860px) {
+  .app-shell {
+    min-height: 100dvh;
+    padding: 14px;
+  }
+
+  .app-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "sidebar"
+      "map";
+  }
+
+  .side-panel {
+    overflow: visible;
+  }
+
+  #globeContainer {
+    flex: none;
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-shell {
+    padding: 12px 10px;
+    gap: 10px;
+  }
+
+  .topbar {
+    min-height: 52px;
+    gap: 8px;
+    padding-bottom: 8px;
+  }
+
+  .brand {
+    gap: 8px;
+  }
+
+  .brand-icon {
+    width: 34px;
+    height: 34px;
+  }
+
+  h1 {
+    font-size: 1rem;
+  }
+
+  .brand .eyebrow {
+    font-size: 0.55rem;
+  }
+
+  .mode-toggle {
+    width: auto;
+    flex-shrink: 0;
+  }
+
+  .mode-btn {
+    flex: initial;
+    min-height: 34px;
+    padding: 7px 10px;
+    font-size: 0.7rem;
+  }
+
+  .globe-panel {
+    padding: 9px;
+    border-radius: 18px;
+  }
+
+  .panel {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .map-layers {
+    margin-inline: 1px;
+  }
+
+  .map-layers .layer-heading {
+    width: auto;
+  }
+
+  .map-layers label {
+    padding: 6px 8px;
+    font-size: 0.72rem;
+  }
+
+  .globe-guide {
+    gap: 6px 12px;
+    font-size: 0.65rem;
+  }
+
+  .app-footer {
+    font-size: 0.6rem;
   }
 }

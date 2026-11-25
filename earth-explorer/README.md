@@ -9,7 +9,7 @@ latitude/longitude of any point on its surface, and measure the great-circle (su
 distance between any two points you click.
 
 ## Features
-- **Refined dark atlas interface** with a framed globe workspace, coordinated layer
+- **Refined, light map interface** with a map-first globe workspace, coordinated layer
   controls, responsive search and detail cards, and visible keyboard focus indicators.
 - **Location search** for cities, addresses, and landmarks using OpenStreetMap's
   Nominatim service. Submit a search and choose a result to smoothly center the globe,
@@ -29,6 +29,7 @@ distance between any two points you click.
   toggle is also available, with a viewport-sized fallback on iPhones and other browsers
   without native fullscreen (press Esc or tap the button again to exit)
 - **Optional national borders** overlaid on the globe surface, loaded from a public GeoJSON dataset
+- **State and regional boundaries** shown on the globe from Natural Earth's global admin-1 boundary dataset; coverage varies by country and can be toggled independently of national borders
 - **Street map on the globe**: enable **Streets** to project CARTO Voyager basemap tiles
   based on OpenStreetMap onto the Earth's curved surface. Tiles follow globe rotation
   and progressively increase in detail as you zoom closer, using 512px retina tiles
@@ -73,7 +74,7 @@ Click the app icon in the header to reload the entry page and return the globe t
 3. Use **Reset Points** to clear the current measurement.
 4. Use **+**, **−**, or the scroll wheel/pinch gesture to zoom. The circular arrow resets
   the zoom and globe orientation, returning to the view centered on Africa. Use the checkboxes below the globe to show or hide
-  national borders, coordinate grid, or streets. More grid lines and mapped place names appear as you zoom in.
+  national borders, state and regional borders, coordinate grid, or streets. More grid lines and mapped place names appear as you zoom in.
 5. Double-tap (on touchscreens) or double-click a location to rotate it into the center and
    zoom in without selecting a point. Use the fullscreen button in the upper-right corner
    of the globe to expand it; click again or press Esc to exit. When native fullscreen
@@ -110,6 +111,10 @@ Click the app icon in the header to reload the entry page and return the globe t
   multiplied by Earth's mean radius, 6371 km).
 - Country boundaries are loaded from a public GeoJSON dataset of national borders at page load
   and rendered as line segments just above the globe surface.
+- State and regional boundary lines are loaded from
+  [Natural Earth's 1:50m admin-1 dataset](https://github.com/nvkelso/natural-earth-vector/blob/master/geojson/ne_50m_admin_1_states_provinces_lines.geojson)
+  at page load and rendered as a separate, independently toggled overlay. Coverage depends on
+  the country and source data.
 - The same GeoJSON dataset is used to determine which country (if any) a clicked point falls
   within, via a point-in-polygon test; ocean/unclaimed points show no country or Wikipedia link.
 - Country flags are rendered as Unicode flag emoji from a built-in country-name-to-ISO-code

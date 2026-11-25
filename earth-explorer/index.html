@@ -38,9 +38,9 @@
       name="twitter:image:alt"
       content="Earth Explorer dark atlas card with a globe and compass, featuring 3D exploration, street maps, and search."
     >
-    <meta name="theme-color" content="#101419" />
+    <meta name="theme-color" content="#f4f5f7" />
     <link rel="icon" href="app-icon.svg?v=2" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=15" />
+    <link rel="stylesheet" href="styles.css?v=16" />
   </head>
   <body>
     <div class="app-shell">
@@ -64,10 +64,10 @@
         <section class="globe-panel">
           <div class="workspace-heading">
             <div>
-              <p class="eyebrow">Explore the world</p>
-              <h2>Globe workspace</h2>
+              <p class="eyebrow">World map</p>
+              <h2>Explore the world</h2>
             </div>
-            <span class="workspace-badge">3D atlas</span>
+            <span class="workspace-badge">Interactive globe</span>
           </div>
           <div id="globeContainer">
             <div id="streetMapCredit" class="street-map-credit hidden">
@@ -102,9 +102,11 @@
           <div class="map-layers" role="group" aria-label="Map layers">
             <span class="layer-heading">Layers</span>
             <label><input id="bordersLayer" type="checkbox" checked /> National borders</label>
+            <label><input id="regionalBordersLayer" type="checkbox" checked /> State &amp; regional borders</label>
             <label><input id="gridLayer" type="checkbox" checked /> Coordinate grid</label>
             <label><input id="streetsLayer" type="checkbox" /> Streets</label>
           </div>
+          <p id="regionalBordersStatus" class="hint" role="status" aria-live="polite"></p>
           <p id="streetMapStatus" class="hint" role="status"></p>
         </section>
 
@@ -179,6 +181,6 @@
         }
       }
     </script>
-    <script type="module" src="app.js?v=27"></script>
+    <script type="module" src="app.js?v=28"></script>
   </body>
 </html>

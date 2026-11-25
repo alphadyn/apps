@@ -137,7 +137,9 @@ export function openingSchedule(project, units = "metric") {
       type: feature.type,
       host: room ? `${floor.name} / ${room.name}` : "Property boundary",
       side: feature.side,
-      dimensions: `${formatLength(feature.width, units)} × ${formatLength(feature.height, units)}`,
+      dimensions: units === "imperial"
+        ? `${formatLength(feature.width, units)} × ${formatLength(feature.height, units)}`
+        : `${Number(fromMeters(feature.width, units).toFixed(2)).toString()} × ${formatLength(feature.height, units)}`,
       sill: formatLength(feature.sill, units),
       offset: formatLength(feature.offset, units),
       specification: `${feature.style} · ${feature.material} · ${feature.glazing} glazing`,

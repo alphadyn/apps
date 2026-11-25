@@ -1,4 +1,4 @@
-(async () => {
+if (typeof document !== "undefined") (async () => {
   const results = document.getElementById('results');
   const lines = [];
   let failures = 0;

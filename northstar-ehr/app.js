@@ -1386,10 +1386,18 @@ function refreshSeedLabels(patient) {
   const seed = allInitialPatients.find((item) => item.id === patient.id && item.mrn === patient.mrn);
   if (!seed) return patient;
   const seedReports = new Map((seed.imaging || []).map((record) => [record.id, record.report]));
-  const updateNote = (note) => note.type === "Fictional sample history" &&
-    seed.notes?.some((original) => original.type === note.type && original.title === note.title &&
-      original.summary === (note.summary ?? note.sections?.summary))
-    ? { ...note, type: "Medical history" } : note;
+  const updateNote = (note) => {
+    const summary = note.summary ?? note.sections?.summary;
+    const original = seed.notes?.find((candidate) => candidate.title === note.title);
+    if (!original) return note;
+    if (note.type === "Fictional sample history" && original.type === note.type && original.summary === summary) {
+      return { ...note, type: "Medical history" };
+    }
+    if (original.summary !== summary && /fictional|user-entered/i.test(summary || "")) {
+      return { ...note, type: "Fictional sample history" };
+    }
+    return note;
+  };
   return {
     ...patient,
     labs: (patient.labs || []).flatMap((lab) => {
@@ -3782,7 +3790,7 @@ function renderPatientDetail() {
           </article>`).join("") : '<p class="empty-state">No imaging or radiology results for this patient.</p>'}
       </section>
       <section class="mini-card" aria-labelledby="radiologyExamplesHeading">
-        <h4 id="radiologyExamplesHeading">Reference images</h4>
+        <h4 id="radiologyExamplesHeading">Reference images (not patient scans)</h4>
         <div class="radiology-examples">
           ${radiologyReferenceImages.map((image) => `
             <figure class="imaging-preview">

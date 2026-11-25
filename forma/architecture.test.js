@@ -165,7 +165,10 @@ test("rooftop railings include every exposed perimeter edge at every camera angl
     const perimeter = edges.reduce((sum, edge) => sum + edge.to - edge.from, 0);
     assert.equal(perimeter, id === "roof-garden-family-home" ? 42.5 : 45, `${id}: railing covers the entire exposed perimeter except the enclosed access lobby`);
     const house = renderPropertyView(design, { view: "3d" }).markup;
-    assert.equal((house.match(/data-terrace-railing="true"/g) || []).length, edges.length);
+    const lowerRailingEdges = design.floors.slice(0, -1).flatMap(floor =>
+      exteriorWalls(floor.rooms, ["north", "east", "south", "west"]).filter(wall => wall.room.railing)
+    ).length;
+    assert.equal((house.match(/data-terrace-railing="true"/g) || []).length, edges.length + lowerRailingEdges);
   }
 });
 

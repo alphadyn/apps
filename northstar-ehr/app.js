@@ -5371,18 +5371,21 @@ function renderProfilesView(container) {
     </section>` : `
     <div class="profile-header staff-profile-header">
       ${renderStaffAvatar(profile)}
-      <div><p class="eyebrow">Staff profile</p><h3>${escapeHtml(formatStaffProfileName(profile))}</h3><p>${escapeHtml(profile.title)} · ${escapeHtml(profile.status)}</p></div>
+      <div class="staff-profile-identity"><p class="eyebrow">Staff profile</p><h3>${escapeHtml(formatStaffProfileName(profile))}</h3><p>${escapeHtml(profile.title)} · ${escapeHtml(profile.status)}</p></div>
     </div>
-    <div class="profile-facts">
-      <article><span>Personnel type</span><strong>${escapeHtml(profile.role)}</strong></article>
-      <article><span>Department</span><strong>${escapeHtml(profile.department)}</strong></article>
-      <article><span>Work location</span><strong>${escapeHtml(profile.location)}</strong></article>
-      <article><span>Contact</span><strong>${escapeHtml(profile.email || "Not recorded")}</strong></article>
-      <article><span>Patients on care team</span><strong>${patients.filter((patient) => patient.clinical.attending === profile.name || patient.clinical.assignedNurse === profile.name).length}</strong></article>
-      <article><span>System access</span><strong>Directory profile only · no account linked</strong></article>
-    </div>`;
+    <div class="staff-profile-selector">${selector}</div>
+    <section class="staff-profile-section" aria-labelledby="staffProfileDetailsHeading">
+      <h4 id="staffProfileDetailsHeading">Workforce details</h4>
+      <dl class="staff-profile-facts">
+        <div><dt>Personnel type</dt><dd>${escapeHtml(profile.role)}</dd></div>
+        <div><dt>Department</dt><dd>${escapeHtml(profile.department)}</dd></div>
+        <div><dt>Work location</dt><dd>${escapeHtml(profile.location)}</dd></div>
+        <div><dt>Contact</dt><dd>${escapeHtml(profile.email || "Not recorded")}</dd></div>
+        <div><dt>Patients on care team</dt><dd>${patients.filter((patient) => patient.clinical.attending === profile.name || patient.clinical.assignedNurse === profile.name).length}</dd></div>
+        <div><dt>Demo account</dt><dd>${demoAccounts.some((account) => account.staffProfileId === profile.id) ? "Linked demo account" : "No demo account linked"}</dd></div>
+      </dl>
+    </section>`;
   container.innerHTML = `<div class="panel profile-panel${isPatient ? " patient-profile-panel" : ""}">
-    ${isPatient ? "" : `<div class="panel-header"><div><p class="eyebrow">People &amp; workforce</p><h3>Staff profile</h3></div>${selector}</div>`}
     ${profileBody}
   </div>`;
   if (profileType === "staff") container.querySelector("#profileSelector").value = `staff:${selectedProfile.id}`;

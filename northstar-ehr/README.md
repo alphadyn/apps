@@ -30,6 +30,8 @@ touch targets on mobile devices. Outpatient scheduling and appointment cards
 adapt to the available workspace width, including when the sidebar is open.
 Patient profiles group care and clinical information into responsive summaries,
 with chart and order actions kept alongside the patient's identity.
+Staff profiles use a responsive workforce summary and indicate whether a
+directory entry is linked to a demo account, not real system authorization.
 
 ## Brand and link preview
 

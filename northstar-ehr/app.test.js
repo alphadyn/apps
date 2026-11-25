@@ -1841,6 +1841,21 @@ test("patient profiles use the current patient and retain staff-only selection",
   assert.match(selector.value, /^staff:/);
 });
 
+test("staff profiles show workforce details and actual demo account links", () => {
+  const { context } = setup();
+  const selector = { value: "" };
+  context.container = { innerHTML: "", querySelector: () => selector };
+  vm.runInContext('currentView = "profiles"; selectedProfile = {type: "staff", id: "staff-joe-spartan"}; renderProfilesView(container)', context);
+  assert.match(context.container.innerHTML, /Joe Spartan, MD/);
+  assert.match(context.container.innerHTML, /Workforce details/);
+  assert.match(context.container.innerHTML, /<dt>Demo account<\/dt><dd>Linked demo account<\/dd>/);
+  assert.match(context.container.innerHTML, /<dt>Patients on care team<\/dt><dd>\d+<\/dd>/);
+  assert.equal(selector.value, "staff:staff-joe-spartan");
+  vm.runInContext('selectedProfile = {type: "staff", id: "staff-amir-hassan"}; renderProfilesView(container)', context);
+  assert.match(context.container.innerHTML, /<dt>Demo account<\/dt><dd>No demo account linked<\/dd>/);
+  assert.equal(selector.value, "staff:staff-amir-hassan");
+});
+
 test("patient workflow views hide the worklist while the standalone chart retains it", () => {
   const { context } = setup();
   const states = {};

@@ -2233,20 +2233,14 @@ button.stat-card {
   font-size: 0.76rem;
 }
 
-.directory-facts,
-.profile-facts {
+.directory-facts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 10px;
   margin: 14px 0;
 }
 
-.profile-panel .profile-facts {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.directory-facts > div,
-.profile-facts > article {
+.directory-facts > div {
   min-width: 0;
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -2254,15 +2248,13 @@ button.stat-card {
   background: #fff;
 }
 
-.directory-facts dt,
-.profile-facts span {
+.directory-facts dt {
   display: block;
   color: var(--muted);
   font-size: 0.76rem;
 }
 
-.directory-facts dd,
-.profile-facts strong {
+.directory-facts dd {
   display: block;
   margin: 3px 0 0;
   overflow-wrap: anywhere;
@@ -2523,11 +2515,6 @@ button.stat-card {
   font-weight: 650;
 }
 
-.profile-panel .panel-header {
-  align-items: end;
-  margin-bottom: 12px;
-}
-
 .my-patients-list {
   display: grid;
   gap: 12px;
@@ -2604,6 +2591,23 @@ button.stat-card {
   border-radius: 50%;
 }
 
+.staff-profile-header {
+  padding: 0 0 20px;
+}
+
+.staff-profile-identity {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.staff-profile-selector {
+  margin-top: 20px;
+}
+
+.profile-selector select {
+  width: 100%;
+}
+
 .profile-header h3 {
   margin: 0;
 }
@@ -2643,23 +2647,27 @@ button.stat-card {
   margin-left: 0;
 }
 
-.patient-profile-section {
+.patient-profile-section,
+.staff-profile-section {
   margin-top: 20px;
 }
 
-.patient-profile-section h4 {
+.patient-profile-section h4,
+.staff-profile-section h4 {
   margin: 0 0 10px;
   font-size: 0.9rem;
 }
 
-.patient-profile-facts {
+.patient-profile-facts,
+.staff-profile-facts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
   gap: 10px;
   margin: 0;
 }
 
-.patient-profile-facts > div {
+.patient-profile-facts > div,
+.staff-profile-facts > div {
   min-width: 0;
   padding: 12px;
   border: 1px solid var(--border);
@@ -2667,13 +2675,15 @@ button.stat-card {
   background: #f8fafb;
 }
 
-.patient-profile-facts dt {
+.patient-profile-facts dt,
+.staff-profile-facts dt {
   color: #526277;
   font-size: 0.76rem;
   font-weight: 600;
 }
 
-.patient-profile-facts dd {
+.patient-profile-facts dd,
+.staff-profile-facts dd {
   margin: 4px 0 0;
   font-size: 0.9rem;
   overflow-wrap: anywhere;
@@ -4453,10 +4463,6 @@ textarea:focus-visible {
 }
 
 @media (max-width: 1080px) {
-  .profile-panel .profile-facts {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .stats-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -4698,10 +4704,6 @@ textarea:focus-visible {
 }
 
 @media (max-width: 520px) {
-  .profile-panel .profile-facts {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .main-panel {
     min-width: 0;
     padding: 16px 12px 24px;

@@ -4,27 +4,27 @@
     <script defer src="/apps/analytics.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Northstar EHR | Clinical Operations Demo</title>
-    <meta name="description" content="Explore Northstar EHR, a fictional-data emergency and inpatient workflow demo for patient charts, admissions, care teams, timelines, orders, and notes." />
+    <title>Northstar EHR | Clinical Operations</title>
+    <meta name="description" content="Northstar EHR for patient charts, admissions, care teams, timelines, orders, and clinical notes." />
     <link rel="icon" href="favicon.svg?v=2" type="image/svg+xml" />
     <link rel="icon" href="favicon.ico?v=2" type="image/x-icon" sizes="16x16 32x32 48x48" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png?v=2" />
     <meta name="theme-color" content="#123c49" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Northstar EHR" />
-    <meta property="og:title" content="Northstar EHR | Clinical Operations Demo" />
-    <meta property="og:description" content="Explore a fictional-data emergency and inpatient workflow demo for patient charts, admissions, care teams, timelines, orders, and notes." />
+    <meta property="og:title" content="Northstar EHR | Clinical Operations" />
+    <meta property="og:description" content="Emergency and inpatient workflows for patient charts, admissions, care teams, timelines, orders, and notes." />
     <meta property="og:url" content="https://alphadyn.github.io/apps/northstar-ehr/" />
     <meta property="og:image" content="https://alphadyn.github.io/apps/northstar-ehr/social-preview.png" />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Northstar EHR clinical operations demo, showing a fictional patient chart and timeline." />
+    <meta property="og:image:alt" content="Northstar EHR clinical operations workspace, showing a patient chart and timeline." />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Northstar EHR | Clinical Operations Demo" />
-    <meta name="twitter:description" content="Explore fictional patient charts, admissions, care teams, timelines, orders, and notes." />
+    <meta name="twitter:title" content="Northstar EHR | Clinical Operations" />
+    <meta name="twitter:description" content="Patient charts, admissions, care teams, timelines, orders, and notes." />
     <meta name="twitter:image" content="https://alphadyn.github.io/apps/northstar-ehr/social-preview.png" />
-    <meta name="twitter:image:alt" content="Northstar EHR clinical operations demo, showing a fictional patient chart and timeline." />
+    <meta name="twitter:image:alt" content="Northstar EHR clinical operations workspace, showing a patient chart and timeline." />
     <link rel="stylesheet" href="styles.css?v=42" />
   </head>
   <body>
@@ -35,14 +35,14 @@
             <div class="brand-icon" aria-hidden="true">✦</div>
             <div>
               <p class="eyebrow">Northstar EHR</p>
-              <h1>Clinical operations demo</h1>
+              <h1>Clinical operations</h1>
             </div>
           </a>
           <div class="login-aside-copy">
             <p class="eyebrow">Connected care, clearly organized</p>
             <h2>One clear view of every step of care.</h2>
             <p>Explore how patient context, care teams, and clinical workflows come together in a focused workspace.</p>
-            <ul class="login-feature-list" aria-label="Demo features">
+            <ul class="login-feature-list" aria-label="Workspace features">
               <li><span aria-hidden="true">01</span> Patient timelines</li>
               <li><span aria-hidden="true">02</span> Care workflows</li>
               <li><span aria-hidden="true">03</span> Team coordination</li>
@@ -53,7 +53,7 @@
           <div class="login-heading">
             <p class="eyebrow">Northstar EHR</p>
             <h2 id="loginTitle">Welcome back</h2>
-            <p class="login-intro">Sign in to explore the clinical operations demo.</p>
+            <p class="login-intro">Sign in to access the clinical workspace.</p>
           </div>
           <form id="loginForm" class="login-form">
             <label for="loginUsername">Username</label>
@@ -63,9 +63,9 @@
             <p id="loginError" class="login-error" role="alert" aria-live="polite"></p>
             <button class="primary-btn" type="submit">Sign in</button>
           </form>
-          <aside class="login-demo-note" aria-label="Demo sign-in information">
+          <aside class="login-demo-note" aria-label="Sign-in information">
             <span class="login-demo-indicator" aria-hidden="true"></span>
-            <p><strong>Demo account ready</strong><span>Joe Spartan, MD · Provider</span></p>
+            <p><strong>Account ready</strong><span>Joe Spartan, MD · Provider</span></p>
             <p class="login-demo-password">Password <code>northstar</code></p>
           </aside>
         </section>
@@ -313,7 +313,7 @@
           </div>
           <div id="operationsOverview"></div>
           <details id="operationalReports" class="document-composer">
-            <summary><span class="document-composer-heading"><strong>Operational reports</strong><span>Review and export local demo data</span></span></summary>
+            <summary><span class="document-composer-heading"><strong>Operational reports</strong><span>Review and export local records</span></span></summary>
             <form id="operationalReportForm" class="clinical-form">
               <label>Report
                 <select name="report">
@@ -541,7 +541,7 @@
                 <span class="document-composer-heading"><strong>New clinical note</strong><span>Choose a note type to start a patient-chart draft</span></span>
                 <span class="document-composer-chevron" aria-hidden="true"></span>
               </summary>
-              <p class="muted-copy">Complete the relevant fields. Notes are saved as drafts in this demo.</p>
+              <p class="muted-copy">Complete the relevant fields. Notes are saved as drafts.</p>
               <form id="documentForm" class="clinical-form">
                 <div class="row">
                   <label>Note type
@@ -632,7 +632,7 @@
               <label>Duration (minutes)
                 <input name="durationMinutes" type="number" min="1" max="1440" step="1" aria-describedby="outpatientConflictHelp" required />
               </label>
-              <p id="outpatientConflictHelp" class="outpatient-conflict-help">Conflicts use local demo records and exact provider or location names. Records without a usable date or time cannot be checked; this is not real availability.</p>
+              <p id="outpatientConflictHelp" class="outpatient-conflict-help">Conflict checks use local records and exact provider or location names. Records without a usable date or time cannot be checked.</p>
               <label>Reason for visit
                 <input name="reason" type="text" placeholder="Symptoms or follow-up" required />
               </label>

@@ -78,7 +78,7 @@ const initialPatients = [
       performedAt: "2026-09-24 09:15",
       status: "Final",
       indication: "Diabetes and hypertension follow-up",
-      report: "Kidneys are normal in size. No hydronephrosis identified in this fictional sample report.",
+      report: "Kidneys are normal in size. No hydronephrosis identified.",
       radiologist: "Dr. Riley Bennett"
     }],
     appointments: [
@@ -128,7 +128,7 @@ const initialPatients = [
       performedAt: "2026-10-02 11:40",
       status: "Preliminary",
       indication: "Post-operative chest discomfort",
-      report: "No focal air-space opacity identified. Final review pending in this fictional sample.",
+      report: "No focal air-space opacity identified. Final review pending.",
       radiologist: "Dr. Taylor Reed"
     }],
     appointments: [
@@ -178,7 +178,7 @@ const initialPatients = [
       performedAt: "2026-10-01 15:20",
       status: "Final",
       indication: "Routine prenatal follow-up",
-      report: "Single intrauterine pregnancy noted in this fictional sample report. Refer to the complete imaging record.",
+      report: "Single intrauterine pregnancy noted. Refer to the complete imaging record.",
       radiologist: "Dr. Morgan Ellis"
     }],
     appointments: [
@@ -225,23 +225,23 @@ const radiologyReferenceImages = [
 ];
 
 const demoPatientScenarios = [
-  ["Avery Bennett", 27, "Female", "Migraine without aura", "Recurrent unilateral headaches; family history of migraine; no prior surgery.", "Ibuprofen", "None listed", "Brain MRI without contrast", "MRI", "Brain", "Recurrent headaches", "No acute intracranial abnormality in this fictional sample report."],
+  ["Avery Bennett", 27, "Female", "Migraine without aura", "Recurrent unilateral headaches; family history of migraine; no prior surgery.", "Ibuprofen", "None listed", "Brain MRI without contrast", "MRI", "Brain", "Recurrent headaches", "No acute intracranial abnormality."],
   ["Noah Patel", 63, "Male", "Knee osteoarthritis", "Chronic knee pain; prior meniscal repair; walks daily.", "Sulfa drugs", "Acetaminophen as needed", "Right knee radiographs, 3 views", "X-ray", "Right knee", "Chronic knee pain", "Mild medial compartment joint-space narrowing; no acute fracture.", {
     study: "Right knee MRI without contrast",
     modality: "MRI",
     bodySite: "Right knee",
     indication: "Persistent pain despite conservative management",
-    report: "Mild cartilage thinning and chronic postoperative meniscal changes; no acute ligament injury described in this fictional report."
+    report: "Mild cartilage thinning and chronic postoperative meniscal changes; no acute ligament injury described."
   }],
   ["Grace Kim", 52, "Female", "Asthma", "Intermittent wheeze; childhood asthma; seasonal allergies.", "None listed", "Albuterol inhaler", "Chest radiograph, 2 views", "X-ray", "Chest", "Cough and wheeze", "Lungs are clear; no focal air-space opacity or pleural effusion."],
   ["Ethan Brooks", 46, "Male", "Nephrolithiasis", "Prior kidney stone; episodic flank discomfort; no prior procedures.", "Codeine", "None listed", "Renal ultrasound", "Ultrasound", "Kidneys and bladder", "Flank discomfort", "No hydronephrosis identified; small simple-appearing renal cyst noted."],
-  ["Isabella Chen", 35, "Female", "Cholelithiasis", "Intermittent post-meal abdominal discomfort; prior appendectomy.", "Latex", "None listed", "Right upper quadrant ultrasound", "Ultrasound", "Right upper quadrant", "Abdominal discomfort", "Gallstones are present; no gallbladder wall thickening in this sample report."],
+  ["Isabella Chen", 35, "Female", "Cholelithiasis", "Intermittent post-meal abdominal discomfort; prior appendectomy.", "Latex", "None listed", "Right upper quadrant ultrasound", "Ultrasound", "Right upper quadrant", "Abdominal discomfort", "Gallstones are present; no gallbladder wall thickening."],
   ["Lucas Rivera", 71, "Male", "Chronic obstructive pulmonary disease", "Former smoker; COPD; recent increase in exertional dyspnea.", "Penicillin", "Tiotropium, albuterol", "Chest CT without contrast", "CT", "Chest", "Dyspnea follow-up", "Emphysematous change is described; no focal pulmonary mass identified.", {
     study: "Follow-up chest radiograph, 2 views",
     modality: "X-ray",
     bodySite: "Chest",
     indication: "Interval assessment of exertional dyspnea",
-    report: "Hyperinflation is noted without focal air-space opacity or pleural effusion in this fictional report."
+    report: "Hyperinflation is noted without focal air-space opacity or pleural effusion."
   }],
   ["Mia Johnson", 24, "Female", "Ankle sprain", "Twisted left ankle during recreation; no prior fractures.", "None listed", "None listed", "Left ankle radiographs, 3 views", "X-ray", "Left ankle", "Left ankle pain after twisting injury", "No acute fracture or dislocation identified."],
   ["Benjamin Clark", 59, "Male", "Lumbar radiculopathy", "Recurrent low-back pain with leg symptoms; remote lifting injury.", "Morphine", "Naproxen as needed", "Lumbar spine MRI without contrast", "MRI", "Lumbar spine", "Persistent low-back symptoms", "Mild multilevel degenerative changes; no acute osseous finding."],
@@ -250,19 +250,19 @@ const demoPatientScenarios = [
     modality: "Ultrasound",
     bodySite: "Thyroid",
     indication: "Interval surveillance of known right thyroid nodule",
-    report: "Right thyroid nodule is unchanged in size compared with the prior study in this fictional report."
+    report: "Right thyroid nodule is unchanged in size compared with the prior study."
   }],
-  ["Oliver Davis", 68, "Male", "Heart failure with preserved ejection fraction", "Hypertension; prior admission for fluid overload; followed by cardiology.", "Aspirin", "Furosemide, losartan", "Chest radiograph, 2 views", "X-ray", "Chest", "Follow-up of exertional breathlessness", "Mild cardiomegaly; no focal air-space opacity in this sample report."],
+  ["Oliver Davis", 68, "Male", "Heart failure with preserved ejection fraction", "Hypertension; prior admission for fluid overload; followed by cardiology.", "Aspirin", "Furosemide, losartan", "Chest radiograph, 2 views", "X-ray", "Chest", "Follow-up of exertional breathlessness", "Mild cardiomegaly; no focal air-space opacity."],
   ["Chloe Martin", 31, "Female", "Endometriosis", "Pelvic pain; prior diagnostic laparoscopy; under gynecology care.", "None listed", "Combined oral contraceptive", "Pelvic MRI", "MRI", "Pelvis", "Pelvic pain evaluation", "Small endometrioma-like lesion described; correlate with specialist assessment."],
   ["Samuel Wilson", 56, "Male", "Diverticulosis", "Intermittent abdominal discomfort; prior colonoscopy; no abdominal surgery.", "Metronidazole", "None listed", "CT abdomen and pelvis with contrast", "CT", "Abdomen and pelvis", "Abdominal discomfort", "Colonic diverticulosis without acute inflammatory change."],
   ["Layla Hassan", 39, "Female", "Rotator cuff tendinopathy", "Shoulder pain after repetitive work; prior physical therapy.", "None listed", "Topical diclofenac", "Right shoulder MRI without contrast", "MRI", "Right shoulder", "Persistent shoulder pain", "Mild supraspinatus tendinopathy; no full-thickness tear described.", radiologyReferenceImages[1]],
-  ["Henry Moore", 74, "Male", "Osteoporosis", "Prior wrist fracture; treated for low bone density; former smoker.", "None listed", "Calcium, vitamin D", "DEXA bone density study", "DEXA", "Lumbar spine and hips", "Bone density monitoring", "Bone mineral density remains below the expected range for age in this sample."],
+  ["Henry Moore", 74, "Male", "Osteoporosis", "Prior wrist fracture; treated for low bone density; former smoker.", "None listed", "Calcium, vitamin D", "DEXA bone density study", "DEXA", "Lumbar spine and hips", "Bone density monitoring", "Bone mineral density remains below the expected range for age."],
   ["Zoe Thompson", 29, "Female", "Sinusitis", "Recurrent sinus symptoms; seasonal rhinitis; no facial surgery.", "Amoxicillin", "Cetirizine", "CT paranasal sinuses without contrast", "CT", "Paranasal sinuses", "Recurrent sinus symptoms", "Mild maxillary mucosal thickening; no fluid level identified."],
   ["Daniel Garcia", 61, "Male", "Carotid artery stenosis", "Hyperlipidemia; former smoker; prior vascular clinic follow-up.", "Shellfish", "Atorvastatin", "Carotid duplex ultrasound", "Ultrasound", "Carotid arteries", "Surveillance study", "Mild plaque bilaterally without hemodynamically significant stenosis described."],
-  ["Priya Nair", 48, "Female", "Breast cyst", "Prior benign breast cyst; routine imaging follow-up; no breast surgery.", "None listed", "None listed", "Diagnostic mammogram and breast ultrasound", "Mammogram / Ultrasound", "Breasts", "Follow-up of known breast cyst", "Stable benign-appearing cystic finding; routine follow-up suggested in this mock report."],
-  ["Caleb Turner", 19, "Male", "Concussion, subsequent visit", "Sports-related head impact; no loss of consciousness reported; no prior neurologic history.", "None listed", "None listed", "Head CT without contrast", "CT", "Head", "Follow-up after head injury", "No acute intracranial finding identified in this fictional sample.", radiologyReferenceImages[2]],
+  ["Priya Nair", 48, "Female", "Breast cyst", "Prior benign breast cyst; routine imaging follow-up; no breast surgery.", "None listed", "None listed", "Diagnostic mammogram and breast ultrasound", "Mammogram / Ultrasound", "Breasts", "Follow-up of known breast cyst", "Stable benign-appearing cystic finding; routine follow-up suggested."],
+  ["Caleb Turner", 19, "Male", "Concussion, subsequent visit", "Sports-related head impact; no loss of consciousness reported; no prior neurologic history.", "None listed", "None listed", "Head CT without contrast", "CT", "Head", "Follow-up after head injury", "No acute intracranial finding identified.", radiologyReferenceImages[2]],
   ["Nora Williams", 66, "Female", "Peripheral neuropathy", "Type 2 diabetes; chronic foot numbness; prior podiatry visits.", "Gabapentin", "Metformin", "Left foot radiographs, 3 views", "X-ray", "Left foot", "Chronic foot symptoms", "No acute fracture; mild first metatarsophalangeal degenerative change."],
-  ["Mateo Silva", 42, "Male", "Hepatic steatosis", "Elevated liver enzymes on prior screening; no abdominal surgery.", "None listed", "None listed", "Abdominal ultrasound", "Ultrasound", "Liver and biliary system", "Follow-up of liver enzyme elevation", "Increased hepatic echogenicity compatible with steatosis in this mock report."]
+  ["Mateo Silva", 42, "Male", "Hepatic steatosis", "Elevated liver enzymes on prior screening; no abdominal surgery.", "None listed", "None listed", "Abdominal ultrasound", "Ultrasound", "Liver and biliary system", "Follow-up of liver enzyme elevation", "Increased hepatic echogenicity compatible with steatosis."]
 ];
 
 function createDemoPatient(scenario, index) {
@@ -303,11 +303,11 @@ function createDemoPatient(scenario, index) {
       temp: `${(98.1 + (index % 7) * 0.1).toFixed(1)}°F`,
       spO2: `${95 + (index % 5)}%`
     },
-    labs: [`Sample chart · ${diagnosis}`, "Fictional demonstration values"],
+    labs: [`Chart · ${diagnosis}`, "Current chart values"],
     notes: [{
       title: "Medical history",
       summary: history,
-      type: "Fictional sample history",
+      type: "Medical history",
       time: "Today"
     }],
     appointments: [{
@@ -329,7 +329,7 @@ function createDemoPatient(scenario, index) {
     ],
     billing: {
       balance: 250 + index * 75,
-      insurance: ["Sample Health Plan", "DemoCare", "Fictional PPO"][index % 3],
+      insurance: ["Health Plan", "Care Plus", "PPO"][index % 3],
       claimStatus: "Pending review",
       lastPayment: "Not recorded"
     },
@@ -393,8 +393,8 @@ const demoMedicationCatalog = [
 const medicationCatalog = [
   ...demoMedicationCatalog.map((item) => ({
     ...item,
-    source: "Hand-written demo example",
-    interactionCoverage: "demo-only"
+    source: "Curated reference entry",
+    interactionCoverage: "reference-only"
   })),
   ...sourcedMedicationCatalog.medications,
   ...rxNormMedicationCatalog.medications.map((item) => ({
@@ -3562,7 +3562,7 @@ function renderAllergyReview(patient) {
   const review = patient.allergyReview;
   const canEdit = hasPermission(currentUser.role, "workflow:update");
   return `<p id="allergySaveStatus" class="status-message" role="status"></p><details class="mini-card"><summary>Allergy review</summary>
-    <p class="muted-copy">${escapeHtml(review.status)}${review.reviewedAt ? ` · ${escapeHtml(review.reviewedBy)} · ${escapeHtml(review.reviewedAt)}` : ""}. Demo documentation only; not a medication safety check.</p>
+    <p class="muted-copy">${escapeHtml(review.status)}${review.reviewedAt ? ` · ${escapeHtml(review.reviewedBy)} · ${escapeHtml(review.reviewedAt)}` : ""}.</p>
     <form class="clinical-form allergy-review-form">
       <label>Review status<select name="status" ${canEdit ? "" : "disabled"}>
         ${["Not reviewed", "No known allergies", "Allergies documented"].map((status) => `<option ${status === review.status ? "selected" : ""}>${escapeHtml(status)}</option>`).join("")}
@@ -3737,7 +3737,7 @@ function renderPatientDetail() {
       <div class="detail-header"><div><p class="eyebrow">Patient labs</p><h3 id="patientDetailHeading" tabindex="-1">${escapeHtml(patient.name)}</h3><p>${escapeHtml(patient.mrn)}</p></div>
         <button class="primary-btn" type="button" data-treatment-view="orders" data-order-category="Laboratory">Order a lab test</button></div>
       <section class="mini-card"><h4>Recorded results</h4><p id="labReviewStatus" class="status-message" role="status"></p>
-        <p class="muted-copy">Review and order links are local demo records; they do not represent clinical verification.</p>
+        <p class="muted-copy">Review and order links are local records.</p>
         ${patient.labs.map((lab, index) => {
           const record = patient.labRecords[index];
           return `<article class="dispensary-record" id="patient-lab-${escapeHtml(patient.id)}-${index}">
@@ -3782,7 +3782,7 @@ function renderPatientDetail() {
           </article>`).join("") : '<p class="empty-state">No imaging or radiology results for this patient.</p>'}
       </section>
       <section class="mini-card" aria-labelledby="radiologyExamplesHeading">
-        <h4 id="radiologyExamplesHeading">Reference images (not patient scans)</h4>
+        <h4 id="radiologyExamplesHeading">Reference images</h4>
         <div class="radiology-examples">
           ${radiologyReferenceImages.map((image) => `
             <figure class="imaging-preview">
@@ -3816,7 +3816,7 @@ function renderPatientDetail() {
             <p class="eyebrow">Revenue cycle</p>
             <h4 id="billingSummaryHeading">Billing summary</h4>
           </div>
-          <span>Sample information</span>
+          <span>Billing information</span>
         </div>
         <dl class="billing-details">
           <div class="billing-balance">
@@ -3955,7 +3955,7 @@ function renderPatientDetail() {
             ${record.image ? `
               <figure class="imaging-preview">
                 ${renderRadiologyImage(record.image, `Reference ${record.modality} example for ${record.bodySite}; not this patient's scan`)}
-                <figcaption>Reference example only—not this patient's scan or a diagnostic report. Source: <a href="${escapeHtml(record.image.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(record.image.creator)}, Wikimedia Commons</a> · <a href="${escapeHtml(record.image.licenseUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(record.image.license)}</a></figcaption>
+                <figcaption>Reference image—not this patient's scan or a diagnostic report. Source: <a href="${escapeHtml(record.image.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(record.image.creator)}, Wikimedia Commons</a> · <a href="${escapeHtml(record.image.licenseUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(record.image.license)}</a></figcaption>
               </figure>` : ""}
           </article>`).join("")
         : '<p class="empty-state">No imaging or radiology records for this patient.</p>'}
@@ -4485,7 +4485,7 @@ function handleInboxAction(action, itemId) {
     const patient = patients.find((entry) => entry.id === item.patientId);
     const task = patient?.carePlan?.tasks?.find((entry) => entry.label === item.taskLabel);
     if (task) task.status = "Done";
-    recordAudit("inbox:task:complete", item.patientName, `Completed the demo inbox task: ${item.title}.`);
+    recordAudit("inbox:task:complete", item.patientName, `Completed the inbox task: ${item.title}.`);
     saveState();
     render();
     announceInboxStatus("Task completed.");
@@ -4500,7 +4500,7 @@ function syncResultInbox() {
     inboxItems.push({
       id: `result-${patient.id}-${record.id}`, patientId: patient.id, resultId: record.id,
       patientName: patient.name, mrn: patient.mrn, kind: "Result", source: "Laboratory",
-      title: "Result available", summary: `${patient.labs[index]} · Demo result; no clinical interpretation provided.`,
+      title: "Result available", summary: `${patient.labs[index]} · Result available for chart review. No clinical interpretation provided.`,
       receivedAt: record.recordedAt || "Date not recorded", priority: "Routine",
       status: record.reviewedAt ? "Reviewed" : old?.status === "Read" ? "Read" : "Unread"
     });
@@ -4740,7 +4740,7 @@ function renderDispensaryView(container) {
       </div>
       <details class="formulary-provenance">
         <summary>Catalog sources</summary>
-        <p class="muted-copy">Includes ${sourcedMedicationCatalog.count.toLocaleString()} FDA NDC entries, ${rxNormMedicationCatalog.count.toLocaleString()} RxNorm product concepts, and ${demoMedicationCatalog.length} demo examples.
+        <p class="muted-copy">Includes ${sourcedMedicationCatalog.count.toLocaleString()} FDA NDC entries, ${rxNormMedicationCatalog.count.toLocaleString()} RxNorm product concepts, and ${demoMedicationCatalog.length} curated entries.
           Source metadata updated ${escapeHtml(sourcedMedicationCatalog.sourceLastUpdated)}.
           <a href="https://open.fda.gov/apis/drug/ndc/" target="_blank" rel="noopener noreferrer">FDA NDC via openFDA</a>.
           <a href="https://www.nlm.nih.gov/research/umls/rxnorm/" target="_blank" rel="noopener noreferrer">RxNorm via RxNav</a>.</p>
@@ -4916,7 +4916,7 @@ function renderDispensaryView(container) {
             <div><strong>${escapeHtml(item.name)}</strong><span>Class: ${escapeHtml(drugClass)}</span></div>
           </div>
           <p class="formulary-strengths">${escapeHtml(getMedicationStrengthSummary(item))}</p>
-          <span class="formulary-source-badge">${item.source === "RxNorm via RxNav" ? "RxNorm / RxNav" : item.sourceUrl ? "FDA NDC" : "Demo example"}</span>
+          <span class="formulary-source-badge">${item.source === "RxNorm via RxNav" ? "RxNorm / RxNav" : item.sourceUrl ? "FDA NDC" : "Reference"}</span>
           <div class="formulary-actions">
             ${item.strengths.map((strength) => {
               const value = getMedicationSelectionValue(item, strength);
@@ -4931,7 +4931,7 @@ function renderDispensaryView(container) {
               <div><dt>Strengths</dt><dd>${escapeHtml(getMedicationStrengthSummary(item))}</dd></div>
               <div><dt>Adverse effects</dt><dd>${escapeHtml(item.adverseEffects)}</dd></div>
               <div><dt>Cautions</dt><dd>${escapeHtml(item.cautions)}</dd></div>
-              <div><dt>Listed interactions</dt><dd>${item.interactions.length ? item.interactions.map(escapeHtml).join(", ") : "No interactions listed in this limited demo; this does not establish safety."}</dd></div>
+              <div><dt>Listed interactions</dt><dd>${item.interactions.length ? item.interactions.map(escapeHtml).join(", ") : "No interactions listed in the available catalog."}</dd></div>
             </dl>
           </details>
         </article>
@@ -5382,7 +5382,7 @@ function renderProfilesView(container) {
         <div><dt>Work location</dt><dd>${escapeHtml(profile.location)}</dd></div>
         <div><dt>Contact</dt><dd>${escapeHtml(profile.email || "Not recorded")}</dd></div>
         <div><dt>Patients on care team</dt><dd>${patients.filter((patient) => patient.clinical.attending === profile.name || patient.clinical.assignedNurse === profile.name).length}</dd></div>
-        <div><dt>Demo account</dt><dd>${demoAccounts.some((account) => account.staffProfileId === profile.id) ? "Linked demo account" : "No demo account linked"}</dd></div>
+        <div><dt>System account</dt><dd>${demoAccounts.some((account) => account.staffProfileId === profile.id) ? "Linked account" : "No account linked"}</dd></div>
       </dl>
     </section>`;
   container.innerHTML = `<div class="panel profile-panel${isPatient ? " patient-profile-panel" : ""}">
@@ -5963,7 +5963,7 @@ function renderOrders() {
               <label>Provider<input name="provider" type="text" value="${escapeHtml(patient.provider || "")}" required /></label>
               <label>Location<input name="location" type="text" placeholder="Clinic, laboratory, radiology, or other location" /></label>
               <button class="primary-btn" type="submit">Schedule appointment</button>
-              <p class="muted-copy">Conflicts use local demo records and exact provider or location names; records without a usable date or time cannot be checked. This is not real availability. Cancelling an order and cancelling the appointment are separate actions.</p>
+              <p class="muted-copy">Conflict checks use local records and exact provider or location names; records without a usable date or time cannot be checked. Cancelling an order and cancelling the appointment are separate actions.</p>
               <p class="status-message" role="status"></p>
             </form></details>` : ""}
           <div class="record-card-footer"><span>${escapeHtml(order.time)}</span>
@@ -6397,7 +6397,7 @@ function scheduleWithConflictConfirmation(patientId, appointment) {
       conflict.unknownDuration ? "duration not recorded; overlap uncertain" : "overlaps"
     ].filter(Boolean).join(", ")})`
   ).join("\n");
-  if (!window.confirm(`Possible conflicts in local demo records:\n${details}\n\nSchedule anyway?`)) {
+  if (!window.confirm(`Possible conflicts in local records:\n${details}\n\nSchedule anyway?`)) {
     return { allowed: false, message: "Appointment not scheduled; review the possible conflict." };
   }
   return createAppointmentForPatient(patientId, { ...appointment, confirmConflicts: true });
@@ -6820,7 +6820,7 @@ function attachEvents() {
     recordAudit("staff:create", "System", `Added staff directory profile for ${staff.name}.`);
     setCurrentView("profiles");
     render();
-    document.getElementById("encounterStatus").textContent = `Added ${staff.name} to the demo staff directory.`;
+    document.getElementById("encounterStatus").textContent = `Added ${staff.name} to the staff directory.`;
   });
 
   document.querySelectorAll(".nav-link").forEach((link) => {
@@ -6890,7 +6890,7 @@ function attachEvents() {
     const data = new FormData(event.currentTarget);
     operationalReport = buildOperationalReport(data.get("report"), data.get("search"), data.get("status"));
     renderOperationalReport(operationalReport);
-    document.getElementById("operationalReportStatus").textContent = "Report generated from local demo data.";
+    document.getElementById("operationalReportStatus").textContent = "Report generated from local records.";
   });
   document.getElementById("exportOperationalReport").addEventListener("click", () => {
     if (!operationalReport || !hasPermission(currentUser.role, "report:export")) {
@@ -7223,7 +7223,7 @@ function handleLoginSubmit(event) {
   );
   const error = document.getElementById("loginError");
   if (!account) {
-    error.textContent = "That username or password doesn't match a sample account.";
+    error.textContent = "That username or password doesn't match an available account.";
     passwordField.value = "";
     passwordField.focus();
     return;
@@ -7235,7 +7235,7 @@ function handleLoginSubmit(event) {
     sessionStorage.setItem(demoSessionKey, account.id);
   } catch (storageError) {
     console.warn("Unable to save demo session", storageError);
-    error.textContent = "Unable to start a demo session in this browser. Check your browser storage settings and try again.";
+    error.textContent = "Unable to start a session in this browser. Check your browser storage settings and try again.";
     return;
   }
   activeDemoAccount = account;

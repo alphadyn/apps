@@ -1,10 +1,10 @@
-import { TYPES, bounds, isOutdoor, exteriorWalls, exteriorRoomWalls, roomVertices, roomCentroid, propertyStats } from "./model.js?v=20261122-9";
+import { TYPES, bounds, isOutdoor, exteriorWalls, exteriorRoomWalls, roomVertices, roomCentroid, propertyStats } from "./model.js?v=20261125-1";
 import { createCamera, DEFAULT_CAMERA, sortFaces } from "./camera.js";
 import { featureHost, featureVertices, featureMarkup, railingMarkup, boundaryFence, fenceSettings, fenceMarkup } from "./architecture.js?v=20261122-5";
 import { formatLength } from "./units.js";
 import { railingSettings, roofSettings, surfaceMarkup, roofEdgeDetails, exposedRoofEdge, namespaceScene } from "./envelope.js?v=20261122-6";
-import { propertyFeatures } from "./property-edit.js?v=20261122-9";
-export { propertyFeatures } from "./property-edit.js?v=20261122-9";
+import { propertyFeatures } from "./property-edit.js?v=20261125-1";
+export { propertyFeatures } from "./property-edit.js?v=20261125-1";
 
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const number = value => Number(value.toFixed(2));
@@ -13,6 +13,7 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
   const iso = view === "3d";
   const camera = createCamera(angles), projectPoint = camera.project;
   const p = project.property;
+  const structures = p.layout?.structures || [];
   const allRooms = project.floors.flatMap(f => f.rooms);
   const b = bounds(allRooms);
   const minX = Math.min(-3, allRooms.length ? p.houseX + b.x - 2 : 0);
@@ -27,6 +28,7 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
     ...allRooms.flatMap(r => roomVertices(r).flatMap(([x, y]) => [projectPoint(x + p.houseX, y + p.houseY), projectPoint(x + p.houseX, y + p.houseY, height)])),
     ...(project.features || []).flatMap(feature => featureVertices(feature, featureHost(project, feature), feature.type === "gate" ? 0 : project.floors.findIndex(f => f.id === feature.floorId) * project.ceiling, feature.type === "gate" ? { x: 0, y: 0 } : { x: p.houseX, y: p.houseY }).map(v => projectPoint(...v))),
     ...fenceSegments.flatMap(segment => segment.vertices.map(v => projectPoint(...v))),
+    ...structures.flatMap(s => [[s.x, s.y], [s.x + s.width, s.y], [s.x + s.width, s.y + s.depth], [s.x, s.y + s.depth]].map(([x, y]) => projectPoint(x, y, s.height))),
   ] : world.map(([x, y]) => ({ x, y }));
   const left = framing?.left ?? Math.min(...projected.map(v => v.x)), right = framing?.right ?? Math.max(...projected.map(v => v.x));
   const top = framing?.top ?? Math.min(...projected.map(v => v.y)), bottom = framing?.bottom ?? Math.max(...projected.map(v => v.y));
@@ -192,6 +194,23 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
     for (const tree of features.trees) {
       scene.push({ vertices: rect(tree.x - tree.radius, tree.y - tree.radius, tree.radius * 2, tree.radius * 2, tree.radius), markup: tree3d(tree) });
     }
+    for (const building of structures) {
+      const { x, y, width: w, depth: d } = building;
+      const h = roof ? building.height : Math.min(building.height * .5, 1.5);
+      const corners = [[x, y], [x + w, y], [x + w, y + d], [x, y + d]];
+      const ground = rect(x, y, w, d);
+      scene.push({ vertices: ground, markup: polygon(ground, "#cbd0bf", 'data-site-building-floor="true"') });
+      for (let i = 0; i < corners.length; i++) {
+        if (!camera.faces[["north", "east", "south", "west"][i]]) continue;
+        const a = corners[i], b = corners[(i + 1) % corners.length];
+        const vertices = [[...a, 0], [...b, 0], [...b, h], [...a, h]];
+        scene.push({ vertices, markup: polygon(vertices, i % 2 ? "#c4cec0" : "#e2e4d8", 'data-site-building-wall="true"') });
+      }
+      if (roof) {
+        const vertices = rect(x, y, w, d, h);
+        scene.push({ vertices, markup: polygon(vertices, "#d5d9c9", 'data-site-building-roof="true"') });
+      }
+    }
     const seen = new Set();
     for (const face of sortFaces(scene, camera)) {
       if (!face.floor) { markup += face.markup; continue; }
@@ -226,6 +245,12 @@ export function renderPropertyView(project, { view = "2d", zoom = 1, pan = { x: 
     markup += "</g>";
     for (const segment of fenceSegments) markup += fenceMarkup(segment.vertices, fence, point, true, units);
     for (const feature of (project.features || []).filter(f => f.type === "gate")) markup += featureMarkup(feature, featureVertices(feature, featureHost(project, feature)), point, true, units);
+    for (const [index, building] of structures.entries()) {
+      markup += `<g data-site-building="true" ${itemAttrs(`building-${index}`, escape(building.name))}>`;
+      markup += polygon(rect(building.x, building.y, building.width, building.depth), "#d8d5c6", 'style="stroke:#7f8678;stroke-width:1.2"');
+      if (labels) markup += worldText(building.x + building.width / 2, building.y + building.depth / 2, building.name.toUpperCase(), 0, `style="font-size:${Math.min(8, building.width * scale / (building.name.length * .65))}px"`);
+      markup += "</g>";
+    }
     for (const [index, tree] of features.trees.entries()) {
       const v = point(tree.x, tree.y), radius = tree.radius * scale;
       markup += `<g data-landscape-tree="true" ${itemAttrs(`tree-${index}`, `tree ${index + 1}`)}><circle cx="${v.x}" cy="${v.y}" r="${radius}" fill="#bdcfa6" stroke="#98b185" stroke-width=".8"/><path d="M${v.x - radius * .7} ${v.y}h${radius * 1.4}m${-radius * .7} ${-radius * .7}v${radius * 1.4}" stroke="#91a77e" stroke-width=".7"/><circle cx="${v.x}" cy="${v.y}" r="${radius * .65}" fill="#a8bf9170" stroke="#a0b88c" stroke-width=".5"/></g>`;

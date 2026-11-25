@@ -143,7 +143,11 @@ export function unionArea(rooms) {
 export function propertyStats(project) {
   const rooms = project.floors.flatMap(f => f.rooms);
   const p = project.property;
-  const footprint = unionArea(rooms.filter(r => !isOutdoor(r)));
+  const structures = p.layout?.structures || [];
+  const footprint = unionArea([
+    ...rooms.filter(r => !isOutdoor(r)).map(r => ({ ...r, x: r.x + p.houseX, y: r.y + p.houseY })),
+    ...structures,
+  ]);
   const outsideRooms = rooms.filter(r => {
     const b = bounds([r]);
     return b.x + p.houseX < 0 || b.y + p.houseY < 0 || b.x + b.width + p.houseX > p.width || b.y + b.depth + p.houseY > p.depth;
@@ -161,6 +165,14 @@ export function propertyStats(project) {
   }, 0);
   return { lotArea: p.width * p.depth, footprint, coverage: footprint / (p.width * p.depth) * 100, height, outsideRooms };
 }
+export const SITE_STRUCTURE_TYPES = {
+  guestHouse: "Guest house",
+  boysQuarters: "Boys' quarters",
+  securityHouse: "Security house",
+  detachedGarage: "Detached garage",
+  other: "Other building",
+};
+
 export function validateProperty(property) {
   if (!property) throw new Error("Property settings are missing.");
   for (const key of ["width", "depth"]) {
@@ -183,6 +195,18 @@ export function validateProperty(property) {
     if (driveway !== null && (!driveway || !Number.isFinite(driveway.width) || driveway.width < .5 || driveway.width > 20 ||
       !Number.isFinite(driveway.x) || !Number.isFinite(driveway.y) || driveway.x < 0 || driveway.x + driveway.width > property.width ||
       driveway.y < 0 || driveway.y >= property.depth)) throw new Error("The driveway must fit inside the lot and extend to the street.");
+    if (layout.structures !== undefined) {
+      if (!Array.isArray(layout.structures) || layout.structures.length > 100) throw new Error("A site layout must contain up to 100 detached buildings.");
+      for (const building of layout.structures) {
+        if (!building || !Object.hasOwn(SITE_STRUCTURE_TYPES, building.type) || typeof building.name !== "string" ||
+          !building.name.trim() || building.name.length > 60) throw new Error("Detached buildings need a valid type and name of up to 60 characters.");
+        if (![building.x, building.y, building.width, building.depth, building.height].every(Number.isFinite) ||
+          building.width < 1 || building.depth < 1 || building.height < 1 || building.height > 20 ||
+          building.x < 0 || building.y < 0 || building.x + building.width > property.width || building.y + building.depth > property.depth) {
+          throw new Error("Detached buildings must fit inside the lot, be at least 1 meter wide and deep, and be 1 to 20 meters high.");
+        }
+      }
+    }
   }
   validateFence(property.fence);
   return property;

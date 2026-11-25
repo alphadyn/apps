@@ -1,6 +1,6 @@
-import { TYPES, createProject, floorArea, projectStats, propertyStats, bounds, isOutdoor, exteriorRoomWalls, roomOutline, roomArea, roomCentroid, validateRoom, validateProject, validateProperty, makeRoom, parseProject, readProjectFile, hasRectangularOutline } from "./model.js?v=20261122-9";
-import { renderPropertyView } from "./property-view.js?v=20261122-9";
-import { propertyFeatures, propertyItem, movePropertyItem } from "./property-edit.js?v=20261122-9";
+import { TYPES, SITE_STRUCTURE_TYPES, createProject, floorArea, projectStats, propertyStats, bounds, isOutdoor, exteriorRoomWalls, roomOutline, roomArea, roomCentroid, validateRoom, validateProject, validateProperty, makeRoom, parseProject, readProjectFile, hasRectangularOutline } from "./model.js?v=20261125-1";
+import { renderPropertyView } from "./property-view.js?v=20261125-1";
+import { propertyFeatures, propertyItem, movePropertyItem, updatePropertyItem, addPropertyItem, removePropertyItem } from "./property-edit.js?v=20261125-1";
 import { setupResponsiveUI } from "./responsive-ui.js?v=20261122-12";
 import { renderFloor3D } from "./floor-view.js?v=20261122-5";
 import { cameraFromDrag, createCamera, DEFAULT_CAMERA, normalizeCamera } from "./camera.js";
@@ -185,7 +185,8 @@ function render() {
   else selectedSite ||= "house";
   if (selectedSite && selectedSite !== "house") {
     const features = propertyFeatures(project);
-    if (selectedSite === "driveway" ? !features.driveway : !features.trees[Number(selectedSite.slice(5))]) selectedSite = "house";
+    const tree = /^tree-(\d+)$/.exec(selectedSite), building = /^building-(\d+)$/.exec(selectedSite);
+    if (selectedSite === "driveway" ? !features.driveway : tree ? !features.trees[Number(tree[1])] : building ? !project.property.layout?.structures?.[Number(building[1])] : true) selectedSite = "house";
   }
   if (!(project.features || []).some(feature => feature.id === selectedOpening && feature.roomId === selected && feature.floorId === activeFloor) || scope !== "floor" || view !== "2d") selectedOpening = null;
   const stats = projectStats(project);
@@ -230,7 +231,7 @@ function render() {
   $("#view-3d").setAttribute("aria-pressed", view === "3d");
   $("#zoom-value").textContent = `${Math.round(zoom * 100)}%`;
   $("#empty-floor").hidden = scope === "property" || floor().rooms.length > 0;
-  $("#canvas-help").textContent = tool === "pan" ? "Drag the canvas to pan · V to select" : view === "3d" ? "Drag to rotate · Click to edit · H to pan" : scope === "property" ? "Drag house, trees or driveway · Arrow keys to nudge · H to pan" : "Click a room to edit · Drag to rearrange";
+  $("#canvas-help").textContent = tool === "pan" ? "Drag the canvas to pan · V to select" : view === "3d" ? "Drag to rotate · Click to edit · H to pan" : scope === "property" ? "Drag site items · Arrow keys to nudge · H to pan" : "Click a room to edit · Drag to rearrange";
   renderPlan(); renderInspector();
   updateScale();
   $(".meta-date").textContent = `${project.style.toUpperCase()} RESIDENTIAL`;
@@ -480,19 +481,39 @@ function renderPropertyInspector() {
     $("#inspector-content").insertAdjacentHTML("afterbegin", siteControlsMarkup());
     $("#site-position-form").onsubmit = event => {
       event.preventDefault();
-      const item = propertyItem(project, selectedSite), data = new FormData(event.currentTarget);
-      change(() => { project = movePropertyItem(project, selectedSite, toMeters(Number(data.get("x")), unitSystem) - item.x, toMeters(Number(data.get("y")), unitSystem) - item.y); });
+      const data = new FormData(event.currentTarget), values = {};
+      for (const key of ["x", "y", "radius", "width", "depth", "height"]) {
+        if (data.has(key)) values[key] = toMeters(Number(data.get(key)), unitSystem);
+      }
+      if (data.has("name")) values.name = String(data.get("name")).trim();
+      if (data.has("type")) values.type = String(data.get("type"));
+      if (change(() => { project = updatePropertyItem(project, selectedSite, values); })) toast("Site item updated.");
     };
     $("#site-item").onchange = event => { selectedSite = event.target.value; render(); };
+    $("#site-add-form").onsubmit = event => {
+      event.preventDefault();
+      const type = new FormData(event.currentTarget).get("type");
+      let id;
+      if (change(() => { const result = addPropertyItem(project, type); project = result.project; id = result.id; })) {
+        selectedSite = id; render(); toast("Site feature added. Drag it or set its dimensions below.");
+      }
+    };
+    if ($("#site-remove")) $("#site-remove").onclick = () => {
+      if (change(() => { project = removePropertyItem(project, selectedSite); })) {
+        selectedSite = "house"; render(); toast("Site feature removed.");
+      }
+    };
   }
   if ($("#show-roof")) $("#show-roof").onchange = event => { showRoof = event.target.checked; renderPlan(); };
 }
 function siteControlsMarkup() {
   const features = propertyFeatures(project);
-  const items = [["house", "Whole house"], ...(features.driveway ? [["driveway", "Driveway"]] : []), ...features.trees.map((tree, index) => [`tree-${index}`, `Tree ${index + 1}`])];
+  const items = [["house", "Whole house"], ...(features.driveway ? [["driveway", "Driveway"]] : []), ...features.trees.map((tree, index) => [`tree-${index}`, `Tree ${index + 1}`]), ...(project.property.layout?.structures || []).map((building, index) => [`building-${index}`, building.name])];
   const id = selectedSite || "house", item = propertyItem(project, id);
-  const field = (axis, label) => `<div class="property-field"><label for="site-${axis}">${label} (${lengthUnit(unitSystem)})</label><input id="site-${axis}" name="${axis}" type="number" step="any" value="${fromMeters(item[axis], unitSystem)}" required></div>`;
-  return `<form id="site-position-form" class="site-controls"><span class="property-label">ARRANGE YOUR PROPERTY</span><p class="dialog-note">Drag an item on the site plan, or set its position below. Arrow keys move 0.1 m; Shift moves 0.5 m. Escape cancels a drag.</p><div class="property-field"><label for="site-item">Site item</label><select id="site-item">${items.map(([value, name]) => `<option value="${value}" ${id === value ? "selected" : ""}>${name}</option>`).join("")}</select></div><div class="field-row">${field("x", "Position X")}${field("y", "Position Y")}</div><button class="add-space-button" type="submit">Update position</button><p class="dialog-note">House positions use its origin; trees use their centers; driveway positions use its rear-left corner. The driveway stays connected to the street. Trees and driveways must fit inside the lot. Building/tree overlaps and setbacks are not checked.</p><div class="inspector-divider"></div></form>`;
+  const field = (key, label) => `<div class="property-field"><label for="site-${key}">${label} (${lengthUnit(unitSystem)})</label><input id="site-${key}" name="${key}" type="number" step="any" value="${fromMeters(item[key], unitSystem)}" required></div>`;
+  const building = id.startsWith("building-");
+  const types = Object.entries(SITE_STRUCTURE_TYPES);
+  return `<div class="site-controls"><span class="property-label">ARRANGE YOUR PROPERTY</span><p class="dialog-note">Add a feature, then drag it on the site plan or enter exact measurements. Arrow keys move 0.1 m; Shift moves 0.5 m.</p><form id="site-add-form"><div class="property-field"><label for="site-add-type">Add site feature</label><select id="site-add-type" name="type"><option value="tree">Tree</option>${!features.driveway ? '<option value="driveway">Driveway</option>' : ""}${types.map(([value, name]) => `<option value="${value}">${escape(name)}</option>`).join("")}</select></div><button class="add-space-button" type="submit">${icon("plus")}Add feature</button></form><form id="site-position-form"><div class="property-field"><label for="site-item">Site item</label><select id="site-item">${items.map(([value, name]) => `<option value="${value}" ${id === value ? "selected" : ""}>${escape(name)}</option>`).join("")}</select></div>${building ? `<div class="property-field"><label for="site-name">Name</label><input id="site-name" name="name" value="${escape(item.name)}" maxlength="60" required></div><div class="property-field"><label for="site-type">Building type</label><select id="site-type" name="type">${types.map(([value, name]) => `<option value="${value}" ${item.type === value ? "selected" : ""}>${escape(name)}</option>`).join("")}</select></div>` : ""}<div class="field-row">${field("x", "Position X")}${field("y", "Position Y")}</div>${id.startsWith("tree-") ? field("radius", "Canopy radius") : ""}${id === "driveway" ? field("width", "Width") : ""}${building ? `<div class="field-row">${field("width", "Width")}${field("depth", "Depth")}</div>${field("height", "Height")}` : ""}<button class="add-space-button" type="submit">Update site item</button>${id !== "house" ? `<button class="floor-delete" type="button" id="site-remove">${icon("trash")}Remove feature</button>` : ""}</form><p class="dialog-note">Tree positions use their centers; buildings and driveways use the rear-left corner. Features must fit inside the lot; overlaps and setbacks are not checked.</p><div class="inspector-divider"></div></div>`;
 }
 function propertyDialog() {
   const p = project.property;

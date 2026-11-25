@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createProject, parseProject, validateProject } from "./model.js";
-import { propertyLayout, propertyFeatures, propertyItem, movePropertyItem } from "./property-edit.js";
+import { createProject, parseProject, validateProject, propertyStats } from "./model.js";
+import { propertyLayout, propertyFeatures, propertyItem, movePropertyItem, addPropertyItem, updatePropertyItem, removePropertyItem } from "./property-edit.js";
 import { renderPropertyView } from "./property-view.js";
 
 test("legacy landscaping stays generated without mutating saved designs", () => {
@@ -84,4 +84,68 @@ test("only editable site plans expose movable controls and preserve framing duri
   assert.equal(stable.scale, initial.scale);
   assert.deepEqual(stable.framing, initial.framing);
   assert.notEqual(renderPropertyView(moved).framing.left, initial.framing.left);
+});
+
+test("site features can be added, edited, moved, removed and round-tripped", () => {
+  const original = createProject(), before = JSON.stringify(original);
+  let { project, id } = addPropertyItem(original, "tree");
+  assert.equal(id, `tree-${propertyFeatures(original).trees.length}`);
+  project = updatePropertyItem(project, id, { x: 3, y: 3, radius: 2 });
+  assert.equal(propertyItem(project, id).radius, 2);
+  project = movePropertyItem(project, id, 1, 0);
+  assert.equal(propertyItem(project, id).x, 4);
+  project = removePropertyItem(project, id);
+  assert.equal(propertyFeatures(project).trees.length, propertyFeatures(original).trees.length);
+  for (const type of ["guestHouse", "boysQuarters", "securityHouse", "detachedGarage", "other"]) {
+    ({ project, id } = addPropertyItem(project, type));
+    project = updatePropertyItem(project, id, { name: `Custom ${type}`, x: 1, y: 1, width: 4, depth: 5, height: 3 });
+    assert.equal(propertyItem(project, id).type, type);
+    project = movePropertyItem(project, id, 1, 0);
+    assert.equal(propertyItem(project, id).x, 2);
+  }
+  assert.deepEqual(parseProject(JSON.stringify(project)), project);
+  for (const view of ["2d", "3d"]) {
+    const markup = renderPropertyView(project, { view, editable: true }).markup;
+    assert.match(markup, view === "2d" ? /data-site-item="building-0"/ : /data-site-building-roof="true"/);
+    assert.doesNotMatch(markup, /NaN|undefined|Infinity/);
+  }
+  const openTop = renderPropertyView(project, { view: "3d", roof: false }).markup;
+  assert.match(openTop, /data-site-building-floor="true"/);
+  assert.doesNotMatch(openTop, /data-site-building-roof="true"/);
+  project = removePropertyItem(project, "building-1");
+  assert.equal(project.property.layout.structures.length, 4);
+  assert.equal(JSON.stringify(original), before);
+});
+
+test("site feature edits validate geometry, names, limits and driveway restoration", () => {
+  const original = createProject();
+  let { project, id } = addPropertyItem(original, "guestHouse");
+  for (const values of [{ x: -1 }, { width: 500 }, { height: 0 }, { name: " " }, { type: "invalid" }]) {
+    assert.throws(() => updatePropertyItem(project, id, values));
+  }
+  assert.throws(() => addPropertyItem(project, "invalid"));
+  assert.throws(() => removePropertyItem(project, "house"));
+  assert.throws(() => addPropertyItem(project, "driveway"), /already/);
+  const oldDriveway = propertyFeatures(project).driveway;
+  project.property.driveway = false;
+  project = addPropertyItem(project, "driveway").project;
+  assert.deepEqual(propertyFeatures(project).driveway, oldDriveway);
+  project = removePropertyItem(project, "driveway");
+  assert.equal(propertyFeatures(project).driveway, null);
+  project = addPropertyItem(project, "driveway").project;
+  project = updatePropertyItem(project, "driveway", { width: 4, x: 1, y: 2 });
+  assert.equal(propertyFeatures(project).driveway.width, 4);
+  assert.throws(() => validateProject({ ...project, property: { ...project.property, layout: { ...project.property.layout, structures: [null] } } }));
+});
+
+test("site coverage includes detached building footprint without double counting overlaps", () => {
+  const original = createProject();
+  const { project, id } = addPropertyItem(original, "detachedGarage");
+  const positioned = updatePropertyItem(project, id, { x: original.property.houseX, y: original.property.houseY, width: 2, depth: 2 });
+  assert.ok(propertyStats(project).footprint >= propertyStats(original).footprint);
+  assert.ok(propertyStats(positioned).footprint >= propertyStats(original).footprint);
+  const empty = createProject();
+  empty.floors.forEach(floor => { floor.rooms = []; });
+  const withBuilding = addPropertyItem(empty, "securityHouse").project;
+  assert.ok(Math.abs(propertyStats(withBuilding).footprint - 9) < 1e-6);
 });

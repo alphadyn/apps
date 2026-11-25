@@ -1,4 +1,4 @@
-import { bounds, validateProject } from "./model.js?v=20261122-9";
+import { bounds, validateProject, SITE_STRUCTURE_TYPES } from "./model.js?v=20261125-1";
 
 export function propertyLayout(project) {
   if (project.property.layout) return structuredClone(project.property.layout);
@@ -33,7 +33,17 @@ export function propertyItem(project, id) {
   if (id === "driveway" && features.driveway) return { ...features.driveway, name: "Driveway" };
   const index = /^tree-(\d+)$/.exec(id)?.[1];
   if (index !== undefined && features.trees[Number(index)]) return { ...features.trees[Number(index)], name: `Tree ${Number(index) + 1}` };
-  throw new Error("Select an available house, tree, or driveway in the site plan.");
+  const building = /^building-(\d+)$/.exec(id)?.[1];
+  if (building !== undefined && project.property.layout?.structures?.[Number(building)]) return { ...project.property.layout.structures[Number(building)] };
+  throw new Error("Select an available site item in the site plan.");
+}
+
+function storedItem(project, id) {
+  if (id === "house") return project.property;
+  if (id === "driveway") return project.property.layout.driveway;
+  const match = /^(tree|building)-(\d+)$/.exec(id);
+  if (!match) throw new Error("Select an available site item in the site plan.");
+  return project.property.layout[match[1] === "tree" ? "trees" : "structures"][Number(match[2])];
 }
 
 export function movePropertyItem(project, id, dx, dy) {
@@ -45,9 +55,59 @@ export function movePropertyItem(project, id, dx, dy) {
   if (dx === 0 && dy === 0) return updated;
   // Freeze generated landscaping before moving anything so unrelated objects stay put.
   updated.property.layout = propertyLayout(project);
-  const item = id === "house" ? updated.property : id === "driveway" ? updated.property.layout.driveway : updated.property.layout.trees[Number(id.slice(5))];
+  const item = storedItem(updated, id);
   const keys = id === "house" ? ["houseX", "houseY"] : ["x", "y"];
   item[keys[0]] = Math.round((item[keys[0]] + dx) * 1e9) / 1e9;
   item[keys[1]] = Math.round((item[keys[1]] + dy) * 1e9) / 1e9;
+  return validateProject(updated);
+}
+
+export function updatePropertyItem(project, id, values) {
+  propertyItem(project, id);
+  const updated = structuredClone(project);
+  updated.property.layout = propertyLayout(project);
+  const item = storedItem(updated, id);
+  const allowed = id === "house" ? ["x", "y"] : id === "driveway" ? ["x", "y", "width"] :
+    id.startsWith("tree-") ? ["x", "y", "radius"] : ["x", "y", "width", "depth", "height", "name", "type"];
+  for (const key of allowed) {
+    if (Object.hasOwn(values, key)) item[id === "house" ? (key === "x" ? "houseX" : "houseY") : key] = values[key];
+  }
+  return validateProject(updated);
+}
+
+export function addPropertyItem(project, type) {
+  const updated = structuredClone(project), p = updated.property;
+  p.layout = propertyLayout(project);
+  let id;
+  if (type === "tree") {
+    p.landscaping = true;
+    const radius = 1;
+    p.layout.trees.push({ x: radius, y: radius, radius });
+    id = `tree-${p.layout.trees.length - 1}`;
+  } else if (type === "driveway") {
+    if (p.layout.driveway && p.driveway) throw new Error("The property already has a driveway.");
+    p.driveway = true;
+    p.layout.driveway ||= { x: 0, y: p.depth / 2, width: 3 };
+    id = "driveway";
+  } else if (Object.hasOwn(SITE_STRUCTURE_TYPES, type)) {
+    p.layout.structures ||= [];
+    p.layout.structures.push({ type, name: SITE_STRUCTURE_TYPES[type], x: 0, y: 0, width: 3, depth: 3, height: 2.8 });
+    id = `building-${p.layout.structures.length - 1}`;
+  } else throw new Error("Choose a valid site feature.");
+  return { project: validateProject(updated), id };
+}
+
+export function removePropertyItem(project, id) {
+  propertyItem(project, id);
+  if (id === "house") throw new Error("The main house cannot be removed from the site.");
+  const updated = structuredClone(project);
+  updated.property.layout = propertyLayout(project);
+  if (id === "driveway") {
+    updated.property.layout.driveway = null;
+    updated.property.driveway = false;
+  } else {
+    const match = /^(tree|building)-(\d+)$/.exec(id);
+    updated.property.layout[match[1] === "tree" ? "trees" : "structures"].splice(Number(match[2]), 1);
+  }
   return validateProject(updated);
 }

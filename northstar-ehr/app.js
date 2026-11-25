@@ -3237,8 +3237,15 @@ function getAdmittedPatients() {
     });
 }
 
-function renderAdmissionTable(container, admittedPatients) {
-  container.innerHTML = admittedPatients.length ? `
+function renderScrollableTable(label, content) {
+  return `<div class="table-container">
+    <p class="table-scroll-hint">Scroll horizontally to see all columns.</p>
+    <div class="table-wrap" role="region" aria-label="${escapeHtml(label)}, scroll horizontally to see all columns" tabindex="0">${content}</div>
+  </div>`;
+}
+
+function renderAdmissionTable(admittedPatients) {
+  return admittedPatients.length ? renderScrollableTable("Admissions table", `
     <table class="data-table">
       <thead><tr><th>Patient</th><th>Reason for admission</th><th>Department / location</th><th>Attending</th><th>Nurse</th><th>Alerts / latest vitals</th><th>Status</th><th></th></tr></thead>
       <tbody>${admittedPatients.map((patient) => `
@@ -3252,7 +3259,7 @@ function renderAdmissionTable(container, admittedPatients) {
           <td><span class="status-pill">${escapeHtml(patient.clinical.stage)}</span><span>${escapeHtml(patient.priority)} priority</span></td>
           <td><button class="ghost-btn action-btn" type="button" data-open-patient="${escapeHtml(patient.id)}">Open chart</button></td>
         </tr>`).join("")}</tbody>
-    </table>` : '<p class="empty-state">No active admissions. Save an Admission stage or admit disposition to add a patient.</p>';
+    </table>`) : '<p class="empty-state">No active admissions. Save an Admission stage or admit disposition to add a patient.</p>';
 }
 
 function renderOperationsOverview() {
@@ -3308,8 +3315,8 @@ function buildOperationalReport(type, search = "", status = "") {
 function renderOperationalReport(report) {
   const output = document.getElementById("operationalReportOutput");
   output.innerHTML = `<p>${escapeHtml(report.definition)}</p><p>Generated ${escapeHtml(report.generatedAt)} · ${report.rows.length} records · Search: ${escapeHtml(report.search || "All")} · Status: ${escapeHtml(report.status || "All")}</p>
-    ${report.rows.length ? `<div class="table-scroll"><table class="data-table"><thead><tr><th>Patient</th><th>MRN</th><th>Department</th><th>Item</th><th>Status</th><th>Date</th></tr></thead><tbody>${report.rows.map((row) =>
-      `<tr>${Object.values(row).map((value) => `<td>${escapeHtml(value || "Not recorded")}</td>`).join("")}</tr>`).join("")}</tbody></table></div>` : '<p class="empty-state">No records match these filters.</p>'}`;
+    ${report.rows.length ? renderScrollableTable("Operational report table", `<table class="data-table"><thead><tr><th>Patient</th><th>MRN</th><th>Department</th><th>Item</th><th>Status</th><th>Date</th></tr></thead><tbody>${report.rows.map((row) =>
+      `<tr>${Object.values(row).map((value) => `<td>${escapeHtml(value || "Not recorded")}</td>`).join("")}</tr>`).join("")}</tbody></table>`) : '<p class="empty-state">No records match these filters.</p>'}`;
   document.getElementById("exportOperationalReport").disabled = false;
 }
 
@@ -4300,10 +4307,8 @@ function renderAdmissionsView(container) {
       <p class="muted-copy">View active admissions across all departments. Update the encounter stage or disposition to change admission status.</p>
       ${hasPermission(currentUser.role, "workflow:update") ? '<button class="ghost-btn" type="button" data-register-patient>Register a patient</button>' : ""}
       ${hasPermission(currentUser.role, "workflow:update") ? '<button class="primary-btn" type="button" data-admit-patient>Admit new patient</button>' : ""}
-      <p class="table-scroll-hint">Scroll horizontally to see all columns.</p>
-      <div class="table-wrap" id="admissionsTable" role="region" aria-label="Admissions table, scroll horizontally to see all columns" tabindex="0"></div>
+      ${renderAdmissionTable(admittedPatients)}
     </div>`;
-  renderAdmissionTable(container.querySelector("#admissionsTable"), admittedPatients);
 }
 
 function getMyPatients() {
@@ -5166,9 +5171,7 @@ function renderNursingView(container) {
         </label>
         <p class="form-caution">Review assignment, location, allergies, and charted observations.</p>
       </div>
-      <p class="table-scroll-hint">Scroll horizontally to see all columns.</p>
-      <div class="table-wrap" role="region" aria-label="Nursing assignments table, scroll horizontally to see all columns" tabindex="0">
-        ${caredFor.length ? `<table class="data-table">
+      ${caredFor.length ? renderScrollableTable("Nursing assignments table", `<table class="data-table">
           <thead><tr><th>Patient / MRN</th><th>Location</th><th>Department</th><th>Diagnosis / reason</th><th>Priority / stage</th><th>Vitals</th><th>Allergies</th><th></th></tr></thead>
           <tbody>${caredFor.map((patient) => `
             <tr>
@@ -5181,8 +5184,7 @@ function renderNursingView(container) {
               <td>${escapeHtml(allergySummary(patient))}</td>
               <td><button class="ghost-btn action-btn" type="button" data-open-patient="${escapeHtml(patient.id)}">Open chart</button></td>
             </tr>`).join("")}</tbody>
-        </table>` : '<p class="empty-state">No patients match this nursing assignment.</p>'}
-      </div>
+        </table>`) : '<p class="empty-state">No patients match this nursing assignment.</p>'}
     </div>`;
   container.querySelector("#nursingNurseFilter").value = nursingFilter;
 }
@@ -5233,15 +5235,14 @@ function renderLocationsView(container) {
     <div class="panel">
       <div class="panel-header"><div><p class="eyebrow">Facility operations</p><h3>Locations & beds</h3></div><span class="pill">${locations.length + unlisted.length} locations</span></div>
       <p class="muted-copy">Occupancy is based on assigned patients.</p>
-      <p class="table-scroll-hint">Scroll horizontally to see all columns.</p>
-      <div class="table-wrap" role="region" aria-label="Locations and beds table, scroll horizontally to see all columns" tabindex="0"><table class="data-table">
+      ${renderScrollableTable("Locations and beds table", `<table class="data-table">
         <thead><tr><th>Location</th><th>Department</th><th>Type</th><th>Admitted patients</th><th>Occupancy</th><th>Assigned patients</th></tr></thead>
         <tbody>${[...locationRows, ...unlisted].map((location) => `
           <tr><td><strong>${escapeHtml(location.name)}</strong></td><td>${escapeHtml(location.department)}</td><td>${escapeHtml(location.kind)}</td>
             <td>${location.admittedCount}</td><td>${location.capacity ? `${location.admittedCount} / ${location.capacity}` : "Capacity not set"}</td>
             <td>${location.assigned.length ? location.assigned.map((patient) => `<button class="inline-link" type="button" data-open-patient="${escapeHtml(patient.id)}">${escapeHtml(patient.name)}</button>`).join(", ") : "—"}</td>
           </tr>`).join("")}</tbody>
-      </table></div>
+      </table>`)}
     </div>`;
 }
 
@@ -5958,6 +5959,11 @@ function renderOrders() {
     : '<p class="empty-state">No orders recorded for this encounter.</p>';
 }
 
+function documentSectionLabel(type, key) {
+  return documentTypeFields[type]?.find((field) => field.name === key)?.label ||
+    key.replace(/([A-Z])/g, " $1").replace(/^./, (letter) => letter.toUpperCase());
+}
+
 function renderDocuments() {
   const patient = getSelectedPatient();
   const container = document.getElementById("documentsList");
@@ -5976,13 +5982,13 @@ function renderDocuments() {
         <p class="document-meta">${escapeHtml(document.time)} · Author: ${escapeHtml(document.author || "Not recorded")}${document.updatedAt ? ` · Updated ${escapeHtml(document.updatedAt)} by ${escapeHtml(document.updatedBy || "Not recorded")}` : ""}</p>
         <div class="document-sections">
           ${Object.entries(document.sections || {}).filter(([, value]) => value).map(([key, value]) => `
-            <div><strong>${escapeHtml(documentTypeFields[document.type]?.find((field) => field.name === key)?.label || key.replace(/([A-Z])/g, " $1").replace(/^./, (letter) => letter.toUpperCase()))}</strong>
+            <div><strong>${escapeHtml(documentSectionLabel(document.type, key))}</strong>
               <p>${escapeHtml(value)}</p>
             </div>`).join("")}
         </div>
-        ${document.history?.length ? `<details><summary>Draft history (${document.history.length})</summary>
+        ${document.history?.length ? `<details class="document-history"><summary>Draft history (${document.history.length})</summary>
           ${document.history.map((version) => `<article><p>${escapeHtml(version.savedAt || "Date not recorded")} · ${escapeHtml(version.savedBy || "Author not recorded")}</p><strong>${escapeHtml(version.title)}</strong>
-            ${Object.entries(version.sections || {}).map(([key, value]) => `<p><strong>${escapeHtml(documentTypeFields[document.type]?.find((field) => field.name === key)?.label || key)}</strong>: ${escapeHtml(value)}</p>`).join("")}</article>`).join("")}</details>` : ""}
+            ${Object.entries(version.sections || {}).map(([key, value]) => `<p><strong>${escapeHtml(documentSectionLabel(document.type, key))}</strong>: ${escapeHtml(value)}</p>`).join("")}</article>`).join("")}</details>` : ""}
         ${document.status === "Draft" && documentTypeFields[document.type] && hasPermission(currentUser.role, "document:create") ? `<button class="ghost-btn" type="button" data-edit-document="${escapeHtml(document.id)}">Edit draft</button>` : ""}
       </article>`).join("")
     : '<p class="empty-state">No clinical documents recorded for this patient.</p>';

@@ -883,6 +883,62 @@ test("operational reports filter records and keep reviewed results out of unrevi
   assert.throws(() => vm.runInContext('buildOperationalReport("invalid")', context), /valid report/);
 });
 
+test("operational report tables provide accessible local scrolling", () => {
+  const { context } = setup();
+  const output = {};
+  const exportButton = { disabled: true };
+  context.document = { getElementById: (id) => id === "operationalReportOutput" ? output : exportButton };
+  context.report = {
+    definition: "Demo report", generatedAt: "2026-01-01", search: "", status: "",
+    rows: [{ patient: "<Demo>", mrn: "1", department: "ED", item: "Test", status: "Open", date: "Today" }]
+  };
+  vm.runInContext("renderOperationalReport(report)", context);
+  assert.match(output.innerHTML, /class="table-scroll-hint"/);
+  assert.match(output.innerHTML, /class="table-wrap" role="region" aria-label="Operational report table, scroll horizontally to see all columns" tabindex="0"/);
+  assert.match(output.innerHTML, /&lt;Demo&gt;/);
+  assert.equal(exportButton.disabled, false);
+  context.report.rows = [];
+  vm.runInContext("renderOperationalReport(report)", context);
+  assert.match(output.innerHTML, /No records match these filters/);
+  assert.doesNotMatch(output.innerHTML, /class="table-wrap"/);
+});
+
+test("census and directory tables share accessible scrolling without empty table regions", () => {
+  const { context } = setup();
+  const filter = {};
+  const container = { querySelector: () => filter };
+  context.container = container;
+  assert.match(vm.runInContext("renderAdmissionTable([])", context), /No active admissions/);
+  assert.doesNotMatch(vm.runInContext("renderAdmissionTable([])", context), /table-wrap|table-scroll-hint/);
+  vm.runInContext("renderAdmissionsView(container)", context);
+  assert.match(container.innerHTML, /aria-label="Admissions table, scroll horizontally to see all columns" tabindex="0"/);
+  vm.runInContext("renderNursingView(container)", context);
+  assert.match(container.innerHTML, /aria-label="Nursing assignments table, scroll horizontally to see all columns" tabindex="0"/);
+  vm.runInContext("renderLocationsView(container)", context);
+  assert.match(container.innerHTML, /aria-label="Locations and beds table, scroll horizontally to see all columns" tabindex="0"/);
+  vm.runInContext("patients = []; renderNursingView(container)", context);
+  assert.match(container.innerHTML, /No patients match this nursing assignment/);
+  assert.doesNotMatch(container.innerHTML, /table-wrap|table-scroll-hint/);
+  assert.match(vm.runInContext('renderScrollableTable(\'Demo "table"\', "<table></table>")', context), /Demo &quot;table&quot;/);
+});
+
+test("note history uses consistent field labels and escapes saved content", () => {
+  const { context } = setup();
+  const elements = { documentsList: {}, documentCount: {} };
+  context.document = { getElementById: (id) => elements[id] };
+  vm.runInContext(`patients[0].documents = [{
+    id: "demo", type: "Progress Note", title: "Current", status: "Draft", time: "Today",
+    sections: { customField: "<current>" },
+    history: [{ title: "Previous", savedAt: "Yesterday", savedBy: "Demo", sections: { customField: "<previous>" } }]
+  }]; selectedPatientId = patients[0].id; renderDocuments()`, context);
+  const html = elements.documentsList.innerHTML;
+  assert.match(html, /class="document-history"/);
+  assert.equal((html.match(/Custom Field/g) || []).length, 2);
+  assert.match(html, /&lt;current&gt;/);
+  assert.match(html, /&lt;previous&gt;/);
+  assert.match(html, /data-edit-document="demo"/);
+});
+
 const sessionKey = "northstar-ehr-demo-account";
 const acknowledgmentKey = "northstar-ehr-warning-acknowledged";
 const automaticSignInKey = "northstar-ehr-automatic-sign-in";

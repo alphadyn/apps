@@ -18,6 +18,10 @@ page. Pharmacy panels stack on tablets, and pharmacy mode controls use wrapping
 two-column layouts with 44-pixel touch targets on phones. Dispensing history uses
 normal page scrolling on phones. Wide census and location tables retain local
 horizontal scrolling, with a visible hint on narrower screens and keyboard access.
+Operational report tables use the same accessible local scrolling, while note
+editing dialogs fit the available viewport and scroll independently.
+Admissions, nursing, locations, and report tables share the same scrolling
+controls and hints. Draft histories are grouped beneath their current notes.
 Patient workflow cards adapt to the available desktop width and stack on phones;
 navigation, workflow selectors, inbox controls, and section toggles have larger
 touch targets on mobile devices.

@@ -157,7 +157,7 @@ def test_js_syntax_validation():
 
     # Verify key architectural functions and methods in app.js
     required_keywords = [
-        "cms_database.db",
+        "const db =",
         "checkHealth",
         "getFilteredAndSortedItems",
         "renderApp",

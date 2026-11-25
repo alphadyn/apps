@@ -9,7 +9,13 @@ import unittest
 from unittest.mock import MagicMock, call, patch
 from urllib.error import HTTPError, URLError
 
-import build_data
+import importlib.util
+import sys
+
+_spec = importlib.util.spec_from_file_location("build_data", str(Path(__file__).with_name("build_data.py")))
+build_data = importlib.util.module_from_spec(_spec)
+sys.modules["build_data"] = build_data
+_spec.loader.exec_module(build_data)
 
 RSS = b"""<rss><channel>
 <item><title> Main   headline </title><link>https://example.com/main</link></item>

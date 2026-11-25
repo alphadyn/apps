@@ -1,12 +1,18 @@
 import json
 from datetime import datetime, timezone
 
-from app import (
-    app,
-    extract_news_items,
-    format_capture_json,
-    save_news_json,
-)
+import importlib.util
+from pathlib import Path
+import sys
+
+_spec = importlib.util.spec_from_file_location("app", str(Path(__file__).with_name("app.py")))
+_app = importlib.util.module_from_spec(_spec)
+sys.modules["app"] = _app
+_spec.loader.exec_module(_app)
+app = _app.app
+extract_news_items = _app.extract_news_items
+format_capture_json = _app.format_capture_json
+save_news_json = _app.save_news_json
 
 
 def test_web_home_and_capture_status_routes():

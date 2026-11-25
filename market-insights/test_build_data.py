@@ -6,7 +6,12 @@ import unittest
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
 
-import build_data
+import importlib.util
+import sys
+
+_spec = importlib.util.spec_from_file_location("market_insights_build_data", str(Path(__file__).with_name("build_data.py")))
+build_data = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(build_data)
 
 
 def fact(start, end, val, filed="2026-01-01", form="10-Q"):

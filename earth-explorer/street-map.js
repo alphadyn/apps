@@ -4,6 +4,7 @@ const MAX_LATITUDE = 85.05112878;
 const TILE_LIMIT = 64;
 const TILE_SIZE = 512;
 const MAX_TILE_ZOOM = 20;
+const TILE_CONTRAST = 1.5;
 const TILE_URL = "https://a.basemaps.cartocdn.com/rastertiles/voyager";
 const CARTO_KEY = "cb1_2w0f_1_82cba88eb21776b6335fa821";
 
@@ -144,11 +145,21 @@ export function createStreetMap(scene, camera, renderer, radius, status) {
           const texture = await loader.loadAsync(`${TILE_URL}/${tile.key}@2x.png?key=${CARTO_KEY}`);
           texture.colorSpace = THREE.SRGBColorSpace;
           texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+          const material = new THREE.MeshBasicMaterial({
+            map: texture,
+            depthTest: false,
+            depthWrite: false,
+          });
+          material.onBeforeCompile = (shader) => {
+            shader.fragmentShader = shader.fragmentShader.replace(
+              "#include <map_fragment>",
+              `#include <map_fragment>
+              diffuseColor.rgb = clamp((diffuseColor.rgb - 0.5) * ${TILE_CONTRAST.toFixed(2)} + 0.5, 0.0, 1.0);`
+            );
+          };
           const mesh = new THREE.Mesh(
             tileGeometry(tile.x, tile.y, tile.zoom, radius + 0.000001),
-            // Tile triangles and the imagery sphere have different tessellations.
-            // Draw the outward-facing map after imagery without competing depths.
-            new THREE.MeshBasicMaterial({ map: texture, depthTest: false, depthWrite: false })
+            material
           );
           // Draw higher-detail tiles over lower-detail tiles during transitions,
           // while keeping all tiles behind borders, markers, and grid lines.

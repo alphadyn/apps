@@ -3711,6 +3711,7 @@ label {
 input,
 select,
 textarea {
+  font-weight: 400;
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 10px 12px;
@@ -4770,7 +4771,6 @@ h4.collapse-head .collapse-toggle {
   border-radius: 8px;
   background: #fff;
   color: #334155;
-  font: inherit;
 }
 
 @media (max-width: 760px) {

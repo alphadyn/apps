@@ -54,5 +54,8 @@ export function setupResponsiveUI() {
   compactMedia.addEventListener("change", () => setProperties(propertiesOpen));
   setNavigation(false);
   setProperties(false);
-  return { closeNavigation: () => setNavigation(false, sidebar.classList.contains("open")) };
+  return {
+    closeNavigation: () => setNavigation(false, sidebar.classList.contains("open")),
+    openProperties: () => setProperties(true),
+  };
 }

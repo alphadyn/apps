@@ -1,5 +1,6 @@
 [hidden] { display: none !important; }
 .canvas-column, .editor-controls, .breadcrumb { min-width: 0; }
+.sidebar > .design-nav + .sidebar-section-heading { margin-top: 24px; }
 .mobile-editor-actions, #return-to-canvas, #close-navigation { display: none; }
 .inspector {
   max-height: calc(clamp(450px, 44.5vw, 660px) + 90px);

@@ -25,30 +25,36 @@
   <meta name="twitter:image:alt" content="Forma home design studio: a space for possibility, with an illustrated floor plan.">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css?v=20261122-11">
-  <link rel="stylesheet" href="responsive.css?v=20261122-13">
-  <script type="module" src="app.js?v=20261125-1"></script>
+  <link rel="stylesheet" href="responsive.css?v=20261125-2">
+  <script type="module" src="app.js?v=20261125-2"></script>
 </head>
 <body>
   <aside class="sidebar" id="workspace-navigation" aria-label="Workspace navigation">
     <button class="icon-button" id="close-navigation" aria-label="Close navigation"><span data-icon="close"></span></button>
     <a class="brand" href="./" aria-label="Forma home"><img src="icon.svg" alt=""><span>forma<span class="brand-period">.</span></span><span class="studio-tag">STUDIO</span></a>
-    <div class="workspace-label">YOUR WORKSPACE <span>⌘ K</span></div>
+    <div class="workspace-label">YOUR WORKSPACE <span title="Open rooms and spaces">⌘ K</span></div>
     <button class="project-button" id="project-details"><span class="project-symbol" data-icon="house"></span><span><strong id="sidebar-name">The Courtyard House</strong><small>Residential project</small></span><span data-icon="chevrons"></span></button>
-    <div class="sidebar-section-heading">DESIGN <span class="tiny-dot"></span></div>
-    <nav class="design-nav" aria-label="Workspace">
+    <div class="sidebar-section-heading" id="design-navigation-heading">DESIGN <span class="tiny-dot"></span></div>
+    <nav class="design-nav" aria-labelledby="design-navigation-heading">
       <button class="active" data-panel="plan"><span data-icon="plan"></span>Floor plan<span class="nav-count" id="floor-count">2</span></button>
       <button data-panel="property"><span data-icon="property"></span>House & property</button>
-      <button data-panel="samples"><span data-icon="sparkles"></span>Sample designs<span class="new-badge" id="sample-count"></span></button>
-      <button data-panel="architecture"><span data-icon="door"></span>Doors, windows & gates</button>
-      <button data-panel="documentation"><span data-icon="plan"></span>Documentation</button>
-      <button data-panel="rooms"><span data-icon="rooms"></span>Rooms & spaces<span class="nav-count" id="room-count">10</span></button>
-      <button data-panel="materials"><span data-icon="materials"></span>Materials<span class="new-badge">4</span></button>
-      <button data-panel="settings"><span data-icon="sliders"></span>Project settings</button>
     </nav>
-    <div class="sidebar-divider"></div>
     <div class="sidebar-section-heading">FLOORS <button class="icon-button" id="add-floor" aria-label="Add floor" title="Add floor"><span data-icon="plus"></span></button></div>
     <div class="floor-list" id="floor-list"></div>
-    <div class="sidebar-section-heading spaces-heading">SPACE LIBRARY <span class="muted">↗</span></div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-heading" id="details-navigation-heading">DESIGN DETAILS</div>
+    <nav class="design-nav" aria-labelledby="details-navigation-heading">
+      <button data-panel="rooms"><span data-icon="rooms"></span>Rooms & spaces<span class="nav-count" id="room-count">10</span></button>
+      <button data-panel="architecture"><span data-icon="door"></span>Doors, windows & gates</button>
+      <button data-panel="materials"><span data-icon="materials"></span>Materials<span class="new-badge">4</span></button>
+    </nav>
+    <div class="sidebar-section-heading" id="project-navigation-heading">PROJECT & SHARING</div>
+    <nav class="design-nav" aria-labelledby="project-navigation-heading">
+      <button data-panel="samples"><span data-icon="sparkles"></span>Sample designs<span class="new-badge" id="sample-count"></span></button>
+      <button data-panel="documentation"><span data-icon="plan"></span>Documentation</button>
+      <button data-panel="settings"><span data-icon="sliders"></span>Project settings</button>
+    </nav>
+    <div class="sidebar-section-heading spaces-heading">ADD A SPACE <span class="muted">↗</span></div>
     <p class="library-hint">A home starts with its spaces.</p>
     <div class="space-library" id="space-library"></div>
     <button class="browse-spaces" id="browse-spaces">Browse all spaces <span data-icon="plus"></span></button>

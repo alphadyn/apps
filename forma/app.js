@@ -1,7 +1,7 @@
 import { TYPES, SITE_STRUCTURE_TYPES, createProject, floorArea, projectStats, propertyStats, bounds, isOutdoor, exteriorRoomWalls, roomOutline, roomArea, roomCentroid, validateRoom, validateProject, validateProperty, makeRoom, parseProject, readProjectFile, hasRectangularOutline } from "./model.js?v=20261125-1";
 import { renderPropertyView } from "./property-view.js?v=20261125-1";
 import { propertyFeatures, propertyItem, movePropertyItem, updatePropertyItem, addPropertyItem, removePropertyItem } from "./property-edit.js?v=20261125-1";
-import { setupResponsiveUI } from "./responsive-ui.js?v=20261122-12";
+import { setupResponsiveUI } from "./responsive-ui.js?v=20261125-2";
 import { renderFloor3D } from "./floor-view.js?v=20261122-5";
 import { cameraFromDrag, createCamera, DEFAULT_CAMERA, normalizeCamera } from "./camera.js";
 import { SAMPLE_DESIGNS, createSampleDesign } from "./samples.js?v=20261122-7";
@@ -219,7 +219,14 @@ function render() {
     $(`#scope-${value}`).classList.toggle("active", scope === value);
     $(`#scope-${value}`).setAttribute("aria-pressed", scope === value);
   }
-  document.querySelectorAll(".design-nav button").forEach(button => button.classList.toggle("active", button.dataset.panel === activePanel));
+  document.querySelectorAll(".design-nav button").forEach(button => {
+    const current = button.dataset.panel === (scope === "property" ? "property" : "plan");
+    button.classList.toggle("active", current);
+    if (current) button.setAttribute("aria-current", "page");
+    else button.removeAttribute("aria-current");
+  });
+  $("#toolbar-add").setAttribute("aria-label", scope === "property" ? "Add site feature" : "Add room");
+  $("#toolbar-add").title = scope === "property" ? "Add a site feature" : "Add a space (R)";
   $(".canvas-legend").innerHTML = scope === "property"
     ? '<span><i class="legend-living"></i>House</span><span><i class="legend-outdoor"></i>Grounds</span><span><i class="legend-boundary"></i>Property line</span>'
     : '<span><i class="legend-living"></i>Living</span><span><i class="legend-private"></i>Private</span><span><i class="legend-service"></i>Service</span><span><i class="legend-outdoor"></i>Outdoor</span>';
@@ -540,7 +547,6 @@ function deleteRoom(item) { change(() => {
 }); }
 function architecturalFeatures(featureId, newFeatureType) {
   activePanel = "architecture";
-  document.querySelectorAll(".design-nav button").forEach(button => button.classList.toggle("active", button.dataset.panel === activePanel));
   architectureDialog({
     getProject: () => project, showDialog, change, selectedRoomId: selected, featureId, newFeatureType, units: unitSystem,
     onAdded: feature => {
@@ -630,6 +636,13 @@ function addRoom(type) {
 }
 function addDialog() {
   showDialog("Make room for living.", `<p class="dialog-description">Choose a space to add to ${escape(floor().name.toLowerCase())}. You can refine its dimensions and position on the canvas.</p><div class="dialog-space-grid">${Object.entries(TYPES).map(([type, spec]) => `<button data-add-type="${type}">${icon(spec.icon)}${spec.name}</button>`).join("")}</div>`);
+}
+function addToCanvas() {
+  if (scope === "floor") { addDialog(); return; }
+  view = "2d";
+  render();
+  responsiveUI.openProperties();
+  $("#site-add-type").focus();
 }
 function projectDialog() {
   showDialog("Your project, your way.", `<form id="settings-form" class="dialog-form"><div class="property-field"><label for="project-name">Project name</label><input id="project-name" name="name" maxlength="80" value="${escape(project.name)}" required></div><div class="field-row"><div class="property-field"><label for="project-style">Design language</label><select id="project-style" name="style">${["Contemporary", "Minimalist", "Modern organic", "Mid-century"].map(style => `<option ${project.style === style ? "selected" : ""}>${style}</option>`).join("")}</select></div><div class="property-field"><label for="ceiling">Ceiling height (${lengthUnit(unitSystem)})</label><input id="ceiling" name="ceiling" type="number" ${inputLengthAttrs(2, 6, ".1")} value="${inputLength(project.ceiling, unitSystem)}" required></div></div><div class="property-field"><label for="unit-system">Measurement units</label><select id="unit-system" name="units"><option value="metric" ${unitSystem === "metric" ? "selected" : ""}>Metric (meters, square meters)</option><option value="imperial" ${unitSystem === "imperial" ? "selected" : ""}>Imperial (feet, square feet)</option></select></div><p class="dialog-note">This is a conceptual planning tool, not architectural or structural documentation. Consult a licensed professional before building. Areas include terraces and stairs; overlapping rooms are counted individually.</p><div class="dialog-actions"><button class="button" type="button" id="import-project">${icon("upload")}Open project</button><button class="button primary" type="submit">Save settings</button></div></form>`, "PROJECT SETTINGS");
@@ -780,7 +793,10 @@ $("#sample-count").textContent = SAMPLE_DESIGNS.length;
 $("#space-library").innerHTML = ["bedroom", "bathroom", "kitchen", "living", "dining", "stairs", "hallway", "closet"].map(type => `<button class="library-item" data-add-type="${type}" title="Add ${TYPES[type].name.toLowerCase()}">${icon(TYPES[type].icon)}${TYPES[type].name}</button>`).join("");
 document.addEventListener("click", event => {
   const add = event.target.closest("[data-add-type]");
-  if (add) addRoom(add.dataset.addType);
+  if (add) {
+    if (add.closest(".sidebar")) responsiveUI.closeNavigation();
+    addRoom(add.dataset.addType);
+  }
   const floorButton = event.target.closest("[data-floor]");
   if (floorButton) selectFloor(floorButton.dataset.floor);
   const roomButton = event.target.closest("[data-select-room]");
@@ -789,6 +805,7 @@ document.addEventListener("click", event => {
   if (directoryButton) { selectFloor(directoryButton.dataset.directoryFloor); selected = directoryButton.dataset.directoryRoom; render(); closeDialog(); }
   const panel = event.target.closest("[data-panel]");
   if (panel) {
+    responsiveUI.closeNavigation();
     const panels = {
       plan: () => setScope("floor"), property: () => setScope("property"), samples: sampleGallery,
       architecture: () => architecturalFeatures(), documentation: () => {
@@ -800,7 +817,6 @@ document.addEventListener("click", event => {
     };
     activePanel = panel.dataset.panel;
     panels[panel.dataset.panel]();
-    responsiveUI.closeNavigation();
   }
 });
 $("#plan").addEventListener("pointerdown", event => {
@@ -1008,9 +1024,9 @@ $("#open-design-button").onclick = importProject;
 $("#export-button").onclick = exportDialog;
 $("#rename-project").onclick = projectDialog;
 $("#project-details").onclick = projectDialog;
-$("#add-floor").onclick = addFloorDialog;
-$("#toolbar-add").onclick = addDialog;
-$("#browse-spaces").onclick = addDialog;
+$("#add-floor").onclick = () => { responsiveUI.closeNavigation(); addFloorDialog(); };
+$("#toolbar-add").onclick = addToCanvas;
+$("#browse-spaces").onclick = () => { responsiveUI.closeNavigation(); addDialog(); };
 $("#scope-floor").onclick = () => setScope("floor");
 $("#scope-property").onclick = () => setScope("property");
 $("#empty-add").onclick = addDialog;

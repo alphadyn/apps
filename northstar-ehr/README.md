@@ -221,6 +221,8 @@ April 1, 2026 PCS update. Search matches code descriptions and codes; results ar
 paginated in groups of 24 and capped at 10,000 matches per search. All workforce
 roles can search and review results. Only the Provider role can select a code,
 assign it to a patient, and save a coded diagnosis or procedure order.
+The sidebar **Clinical catalog > Diagnoses** also provides read-only ICD-10-CM
+search without selecting a patient; assignment remains in the patient order workflow.
 For diagnoses, open a patient's **Orders**, expand **New order**, and choose
 **Diagnosis**. Search by name or code; exact and prefix code matches appear
 first. Selecting a result fills the diagnosis and code and shows them as an

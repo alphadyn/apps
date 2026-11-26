@@ -2179,7 +2179,7 @@ function getDetailCardsForView(patient, openTasks) {
 }
 
 function getVisibleSections(view) {
-  const extendedViews = ["my-patients", "inbox", "admissions", "nursing", "departments", "locations", "staff", "profiles", "patient-profiles", "dispensary", "medications", "procedure-catalog", "radiology-catalog"];
+  const extendedViews = ["my-patients", "inbox", "admissions", "nursing", "departments", "locations", "staff", "profiles", "patient-profiles", "dispensary", "medications", "diagnosis-catalog", "procedure-catalog", "radiology-catalog"];
   return {
     overviewSection: view === "overview",
     operationsOverviewSection: view === "overview",
@@ -2360,6 +2360,7 @@ function initializeWorkspaceNavigation() {
     appointments: "M4 5h16v16H4zM8 2v6m8-6v6M4 11h16m-12 4h3m2 3h3",
     clinical: "M3 12h4l3-8 4 16 3-8h4",
     orders: "M9 3H4v18h16V3h-5M9 3v4h6V3zM8 13h8m-4-4v8",
+    "diagnosis-catalog": "M4 3h16v18H4zM8 7h8M8 12h8M8 17h8",
     "procedure-catalog": "M9 3H4v18h16V3h-5M9 3v4h6V3zM8 13h8m-4-4v8",
     "radiology-catalog": "M4 3h16v18H4zM8 7h8M8 12h8M8 17h8",
     outpatient: "M4 5h16v16H4zM8 2v6m8-6v6M4 11h16",
@@ -4301,18 +4302,8 @@ let procedureCodeMatches = [];
 let procedureCodePage = 0;
 let procedureCodeSearchTerm = "";
 
-function renderDiagnosisCatalog() {
-  const search = document.getElementById("diagnosisSearch");
-  const results = document.getElementById("diagnosisResults");
-  const status = document.getElementById("diagnosisSearchStatus");
-  const pagination = document.getElementById("diagnosisPagination");
-  if (!search || !results || !status || !pagination) return;
-
-  document.getElementById("diagnosisSearchHelp").textContent = canAssignIcdCodes(currentUser.role)
-    ? "Search by name or code, then select a result to fill the order. You can also enter the diagnosis and code manually."
-    : "All staff can search the catalog. Only a Provider can assign or save diagnosis codes to a patient record.";
-  diagnosisSearchTerm = search.value;
-  const term = diagnosisSearchTerm.trim().toLocaleLowerCase();
+function searchDiagnoses(query) {
+  const term = query.trim().toLocaleLowerCase();
   const normalizedTerm = term.replace(/[^a-z0-9]/g, "");
   const allMatches = term
     ? icd10cmDiagnosisCatalog.diagnoses.filter(({ code, name }) =>
@@ -4328,6 +4319,28 @@ function renderDiagnosisCatalog() {
     };
     allMatches.sort((a, b) => codeRank(a) - codeRank(b));
   }
+  return allMatches;
+}
+
+function diagnosisSearchStatus(query, count) {
+  if (!query.trim()) return "Enter a diagnosis name or ICD-10-CM code to search.";
+  if (count > ICD_CODE_MATCH_LIMIT) return `Showing the first ${ICD_CODE_MATCH_LIMIT.toLocaleString()} of ${count.toLocaleString()} matching diagnoses. Refine the search to narrow results.`;
+  if (!count) return "No matching diagnoses. Try another name or code.";
+  return `${count.toLocaleString()} matching ${count === 1 ? "diagnosis" : "diagnoses"}.`;
+}
+
+function renderDiagnosisCatalog() {
+  const search = document.getElementById("diagnosisSearch");
+  const results = document.getElementById("diagnosisResults");
+  const status = document.getElementById("diagnosisSearchStatus");
+  const pagination = document.getElementById("diagnosisPagination");
+  if (!search || !results || !status || !pagination) return;
+
+  document.getElementById("diagnosisSearchHelp").textContent = canAssignIcdCodes(currentUser.role)
+    ? "Search by name or code, then select a result to fill the order. You can also enter the diagnosis and code manually."
+    : "All staff can search the catalog. Only a Provider can assign or save diagnosis codes to a patient record.";
+  diagnosisSearchTerm = search.value;
+  const allMatches = searchDiagnoses(diagnosisSearchTerm);
   diagnosisMatches = allMatches.slice(0, ICD_CODE_MATCH_LIMIT);
   const pages = Math.ceil(diagnosisMatches.length / ICD_CODE_PAGE_SIZE);
   diagnosisPage = Math.min(diagnosisPage, Math.max(0, pages - 1));
@@ -4341,15 +4354,7 @@ function renderDiagnosisCatalog() {
         : `<div class="procedure-result"><strong>${escapeHtml(diagnosis.name)}</strong><span>ICD-10-CM ${escapeHtml(diagnosis.code)}</span></div>`}
     `).join("")
     : "";
-  if (!term) {
-    status.textContent = "Enter a diagnosis name or ICD-10-CM code to search.";
-  } else if (allMatches.length > ICD_CODE_MATCH_LIMIT) {
-    status.textContent = `Showing the first ${ICD_CODE_MATCH_LIMIT.toLocaleString()} of ${allMatches.length.toLocaleString()} matching diagnoses. Refine the search to narrow results.`;
-  } else if (!allMatches.length) {
-    status.textContent = "No matching diagnoses. Try another name or code.";
-  } else {
-    status.textContent = `${allMatches.length.toLocaleString()} matching ${allMatches.length === 1 ? "diagnosis" : "diagnoses"}.`;
-  }
+  status.textContent = diagnosisSearchStatus(diagnosisSearchTerm, allMatches.length);
   pagination.hidden = pages <= 1;
   document.getElementById("diagnosisPrevious").disabled = diagnosisPage === 0;
   document.getElementById("diagnosisNext").disabled = diagnosisPage >= pages - 1;
@@ -5690,6 +5695,7 @@ function renderExtendedWorkspace() {
     case "staff": renderStaffView(container); break;
     case "dispensary":
     case "medications": renderDispensaryView(container); break;
+    case "diagnosis-catalog": renderIndependentDiagnosisCatalog(container); break;
     case "procedure-catalog": renderIndependentProcedureCatalog(container); break;
     case "radiology-catalog": renderIndependentRadiologyCatalog(container); break;
     case "profiles": renderProfilesView(container); break;
@@ -5803,6 +5809,46 @@ function procedureCategoryLabel(procedure) {
 }
 
 let independentProcedurePage = 0;
+
+let independentDiagnosisPage = 0;
+
+function renderIndependentDiagnosisResults() {
+  const query = document.getElementById("independentDiagnosisSearch").value;
+  const allMatches = searchDiagnoses(query);
+  const matches = allMatches.slice(0, ICD_CODE_MATCH_LIMIT);
+  const pages = Math.ceil(matches.length / ICD_CODE_PAGE_SIZE);
+  independentDiagnosisPage = Math.max(0, Math.min(independentDiagnosisPage, Math.max(0, pages - 1)));
+  const start = independentDiagnosisPage * ICD_CODE_PAGE_SIZE;
+  document.getElementById("independentDiagnosisStatus").textContent = diagnosisSearchStatus(query, allMatches.length);
+  document.getElementById("independentDiagnosisResults").innerHTML = matches.slice(start, start + ICD_CODE_PAGE_SIZE).map((diagnosis) => `
+    <div class="procedure-result"><strong>${escapeHtml(diagnosis.name)}</strong><span>ICD-10-CM ${escapeHtml(diagnosis.code)}</span></div>
+  `).join("");
+  document.getElementById("independentDiagnosisPagination").hidden = pages <= 1;
+  document.getElementById("independentDiagnosisPrevious").disabled = independentDiagnosisPage === 0;
+  document.getElementById("independentDiagnosisNext").disabled = independentDiagnosisPage >= pages - 1;
+  document.getElementById("independentDiagnosisPage").textContent = pages ? `Page ${independentDiagnosisPage + 1} of ${pages}` : "";
+}
+
+function renderIndependentDiagnosisCatalog(container) {
+  independentDiagnosisPage = 0;
+  container.innerHTML = `<section class="panel independent-diagnosis-catalog">
+    <div class="panel-header"><div><p class="eyebrow">Clinical catalog</p><h3>Diagnoses</h3></div></div>
+    <div class="clinical-form">
+      <p class="muted-copy">Search the ICD-10-CM catalog by diagnosis name or code. To assign a diagnosis, a Provider can create a diagnosis order from a patient record.</p>
+      <label for="independentDiagnosisSearch">Search ICD-10-CM diagnoses
+        <input id="independentDiagnosisSearch" type="search" placeholder="Search by diagnosis name or code" autocomplete="off" />
+      </label>
+      <p id="independentDiagnosisStatus" class="muted-copy" role="status" aria-live="polite"></p>
+      <div id="independentDiagnosisResults" class="procedure-results"></div>
+      <div id="independentDiagnosisPagination" class="procedure-pagination" hidden>
+        <button id="independentDiagnosisPrevious" class="ghost-btn" type="button">Previous</button>
+        <span id="independentDiagnosisPage"></span>
+        <button id="independentDiagnosisNext" class="ghost-btn" type="button">Next</button>
+      </div>
+    </div>
+  </section>`;
+  renderIndependentDiagnosisResults();
+}
 
 function renderIndependentProcedureResults() {
   const query = document.getElementById("independentProcedureSearch").value.trim();
@@ -6903,6 +6949,11 @@ function attachEvents() {
     }
   });
   document.getElementById("extendedContent").addEventListener("click", (event) => {
+    if (event.target.closest("#independentDiagnosisPrevious, #independentDiagnosisNext")) {
+      independentDiagnosisPage += event.target.closest("#independentDiagnosisPrevious") ? -1 : 1;
+      renderIndependentDiagnosisResults();
+      return;
+    }
     const radiologyResult = event.target.closest("[data-independent-radiology]");
     if (radiologyResult) {
       if (!hasPermission(currentUser.role, "order:create")) return;
@@ -7041,6 +7092,11 @@ function attachEvents() {
     }
   });
   document.getElementById("extendedContent").addEventListener("input", (event) => {
+    if (event.target.id === "independentDiagnosisSearch") {
+      independentDiagnosisPage = 0;
+      renderIndependentDiagnosisResults();
+      return;
+    }
     if (event.target.id === "independentRadiologySearch") {
       independentRadiologyPage = 0;
       renderRadiologyResults(true);

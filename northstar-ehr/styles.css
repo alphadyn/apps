@@ -826,7 +826,8 @@ textarea {
   justify-self: start;
 }
 
-.independent-procedure-catalog label {
+.independent-procedure-catalog label,
+.independent-diagnosis-catalog label {
   font-weight: 500;
 }
 
@@ -4220,7 +4221,7 @@ textarea {
   font-weight: 500;
 }
 
-#orderForm .procedure-results .procedure-result {
+:is(#orderForm, .independent-diagnosis-catalog) .procedure-results .procedure-result {
   display: grid;
   justify-content: stretch;
   gap: 3px;
@@ -4248,11 +4249,11 @@ textarea {
   outline-offset: 2px;
 }
 
-#orderForm .procedure-result strong {
+:is(#orderForm, .independent-diagnosis-catalog) .procedure-result strong {
   font-weight: 500;
 }
 
-#orderForm .procedure-result span {
+:is(#orderForm, .independent-diagnosis-catalog) .procedure-result span {
   font-size: 0.82rem;
   font-weight: 400;
 }

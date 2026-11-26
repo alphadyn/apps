@@ -826,6 +826,62 @@ textarea {
   justify-self: start;
 }
 
+.independent-procedure-catalog label {
+  font-weight: 500;
+}
+
+.independent-procedure-catalog .procedure-review summary {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 44px;
+  list-style: none;
+}
+
+.independent-procedure-catalog .procedure-review summary::-webkit-details-marker {
+  display: none;
+}
+
+.independent-procedure-catalog .procedure-review summary::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  margin-top: 6px;
+  border-right: 1.5px solid var(--accent);
+  border-bottom: 1.5px solid var(--accent);
+  transform: rotate(-45deg);
+}
+
+.independent-procedure-catalog .procedure-review[open] summary::before {
+  transform: rotate(45deg);
+}
+
+.independent-procedure-catalog .procedure-review summary:hover {
+  background: #f3faf8;
+  border-radius: 10px;
+}
+
+.independent-procedure-catalog .procedure-review-heading {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  line-height: 1.4;
+}
+
+.independent-procedure-catalog .procedure-review-heading strong {
+  font-weight: 500;
+}
+
+.independent-procedure-catalog .procedure-review-heading > span {
+  font-size: 0.82rem;
+  font-weight: 400;
+}
+
+.independent-procedure-catalog .structured-record-fields dt {
+  font-weight: 600;
+}
+
 .formulary-patient-choice:not([hidden]) {
   display: grid;
   gap: 10px;

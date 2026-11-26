@@ -5841,7 +5841,7 @@ function renderIndependentProcedureResults() {
 
 function renderIndependentProcedureCatalog(container) {
   independentProcedurePage = 0;
-  container.innerHTML = `<section class="panel">
+  container.innerHTML = `<section class="panel independent-procedure-catalog">
     <div class="panel-header"><div><p class="eyebrow">Clinical catalog</p><h3>Procedures &amp; operations</h3></div></div>
     <div class="clinical-form">
       <p class="muted-copy">Search by name, specialty, or type. Expand a result to review it; choose a patient only if you want to order.</p>

@@ -2234,8 +2234,30 @@ function renderNavigation() {
   const patientContextMrn = document.getElementById("patientContextMrn");
   patientContextMrn.textContent = patientContext ? getSelectedPatient().mrn : "";
   patientContextMrn.hidden = !patientContext;
-  document.getElementById("staffSearchContainer").hidden = currentView !== "staff";
-  if (currentView !== "staff" && activeHeaderSearch === "staff") activeHeaderSearch = null;
+  const patientSearchContainer = document.getElementById("patientSearchContainer");
+  const staffSearchContainer = document.getElementById("staffSearchContainer");
+  if (patientSearchContainer) patientSearchContainer.hidden = currentView === "staff";
+  if (staffSearchContainer) staffSearchContainer.hidden = currentView !== "staff";
+
+  if (currentView === "staff") {
+    const patientInput = document.getElementById("patientSearch");
+    const patientResults = document.getElementById("patientSearchResults");
+    if (patientInput) patientInput.value = "";
+    if (patientResults) {
+      patientResults.hidden = true;
+      patientResults.innerHTML = "";
+    }
+    if (activeHeaderSearch === "patient") activeHeaderSearch = null;
+  } else {
+    const staffInput = document.getElementById("staffSearch");
+    const staffResults = document.getElementById("staffSearchResults");
+    if (staffInput) staffInput.value = "";
+    if (staffResults) {
+      staffResults.hidden = true;
+      staffResults.innerHTML = "";
+    }
+    if (activeHeaderSearch === "staff") activeHeaderSearch = null;
+  }
   const heading = document.querySelector(".topbar h2");
   const activeLink = [...document.querySelectorAll(".nav-link")].find(isActiveNavigationLink);
   syncPatientMenuGroups(patientsMenu, activeLink);
@@ -4263,6 +4285,13 @@ const headerSearches = [
 function renderHeaderSearch({ kind, inputId, resultsId }) {
   const input = document.getElementById(inputId);
   const resultsPanel = document.getElementById(resultsId);
+  const searchIsAvailable = kind === "staff" ? currentView === "staff" : currentView !== "staff";
+  if (!searchIsAvailable) {
+    resultsPanel.hidden = true;
+    input.setAttribute("aria-expanded", "false");
+    resultsPanel.innerHTML = "";
+    return;
+  }
   const term = input.value.trim().toLowerCase();
   if (!term || activeHeaderSearch !== kind) {
     resultsPanel.hidden = true;
@@ -6480,7 +6509,9 @@ function attachEvents() {
   headerSearches.forEach((search) => {
     const input = document.getElementById(search.inputId);
     const resultsPanel = document.getElementById(search.resultsId);
+    const isSearchAvailable = () => search.kind === "staff" ? currentView === "staff" : currentView !== "staff";
     const updateSearch = () => {
+      if (!isSearchAvailable()) return;
       activeHeaderSearch = search.kind;
       renderGlobalSearch();
       if (search.kind === "staff" && currentView === "staff") {
@@ -6488,6 +6519,7 @@ function attachEvents() {
       }
     };
     input.addEventListener("focus", () => {
+      if (!isSearchAvailable()) return;
       activeHeaderSearch = search.kind;
       renderGlobalSearch();
     });

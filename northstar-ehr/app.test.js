@@ -1250,7 +1250,7 @@ test("department cards do not use the staff-specific card layout", () => {
   assert.doesNotMatch(context.directoryContainer.innerHTML, /staff-directory-card/);
 });
 
-test("separate header searches return patient or staff profiles and search staff details", () => {
+test("header searches are scoped to the active patient or staff workspace", () => {
   const { context } = setup();
   context.directoryContainer = { innerHTML: "" };
   const input = (value) => ({
@@ -1271,11 +1271,11 @@ test("separate header searches return patient or staff profiles and search staff
   context.document = { getElementById: (id) => elements.get(id) };
 
   vm.runInContext('currentView = "staff"; activeHeaderSearch = "patient"; renderGlobalSearch()', context);
-  assert.equal(patientResults.hidden, false);
-  assert.match(patientResults.innerHTML, /Maya Thompson/);
+  assert.equal(patientResults.hidden, true);
+  assert.doesNotMatch(patientResults.innerHTML, /Maya Thompson/);
   assert.doesNotMatch(patientResults.innerHTML, /data-search-type="staff"/);
   assert.equal(staffResults.hidden, true);
-  assert.equal(patientInput.attributes["aria-expanded"], "true");
+  assert.equal(patientInput.attributes["aria-expanded"], "false");
 
   vm.runInContext('activeHeaderSearch = "staff"; renderGlobalSearch()', context);
   assert.equal(patientResults.hidden, true);
@@ -1286,6 +1286,14 @@ test("separate header searches return patient or staff profiles and search staff
   assert.doesNotMatch(staffResults.innerHTML, /data-search-type="department"/);
   assert.doesNotMatch(staffResults.innerHTML, /data-search-type="location"/);
   assert.doesNotMatch(staffResults.innerHTML, /data-search-type="patient"/);
+  vm.runInContext('currentView = "patients"; activeHeaderSearch = "staff"; renderGlobalSearch()', context);
+  assert.equal(staffResults.hidden, true);
+  assert.equal(staffResults.innerHTML, "");
+  assert.equal(staffInput.attributes["aria-expanded"], "false");
+  vm.runInContext('activeHeaderSearch = "patient"; renderGlobalSearch()', context);
+  assert.equal(patientResults.hidden, false);
+  assert.match(patientResults.innerHTML, /Maya Thompson/);
+  assert.equal(patientInput.attributes["aria-expanded"], "true");
   vm.runInContext("renderStaffView(directoryContainer)", context);
 
   assert.match(context.directoryContainer.innerHTML, /2 matches/);

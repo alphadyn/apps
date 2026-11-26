@@ -78,7 +78,7 @@ The deployed URL is `https://alphadyn.github.io/apps/northstar-ehr/`.
 ### Formulary review and demo prescribing
 
 In the patient’s **Medications** workflow—or in the independent sidebar
-**Formulary** workspace—use **Search formulary** to find medications by name,
+**Clinical catalog > Formulary** workspace—use **Search formulary** to find medications by name,
 ingredient, class, strength, form, route, adverse effect, or listed interaction.
 The independent search does not require a patient. Each result shows its class
 when supplied and offers an expandable review of source and safety details.
@@ -138,7 +138,7 @@ the demo order-create role permission.
   prescription details, and patient dispensing/history. Saving a prescription creates one
   linked medication request in Orders. Cancelling that request cancels its linked
   prescription; legacy chart medications remain available for reconciliation.
-- **Formulary:** The sidebar remains available for independent medication searches.
+- **Formulary:** **Clinical catalog > Formulary** remains available for independent medication searches.
   Searching does not change a record.
   **Open in dispensing** from a prescription preserves the patient, medication,
   quantity, and instructions. The dispensing record retains the prescription ID;

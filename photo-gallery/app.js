@@ -91,6 +91,7 @@ const caption = document.getElementById("caption");
 const prevBtn = document.getElementById("prev-btn");
 const nextBtn = document.getElementById("next-btn");
 const playBtn = document.getElementById("play-btn");
+const saveBtn = document.getElementById("save-btn");
 const playIcon = document.getElementById("play-icon");
 const pauseIcon = document.getElementById("pause-icon");
 const carousel = document.getElementById("carousel");
@@ -179,6 +180,45 @@ function togglePlay() {
   scheduleRotation();
 }
 
+async function saveDisplayedPhoto() {
+  const activeSlide = slides[current].slide;
+  const image = activeSlide.querySelector("img");
+  if (!image?.src) return;
+
+  saveBtn.disabled = true;
+  saveBtn.setAttribute("aria-busy", "true");
+
+  try {
+    const response = await fetch(image.src, { mode: "cors" });
+    if (!response.ok) throw new Error(`Download failed with status ${response.status}`);
+
+    const blob = await response.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const type = blob.type;
+    const extension = type.includes("png") ? "png" : type.includes("webp") ? "webp" : "jpg";
+    link.href = objectUrl;
+    link.download = `photo-gallery-${current + 1}.${extension}`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+  } catch (error) {
+    console.error("Unable to save gallery photo:", error);
+    const link = document.createElement("a");
+    link.href = image.src;
+    link.download = `photo-gallery-${current + 1}.jpg`;
+    link.target = "_blank";
+    link.rel = "noopener";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.removeAttribute("aria-busy");
+  }
+}
+
 function setControlsVisible(visible) {
   if (!visible && controls.contains(document.activeElement)) {
     carousel.focus({ preventScroll: true });
@@ -221,6 +261,7 @@ function handleTouchTap(x, y) {
 prevBtn.addEventListener("click", () => step(-1));
 nextBtn.addEventListener("click", () => step(1));
 playBtn.addEventListener("click", togglePlay);
+saveBtn.addEventListener("click", saveDisplayedPhoto);
 controls.addEventListener("pointerdown", cancelPendingTap);
 
 track.addEventListener("pointerdown", (event) => {

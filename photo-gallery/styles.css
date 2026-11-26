@@ -78,6 +78,10 @@ body {
   gap: 2px;
 }
 
+.save-btn {
+  justify-self: end;
+}
+
 .control-btn {
   display: grid;
   place-items: center;
@@ -107,6 +111,11 @@ body {
 
 .play-btn {
   background: #303238;
+}
+
+.control-btn:disabled {
+  cursor: wait;
+  opacity: 0.55;
 }
 
 @media (hover: hover) {

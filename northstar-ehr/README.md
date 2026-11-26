@@ -221,6 +221,12 @@ April 1, 2026 PCS update. Search matches code descriptions and codes; results ar
 paginated in groups of 24 and capped at 10,000 matches per search. All workforce
 roles can search and review results. Only the Provider role can select a code,
 assign it to a patient, and save a coded diagnosis or procedure order.
+For diagnoses, open a patient's **Orders**, expand **New order**, and choose
+**Diagnosis**. Search by name or code; exact and prefix code matches appear
+first. Selecting a result fills the diagnosis and code and shows them as an
+unsaved draft. Complete the required details and save the order to assign it;
+providers can also enter a diagnosis and code manually. This saves a diagnosis
+order; it does not replace the patient's primary diagnosis summary.
 
 - **Source:** [CMS ICD-10 files](https://www.cms.gov/medicare/coding-billing/icd-10-codes):
   FY 2027 ICD-10-CM Code Descriptions in Tabular Order and April 1, 2026 ICD-10-PCS

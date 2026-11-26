@@ -765,6 +765,15 @@ textarea {
   color: var(--muted);
 }
 
+.diagnosis-draft:not([hidden]) {
+  margin: 10px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #f0f8f6;
+  overflow-wrap: anywhere;
+}
+
 .procedure-pagination {
   display: flex;
   align-items: center;
@@ -4149,6 +4158,57 @@ textarea {
 
 .document-composer .clinical-form {
   padding-bottom: 16px;
+}
+
+#orderForm label {
+  font-weight: 500;
+}
+
+#orderForm .procedure-results .procedure-result {
+  display: grid;
+  justify-content: stretch;
+  gap: 3px;
+  min-height: 44px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+  line-height: 1.4;
+  font-weight: 400;
+}
+
+#orderForm .procedure-results button.procedure-result {
+  cursor: pointer;
+}
+
+#orderForm .procedure-results button.procedure-result:hover:not(:disabled) {
+  border-color: #9dc9c2;
+  background: #f3faf8;
+}
+
+#orderForm .procedure-results button.procedure-result:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+#orderForm .procedure-result strong {
+  font-weight: 500;
+}
+
+#orderForm .procedure-result span {
+  font-size: 0.82rem;
+  font-weight: 400;
+}
+
+[data-clinical-panel="orders"] .structured-record-fields dt,
+[data-clinical-panel="orders"] .record-category {
+  font-weight: 600;
+}
+
+[data-clinical-panel="orders"] .order-record-details > summary,
+[data-clinical-panel="orders"] .order-scheduler > summary {
+  font-weight: 600;
 }
 
 #editDocumentDialog {

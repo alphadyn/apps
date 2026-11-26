@@ -150,7 +150,8 @@ the demo order-create role permission.
   and billing workspaces. Use the
   header patient search to select a patient; the Patient care menu shows the
   current patient's MRN. An open workflow remains under the patient context;
-  expand Patient workflows to switch workspaces. Switching patients with an
+  use Patient workflows grouped by record, encounters and orders, results and
+  medications, or visits and notes to switch workspaces. Switching patients with an
   unsaved order asks for confirmation before discarding the draft.
   Prescribing uses the demo encounter-create permission; recording dispensing uses
   the demo order-create permission.
@@ -217,10 +218,9 @@ than padding the catalog with invented products.
 The diagnosis and procedure order composers include the full CMS ICD-10-CM and
 ICD-10-PCS code lists: 74,879 FY 2027 diagnoses and 72,011 procedures from the
 April 1, 2026 PCS update. Search matches code descriptions and codes; results are
-paginated in groups of 24 and capped at 10,000 matches per search. Staff can
-search and review results; roles with order-create permission can select a code
-to populate an order for the selected patient and save it through the existing
-workflow.
+paginated in groups of 24 and capped at 10,000 matches per search. All workforce
+roles can search and review results. Only the Provider role can select a code,
+assign it to a patient, and save a coded diagnosis or procedure order.
 
 - **Source:** [CMS ICD-10 files](https://www.cms.gov/medicare/coding-billing/icd-10-codes):
   FY 2027 ICD-10-CM Code Descriptions in Tabular Order and April 1, 2026 ICD-10-PCS

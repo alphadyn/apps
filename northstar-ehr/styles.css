@@ -170,7 +170,6 @@ h6 {
   display: grid;
 }
 
-.account-settings .role-help,
 .account-settings .role-label {
   display: block;
   margin-top: 8px;
@@ -1267,6 +1266,21 @@ textarea {
   gap: 2px;
 }
 
+.patient-workflow-nav-group + .patient-workflow-nav-group {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid #35515e;
+}
+
+.patient-workflow-nav-group h3 {
+  margin: 4px 10px 2px;
+  color: #7699a4;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
 .nav-submenu .nav-link {
   font-size: 0.8rem;
   min-height: 32px;
@@ -1504,12 +1518,6 @@ textarea {
   flex: 0 0 40px;
   margin: 0;
   border-radius: 50%;
-}
-
-.role-help {
-  color: #cbd5e1;
-  font-size: 0.88rem;
-  line-height: 1.5;
 }
 
 .role-switch-status {
@@ -2834,11 +2842,25 @@ button.stat-card {
   margin-top: 20px;
 }
 
+.patient-care-workflow-groups {
+  display: grid;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.patient-care-workflow-group h4 {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .patient-care-workflow-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
   gap: 9px;
-  margin-top: 10px;
 }
 
 .patient-care-workflow {

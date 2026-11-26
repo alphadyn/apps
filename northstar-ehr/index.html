@@ -25,7 +25,7 @@
     <meta name="twitter:description" content="Patient charts, admissions, care teams, timelines, orders, and notes." />
     <meta name="twitter:image" content="https://alphadyn.github.io/apps/northstar-ehr/social-preview.png" />
     <meta name="twitter:image:alt" content="Northstar EHR clinical operations workspace, showing a patient chart and timeline." />
-    <link rel="stylesheet" href="styles.css?v=42" />
+    <link rel="stylesheet" href="styles.css?v=43" />
   </head>
   <body>
     <main id="loginScreen" class="login-screen">
@@ -161,11 +161,9 @@
             <p id="roleValue">Provider</p>
           </div>
           <details class="account-settings">
-            <summary>Role &amp; permissions</summary>
-            <span id="authorizedRolesValue" class="role-help"></span>
-            <span id="roleHelp" class="role-help">Admins manage account roles from Overview.</span>
+            <summary>Switch role</summary>
             <label for="roleSelector" class="role-label">Active role</label>
-            <select id="roleSelector" aria-describedby="roleHelp"></select>
+            <select id="roleSelector"></select>
           </details>
           <span id="roleSwitchStatus" class="role-switch-status" role="status" aria-live="polite"></span>
           <div class="account-actions">
@@ -772,6 +770,6 @@
     <script src="catalogs/radiology-catalog.js?v=1"></script>
     <script src="catalogs/diagnosis-catalog.js?v=1"></script>
     <script src="catalogs/icd10pcs-catalog.js?v=1"></script>
-    <script src="app.js?v=50"></script>
+    <script src="app.js?v=51"></script>
   </body>
 </html>

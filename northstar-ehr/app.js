@@ -1773,17 +1773,23 @@ let inboxFilter = normalizeInboxFilter(loadWorkspacePreference("inboxFilter", "a
 let inboxSearch = "";
 let currentView = loadCurrentView();
 const patientCareWorkflows = [
-  ["patients", "Patient chart", "Review the chart, history, and clinical timeline"],
-  ["patient-profiles", "Patient profile", "View patient demographics and profile details"],
-  ["clinical", "ED & inpatient", "Document encounters, triage, and care-team updates"],
-  ["orders", "Orders & requests", "Create and track care requests"],
-  ["labs", "Labs & results", "Review results and laboratory requests"],
-  ["radiology", "Radiology", "Review imaging studies and radiology reports"],
-  ["medications", "Medications", "Review current medications, search the formulary, and record dispensing"],
-  ["outpatient", "Outpatient care", "Schedule and manage ambulatory visits"],
-  ["appointments", "Appointments", "Review the patient appointment schedule"],
-  ["documents", "Notes & documents", "Review or create clinical documents"]
+  ["patients", "Patient chart", "Review the chart, history, and clinical timeline", "Patient record"],
+  ["patient-profiles", "Patient profile", "View patient demographics and profile details", "Patient record"],
+  ["clinical", "ED & inpatient", "Document encounters, triage, and care-team updates", "Encounters & orders"],
+  ["orders", "Orders & requests", "Create and track care requests", "Encounters & orders"],
+  ["labs", "Labs & results", "Review results and laboratory requests", "Results & medications"],
+  ["radiology", "Radiology", "Review imaging studies and radiology reports", "Results & medications"],
+  ["medications", "Medications", "Review current medications, search the formulary, and record dispensing", "Results & medications"],
+  ["outpatient", "Outpatient care", "Schedule and manage ambulatory visits", "Visits & notes"],
+  ["appointments", "Appointments", "Review the patient appointment schedule", "Visits & notes"],
+  ["documents", "Notes & documents", "Review or create clinical documents", "Visits & notes"]
 ];
+const getPatientWorkflowGroups = () => patientCareWorkflows.reduce((groups, workflow) => {
+  const group = groups.find(([name]) => name === workflow[3]);
+  if (group) group[1].push(workflow);
+  else groups.push([workflow[3], [workflow]]);
+  return groups;
+}, []);
 let patientCareHomeActive = loadWorkspacePreference("patientCareHomeActive", false) === true &&
   patientCareWorkflows.some(([view]) => view === currentView);
 let pharmacyPatientContext = loadWorkspacePreference("pharmacyPatientContext", false) === true;
@@ -2331,9 +2337,14 @@ function closeMobileNavigation() {
 }
 
 function renderPatientWorkflowNavigation() {
-  return patientCareWorkflows.map(([view, title]) =>
-    `<button class="nav-link" type="button" data-view="${escapeHtml(view)}" data-patient-workflow-menu>${escapeHtml(title)}</button>`
-  ).join("");
+  return getPatientWorkflowGroups().map(([groupName, workflows]) => `
+    <section class="patient-workflow-nav-group" aria-label="${escapeHtml(groupName)}">
+      <h3>${escapeHtml(groupName)}</h3>
+      ${workflows.map(([view, title]) =>
+        `<button class="nav-link" type="button" data-view="${escapeHtml(view)}" data-patient-workflow-menu>${escapeHtml(title)}</button>`
+      ).join("")}
+    </section>
+  `).join("");
 }
 
 function initializeWorkspaceNavigation() {
@@ -2741,6 +2752,11 @@ function applyWorkflowForPatient(patient, updates, role) {
 function createOrderForPatient(patient, order, role = currentUser.role) {
   const permission = evaluatePermission(role, "order:create", patient.name);
   if (!permission.allowed) return permission;
+  const hasDiagnosisCode = Boolean(String(order.diagnosisCode || "").trim());
+  const hasProcedureCode = Boolean(String(order.procedureCode || "").trim());
+  if ((order.category === "Diagnosis" || hasDiagnosisCode || hasProcedureCode) && role !== "clinician") {
+    return { allowed: false, message: "Only a Provider can assign or save ICD-10 codes to a patient record." };
+  }
   const title = (order.title || "").trim();
   if (!title) return { allowed: false, message: "Enter an order or request before saving." };
   const fields = orderTypeFields[order.category];
@@ -3408,8 +3424,7 @@ function renderDashboardStats() {
 
 function renderRoleSummary() {
   const roleValue = document.getElementById("roleValue");
-  const roleHelp = document.getElementById("roleHelp");
-  if (!roleValue || !roleHelp) return;
+  if (!roleValue) return;
 
   roleValue.textContent = currentUser.label;
   const accountAvatar = document.getElementById("accountAvatar");
@@ -3417,12 +3432,8 @@ function renderRoleSummary() {
   accountAvatar.innerHTML = staffProfile
     ? renderStaffAvatar(staffProfile)
     : `<div class="staff-avatar" aria-hidden="true">${escapeHtml(currentUser.label.split(/\s+/).map((part) => part[0]).slice(0, 2).join(""))}</div>`;
-  roleHelp.textContent = hasPermission(currentUser.role, "roles:manage")
-    ? "Switch among your authorized roles, or manage account roles in Overview."
-    : "Switch only among roles authorized by an Admin.";
   const roleSelector = document.getElementById("roleSelector");
   const authorizedRoles = accountRoles[currentUser.accountId] || [currentUser.role];
-  document.getElementById("authorizedRolesValue").textContent = `Authorized roles: ${formatRoleList(authorizedRoles)}`;
   roleSelector.innerHTML = authorizedRoles.map((role) =>
     `<option value="${role}">${escapeHtml(getRoleLabel(role))}</option>`).join("");
   roleSelector.value = currentUser.role;
@@ -4282,6 +4293,7 @@ function openPatientChart(patientId) {
 let activeHeaderSearch = null;
 const ICD_CODE_PAGE_SIZE = 24;
 const ICD_CODE_MATCH_LIMIT = 10000;
+const canAssignIcdCodes = (role) => role === "clinician";
 let diagnosisMatches = [];
 let diagnosisPage = 0;
 let diagnosisSearchTerm = "";
@@ -4310,11 +4322,11 @@ function renderDiagnosisCatalog() {
   const pages = Math.ceil(diagnosisMatches.length / ICD_CODE_PAGE_SIZE);
   diagnosisPage = Math.min(diagnosisPage, Math.max(0, pages - 1));
   const first = diagnosisPage * ICD_CODE_PAGE_SIZE;
-  const canCreateOrders = hasPermission(currentUser.role, "order:create");
+  const canAssignCodes = canAssignIcdCodes(currentUser.role);
 
   results.innerHTML = diagnosisMatches.length
     ? diagnosisMatches.slice(first, first + ICD_CODE_PAGE_SIZE).map((diagnosis, offset) => `
-      ${canCreateOrders
+      ${canAssignCodes
         ? `<button class="procedure-result" type="button" data-diagnosis-index="${first + offset}"><strong>${escapeHtml(diagnosis.name)}</strong><span>ICD-10-CM ${escapeHtml(diagnosis.code)}</span></button>`
         : `<div class="procedure-result"><strong>${escapeHtml(diagnosis.name)}</strong><span>ICD-10-CM ${escapeHtml(diagnosis.code)}</span></div>`}
     `).join("")
@@ -4333,7 +4345,7 @@ function renderDiagnosisCatalog() {
 }
 
 function selectCatalogDiagnosis(index) {
-  if (!hasPermission(currentUser.role, "order:create")) return;
+  if (!canAssignIcdCodes(currentUser.role)) return;
   const diagnosis = diagnosisMatches[index];
   if (!diagnosis) return;
   const form = document.getElementById("orderForm");
@@ -4364,11 +4376,11 @@ function renderIcd10pcsCatalog() {
   const pages = Math.ceil(procedureCodeMatches.length / ICD_CODE_PAGE_SIZE);
   procedureCodePage = Math.min(procedureCodePage, Math.max(0, pages - 1));
   const first = procedureCodePage * ICD_CODE_PAGE_SIZE;
-  const canCreateOrders = hasPermission(currentUser.role, "order:create");
+  const canAssignCodes = canAssignIcdCodes(currentUser.role);
 
   results.innerHTML = procedureCodeMatches.length
     ? procedureCodeMatches.slice(first, first + ICD_CODE_PAGE_SIZE).map((procedure, offset) => `
-      ${canCreateOrders
+      ${canAssignCodes
         ? `<button class="procedure-result" type="button" data-icd10pcs-index="${first + offset}"><strong>${escapeHtml(procedure.name)}</strong><span>ICD-10-PCS ${escapeHtml(procedure.code)}</span></button>`
         : `<div class="procedure-result"><strong>${escapeHtml(procedure.name)}</strong><span>ICD-10-PCS ${escapeHtml(procedure.code)}</span></div>`}
     `).join("")
@@ -4387,7 +4399,7 @@ function renderIcd10pcsCatalog() {
 }
 
 function selectIcd10pcsProcedure(index) {
-  if (!hasPermission(currentUser.role, "order:create")) return;
+  if (!canAssignIcdCodes(currentUser.role)) return;
   const procedure = procedureCodeMatches[index];
   if (!procedure) return;
   const form = document.getElementById("orderForm");
@@ -5568,11 +5580,19 @@ function renderPatientCareHome(container) {
           ${renderPatientContextDetails(patient)}
           <details class="patient-care-workflows" ${activeWorkflow ? "" : "open"}>
             <summary><strong>Patient workflows</strong>${activeWorkflow ? ` <span>· ${escapeHtml(activeWorkflow[1])}</span>` : ""}</summary>
-            <div class="patient-care-workflow-grid">
-              ${patientCareWorkflows.map(([view, title, description]) => `
-                <button class="patient-care-workflow" type="button" data-patient-care-view="${view}" ${activeWorkflow && view === currentView ? 'aria-current="page"' : ""}>
-                  <strong>${title}</strong><span>${description}</span>
-                </button>                `).join("")}
+            <div class="patient-care-workflow-groups">
+              ${getPatientWorkflowGroups().map(([groupName, workflows]) => `
+                <section class="patient-care-workflow-group" aria-label="${escapeHtml(groupName)}">
+                  <h4>${escapeHtml(groupName)}</h4>
+                  <div class="patient-care-workflow-grid">
+                    ${workflows.map(([view, title, description]) => `
+                      <button class="patient-care-workflow" type="button" data-patient-care-view="${escapeHtml(view)}" ${activeWorkflow && view === currentView ? 'aria-current="page"' : ""}>
+                        <strong>${escapeHtml(title)}</strong><span>${escapeHtml(description)}</span>
+                      </button>
+                    `).join("")}
+                  </div>
+                </section>
+              `).join("")}
             </div>
           </details>
           ` : `<p id="patientCareSelectedHeading" tabindex="-1" role="status">No patient in context. Search above to select a patient.</p>`}
@@ -5675,9 +5695,9 @@ function renderStructuredFields(containerId, fields, heading = "Type-specific de
           </label>`;
         }
         if (field.type === "diagnosis-search") {
-          const staffLookupHelp = currentUser.role === "staff"
-            ? "<p class=\"muted-copy\">Staff can search the catalog; diagnosis orders can only be assigned and saved by authorized order roles.</p>"
-            : "<p class=\"muted-copy\">Select a result to fill the diagnosis and ICD-10-CM code in this order.</p>";
+          const staffLookupHelp = canAssignIcdCodes(currentUser.role)
+            ? "<p class=\"muted-copy\">Select a result to fill the diagnosis and ICD-10-CM code in this order.</p>"
+            : "<p class=\"muted-copy\">All staff can search the catalog. Only a Provider can assign or save diagnosis codes to a patient record.</p>";
           return `<div class="structured-field-wide diagnosis-search">
             <label for="diagnosisSearch">${label}<input id="diagnosisSearch" name="diagnosisSearch" type="search" placeholder="${escapeHtml(field.placeholder)}" autocomplete="off" /></label>
             ${staffLookupHelp}
@@ -5691,9 +5711,9 @@ function renderStructuredFields(containerId, fields, heading = "Type-specific de
           </div>`;
         }
         if (field.type === "pcs-search") {
-          const staffLookupHelp = currentUser.role === "staff"
-            ? "<p class=\"muted-copy\">Staff can search the catalog; procedure orders can only be assigned and saved by authorized order roles.</p>"
-            : "<p class=\"muted-copy\">Select a result to fill the procedure and ICD-10-PCS code in this order.</p>";
+          const staffLookupHelp = canAssignIcdCodes(currentUser.role)
+            ? "<p class=\"muted-copy\">Select a result to fill the procedure and ICD-10-PCS code in this order.</p>"
+            : "<p class=\"muted-copy\">All staff can search the catalog. Only a Provider can assign or save procedure codes to a patient record.</p>";
           return `<div class="structured-field-wide diagnosis-search">
             <label for="procedureCodeSearch">${label}<input id="procedureCodeSearch" name="procedureCodeSearch" type="search" placeholder="${escapeHtml(field.placeholder)}" autocomplete="off" /></label>
             ${staffLookupHelp}
@@ -6280,12 +6300,22 @@ function renderPermissions() {
     form.querySelectorAll("input, select, textarea, button").forEach((field) => {
       field.disabled = !allowed;
     });
-    if (formId === "orderForm" && currentUser.role === "staff") {
+    if (formId === "orderForm") {
       form.elements.category.disabled = false;
-      if (form.elements.category.value === "Diagnosis" || form.elements.category.value === "Procedure") {
-        const isDiagnosis = form.elements.category.value === "Diagnosis";
+      const category = form.elements.category.value;
+      if (category === "Diagnosis" || category === "Procedure") {
+        const isDiagnosis = category === "Diagnosis";
         const lookup = isDiagnosis ? form.elements.diagnosisSearch : form.elements.procedureCodeSearch;
         lookup.disabled = false;
+        if (!canAssignIcdCodes(currentUser.role)) {
+          if (isDiagnosis) {
+            form.querySelectorAll("input:not(#diagnosisSearch), select, textarea, button[type='submit']").forEach((field) => {
+              field.disabled = true;
+            });
+          } else {
+            form.elements.procedureCode.disabled = true;
+          }
+        }
         if (isDiagnosis) renderDiagnosisCatalog();
         else renderIcd10pcsCatalog();
       }

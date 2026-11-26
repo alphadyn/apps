@@ -527,6 +527,7 @@ const orderTypeFields = {
     noteField("notifyParameters", "Notify clinician if", "Document patient-specific thresholds or concerning changes")
   ],
   Diagnosis: [
+    { name: "diagnosisSearch", label: "Search ICD-10-CM diagnoses", placeholder: "Search by diagnosis name or code", required: false, type: "diagnosis-search" },
     textField("diagnosisCode", "Code system / code", "e.g., ICD-10-CM code"),
     selectField("diagnosisRole", "Diagnosis role", ["Primary", "Secondary", "Differential", "Problem list"], true),
     selectField("diagnosisStatus", "Status", ["Active", "Historical", "Resolved", "Rule out"], true),
@@ -560,7 +561,9 @@ const orderTypeFields = {
     textField("consultContact", "Requesting clinician / callback", "Name or extension")
   ],
   Procedure: [
+    { name: "procedureCodeSearch", label: "Search ICD-10-PCS procedures", placeholder: "Search by procedure name or seven-character code", required: false, type: "pcs-search" },
     textField("procedureName", "Procedure", "Procedure requested", true),
+    textField("procedureCode", "ICD-10-PCS code", "Seven-character code"),
     textField("procedureSite", "Site / laterality", "Anatomy and side, if applicable"),
     noteField("procedureIndication", "Indication", "Reason the procedure is requested", true),
     selectField("procedureConsent", "Consent status", ["Not applicable", "Pending", "Obtained", "Documented separately"], true),
@@ -2751,6 +2754,7 @@ function createOrderForPatient(patient, order, role = currentUser.role) {
     title,
     details: (order.details || "").trim(),
     fields: fields
+      .filter((field) => !["diagnosis-search", "pcs-search"].includes(field.type))
       .map((field) => ({ label: field.label, value: (order[field.name] || "").trim() }))
       .filter((field) => field.value),
     status: "Pending",
@@ -3273,7 +3277,6 @@ function renderScrollableTable(label, content) {
     <div class="table-wrap" role="region" aria-label="${escapeHtml(label)}, scroll horizontally to see all columns" tabindex="0">${content}</div>
   </div>`;
 }
-
 function renderAdmissionTable(admittedPatients) {
   return admittedPatients.length ? renderScrollableTable("Admissions table", `
     <table class="data-table">
@@ -4277,6 +4280,124 @@ function openPatientChart(patientId) {
 }
 
 let activeHeaderSearch = null;
+const ICD_CODE_PAGE_SIZE = 24;
+const ICD_CODE_MATCH_LIMIT = 10000;
+let diagnosisMatches = [];
+let diagnosisPage = 0;
+let diagnosisSearchTerm = "";
+let procedureCodeMatches = [];
+let procedureCodePage = 0;
+let procedureCodeSearchTerm = "";
+
+function renderDiagnosisCatalog() {
+  const search = document.getElementById("diagnosisSearch");
+  const results = document.getElementById("diagnosisResults");
+  const status = document.getElementById("diagnosisSearchStatus");
+  const pagination = document.getElementById("diagnosisPagination");
+  if (!search || !results || !status || !pagination) return;
+
+  diagnosisSearchTerm = search.value;
+  const term = diagnosisSearchTerm.trim().toLocaleLowerCase();
+  const normalizedTerm = term.replace(/[^a-z0-9]/g, "");
+  const allMatches = term
+    ? icd10cmDiagnosisCatalog.diagnoses.filter(({ code, name }) =>
+      code.toLocaleLowerCase().includes(term) ||
+      code.replace(".", "").toLocaleLowerCase().includes(normalizedTerm) ||
+      name.toLocaleLowerCase().includes(term)
+    )
+    : [];
+  diagnosisMatches = allMatches.slice(0, ICD_CODE_MATCH_LIMIT);
+  const pages = Math.ceil(diagnosisMatches.length / ICD_CODE_PAGE_SIZE);
+  diagnosisPage = Math.min(diagnosisPage, Math.max(0, pages - 1));
+  const first = diagnosisPage * ICD_CODE_PAGE_SIZE;
+  const canCreateOrders = hasPermission(currentUser.role, "order:create");
+
+  results.innerHTML = diagnosisMatches.length
+    ? diagnosisMatches.slice(first, first + ICD_CODE_PAGE_SIZE).map((diagnosis, offset) => `
+      ${canCreateOrders
+        ? `<button class="procedure-result" type="button" data-diagnosis-index="${first + offset}"><strong>${escapeHtml(diagnosis.name)}</strong><span>ICD-10-CM ${escapeHtml(diagnosis.code)}</span></button>`
+        : `<div class="procedure-result"><strong>${escapeHtml(diagnosis.name)}</strong><span>ICD-10-CM ${escapeHtml(diagnosis.code)}</span></div>`}
+    `).join("")
+    : "";
+  if (!term) {
+    status.textContent = "Enter a diagnosis name or ICD-10-CM code to search.";
+  } else if (allMatches.length > ICD_CODE_MATCH_LIMIT) {
+    status.textContent = `Showing the first ${ICD_CODE_MATCH_LIMIT.toLocaleString()} of ${allMatches.length.toLocaleString()} matching diagnoses. Refine the search to narrow results.`;
+  } else {
+    status.textContent = `${allMatches.length.toLocaleString()} matching ${allMatches.length === 1 ? "diagnosis" : "diagnoses"}.`;
+  }
+  pagination.hidden = pages <= 1;
+  document.getElementById("diagnosisPrevious").disabled = diagnosisPage === 0;
+  document.getElementById("diagnosisNext").disabled = diagnosisPage >= pages - 1;
+  document.getElementById("diagnosisPage").textContent = pages ? `Page ${diagnosisPage + 1} of ${pages}` : "";
+}
+
+function selectCatalogDiagnosis(index) {
+  if (!hasPermission(currentUser.role, "order:create")) return;
+  const diagnosis = diagnosisMatches[index];
+  if (!diagnosis) return;
+  const form = document.getElementById("orderForm");
+  if (form.elements.category.value !== "Diagnosis") return;
+  form.elements.title.value = diagnosis.name;
+  form.elements.diagnosisCode.value = `ICD-10-CM ${diagnosis.code}`;
+  form.elements.title.focus();
+}
+
+function renderIcd10pcsCatalog() {
+  const search = document.getElementById("procedureCodeSearch");
+  const results = document.getElementById("procedureCodeResults");
+  const status = document.getElementById("procedureCodeSearchStatus");
+  const pagination = document.getElementById("procedureCodePagination");
+  if (!search || !results || !status || !pagination) return;
+
+  procedureCodeSearchTerm = search.value;
+  const term = procedureCodeSearchTerm.trim().toLocaleLowerCase();
+  const normalizedTerm = term.replace(/[^a-z0-9]/g, "");
+  const allMatches = term
+    ? icd10pcsProcedureCatalog.procedures.filter(({ code, name, abbreviatedName }) =>
+      code.toLocaleLowerCase().includes(normalizedTerm) ||
+      name.toLocaleLowerCase().includes(term) ||
+      abbreviatedName.toLocaleLowerCase().includes(term)
+    )
+    : [];
+  procedureCodeMatches = allMatches.slice(0, ICD_CODE_MATCH_LIMIT);
+  const pages = Math.ceil(procedureCodeMatches.length / ICD_CODE_PAGE_SIZE);
+  procedureCodePage = Math.min(procedureCodePage, Math.max(0, pages - 1));
+  const first = procedureCodePage * ICD_CODE_PAGE_SIZE;
+  const canCreateOrders = hasPermission(currentUser.role, "order:create");
+
+  results.innerHTML = procedureCodeMatches.length
+    ? procedureCodeMatches.slice(first, first + ICD_CODE_PAGE_SIZE).map((procedure, offset) => `
+      ${canCreateOrders
+        ? `<button class="procedure-result" type="button" data-icd10pcs-index="${first + offset}"><strong>${escapeHtml(procedure.name)}</strong><span>ICD-10-PCS ${escapeHtml(procedure.code)}</span></button>`
+        : `<div class="procedure-result"><strong>${escapeHtml(procedure.name)}</strong><span>ICD-10-PCS ${escapeHtml(procedure.code)}</span></div>`}
+    `).join("")
+    : "";
+  if (!term) {
+    status.textContent = "Enter a procedure name or ICD-10-PCS code to search.";
+  } else if (allMatches.length > ICD_CODE_MATCH_LIMIT) {
+    status.textContent = `Showing the first ${ICD_CODE_MATCH_LIMIT.toLocaleString()} of ${allMatches.length.toLocaleString()} matching procedures. Refine the search to narrow results.`;
+  } else {
+    status.textContent = `${allMatches.length.toLocaleString()} matching ${allMatches.length === 1 ? "procedure" : "procedures"}.`;
+  }
+  pagination.hidden = pages <= 1;
+  document.getElementById("procedureCodePrevious").disabled = procedureCodePage === 0;
+  document.getElementById("procedureCodeNext").disabled = procedureCodePage >= pages - 1;
+  document.getElementById("procedureCodePage").textContent = pages ? `Page ${procedureCodePage + 1} of ${pages}` : "";
+}
+
+function selectIcd10pcsProcedure(index) {
+  if (!hasPermission(currentUser.role, "order:create")) return;
+  const procedure = procedureCodeMatches[index];
+  if (!procedure) return;
+  const form = document.getElementById("orderForm");
+  if (form.elements.category.value !== "Procedure") return;
+  form.elements.title.value = procedure.name;
+  form.elements.procedureName.value = procedure.name;
+  form.elements.procedureCode.value = `ICD-10-PCS ${procedure.code}`;
+  form.elements.procedureName.focus();
+}
+
 const headerSearches = [
   { kind: "patient", inputId: "patientSearch", resultsId: "patientSearchResults" },
   { kind: "staff", inputId: "staffSearch", resultsId: "staffSearchResults" }
@@ -5553,6 +5674,38 @@ function renderStructuredFields(containerId, fields, heading = "Type-specific de
             <textarea name="${escapeHtml(field.name)}" rows="2" placeholder="${escapeHtml(field.placeholder)}" ${required}></textarea>
           </label>`;
         }
+        if (field.type === "diagnosis-search") {
+          const staffLookupHelp = currentUser.role === "staff"
+            ? "<p class=\"muted-copy\">Staff can search the catalog; diagnosis orders can only be assigned and saved by authorized order roles.</p>"
+            : "<p class=\"muted-copy\">Select a result to fill the diagnosis and ICD-10-CM code in this order.</p>";
+          return `<div class="structured-field-wide diagnosis-search">
+            <label for="diagnosisSearch">${label}<input id="diagnosisSearch" name="diagnosisSearch" type="search" placeholder="${escapeHtml(field.placeholder)}" autocomplete="off" /></label>
+            ${staffLookupHelp}
+            <p id="diagnosisSearchStatus" class="muted-copy" role="status" aria-live="polite"></p>
+            <div id="diagnosisResults" class="procedure-results"></div>
+            <div id="diagnosisPagination" class="procedure-pagination" hidden>
+              <button id="diagnosisPrevious" class="ghost-btn" type="button">Previous</button>
+              <span id="diagnosisPage"></span>
+              <button id="diagnosisNext" class="ghost-btn" type="button">Next</button>
+            </div>
+          </div>`;
+        }
+        if (field.type === "pcs-search") {
+          const staffLookupHelp = currentUser.role === "staff"
+            ? "<p class=\"muted-copy\">Staff can search the catalog; procedure orders can only be assigned and saved by authorized order roles.</p>"
+            : "<p class=\"muted-copy\">Select a result to fill the procedure and ICD-10-PCS code in this order.</p>";
+          return `<div class="structured-field-wide diagnosis-search">
+            <label for="procedureCodeSearch">${label}<input id="procedureCodeSearch" name="procedureCodeSearch" type="search" placeholder="${escapeHtml(field.placeholder)}" autocomplete="off" /></label>
+            ${staffLookupHelp}
+            <p id="procedureCodeSearchStatus" class="muted-copy" role="status" aria-live="polite"></p>
+            <div id="procedureCodeResults" class="procedure-results"></div>
+            <div id="procedureCodePagination" class="procedure-pagination" hidden>
+              <button id="procedureCodePrevious" class="ghost-btn" type="button">Previous</button>
+              <span id="procedureCodePage"></span>
+              <button id="procedureCodeNext" class="ghost-btn" type="button">Next</button>
+            </div>
+          </div>`;
+        }
         return `<label><span>${label}</span>
           <input name="${escapeHtml(field.name)}" type="${escapeHtml(field.type)}" placeholder="${escapeHtml(field.placeholder)}" ${required} />
         </label>`;
@@ -5786,12 +5939,18 @@ function renderOrderFields() {
   const form = document.getElementById("orderForm");
   if (activeOrderTemplate) {
     orderFieldDrafts[activeOrderTemplate] = Object.fromEntries(
-      [...orderCommonFields, ...orderTypeFields[activeOrderTemplate].map((field) => field.name)]
+      [
+        ...orderCommonFields,
+        ...orderTypeFields[activeOrderTemplate]
+          .filter((field) => !["diagnosis-search", "pcs-search"].includes(field.type))
+          .map((field) => field.name)
+      ]
         .map((name) => [name, form.elements[name]?.value || ""])
     );
   }
   activeOrderTemplate = category;
   renderStructuredFields("orderSpecificFields", orderTypeFields[category] || []);
+  diagnosisPage = 0;
   orderCommonFields.forEach((name) => {
     form.elements[name].value = orderFieldDrafts[category]?.[name] ?? (name === "priority" ? "Routine" : "");
   });
@@ -5801,6 +5960,16 @@ function renderOrderFields() {
   document.getElementById("procedureCatalog").hidden = category !== "Procedure";
   document.getElementById("radiologyCatalog").hidden = category !== "Imaging / Radiology";
   document.getElementById("orderMedicationHelp").hidden = category !== "Medication";
+  if (category === "Diagnosis") {
+    const diagnosisSearch = document.getElementById("diagnosisSearch");
+    diagnosisSearch.value = diagnosisSearchTerm;
+    renderDiagnosisCatalog();
+  }
+  if (category === "Procedure") {
+    const procedureCodeSearch = document.getElementById("procedureCodeSearch");
+    procedureCodeSearch.value = procedureCodeSearchTerm;
+    renderIcd10pcsCatalog();
+  }
   if (category === "Procedure") renderProcedureCatalog();
   if (category === "Imaging / Radiology") renderRadiologyResults();
 }
@@ -5833,6 +6002,7 @@ function hasUnsavedOrderDraft() {
   if (savedDraftHasContent) return true;
   const form = document.getElementById("orderForm");
   return [...form.elements].some((field) => {
+    if (["diagnosisSearch", "procedureCodeSearch"].includes(field.name)) return false;
     if (field.type === "select-one") {
       const defaultOption = [...field.options].find((option) => option.defaultSelected) || field.options[0];
       return field.value !== (defaultOption?.value || "");
@@ -6110,6 +6280,16 @@ function renderPermissions() {
     form.querySelectorAll("input, select, textarea, button").forEach((field) => {
       field.disabled = !allowed;
     });
+    if (formId === "orderForm" && currentUser.role === "staff") {
+      form.elements.category.disabled = false;
+      if (form.elements.category.value === "Diagnosis" || form.elements.category.value === "Procedure") {
+        const isDiagnosis = form.elements.category.value === "Diagnosis";
+        const lookup = isDiagnosis ? form.elements.diagnosisSearch : form.elements.procedureCodeSearch;
+        lookup.disabled = false;
+        if (isDiagnosis) renderDiagnosisCatalog();
+        else renderIcd10pcsCatalog();
+      }
+    }
     document.getElementById("cancelPatientRegistration").disabled = false;
   });
   if (!document.getElementById("procedureCatalog").hidden) renderProcedureCatalog();
@@ -6968,7 +7148,41 @@ function attachEvents() {
     render();
     document.getElementById("clinicalStatus").textContent = "Note draft updated.";
   });
-  document.querySelector('#orderForm [name="category"]').addEventListener("change", renderOrderFields);
+  document.querySelector('#orderForm [name="category"]').addEventListener("change", () => {
+    renderOrderFields();
+    renderPermissions();
+  });
+  document.getElementById("orderForm").addEventListener("input", (event) => {
+    if (event.target.id === "diagnosisSearch") {
+      diagnosisPage = 0;
+      renderDiagnosisCatalog();
+    } else if (event.target.id === "procedureCodeSearch") {
+      procedureCodePage = 0;
+      renderIcd10pcsCatalog();
+    }
+  });
+  document.getElementById("orderForm").addEventListener("click", (event) => {
+    const result = event.target.closest("[data-diagnosis-index]");
+    if (result) selectCatalogDiagnosis(Number(result.dataset.diagnosisIndex));
+    const procedureResult = event.target.closest("[data-icd10pcs-index]");
+    if (procedureResult) selectIcd10pcsProcedure(Number(procedureResult.dataset.icd10pcsIndex));
+    if (event.target.id === "diagnosisPrevious") {
+      diagnosisPage -= 1;
+      renderDiagnosisCatalog();
+    }
+    if (event.target.id === "diagnosisNext") {
+      diagnosisPage += 1;
+      renderDiagnosisCatalog();
+    }
+    if (event.target.id === "procedureCodePrevious") {
+      procedureCodePage -= 1;
+      renderIcd10pcsCatalog();
+    }
+    if (event.target.id === "procedureCodeNext") {
+      procedureCodePage += 1;
+      renderIcd10pcsCatalog();
+    }
+  });
   document.getElementById("procedureSearch").addEventListener("input", () => {
     procedurePage = 0;
     renderProcedureCatalog();

@@ -198,10 +198,10 @@ strength selection and optional source and safety details. Detailed source
 limitations are expandable, while the nonclinical safety notice stays visible.
 Clearing the search does not change the selected patient.
 
-The offline snapshots are stored in `medication-catalog.js` and
-`rxnorm-catalog.js`, both loaded before `app.js`. No patient data is sent to FDA
-or RxNav; source links open only when selected. To rebuild from public FDA and
-RxNorm metadata using Python's standard library (requires network access):
+The offline snapshots are stored in `catalogs/medication-catalog.js` and
+`catalogs/rxnorm-catalog.js`, both loaded before `app.js`. No patient data is sent
+to FDA or RxNav; source links open only when selected. To rebuild from public FDA
+and RxNorm metadata using Python's standard library (requires network access):
 
 ```bash
 python3 northstar-ehr/scripts/build_medication_catalog.py --count 1000
@@ -212,9 +212,36 @@ Each generator validates the requested count and retains provenance. The RxNorm
 generator samples across the full available SCD concept list and fails rather
 than padding the catalog with invented products.
 
+### ICD-10-CM and ICD-10-PCS catalogs
+
+The diagnosis and procedure order composers include the full CMS ICD-10-CM and
+ICD-10-PCS code lists: 74,879 FY 2027 diagnoses and 72,011 procedures from the
+April 1, 2026 PCS update. Search matches code descriptions and codes; results are
+paginated in groups of 24 and capped at 10,000 matches per search. Staff can
+search and review results; roles with order-create permission can select a code
+to populate an order for the selected patient and save it through the existing
+workflow.
+
+- **Source:** [CMS ICD-10 files](https://www.cms.gov/medicare/coding-billing/icd-10-codes):
+  FY 2027 ICD-10-CM Code Descriptions in Tabular Order and April 1, 2026 ICD-10-PCS
+  Order File.
+- **Limitations:** Catalogs supply code descriptions only. They do not recommend
+  diagnoses or procedures, establish clinical suitability, or replace official
+  coding guidance.
+
+The offline snapshots are stored in `catalogs/diagnosis-catalog.js` and
+`catalogs/icd10pcs-catalog.js`, both loaded before `app.js`. Rebuild them from
+the official CMS ZIP files with Python's standard library (requires network access):
+
+```bash
+python3 northstar-ehr/scripts/build_diagnosis_catalog.py --year 2027
+python3 northstar-ehr/scripts/build_icd10pcs_catalog.py --year 2026
+```
+
 ## Project structure
 
 - index.html — app shell and dashboard layout
+- catalogs/ — offline medication, procedure, radiology, and ICD-10 data catalogs
 - styles.css — modern responsive UI styling
 - app.js — fictional patient data, UI rendering, interactions, and local storage
 - docs/USER_GUIDE.md — usage guide and customization notes

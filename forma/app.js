@@ -803,7 +803,6 @@ function svgPoint(event) {
 hydrateIcons();
 const responsiveUI = setupResponsiveUI();
 $("#sample-count").textContent = SAMPLE_DESIGNS.length;
-$("#space-library").innerHTML = ["bedroom", "bathroom", "kitchen", "living", "dining", "stairs", "hallway", "closet"].map(type => `<button class="library-item" data-add-type="${type}" title="Add ${TYPES[type].name.toLowerCase()}">${icon(TYPES[type].icon)}${TYPES[type].name}</button>`).join("");
 document.addEventListener("click", event => {
   const add = event.target.closest("[data-add-type]");
   if (add) {

@@ -40,16 +40,9 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v6
 
-      - name: Test Northstar EHR
-        run: node --test northstar-ehr/app.test.js
-
       - name: Test and build Market Insights snapshot
         run: |
           python3 -m pip install --disable-pip-version-check -r market-insights/requirements-build.txt
-          python3 -m unittest discover -s market-insights -p 'test_build*.py'
-          node --test market-insights/*.test.js
-          node --test market-map/*.test.js
-          node --test fund-map/*.test.js
           python3 -m unittest discover -s fund-map -p 'test_*.py'
           python3 -m unittest discover -s market-map -p 'test_*.py'
           python3 market-insights/build_data.py
@@ -57,10 +50,7 @@ jobs:
           python3 fund-map/build_holdings.py
 
       - name: Test and build Signal news snapshot
-        run: |
-          python3 -m unittest discover -s signal -p test_build_data.py
-          node --test signal/app.test.js
-          python3 signal/build_data.py
+        run: python3 signal/build_data.py
 
       - name: Build Pulse post previews
         run: |

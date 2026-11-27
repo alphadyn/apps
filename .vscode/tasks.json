@@ -28,13 +28,6 @@
 			],
 			"isBackground": true,
 			"problemMatcher": []
-		},
-		{
-			"label": "Run Northstar EHR",
-			"type": "shell",
-			"command": "python3 -m http.server 8000 --bind 127.0.0.1 --directory northstar-ehr",
-			"isBackground": true,
-			"problemMatcher": []
 		}
 	]
 }

@@ -4,7 +4,10 @@ const MAX_LATITUDE = 85.05112878;
 const TILE_LIMIT = 64;
 const TILE_SIZE = 512;
 const MAX_TILE_ZOOM = 20;
-const TILE_CONTRAST = 1.18;
+const TILE_CONTRAST = 1.3;
+const TILE_CONTRAST_PIVOT = 0.65;
+const TILE_GAMMA = 1.15;
+const TILE_SATURATION = 1.12;
 const TILE_URL = "https://a.basemaps.cartocdn.com/rastertiles/voyager";
 const CARTO_KEY = "cb1_2w0f_1_82cba88eb21776b6335fa821";
 
@@ -154,7 +157,10 @@ export function createStreetMap(scene, camera, renderer, radius, status) {
             shader.fragmentShader = shader.fragmentShader.replace(
               "#include <map_fragment>",
               `#include <map_fragment>
-              diffuseColor.rgb = clamp((diffuseColor.rgb - 0.5) * ${TILE_CONTRAST.toFixed(2)} + 0.5, 0.0, 1.0);`
+              diffuseColor.rgb = clamp((diffuseColor.rgb - ${TILE_CONTRAST_PIVOT.toFixed(2)}) * ${TILE_CONTRAST.toFixed(2)} + ${TILE_CONTRAST_PIVOT.toFixed(2)}, 0.0, 1.0);
+              diffuseColor.rgb = pow(diffuseColor.rgb, vec3(${TILE_GAMMA.toFixed(2)}));
+              float mapLuminance = dot(diffuseColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+              diffuseColor.rgb = clamp(mix(vec3(mapLuminance), diffuseColor.rgb, ${TILE_SATURATION.toFixed(2)}), 0.0, 1.0);`
             );
           };
           const mesh = new THREE.Mesh(

@@ -2,7 +2,8 @@ import * as THREE from "three";
 
 const MAX_LATITUDE = 85.05112878;
 const TILE_LIMIT = 64;
-const TILE_SIZE = 512;
+const TILE_DISPLAY_SIZE = 256; // The @2x tiles are 512px for a 256px map tile.
+const TILE_LABEL_SCALE = 1.5;
 const MAX_TILE_ZOOM = 20;
 const TILE_CONTRAST = 1.3;
 const TILE_CONTRAST_PIVOT = 0.65;
@@ -91,10 +92,10 @@ export function createStreetMap(scene, camera, renderer, radius, status) {
     if (!supported.length) return [];
     const altitude = Math.max(camera.position.length() - radius, 0.00001);
     const latitudeScale = Math.max(0.08, Math.hypot(camera.position.x, camera.position.z) / camera.position.length());
-    const pixels = renderer.domElement.clientHeight * renderer.getPixelRatio();
+    const pixels = renderer.domElement.clientHeight;
     const viewWidth = 2 * altitude * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
     let zoom = THREE.MathUtils.clamp(
-      Math.ceil(Math.log2(2 * Math.PI * radius * latitudeScale * pixels / (TILE_SIZE * viewWidth))),
+      Math.ceil(Math.log2(2 * Math.PI * radius * latitudeScale * pixels / (TILE_DISPLAY_SIZE * TILE_LABEL_SCALE * viewWidth))),
       0,
       MAX_TILE_ZOOM
     );

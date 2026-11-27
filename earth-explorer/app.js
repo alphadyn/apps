@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { createStreetMap } from "./street-map.js?v=9";
+import { createStreetMap } from "./street-map.js?v=10";
 import { setupLocationSearch } from "./location-search.js?v=1";
 
 const EARTH_RADIUS_KM = 6371;
@@ -405,10 +405,12 @@ streetsLayer.addEventListener("change", () => {
 function updateStreetLayerDefault() {
   const altitude = camera.position.distanceTo(controls.target) - GLOBE_RADIUS;
   const initialAltitude = INITIAL_CAMERA_DISTANCE - GLOBE_RADIUS;
-  const zoomLevel = Math.max(0, Math.floor(Math.log2(initialAltitude / altitude)));
+  // Avoid toggling between levels due to camera-distance rounding at a zoom boundary.
+  const zoomLevel = Math.max(0, Math.floor(Math.log2(initialAltitude / altitude) + 1e-9));
   if (zoomLevel !== lastAutomaticStreetZoomLevel) {
+    const zoomingIn = lastAutomaticStreetZoomLevel >= 0 && zoomLevel > lastAutomaticStreetZoomLevel;
+    const shouldEnable = zoomLevel >= FIRST_STREET_ZOOM_LEVEL || (zoomingIn && streetsLayer.checked);
     lastAutomaticStreetZoomLevel = zoomLevel;
-    const shouldEnable = zoomLevel >= FIRST_STREET_ZOOM_LEVEL;
     if (streetsLayer.checked !== shouldEnable) {
       streetsLayer.checked = shouldEnable;
       setStreetLayerEnabled(shouldEnable);

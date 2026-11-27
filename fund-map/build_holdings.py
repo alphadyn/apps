@@ -235,7 +235,15 @@ def parse_ishares_holdings(text, symbol):
     date_row = next((row for row in rows if row and row[0] == "Fund Holdings as of"), None)
     if not date_row or len(date_row) != 2:
         raise ValueError(f"Missing {symbol} holdings date")
-    as_of = datetime.strptime(date_row[1], "%b %d, %Y").date().isoformat()
+    raw_date = date_row[1].strip()
+    for date_format in ("%b %d, %Y", "%Y-%m-%d"):
+        try:
+            as_of = datetime.strptime(raw_date, date_format).date().isoformat()
+            break
+        except ValueError:
+            continue
+    else:
+        raise ValueError(f"Invalid {symbol} holdings date: {raw_date!r}")
     header_index = next((i for i, row in enumerate(rows)
                          if "Ticker" in row and "Asset Class" in row), None)
     if header_index is None:

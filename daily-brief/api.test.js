@@ -21,6 +21,13 @@ test('parseRss decodes headlines and keeps source attribution and safe links', (
     sourceUrl: 'https://www.reuters.com/',
     publishedAt: '2026-11-09T10:00:00.000Z',
   }]);
+
+  const stories = parseRss(
+    '<rss><channel><item><title>Simple headline</title><link>https://example.com/story</link></item></channel></rss>',
+    'CNN',
+  );
+  assert.equal(stories[0].source, 'CNN');
+  assert.equal(stories[0].publishedAt, null);
 });
 
 test('buildDigest groups related headlines and never exceeds five paragraphs', () => {
@@ -39,16 +46,6 @@ test('buildDigest groups related headlines and never exceeds five paragraphs', (
   assert.equal(digest[0].sourceCount, 3);
   assert.equal(digest[0].supporting.length, 2);
   assert.equal(buildDigest(stories, 2).length, 2);
-});
-
-test('parseRss handles missing dates and falls back to the feed name', () => {
-  const stories = parseRss(
-    '<rss><channel><item><title>Simple headline</title><link>https://example.com/story</link></item></channel></rss>',
-    'CNN',
-  );
-
-  assert.equal(stories[0].source, 'CNN');
-  assert.equal(stories[0].publishedAt, null);
 });
 
 test('resolveGoogleNewsUrl replaces an RSS wrapper URL with its publisher article', async () => {
@@ -84,7 +81,7 @@ test('resolveGoogleNewsUrl replaces an RSS wrapper URL with its publisher articl
   assert.match(calls[1].options.body.toString(), /garturlreq/);
 });
 
-test('resolveGoogleNewsUrl rejects non-Google News links without fetching', async () => {
+test('resolveGoogleNewsUrl rejects invalid links and follows direct redirects', async () => {
   let fetched = false;
   await assert.rejects(
     resolveGoogleNewsUrl('https://publisher.example/article', async () => {
@@ -93,9 +90,7 @@ test('resolveGoogleNewsUrl rejects non-Google News links without fetching', asyn
     /Expected an HTTPS Google News article URL/,
   );
   assert.equal(fetched, false);
-});
 
-test('resolveGoogleNewsUrl returns direct redirects without requesting the destination', async () => {
   let requests = 0;
   const resolved = await resolveGoogleNewsUrl(
     'https://news.google.com/rss/articles/CBMiW0FVX3lxTE1FNVg3ME1zb05FTlVhMmw5SXQ4eGlxRF9hYUo3bGhVNlMyTjEyeFBMT29tMDM1WjY4QUxONVVjSkp4VFVlZFZrNkNxU0ZDR0c1LWU3cmE1c0lDeTQ',

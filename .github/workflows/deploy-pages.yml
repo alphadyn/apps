@@ -40,6 +40,11 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v6
 
+      - name: Run test suite
+        run: |
+          python3 -m pip install --disable-pip-version-check -r requirements-dev.txt
+          ./run_tests.sh
+
       - name: Test and build Market Insights snapshot
         run: |
           python3 -m pip install --disable-pip-version-check -r market-insights/requirements-build.txt

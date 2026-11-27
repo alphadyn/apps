@@ -20,10 +20,7 @@ test("elevations generate valid, escaped drawings for each facade and specified 
   assert.match(renderDocumentationDrawing(createProject(), { side: "south" }), /Illustrative door/);
   assert.match(renderDocumentationDrawing(createProject(), { side: "north" }), /Illustrative window/);
   assert.throws(() => renderDocumentationDrawing(project, { side: "up" }), /direction/);
-});
 
-test("sections show intersected rooms on every floor and validate cut direction and position", () => {
-  const project = createProject();
   const section = renderDocumentationDrawing(project, { view: "section", axis: "x", offset: 2 });
   assert.match(section, /SECTION X–X/);
   assert.match(section, /Living room/);

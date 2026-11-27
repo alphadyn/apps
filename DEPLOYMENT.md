@@ -32,6 +32,8 @@ Before changing deployment settings, run the repository tests and verify the wor
 ./run_tests.sh
 ```
 
+The test suite covers Python and Node.js unit tests and is limited to 50 test cases. The GitHub Pages workflow runs the suite before building data snapshots or uploading the deployment artifact. A failed test run blocks deployment, preventing broken catalog or app updates from reaching GitHub Pages.
+
 GitHub Actions validates the workflow when it runs. The static portfolio can be previewed locally from the repository root with:
 
 ```bash

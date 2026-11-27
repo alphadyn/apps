@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'northstar-legal-docketing-data';
+const STORAGE_KEY = 'lexhaven-legal-docketing-data';
 
 const sampleData = {
   matters: [

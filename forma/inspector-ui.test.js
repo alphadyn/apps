@@ -43,9 +43,7 @@ test("corner restrictions and opening warnings preserve editing availability", (
   const openings = roomBoundaryControlsMarkup({ ...options, roomHasFeatures: true });
   assert.doesNotMatch(openings, /id="add-corner"|id="remove-corner"/);
   assert.match(openings, /Openings must fit after resizing/);
-});
 
-test("opening inspector escapes user text and renders all measurements with existing formatting", () => {
   const opening = { name: '<img src="x">', side: "north", width: 1.5, height: 1.2, offset: .5 };
   const markup = openingInspectorMarkup(opening, { name: "Kitchen & dining" }, { icon, lengthText: n => `${n} ft` });
   assert.doesNotMatch(markup, /<img/);

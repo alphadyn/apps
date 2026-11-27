@@ -578,6 +578,44 @@ body.fullscreen-fallback #globeContainer.is-fullscreen {
   font-variant-numeric: tabular-nums;
 }
 
+.route-options {
+  display: grid;
+  gap: 10px;
+}
+
+.route-options label {
+  color: #73777d;
+  font-size: 0.8rem;
+}
+
+.route-options select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #dfe3e8;
+  border-radius: 11px;
+  background: #f4f5f7;
+  color: #202327;
+  font: inherit;
+}
+
+.route-options button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.route-summary {
+  margin-top: 16px;
+}
+
+.route-instructions {
+  padding-left: 1.5em;
+  font-size: 0.85rem;
+}
+
+.route-instructions li + li {
+  margin-top: 8px;
+}
+
 .secondary-btn {
   width: 100%;
   padding: 10px;
@@ -1114,6 +1152,7 @@ h1 {
 
   .topbar {
     min-height: 52px;
+    flex-wrap: wrap;
     gap: 8px;
     padding-bottom: 8px;
   }
@@ -1136,13 +1175,13 @@ h1 {
   }
 
   .mode-toggle {
-    width: auto;
-    flex-shrink: 0;
+    width: 100%;
+    flex-shrink: 1;
   }
 
   .mode-btn {
-    flex: initial;
-    min-height: 34px;
+    flex: 1;
+    min-height: 44px;
     padding: 7px 10px;
     font-size: 0.7rem;
   }

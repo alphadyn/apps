@@ -54,6 +54,9 @@ distance between any two points you click.
   country's Wikipedia article, opened in a new tab)
 - **Measure Distance mode**: click two points on the globe to drop markers, draw a great-circle
   arc between them, and see the surface distance in kilometers and miles
+- **Find Route mode**: select a start and destination on the globe or from location search,
+  then find a driving, walking, or cycling route. The globe centers on the route and
+  the panel shows distance, estimated time, and turn-by-turn directions.
 - Distance is computed from the true angular separation between the two points on the sphere
   (not a straight line through the globe), so it reflects real-world surface distance
 
@@ -89,6 +92,11 @@ Click the app icon in the header to reload the entry page and return the globe t
 6. Enter a city, address, or landmark in **Find a Location**, then press Enter or **Search**.
    Choose a result to center and zoom the globe. Enable **Streets** for mapped roads and labels.
 7. Select the share button in the globe controls to copy a link to the current view.
+8. Select **Find Route**, choose a travel mode, then click two locations on the globe or
+   choose two search results for the start and destination. The route is requested
+   automatically after the second point and recalculated when the travel mode changes.
+   Selecting another point after both are set starts a new route; **Reset Route** clears it.
+   If a request fails, use **Retry Route** or select different points.
 
 ## Main files
 - `index.html` — page structure, mode toggle, and side panels
@@ -96,6 +104,7 @@ Click the app icon in the header to reload the entry page and return the globe t
   and great-circle distance calculation
 - `street-map.js` — Web Mercator tile selection, spherical projection, and tile loading/disposal
 - `location-search.js` — submitted geocoding searches, result selection, and error reporting
+- `routing.js` — Valhalla route requests and decoding of route geometry
 - `styles.css` — layout and visual styling
 - `assets/earth-blue-marble.jpg` — Blue Marble Earth texture used to render the icon and sharing card
 - `app-icon.png` — high-resolution Earth icon used in the header and as the favicon
@@ -105,6 +114,14 @@ Click the app icon in the header to reload the entry page and return the globe t
 The Blue Marble texture is from the `three-globe` example assets and is NASA Earth imagery.
 
 ## Notes
+- Routing sends the selected coordinates and travel mode to the public
+  [Valhalla demo service](https://valhalla.openstreetmap.de/), which uses OpenStreetMap
+  data. It requires internet access and is subject to demo-service availability, geographic
+  coverage, and usage limits. Directions and travel times are estimates, not navigation
+  guarantees. Requests are initiated by users and spaced at least 1.1 seconds apart per
+  page. Review the [FOSSGIS usage terms](https://fossgis.de/arbeitsgruppen/osm-server/nutzungsbedingungen/),
+  including the requirement to provide a directly reachable operator email and the
+  service-wide rate limits. Use a dedicated routing provider for production or high-traffic use.
 - Search queries are sent to the public Nominatim service only on submission, not while
   typing. Requests are spaced at least 1.1 seconds apart per page and recent queries are
   cached in memory. Attribution is visible below the results. Public-service usage limits

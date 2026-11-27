@@ -40,7 +40,7 @@
     >
     <meta name="theme-color" content="#f4f5f7" />
     <link rel="icon" href="app-icon.png?v=5" type="image/png" />
-    <link rel="stylesheet" href="styles.css?v=18" />
+    <link rel="stylesheet" href="styles.css?v=19" />
   </head>
   <body>
     <div class="app-shell">
@@ -57,6 +57,7 @@
         <div class="mode-toggle" role="group" aria-label="Interaction mode">
           <button id="inspectModeBtn" class="mode-btn active" type="button" aria-pressed="true">Inspect Point</button>
           <button id="measureModeBtn" class="mode-btn" type="button" aria-pressed="false">Measure Distance</button>
+          <button id="routeModeBtn" class="mode-btn" type="button" aria-pressed="false">Find Route</button>
         </div>
       </header>
 
@@ -168,6 +169,35 @@
             </div>
             <button id="resetMeasureBtn" class="secondary-btn" type="button">Reset Points</button>
           </div>
+          <div id="routePanel" class="panel hidden">
+            <p class="eyebrow">Directions</p>
+            <h2>Find a Route</h2>
+            <p class="hint">Choose a travel mode, then click two points on the globe or select two location search results. The route is found automatically.</p>
+            <ol class="point-list">
+              <li><span class="point-label">Start</span><span id="routeStart" class="point-value">&mdash;</span></li>
+              <li><span class="point-label">Destination</span><span id="routeEnd" class="point-value">&mdash;</span></li>
+            </ol>
+            <div class="route-options">
+              <label for="routeProfile">Travel mode</label>
+              <select id="routeProfile">
+                <option value="auto">Driving</option>
+                <option value="pedestrian">Walking</option>
+                <option value="bicycle">Cycling</option>
+              </select>
+              <button id="findRouteBtn" class="secondary-btn primary-btn hidden" type="button" disabled>Retry Route</button>
+              <button id="resetRouteBtn" class="secondary-btn" type="button">Reset Route</button>
+            </div>
+            <p id="routeStatus" class="hint" role="status" aria-live="polite"></p>
+            <div id="routeResult" class="hidden">
+              <dl class="details-list route-summary">
+                <dt>Distance</dt><dd id="routeDistance"></dd>
+                <dt>Estimated time</dt><dd id="routeDuration"></dd>
+              </dl>
+              <h3>Directions</h3>
+              <ol id="routeInstructions" class="route-instructions"></ol>
+            </div>
+            <p class="hint">Your selected coordinates are sent to the public <a href="https://valhalla.openstreetmap.de/" target="_blank" rel="noopener noreferrer">Valhalla demo service</a>. Data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors (<a href="https://opendatacommons.org/licenses/odbl/" target="_blank" rel="noopener noreferrer">ODbL</a>). <a href="https://www.openstreetmap.org/fixthemap" target="_blank" rel="noopener noreferrer">Contribute or report an error</a>.</p>
+          </div>
         </aside>
       </main>
       <footer class="app-footer"><span>Earth Explorer</span><span>Explore. Locate. Measure.</span></footer>
@@ -181,6 +211,6 @@
         }
       }
     </script>
-    <script type="module" src="app.js?v=37"></script>
+    <script type="module" src="app.js?v=39"></script>
   </body>
 </html>

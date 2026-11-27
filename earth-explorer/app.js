@@ -1,7 +1,11 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { Line2 } from "three/addons/lines/Line2.js";
+import { LineGeometry } from "three/addons/lines/LineGeometry.js";
+import { LineMaterial } from "three/addons/lines/LineMaterial.js";
 import { createStreetMap } from "./street-map.js?v=10";
 import { setupLocationSearch } from "./location-search.js?v=1";
+import { findRoute } from "./routing.js?v=1";
 
 const EARTH_RADIUS_KM = 6371;
 const GLOBE_RADIUS = 2;
@@ -28,8 +32,10 @@ const regionalBordersStatus = document.getElementById("regionalBordersStatus");
 const gridLayer = document.getElementById("gridLayer");
 const inspectModeBtn = document.getElementById("inspectModeBtn");
 const measureModeBtn = document.getElementById("measureModeBtn");
+const routeModeBtn = document.getElementById("routeModeBtn");
 const inspectPanel = document.getElementById("inspectPanel");
 const measurePanel = document.getElementById("measurePanel");
+const routePanel = document.getElementById("routePanel");
 const inspectEmpty = document.getElementById("inspectEmpty");
 const inspectDetails = document.getElementById("inspectDetails");
 const detailLat = document.getElementById("detailLat");
@@ -44,12 +50,26 @@ const pointAEl = document.getElementById("pointA");
 const pointBEl = document.getElementById("pointB");
 const distanceValueEl = document.getElementById("distanceValue");
 const resetMeasureBtn = document.getElementById("resetMeasureBtn");
+const routeStartEl = document.getElementById("routeStart");
+const routeEndEl = document.getElementById("routeEnd");
+const routeProfile = document.getElementById("routeProfile");
+const findRouteBtn = document.getElementById("findRouteBtn");
+const resetRouteBtn = document.getElementById("resetRouteBtn");
+const routeStatus = document.getElementById("routeStatus");
+const routeResult = document.getElementById("routeResult");
+const routeDistance = document.getElementById("routeDistance");
+const routeDuration = document.getElementById("routeDuration");
+const routeInstructions = document.getElementById("routeInstructions");
 
-let mode = "inspect"; // "inspect" | "measure"
+let mode = "inspect"; // "inspect" | "measure" | "route"
 let measurePoints = []; // holds up to two { vector, lat, lon } entries
 const measureMarkers = [];
 let measureLine = null;
 let inspectMarker = null;
+let routePoints = [];
+const routeMarkers = [];
+let routeLine = null;
+let routeRequest = null;
 let countryFeatures = []; // GeoJSON features used for both the border overlay and name lookup
 
 function readSharedViewFromUrl() {
@@ -710,6 +730,7 @@ function resizeRendererToDisplaySize() {
   const height = container.clientHeight;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(width, height);
+  if (routeLine) routeLine.material.resolution.set(width, height);
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
 }
@@ -733,8 +754,12 @@ function updateMarkerSizes() {
   }
   if (inspectMarker) scaleMarker(inspectMarker);
   for (const marker of measureMarkers) scaleMarker(marker);
+  for (const marker of routeMarkers) scaleMarker(marker);
   if (measureLine) {
     measureLine.scale.setScalar((GLOBE_RADIUS + elevation) / (GLOBE_RADIUS * 1.01));
+  }
+  if (routeLine) {
+    routeLine.scale.setScalar((GLOBE_RADIUS + elevation) / (GLOBE_RADIUS * 1.01));
   }
 }
 
@@ -932,8 +957,10 @@ function selectPoint(clientX, clientY) {
 
   if (mode === "inspect") {
     handleInspectClick(point);
-  } else {
+  } else if (mode === "measure") {
     handleMeasureClick(point);
+  } else {
+    handleRoutePoint(point);
   }
 }
 
@@ -1050,26 +1077,172 @@ function clearMeasurement() {
 
 resetMeasureBtn.addEventListener("click", clearMeasurement);
 
+function clearRouteResult() {
+  if (routeRequest) {
+    routeRequest.abort();
+    routeRequest = null;
+    routePanel.removeAttribute("aria-busy");
+  }
+  if (routeLine) {
+    scene.remove(routeLine);
+    routeLine.geometry.dispose();
+    routeLine.material.dispose();
+    routeLine = null;
+  }
+  routeResult.classList.add("hidden");
+  routeInstructions.replaceChildren();
+  findRouteBtn.classList.add("hidden");
+  findRouteBtn.disabled = true;
+}
+
+function clearRoute() {
+  clearRouteResult();
+  routePoints = [];
+  for (const marker of routeMarkers) {
+    scene.remove(marker);
+    marker.geometry.dispose();
+    marker.material.dispose();
+  }
+  routeMarkers.length = 0;
+  routeStartEl.textContent = "\u2014";
+  routeEndEl.textContent = "\u2014";
+  findRouteBtn.disabled = true;
+  routeStatus.textContent = "";
+}
+
+function handleRoutePoint(point) {
+  if (routePoints.length === 2) clearRoute();
+  clearRouteResult();
+  const { lat, lon } = pointToLatLon(point);
+  const marker = makeMarker(routePoints.length === 0 ? 0x06d6a0 : 0xffd166);
+  marker.position.copy(point.clone().normalize().multiplyScalar(GLOBE_RADIUS * 1.01));
+  routeMarkers.push(marker);
+  routePoints.push({ lat, lon });
+  if (routePoints.length === 1) {
+    routeStartEl.textContent = `${lat.toFixed(5)}\u00B0, ${lon.toFixed(5)}\u00B0`;
+    routeStatus.textContent = "Select a destination.";
+  } else {
+    routeEndEl.textContent = `${lat.toFixed(5)}\u00B0, ${lon.toFixed(5)}\u00B0`;
+    requestRoute();
+  }
+}
+
+function formatRouteDuration(seconds) {
+  const minutes = Math.max(1, Math.round(seconds / 60));
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  const remaining = minutes % 60;
+  return remaining ? `${hours} hr ${remaining} min` : `${hours} hr`;
+}
+
+function frameRoute(coordinates) {
+  const directions = coordinates.map(({ lat, lon }) => latLonToVector3(lat, lon, 1));
+  const center = directions[0].clone().add(directions[directions.length - 1]);
+  if (center.lengthSq() < 1e-10) return;
+  center.normalize();
+  let angle = 0;
+  for (const direction of directions) angle = Math.max(angle, center.angleTo(direction));
+  const halfFov = Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * Math.min(1, camera.aspect));
+  const distance = angle >= Math.acos(GLOBE_RADIUS / MAX_CAMERA_DISTANCE)
+    ? MAX_CAMERA_DISTANCE
+    : GLOBE_RADIUS * (Math.cos(angle) + 1.4 * Math.sin(angle) / Math.tan(halfFov));
+  zoomFocusDirection = center;
+  zoomTargetDistance = THREE.MathUtils.clamp(distance, controls.minDistance, controls.maxDistance);
+  updateZoomButtons();
+}
+
+async function requestRoute() {
+  if (routePoints.length !== 2) return;
+  clearRouteResult();
+  const request = new AbortController();
+  routeRequest = request;
+  findRouteBtn.disabled = true;
+  routePanel.setAttribute("aria-busy", "true");
+  routeStatus.textContent = "Finding a route...";
+  try {
+    const result = await findRoute(routePoints, routeProfile.value, request.signal);
+    if (request.signal.aborted) return;
+    const positions = [];
+    for (const { lat, lon } of result.coordinates) {
+      const point = latLonToVector3(lat, lon, GLOBE_RADIUS * 1.01);
+      positions.push(point.x, point.y, point.z);
+    }
+    const geometry = new LineGeometry();
+    geometry.setPositions(positions);
+    const material = new LineMaterial({ color: 0x0878f9, linewidth: 4 });
+    material.resolution.set(renderer.domElement.clientWidth, renderer.domElement.clientHeight);
+    routeLine = new Line2(geometry, material);
+    scene.add(routeLine);
+    if (mode === "route") frameRoute(result.coordinates);
+    routeDistance.textContent = `${result.distance.toFixed(1)} km (${(result.distance * 0.621371).toFixed(1)} mi)`;
+    routeDuration.textContent = formatRouteDuration(result.duration);
+    for (const instruction of result.instructions) {
+      const item = document.createElement("li");
+      item.textContent = instruction;
+      routeInstructions.appendChild(item);
+    }
+    routeResult.classList.remove("hidden");
+    routeStatus.textContent = "Route found. Times are estimates; check local conditions.";
+  } catch (error) {
+    if (!request.signal.aborted) {
+      console.error("Route search failed:", error);
+      routeStatus.textContent = "Unable to find a route. The demo service may be unavailable, or no route may exist between these points. Try again or choose different points.";
+      findRouteBtn.classList.remove("hidden");
+    }
+  } finally {
+    if (routeRequest === request) {
+      routeRequest = null;
+      findRouteBtn.disabled = routePoints.length !== 2;
+      routePanel.removeAttribute("aria-busy");
+    }
+  }
+}
+
+findRouteBtn.addEventListener("click", requestRoute);
+resetRouteBtn.addEventListener("click", clearRoute);
+routeProfile.addEventListener("change", () => {
+  if (routePoints.length === 2) {
+    requestRoute();
+  } else {
+    clearRouteResult();
+    routeStatus.textContent = routePoints.length === 1 ? "Select a destination." : "";
+  }
+});
+
 function setMode(nextMode) {
+  if (mode !== nextMode) {
+    clearTimeout(pendingSelection);
+    pendingSelection = null;
+  }
   mode = nextMode;
   const isInspect = mode === "inspect";
+  const isMeasure = mode === "measure";
+  const isRoute = mode === "route";
   inspectModeBtn.classList.toggle("active", isInspect);
-  measureModeBtn.classList.toggle("active", !isInspect);
+  measureModeBtn.classList.toggle("active", isMeasure);
+  routeModeBtn.classList.toggle("active", isRoute);
   inspectModeBtn.setAttribute("aria-pressed", String(isInspect));
-  measureModeBtn.setAttribute("aria-pressed", String(!isInspect));
+  measureModeBtn.setAttribute("aria-pressed", String(isMeasure));
+  routeModeBtn.setAttribute("aria-pressed", String(isRoute));
   inspectPanel.classList.toggle("hidden", !isInspect);
-  measurePanel.classList.toggle("hidden", isInspect);
+  measurePanel.classList.toggle("hidden", !isMeasure);
+  routePanel.classList.toggle("hidden", !isRoute);
 }
 
 inspectModeBtn.addEventListener("click", () => setMode("inspect"));
 measureModeBtn.addEventListener("click", () => setMode("measure"));
+routeModeBtn.addEventListener("click", () => setMode("route"));
 
 setupLocationSearch(({ lat, lon, bounds }) => {
   clearTimeout(pendingSelection);
   pendingSelection = null;
-  setMode("inspect");
   const point = latLonToVector3(lat, lon, GLOBE_RADIUS);
-  handleInspectClick(point);
+  if (mode === "route") {
+    handleRoutePoint(point);
+  } else {
+    setMode("inspect");
+    handleInspectClick(point);
+  }
   const latSpan = bounds ? bounds.north - bounds.south : 0;
   const lonSpan = bounds ? (bounds.east - bounds.west) * Math.cos(THREE.MathUtils.degToRad(lat)) : 0;
   const halfSpan = THREE.MathUtils.degToRad(Math.max(latSpan, lonSpan) / 2);

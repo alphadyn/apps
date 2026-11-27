@@ -4,7 +4,7 @@
 
 This repository is a portfolio-style collection of **19 active, independent projects**: interactive demos, data visualizations, browser apps, and Python utilities. Every project is designed to be explored on its own, with its own README and a live GitHub Pages entry whenever applicable. The collection intentionally mixes dependency-free static experiences with apps that use Supabase, Flask, or Vercel APIs.
 
-The [landing page](index.html) is the visual launch point for the portfolio. It highlights three featured projects and provides an alphabetical catalog of all 19 apps and experiments, each with a short summary, category, icon, and launch link. Project pages link back to this repository and its catalog documentation.
+The [landing page](index.html) is the visual launch point for the portfolio. It highlights four featured projects and provides an alphabetical catalog of all 19 apps and experiments, each with a short summary, category, icon, and launch link. Project pages link back to this repository and its catalog documentation.
 
 Its social link-preview image is generated from the Signika logo SVGs with `python3 -m scripts.generate_social_preview` (requires Pillow and resvg-py, installable with `python3 -m pip install Pillow resvg-py`). After changing the image, update the version in the landing page's Open Graph and Twitter image URLs to encourage cache refreshes; preview caching is controlled by each sharing platform.
 
@@ -18,7 +18,8 @@ The landing page's Top apps section highlights these projects:
 
 1. [Market Map](market-map/) — See the S&P 500 in one market-cap-weighted treemap, colored by implied DCF upside and downside
 2. [Forma](forma/) — Design contemporary homes with 17 space types, editable floors and lots, whole-property site plans, and full-house 3D concepts
-3. [People](people/) — Build a professional profile, share your work, discover people, and join communities
+3. [Earth Explorer](earth-explorer/) — Explore a 3D globe with street maps, location search, coordinate inspection, and distance measurement
+4. [People](people/) — Build a professional profile, share your work, discover people, and join communities
 
 ## App catalog
 

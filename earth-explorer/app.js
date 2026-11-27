@@ -112,6 +112,10 @@ container.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
+// Touch drags should stop on release rather than glide through street detail.
+// Keep damping for pointer input, but disable it for the entire touch gesture.
+controls.touches.ONE = THREE.TOUCH.ROTATE;
+controls.touches.TWO = THREE.TOUCH.DOLLY_PAN;
 controls.minDistance = GLOBE_RADIUS +
   (INITIAL_CAMERA_DISTANCE - GLOBE_RADIUS) / ZOOM_STEP ** MAX_ZOOM_LEVELS;
 controls.maxDistance = MAX_CAMERA_DISTANCE;
@@ -860,9 +864,14 @@ const TOUCH_SELECTION_DELAY = 350;
 let pointerDownPos = null;
 let pendingSelection = null;
 let lastTouchTap = null;
+const activeTouchPointers = new Set();
 let handledTouchDoubleTap = null;
 
 function onPointerDown(event) {
+  if (event.pointerType === "touch") {
+    activeTouchPointers.add(event.pointerId);
+    controls.enableDamping = false;
+  }
   if (event.pointerType === "touch" && !event.isPrimary) {
     pointerDownPos = null;
     lastTouchTap = null;
@@ -875,6 +884,12 @@ function onPointerDown(event) {
 }
 
 function onPointerUp(event) {
+  if (event.pointerType === "touch") {
+    activeTouchPointers.delete(event.pointerId);
+    if (activeTouchPointers.size === 0) {
+      controls.enableDamping = true;
+    }
+  }
   if (!pointerDownPos || event.pointerId !== pointerDownPos.id) return;
   const dx = event.clientX - pointerDownPos.x;
   const dy = event.clientY - pointerDownPos.y;
@@ -939,7 +954,13 @@ function zoomAtPoint(clientX, clientY) {
 
 renderer.domElement.addEventListener("pointerdown", onPointerDown);
 renderer.domElement.addEventListener("pointerup", onPointerUp);
-renderer.domElement.addEventListener("pointercancel", () => {
+renderer.domElement.addEventListener("pointercancel", (event) => {
+  if (event.pointerType === "touch") {
+    activeTouchPointers.delete(event.pointerId);
+    if (activeTouchPointers.size === 0) {
+      controls.enableDamping = true;
+    }
+  }
   pointerDownPos = null;
   lastTouchTap = null;
 });

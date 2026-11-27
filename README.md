@@ -19,7 +19,7 @@ The landing page's Top apps section highlights these projects:
 1. [Market Map](market-map/) — See the S&P 500 in one market-cap-weighted treemap, colored by implied DCF upside and downside
 2. [Forma](forma/) — Design contemporary homes with 17 space types, editable floors and lots, whole-property site plans, and full-house 3D concepts
 3. [Earth Explorer](earth-explorer/) — Explore a 3D globe with street maps, location search, coordinate inspection, and distance measurement
-4. [People](people/) — Build a professional profile, share your work, discover people, and join communities
+4. [Meetings](meetings/) — Host encrypted video calls with chat, file sharing, fullscreen mode, and mobile-friendly controls
 
 ## App catalog
 

@@ -4,7 +4,7 @@ const MAX_LATITUDE = 85.05112878;
 const TILE_LIMIT = 64;
 const TILE_SIZE = 512;
 const MAX_TILE_ZOOM = 20;
-const TILE_CONTRAST = 1.5;
+const TILE_CONTRAST = 1.18;
 const TILE_URL = "https://a.basemaps.cartocdn.com/rastertiles/voyager";
 const CARTO_KEY = "cb1_2w0f_1_82cba88eb21776b6335fa821";
 
@@ -191,7 +191,7 @@ export function createStreetMap(scene, camera, renderer, radius, status) {
           ? "Street maps end at 85.05° latitude; polar areas retain Earth imagery."
           : tiles[0]?.zoom === MAX_TILE_ZOOM
             ? `Street map on globe (level ${MAX_TILE_ZOOM}). Maximum map detail reached.`
-            : `Street map on globe (level ${tiles[0]?.zoom ?? 0}). Zoom closer for more detail.`;
+            : `Street map on globe (level ${tiles[0]?.zoom ?? 0}). Zoom closer to reveal street names and building detail.`;
     }
     // Bound abandoned batches even while the user keeps rotating or zooming.
     const wanted = new Set(pendingTiles.map((tile) => tile.key));

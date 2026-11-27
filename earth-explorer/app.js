@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { createStreetMap } from "./street-map.js?v=5";
+import { createStreetMap } from "./street-map.js?v=6";
 import { setupLocationSearch } from "./location-search.js?v=1";
 
 const EARTH_RADIUS_KM = 6371;
@@ -264,7 +264,41 @@ controls.addEventListener("change", updateZoomButtons);
 updateZoomButtons();
 
 function isGlobeFullscreen() {
-  return document.fullscreenElement === container || container.classList.contains("is-fullscreen");
+  return getNativeFullscreenElement() === container || container.classList.contains("is-fullscreen");
+}
+
+function getNativeFullscreenElement() {
+  return document.fullscreenElement || document.webkitFullscreenElement || null;
+}
+
+function syncFallbackViewport() {
+  const viewport = window.visualViewport;
+  document.documentElement.style.setProperty(
+    "--fullscreen-viewport-width",
+    `${viewport?.width ?? window.innerWidth}px`,
+  );
+  document.documentElement.style.setProperty(
+    "--fullscreen-viewport-height",
+    `${viewport?.height ?? window.innerHeight}px`,
+  );
+  document.documentElement.style.setProperty(
+    "--fullscreen-viewport-top",
+    `${viewport?.offsetTop ?? 0}px`,
+  );
+}
+
+function setViewportFallback(enabled) {
+  document.documentElement.classList.toggle("fullscreen-fallback", enabled);
+  document.body.classList.toggle("fullscreen-fallback", enabled);
+  container.classList.toggle("is-fullscreen", enabled);
+  if (enabled) {
+    syncFallbackViewport();
+  } else {
+    document.documentElement.style.removeProperty("--fullscreen-viewport-width");
+    document.documentElement.style.removeProperty("--fullscreen-viewport-height");
+    document.documentElement.style.removeProperty("--fullscreen-viewport-top");
+  }
+  updateFullscreenButton();
 }
 
 function updateFullscreenButton() {
@@ -278,30 +312,41 @@ function updateFullscreenButton() {
 fullscreenBtn.addEventListener("click", async () => {
   try {
     if (isGlobeFullscreen()) {
-      if (document.fullscreenElement === container && document.exitFullscreen) {
-        await document.exitFullscreen();
+      if (getNativeFullscreenElement() === container) {
+        const exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen;
+        if (exitFullscreen) await exitFullscreen.call(document);
       } else {
-        container.classList.remove("is-fullscreen");
-        updateFullscreenButton();
+        setViewportFallback(false);
       }
-    } else if (container.requestFullscreen && document.exitFullscreen) {
-      await container.requestFullscreen();
     } else {
-      container.classList.add("is-fullscreen");
-      updateFullscreenButton();
+      const requestFullscreen = container.requestFullscreen || container.webkitRequestFullscreen;
+      if (requestFullscreen) {
+        await requestFullscreen.call(container);
+      } else {
+        setViewportFallback(true);
+      }
     }
   } catch (error) {
     console.warn("Unable to toggle native fullscreen; using the viewport fallback:", error);
-    container.classList.add("is-fullscreen");
-    updateFullscreenButton();
+    if (getNativeFullscreenElement() !== container) setViewportFallback(true);
   }
 });
 
 document.addEventListener("fullscreenchange", updateFullscreenButton);
+document.addEventListener("webkitfullscreenchange", updateFullscreenButton);
+function updateFallbackViewport() {
+  if (container.classList.contains("is-fullscreen")) {
+    syncFallbackViewport();
+    resizeRendererToDisplaySize();
+  }
+}
+window.addEventListener("resize", updateFallbackViewport);
+window.addEventListener("orientationchange", updateFallbackViewport);
+window.visualViewport?.addEventListener("resize", updateFallbackViewport);
+window.visualViewport?.addEventListener("scroll", updateFallbackViewport);
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && container.classList.contains("is-fullscreen")) {
-    container.classList.remove("is-fullscreen");
-    updateFullscreenButton();
+    setViewportFallback(false);
   }
 });
 

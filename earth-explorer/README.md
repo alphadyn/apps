@@ -34,7 +34,8 @@ distance between any two points you click.
   based on OpenStreetMap onto the Earth's curved surface. Tiles follow globe rotation
   and progressively increase in detail as you zoom closer, using 512px retina tiles
   up to provider zoom level 20 for a sharper view on high-density displays, with boosted
-  tile contrast to make labels, roads, and boundaries easier to distinguish.
+  tile contrast tuned to preserve fine road, label, and building detail. At close zooms,
+  street names, address numbers, and mapped building footprints appear where available.
   Streets default to off for the first three zoom-in levels and on at deeper levels;
   the checkbox remains manually adjustable until the zoom level changes.
   Tiles appear as they load, with up to six concurrent requests and a bounded cache;

@@ -169,8 +169,7 @@ h1 {
 }
 
 #globeContainer:fullscreen,
-#globeContainer:-webkit-full-screen,
-#globeContainer.is-fullscreen {
+#globeContainer:-webkit-full-screen {
   width: 100vw;
   height: 100vh;
   height: 100dvh;
@@ -183,6 +182,25 @@ h1 {
   position: fixed;
   inset: 0;
   z-index: 10;
+}
+
+html.fullscreen-fallback,
+body.fullscreen-fallback {
+  overflow: hidden;
+}
+
+.fullscreen-fallback .globe-panel {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+body.fullscreen-fallback #globeContainer.is-fullscreen {
+  top: var(--fullscreen-viewport-top, 0px);
+  right: auto;
+  bottom: auto;
+  left: 0;
+  width: var(--fullscreen-viewport-width, 100vw);
+  height: var(--fullscreen-viewport-height, 100vh);
 }
 
 #globeContainer::backdrop {
@@ -754,8 +772,8 @@ h1 {
 .app-grid {
   flex: 1;
   min-height: 0;
-  grid-template-columns: 330px minmax(0, 1fr);
-  grid-template-areas: "sidebar map";
+  grid-template-columns: minmax(0, 1fr) 330px;
+  grid-template-areas: "map sidebar";
   gap: 16px;
 }
 
@@ -1059,8 +1077,8 @@ h1 {
 
 @media (max-width: 980px) {
   .app-grid {
-    grid-template-columns: minmax(250px, 34vw) minmax(0, 1fr);
-    grid-template-areas: "sidebar map";
+    grid-template-columns: minmax(0, 1fr) minmax(250px, 34vw);
+    grid-template-areas: "map sidebar";
   }
 }
 
@@ -1073,8 +1091,8 @@ h1 {
   .app-grid {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
-      "sidebar"
-      "map";
+      "map"
+      "sidebar";
   }
 
   .side-panel {

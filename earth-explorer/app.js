@@ -11,7 +11,7 @@ const DEFAULT_VIEW_LON = 15.483643;
 const MAX_CAMERA_DISTANCE = 10;
 const ZOOM_STEP = 2;
 const MAX_ZOOM_LEVELS = 18;
-const FIRST_STREET_ZOOM_LEVEL = 4;
+const FIRST_STREET_ZOOM_LEVEL = 3;
 const MARKER_RADIUS = 0.035;
 const MARKER_DIAMETER_PX = 7;
 
@@ -390,6 +390,7 @@ earthMesh.renderOrder = -2;
 scene.add(earthMesh);
 const streetMap = createStreetMap(scene, camera, renderer, GLOBE_RADIUS, streetMapStatus);
 let lastAutomaticStreetZoomLevel = -1;
+let streetOnlyMode = false;
 
 function setStreetLayerEnabled(enabled) {
   streetMap.setEnabled(enabled);
@@ -398,19 +399,26 @@ function setStreetLayerEnabled(enabled) {
 
 streetsLayer.addEventListener("change", () => {
   setStreetLayerEnabled(streetsLayer.checked);
+  updateStreetLayerDefault();
 });
 
 function updateStreetLayerDefault() {
   const altitude = camera.position.distanceTo(controls.target) - GLOBE_RADIUS;
   const initialAltitude = INITIAL_CAMERA_DISTANCE - GLOBE_RADIUS;
   const zoomLevel = Math.max(0, Math.floor(Math.log2(initialAltitude / altitude)));
-  if (zoomLevel === lastAutomaticStreetZoomLevel) return;
+  if (zoomLevel !== lastAutomaticStreetZoomLevel) {
+    lastAutomaticStreetZoomLevel = zoomLevel;
+    const shouldEnable = zoomLevel >= FIRST_STREET_ZOOM_LEVEL;
+    if (streetsLayer.checked !== shouldEnable) {
+      streetsLayer.checked = shouldEnable;
+      setStreetLayerEnabled(shouldEnable);
+    }
+  }
 
-  lastAutomaticStreetZoomLevel = zoomLevel;
-  const shouldEnable = zoomLevel >= FIRST_STREET_ZOOM_LEVEL;
-  if (streetsLayer.checked !== shouldEnable) {
-    streetsLayer.checked = shouldEnable;
-    setStreetLayerEnabled(shouldEnable);
+  const shouldShowStreetOnly = zoomLevel >= FIRST_STREET_ZOOM_LEVEL && streetsLayer.checked;
+  if (streetOnlyMode !== shouldShowStreetOnly) {
+    streetOnlyMode = shouldShowStreetOnly;
+    updateStreetOnlyVisibility();
   }
 }
 
@@ -437,11 +445,11 @@ let borderMesh = null;
 let regionalBorderMesh = null;
 
 bordersLayer.addEventListener("change", () => {
-  if (borderMesh) borderMesh.visible = bordersLayer.checked;
+  if (borderMesh) borderMesh.visible = bordersLayer.checked && !streetOnlyMode;
 });
 
 regionalBordersLayer.addEventListener("change", () => {
-  if (regionalBorderMesh) regionalBorderMesh.visible = regionalBordersLayer.checked;
+  if (regionalBorderMesh) regionalBorderMesh.visible = regionalBordersLayer.checked && !streetOnlyMode;
 });
 
 // Reveal progressively finer coordinate lines as the camera approaches the globe.
@@ -487,8 +495,18 @@ coordinateGrids.push(
 function updateCoordinateGrids() {
   const distance = camera.position.distanceTo(controls.target);
   for (const { maxDistance, mesh } of coordinateGrids) {
-    mesh.visible = gridLayer.checked && distance <= maxDistance;
+    mesh.visible = gridLayer.checked && distance <= maxDistance && !streetOnlyMode;
   }
+}
+
+function updateStreetOnlyVisibility() {
+  earthMesh.visible = !streetOnlyMode;
+  atmosphereMesh.visible = !streetOnlyMode;
+  if (borderMesh) borderMesh.visible = bordersLayer.checked && !streetOnlyMode;
+  if (regionalBorderMesh) {
+    regionalBorderMesh.visible = regionalBordersLayer.checked && !streetOnlyMode;
+  }
+  updateCoordinateGrids();
 }
 
 gridLayer.addEventListener("change", updateCoordinateGrids);
@@ -536,7 +554,7 @@ async function loadCountryBorders() {
     opacity: 0.55,
   });
   borderMesh = new THREE.LineSegments(geometry, material);
-  borderMesh.visible = bordersLayer.checked;
+  borderMesh.visible = bordersLayer.checked && !streetOnlyMode;
   scene.add(borderMesh);
 }
 
@@ -568,7 +586,7 @@ async function loadRegionalBorders() {
     opacity: 0.78,
   });
   regionalBorderMesh = new THREE.LineSegments(geometry, material);
-  regionalBorderMesh.visible = regionalBordersLayer.checked;
+  regionalBorderMesh.visible = regionalBordersLayer.checked && !streetOnlyMode;
   scene.add(regionalBorderMesh);
   regionalBordersStatus.textContent = "State and regional boundaries shown where available.";
 }

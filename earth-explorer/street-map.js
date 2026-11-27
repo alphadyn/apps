@@ -194,7 +194,7 @@ export function createStreetMap(scene, camera, renderer, radius, status) {
       status.textContent = failed
         ? "Some street tiles could not load. Toggle Streets off and on to retry."
         : polar
-          ? "Street maps end at 85.05° latitude; polar areas retain Earth imagery."
+          ? "Street maps end at 85.05° latitude; no street tiles are available in polar areas."
           : tiles[0]?.zoom === MAX_TILE_ZOOM
             ? `Street map on globe (level ${MAX_TILE_ZOOM}). Maximum map detail reached.`
             : `Street map on globe (level ${tiles[0]?.zoom ?? 0}). Zoom closer to reveal street names and building detail.`;
@@ -231,7 +231,7 @@ export function createStreetMap(scene, camera, renderer, radius, status) {
       if (!pendingTiles.length) {
         group.visible = false;
         requestedKey = "polar";
-        status.textContent = "Street maps end at 85.05° latitude; polar areas retain Earth imagery.";
+        status.textContent = "Street maps end at 85.05° latitude; no street tiles are available in polar areas.";
         return;
       }
       group.visible = true;

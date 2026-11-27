@@ -36,8 +36,10 @@ distance between any two points you click.
   up to provider zoom level 20 for a sharper view on high-density displays, with boosted
   tile contrast tuned to preserve fine road, label, and building detail. At close zooms,
   street names, address numbers, and mapped building footprints appear where available.
-  Streets default to off for the first three zoom-in levels and on at deeper levels;
-  the checkbox remains manually adjustable until the zoom level changes.
+  Streets default to off for the first two zoom-in levels and on from the third level.
+  At zoom level 3 and closer, the OpenStreetMap-based tiles are shown by themselves,
+  without the Earth imagery, separate boundary overlays, or coordinate grid; turning
+  Streets off restores those layers until the zoom level changes.
   Tiles appear as they load, with up to six concurrent requests and a bounded cache;
   previously loaded tiles remain visible while new detail is loading.
   Attribution remains visible, including in fullscreen, and tile failures are reported.

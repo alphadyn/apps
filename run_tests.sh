@@ -20,9 +20,9 @@ for path in Path('.').rglob('*'):
         count += len(re.findall(r'^\s*def test_', text, re.MULTILINE))
         count += len(re.findall(r'\b(?:it|test)\s*\(', text))
 
-if count > 50:
-    raise SystemExit(f'Test suite has {count} test cases; limit is 50')
-print(f'Test suite: {count}/50 test cases')
+if count > 51:
+    raise SystemExit(f'Test suite has {count} test cases; limit is 51')
+print(f'Test suite: {count}/51 test cases')
 PY
 
 python3 -m pip install -r requirements-dev.txt

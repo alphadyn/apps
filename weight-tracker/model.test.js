@@ -62,6 +62,7 @@ check("encrypted JSON round-trips and server storage handles authentication and 
 
   const calls = [];
   let row = null;
+  assert.equal(usernameIdentity("José Smith"), "wt-4a6f73c3a920536d697468@weight-tracker.invalid");
   assert.notEqual(usernameIdentity(" Alex "), usernameIdentity("Alex"));
   assert.notEqual(usernameIdentity("ALEX"), usernameIdentity("Alex"));
   assert.notEqual(usernameIdentity("José"), usernameIdentity("Jose"));
@@ -92,10 +93,10 @@ check("encrypted JSON round-trips and server storage handles authentication and 
   const server = new JournalServer({ url: "https://example.test", key: "public" }, mockFetch);
   await assert.rejects(server.load(), /sign in/);
   await server.signUp("Alex_1", "account-password");
-  assert.equal(JSON.parse(calls.at(-1).options.body).email, "wt-alex_1@weight-tracker.invalid");
+  assert.equal(JSON.parse(calls.at(-1).options.body).email, "wt-416c65785f31@weight-tracker.invalid");
   await server.signOut();
-  await server.signIn("ALEX_1", "account-password");
-  assert.equal(JSON.parse(calls.at(-1).options.body).email, "wt-alex_1@weight-tracker.invalid");
+  await server.signIn("Alex_1", "account-password");
+  assert.equal(JSON.parse(calls.at(-1).options.body).email, "wt-416c65785f31@weight-tracker.invalid");
   assert.equal(await server.load(), null);
   assert.equal(await server.save(envelope, null), 1);
   assert.deepEqual(await server.load(), { envelope, revision: 1 });

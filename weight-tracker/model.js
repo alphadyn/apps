@@ -70,6 +70,13 @@ function bytes(value) {
   return Uint8Array.from(atob(value), char => char.charCodeAt(0));
 }
 
+export class DecryptionError extends Error {
+  constructor(cause) {
+    super("Unable to unlock. The password is incorrect or the backup is damaged.", { cause });
+    this.name = "DecryptionError";
+  }
+}
+
 export function validateEnvelope(value) {
   if (!value || value.format !== "weight-tracker-encrypted" || value.version !== 1
     || value.iterations !== ITERATIONS || typeof value.salt !== "string"
@@ -83,11 +90,18 @@ export function validateEnvelope(value) {
   return value;
 }
 
-export async function deriveKey(password, salt) {
-  const material = await crypto.subtle.importKey("raw", encoder.encode(password), "PBKDF2", false, ["deriveKey"]);
+export async function derivePasswordMaterial(password) {
+  return crypto.subtle.importKey("raw", encoder.encode(password), "PBKDF2", false, ["deriveKey"]);
+}
+
+export async function deriveKeyFromMaterial(material, salt) {
   return crypto.subtle.deriveKey(
     { name: "PBKDF2", salt, iterations: ITERATIONS, hash: "SHA-256" },
     material, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+}
+
+export async function deriveKey(password, salt) {
+  return deriveKeyFromMaterial(await derivePasswordMaterial(password), salt);
 }
 
 export async function encryptData(data, key, salt) {
@@ -102,11 +116,27 @@ export async function unlockData(envelope, password) {
   validateEnvelope(envelope);
   const salt = bytes(envelope.salt);
   const key = await deriveKey(password, salt);
+  return decryptData(envelope, key, salt);
+}
+
+export async function unlockDataWithKey(envelope, key) {
+  validateEnvelope(envelope);
+  return decryptData(envelope, key, bytes(envelope.salt));
+}
+
+export async function unlockDataWithMaterial(envelope, material) {
+  validateEnvelope(envelope);
+  const salt = bytes(envelope.salt);
+  const key = await deriveKeyFromMaterial(material, salt);
+  return decryptData(envelope, key, salt);
+}
+
+async function decryptData(envelope, key, salt) {
   let plaintext;
   try {
     plaintext = await crypto.subtle.decrypt({ name: "AES-GCM", iv: bytes(envelope.iv) }, key, bytes(envelope.ciphertext));
   } catch (error) {
-    throw new Error("Unable to unlock. The password is incorrect or the backup is damaged.", { cause: error });
+    throw new DecryptionError(error);
   }
   return { data: validateData(JSON.parse(decoder.decode(plaintext))), key, salt };
 }

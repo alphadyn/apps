@@ -1,12 +1,13 @@
 import { STORAGE_KEY, today, validDate, toKg, fromKg, validateData, dailyAverages,
-  deriveKey, encryptData, unlockData, chartSvg } from "./model.js";
+  DecryptionError, derivePasswordMaterial, deriveKeyFromMaterial, encryptData, unlockData,
+  unlockDataWithKey, unlockDataWithMaterial, chartSvg } from "./model.js";
 import { JournalServer } from "./server.js?v=3";
 import { supabaseConfig } from "./supabase-config.js?v=3";
 
 const $ = selector => document.querySelector(selector);
 const server = new JournalServer(supabaseConfig);
-let data = null, key = null, salt = null, saved = null;
-let revision = null, localJournal = null;
+let data = null, key = null, salt = null, saved = null, accountMaterial = null;
+let revision = null, localJournal = null, legacyMigration = false;
 let start = "", end = "", visibleRows = 30, busy = false, statusTimer;
 
 function notify(message, error = false) {
@@ -50,18 +51,21 @@ async function persist(next, nextKey = key, nextSalt = salt) {
 
 function showGate() {
   data = null;
-  key = null;
-  salt = null;
   $("#dashboard").hidden = true;
+  $("#profile-view").hidden = true;
+  $("#locked-view").hidden = true;
   $("#gate").hidden = false;
   $("#lock").hidden = true;
   $("#chart").replaceChildren();
   $("#history-body").replaceChildren();
-  for (const selector of ["#greeting", "#latest", "#latest-date", "#change", "#day-count", "#entry-count"]) {
+  for (const selector of ["#greeting", "#latest", "#latest-date", "#change", "#day-count", "#entry-count", "#history-count"]) {
     $(selector).textContent = "";
   }
   $("#entry-form").reset();
   $("#profile-form").reset();
+  $("#legacy-unlock").reset();
+  $("#legacy-password").value = "";
+  $("#local-password").value = "";
   $("#account-gate").hidden = true;
   $("#logout").hidden = false;
   localJournal = null;
@@ -73,37 +77,46 @@ function showGate() {
   }
   const existing = Boolean(saved);
   $("#import-local").hidden = existing || !localJournal;
-  $("#new-profile").hidden = existing;
-  $("#name").required = !existing;
-  $("#password").minLength = existing ? 1 : 8;
-  $("#password").autocomplete = existing ? "current-password" : "new-password";
-  $("#password").placeholder = existing ? "Your journal password" : "At least 8 characters";
-  $("#gate-title").innerHTML = existing ? "Welcome back.<br>Your story continues." : "Small steps.<br>A clearer picture.";
-  $("#gate-description").textContent = existing
-    ? "Enter your journal password to unlock the encrypted journal saved to your account."
+  $("#local-password-label").hidden = true;
+  $("#profile-form").hidden = existing;
+  $("#legacy-unlock").hidden = !legacyMigration;
+  $("#gate-title").textContent = legacyMigration ? "One last step." : "Small steps. A clearer picture.";
+  $("#gate-description").textContent = legacyMigration
+    ? "This journal was encrypted with a separate password. Migrate it once to use your account password from now on."
     : "Create an encrypted journal for your account, or restore an existing one.";
-  $("#open-journal").textContent = existing ? "Unlock my journal" : "Create my journal";
+  $("#open-journal").textContent = "Create my journal";
 }
 
 function showAccountGate() {
   data = null;
   key = null;
   salt = null;
+  accountMaterial = null;
   saved = null;
   revision = null;
   localJournal = null;
+  legacyMigration = false;
   $("#dashboard").hidden = true;
   $("#gate").hidden = true;
+  $("#profile-view").hidden = true;
+  $("#locked-view").hidden = true;
   $("#account-gate").hidden = false;
   $("#lock").hidden = true;
   $("#logout").hidden = true;
   $("#chart").replaceChildren();
   $("#history-body").replaceChildren();
-  for (const selector of ["#greeting", "#latest", "#latest-date", "#change", "#day-count", "#entry-count"]) {
+  for (const selector of ["#greeting", "#latest", "#latest-date", "#change", "#day-count", "#entry-count", "#history-count"]) {
     $(selector).textContent = "";
   }
   $("#entry-form").reset();
   $("#profile-form").reset();
+  $("#legacy-unlock").reset();
+  $("#edit-profile-form").reset();
+  $("#local-password").value = "";
+  $("#name").value = "";
+  $("#profile-name").value = "";
+  $("#display-unit").value = "lb";
+  $("#weight-unit").textContent = "";
   $("#account-form").reset();
 }
 
@@ -115,11 +128,15 @@ async function loadJournal() {
 
 function showDashboard() {
   $("#gate").hidden = true;
+  $("#locked-view").hidden = true;
+  $("#profile-view").hidden = true;
   $("#dashboard").hidden = false;
   $("#lock").hidden = false;
-  $("#password").value = "";
   $("#display-unit").value = data.unit;
   $("#entry-form").reset();
+  $("#edit-profile-form").reset();
+  $("#name").value = "";
+  $("#profile-name").value = "";
   $("#entry-date").value = today();
   $("#entry-date").max = today();
   start = "";
@@ -128,6 +145,29 @@ function showDashboard() {
   $("#end-date").value = "";
   selectPreset("all");
   render();
+}
+
+function showLocked() {
+  data = null;
+  $("#dashboard").hidden = true;
+  $("#profile-view").hidden = true;
+  $("#gate").hidden = true;
+  $("#locked-view").hidden = false;
+  $("#lock").hidden = true;
+  $("#chart").replaceChildren();
+  $("#history-body").replaceChildren();
+  for (const selector of ["#greeting", "#latest", "#latest-date", "#change", "#day-count", "#entry-count", "#history-count"]) {
+    $(selector).textContent = "";
+  }
+  $("#entry-form").reset();
+  $("#edit-profile-form").reset();
+  $("#name").value = "";
+  $("#profile-name").value = "";
+  $("#display-unit").value = "lb";
+  $("#weight-unit").textContent = "";
+  $("#filter-form").reset();
+  start = "";
+  end = "";
 }
 
 function formatWeight(value) {
@@ -229,29 +269,50 @@ async function pngBlob(svg) {
   }
 }
 
-async function enterAccount() {
+async function enterAccount(accountPassword) {
   $("#logout").hidden = false;
+  accountMaterial = await derivePasswordMaterial(accountPassword);
   await loadJournal();
-  $("#account-password").value = "";
-  showGate();
+  legacyMigration = false;
+  if (!saved) {
+    salt = crypto.getRandomValues(new Uint8Array(16));
+    key = await deriveKeyFromMaterial(accountMaterial, salt);
+    showGate();
+    notify("Signed in. Create your encrypted journal profile.");
+    return;
+  }
+  try {
+    ({ data, key, salt } = await unlockDataWithMaterial(saved, accountMaterial));
+    showDashboard();
+    notify("Signed in. Journal unlocked with your account password.");
+  } catch (error) {
+    if (!(error instanceof DecryptionError)) throw error;
+    salt = crypto.getRandomValues(new Uint8Array(16));
+    key = await deriveKeyFromMaterial(accountMaterial, salt);
+    legacyMigration = true;
+    showGate();
+    notify("This journal uses an older password. Migrate it once to continue.", true);
+  }
 }
 
 $("#account-form").addEventListener("submit", event => {
   event.preventDefault();
   action(async () => {
-    await server.signIn($("#account-username").value, $("#account-password").value);
-    await enterAccount();
-    notify("Signed in. Unlock your journal to continue.");
+    const accountPassword = $("#account-password").value;
+    await server.signIn($("#account-username").value, accountPassword);
+    $("#account-password").value = "";
+    await enterAccount(accountPassword);
   });
 });
 
 $("#sign-up").addEventListener("click", () => {
   if (!$("#account-form").reportValidity()) return;
   action(async () => {
-    await server.signUp($("#account-username").value, $("#account-password").value);
+    const accountPassword = $("#account-password").value;
+    await server.signUp($("#account-username").value, accountPassword);
     $("#account-password").value = "";
-    await enterAccount();
-    notify("Account created. Create or restore your journal.");
+    await enterAccount(accountPassword);
+    if (data) notify("Account created. Your journal is ready.");
   });
 });
 
@@ -259,34 +320,49 @@ $("#profile-form").addEventListener("submit", event => {
   event.preventDefault();
   action(async () => {
     if (!crypto.subtle) throw new Error("Encryption requires HTTPS or localhost. Serve this app using a local web server.");
-    await loadJournal();
-    if (saved) {
-      const unlocked = await unlockData(saved, $("#password").value);
-      ({ data, key, salt } = unlocked);
-    } else {
-      const name = $("#name").value.trim();
-      if (!name) throw new Error("Please enter your name.");
-      const nextSalt = crypto.getRandomValues(new Uint8Array(16));
-      const nextKey = await deriveKey($("#password").value, nextSalt);
-      await persist({ version: 1, name, unit: $("#initial-unit").value, entries: [] }, nextKey, nextSalt);
-    }
+    if (saved) throw new Error("This account already has a journal. Restore a backup or migrate the existing journal.");
+    const name = $("#name").value.trim();
+    if (!name) throw new Error("Please enter your name.");
+    await persist({ version: 1, name, unit: $("#initial-unit").value, entries: [] });
     showDashboard();
-    notify("Journal unlocked. Changes are encrypted and saved to your account.");
+    notify("Journal created and encrypted with your account password.");
+  });
+});
+
+$("#legacy-unlock").addEventListener("submit", event => {
+  event.preventDefault();
+  action(async () => {
+    if (!legacyMigration || !saved) throw new Error("There is no older journal to migrate.");
+    const unlocked = await unlockData(saved, $("#legacy-password").value);
+    await persist(unlocked.data, key, salt);
+    legacyMigration = false;
+    showDashboard();
+    notify("Journal migrated to encryption with your account password.");
   });
 });
 
 $("#import-local").addEventListener("click", () => action(async () => {
   if (!localJournal) throw new Error("No browser journal is available to import.");
-  if (!$("#password").value) throw new Error("Enter your existing journal password first.");
   await loadJournal();
   if (saved) {
     showGate();
     throw new Error("This account already has a journal. Unlock it or restore a backup instead.");
   }
-  const unlocked = await unlockData(JSON.parse(localJournal), $("#password").value);
-  await persist(unlocked.data, unlocked.key, unlocked.salt);
+  const envelope = JSON.parse(localJournal);
+  let unlocked;
+  try {
+    unlocked = await unlockDataWithMaterial(envelope, accountMaterial);
+  } catch (error) {
+    if (!(error instanceof DecryptionError)) throw error;
+    if (!$("#local-password").value) {
+      $("#local-password-label").hidden = false;
+      throw new Error("This browser journal uses an older password. Enter it once to migrate the journal.");
+    }
+    unlocked = await unlockData(envelope, $("#local-password").value);
+  }
+  await persist(unlocked.data, key, salt);
   showDashboard();
-  notify("Browser journal imported and saved to your account. The original remains in this browser.");
+  notify("Browser journal imported and encrypted with your account password. The original remains in this browser.");
 }));
 
 $("#entry-form").addEventListener("submit", event => {
@@ -315,6 +391,34 @@ $("#display-unit").addEventListener("change", () => {
     } finally {
       $("#display-unit").value = data.unit;
     }
+  });
+});
+
+$("#edit-profile").addEventListener("click", () => {
+  $("#profile-name").value = data.name;
+  $("#profile-unit").value = data.unit;
+  $("#dashboard").hidden = true;
+  $("#profile-view").hidden = false;
+  $("#profile-name").focus();
+});
+
+$("#cancel-profile").addEventListener("click", () => {
+  $("#profile-view").hidden = true;
+  $("#dashboard").hidden = false;
+});
+
+$("#edit-profile-form").addEventListener("submit", event => {
+  event.preventDefault();
+  action(async () => {
+    const name = $("#profile-name").value.trim();
+    if (!name) throw new Error("Please enter your name.");
+    await persist({ ...data, name, unit: $("#profile-unit").value });
+    $("#weight").value = "";
+    $("#profile-view").hidden = true;
+    $("#dashboard").hidden = false;
+    $("#display-unit").value = data.unit;
+    render();
+    notify("Profile saved and encrypted with your account password.");
   });
 });
 
@@ -347,7 +451,13 @@ $("#history-body").addEventListener("click", event => {
 });
 
 $("#show-more").addEventListener("click", () => { visibleRows += 30; render(); });
-$("#lock").addEventListener("click", () => { showGate(); notify("Journal locked."); $("#password").focus(); });
+$("#lock").addEventListener("click", () => { showLocked(); notify("Journal locked."); });
+$("#unlock-journal").addEventListener("click", () => action(async () => {
+  if (!saved || !key) throw new Error("Sign in again to unlock your journal.");
+  ({ data, key, salt } = await unlockDataWithKey(saved, key));
+  showDashboard();
+  notify("Journal unlocked.");
+}));
 $("#logout").addEventListener("click", () => action(async () => {
   try {
     await server.signOut();
@@ -361,7 +471,7 @@ $("#logout").addEventListener("click", () => action(async () => {
 $("#backup").addEventListener("click", () => action(async () => {
   const envelope = await encryptData(data, key, salt);
   download(new Blob([JSON.stringify(envelope, null, 2)], { type: "application/json" }), `weight-tracker-backup-${today()}.json`);
-  notify("Encrypted backup downloaded. Keep it with your password.");
+  notify("Encrypted backup downloaded. It uses your account password.");
 }));
 
 $("#export-chart").addEventListener("click", () => action(async () => {
@@ -389,7 +499,10 @@ document.querySelectorAll(".restore-trigger").forEach(button => button.addEventL
 }));
 $("#cancel-restore").addEventListener("click", () => $("#restore-dialog").close());
 $("#restore-dialog").addEventListener("cancel", event => { if (busy) event.preventDefault(); });
-$("#restore-dialog").addEventListener("close", () => { $("#restore-password").value = ""; });
+$("#restore-dialog").addEventListener("close", () => {
+  $("#restore-password").value = "";
+  $("#restore-legacy-label").hidden = true;
+});
 $("#restore-form").addEventListener("submit", event => {
   event.preventDefault();
   action(async () => {
@@ -397,11 +510,22 @@ $("#restore-form").addEventListener("submit", event => {
     if (!crypto.subtle) throw new Error("Encryption requires HTTPS or localhost.");
     const file = $("#restore-file").files[0];
     if (!file || file.size > 20000000) throw new Error("Choose an encrypted JSON backup smaller than 20 MB.");
-    const unlocked = await unlockData(JSON.parse(await file.text()), $("#restore-password").value);
-    await persist(unlocked.data, unlocked.key, unlocked.salt);
+    const envelope = JSON.parse(await file.text());
+    let unlocked;
+    try {
+      unlocked = await unlockDataWithMaterial(envelope, accountMaterial);
+    } catch (error) {
+      if (!(error instanceof DecryptionError)) throw error;
+      if (!$("#restore-password").value) {
+        $("#restore-legacy-label").hidden = false;
+        throw new Error("This is an older backup or uses a different account key. Enter its old password once to migrate it.");
+      }
+      unlocked = await unlockData(envelope, $("#restore-password").value);
+    }
+    await persist(unlocked.data, key, salt);
     $("#restore-dialog").close();
     showDashboard();
-    notify("Backup restored and saved to your account.");
+    notify("Backup restored and encrypted with your account password.");
   });
 });
 

@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createHash, webcrypto } from "node:crypto";
 import { validDate, toKg, fromKg, validateData, dailyAverages, deriveKey, encryptData,
-  unlockData, validateEnvelope, chartSvg } from "./model.js";
+  derivePasswordMaterial, unlockData, unlockDataWithKey, unlockDataWithMaterial, validateEnvelope, chartSvg } from "./model.js";
 import { JournalServer, usernameIdentity } from "./server.js";
 import { runChecks } from "../scripts/test-checks.js";
 
@@ -46,14 +46,21 @@ check("daily means preserve measurements, convert units, and filter inclusive ca
 check("encrypted JSON round-trips and server storage handles authentication and conflicts", async () => {
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const key = await deriveKey("correct-password", salt);
+  const passwordMaterial = await derivePasswordMaterial("correct-password");
   const envelope = await encryptData(journal, key, salt);
   assert.equal(envelope.iterations, 600000);
   assert.equal(envelope.format, "weight-tracker-encrypted");
   assert.equal(JSON.stringify(envelope).includes(journal.name), false);
   const restored = await unlockData(JSON.parse(JSON.stringify(envelope)), "correct-password");
   assert.deepEqual(restored.data, journal);
+  assert.deepEqual((await unlockDataWithKey(envelope, key)).data, journal);
+  const independentSalt = crypto.getRandomValues(new Uint8Array(16));
+  const independentKey = await deriveKey("correct-password", independentSalt);
+  const independentEnvelope = await encryptData(journal, independentKey, independentSalt);
+  assert.deepEqual((await unlockDataWithMaterial(independentEnvelope, passwordMaterial)).data, journal);
   assert.notEqual((await encryptData(journal, key, salt)).iv, envelope.iv);
   await assert.rejects(unlockData(envelope, "wrong-password"), /Unable to unlock/);
+  await assert.rejects(unlockDataWithKey(envelope, await deriveKey("wrong-password", salt)), /Unable to unlock/);
   const tampered = { ...envelope, ciphertext: (envelope.ciphertext[0] === "A" ? "B" : "A") + envelope.ciphertext.slice(1) };
   await assert.rejects(unlockData(tampered, "correct-password"), /Unable to unlock/);
   assert.throws(() => validateEnvelope({ ...envelope, iterations: 1 }), /valid encrypted/);

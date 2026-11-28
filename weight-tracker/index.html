@@ -25,7 +25,7 @@
   <meta name="twitter:image:alt" content="Weight Tracker with a decreasing-trend logo, a daily average chart, and the words Small steps. A clearer picture.">
   <link rel="icon" href="icon.svg?v=2" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
-  <script type="module" src="app.js?v=3"></script>
+  <script type="module" src="app.js?v=4"></script>
 </head>
 <body>
   <header class="header">
@@ -44,29 +44,37 @@
         <button class="primary wide" type="submit">Sign in <span aria-hidden="true">→</span></button>
         <button id="sign-up" class="text-button" type="button">Create an account</button>
       </form>
-      <p class="hint">Enter your name exactly as you want it to identify your account. Names are case-sensitive. Your account password and journal encryption password are separate; neither can be recovered. Keep both safe.</p>
+      <p class="hint">Enter your name exactly as you want it to identify your account. Names are case-sensitive. Your account password encrypts and decrypts your journal and backups.</p>
     </section>
     <section id="gate" class="gate card" aria-labelledby="gate-title" hidden>
       <span class="eyebrow">YOUR PERSONAL JOURNAL</span>
       <h1 id="gate-title">Small steps.<br>A clearer picture.</h1>
       <p id="gate-description">Your journal is encrypted before it is saved to your account.</p>
       <form id="profile-form">
-        <div id="new-profile">
-          <label>Your name<input id="name" maxlength="80" autocomplete="name" placeholder="What should we call you?" required></label>
-          <label>Preferred weight unit<select id="initial-unit"><option value="lb">Pounds (lb)</option><option value="kg">Kilograms (kg)</option></select></label>
-        </div>
-        <label id="password-label">Journal encryption password<input id="password" type="password" minlength="8" required autocomplete="new-password" placeholder="At least 8 characters"></label>
-        <p class="hint">Use a unique journal password. It cannot be reset or recovered, even if your account password changes.</p>
+        <label>Your name<input id="name" maxlength="80" autocomplete="name" placeholder="What should we call you?" required></label>
+        <label>Preferred weight unit<select id="initial-unit"><option value="lb">Pounds (lb)</option><option value="kg">Kilograms (kg)</option></select></label>
         <button id="open-journal" class="primary wide" type="submit">Create my journal <span aria-hidden="true">→</span></button>
       </form>
+      <form id="legacy-unlock" hidden>
+        <label>Previous journal password<input id="legacy-password" type="password" autocomplete="current-password" required></label>
+        <p class="hint">This existing journal was encrypted before login-based encryption. Enter its old password once to migrate it to your account password.</p>
+        <button class="primary wide" type="submit">Migrate and open journal <span aria-hidden="true">→</span></button>
+      </form>
+      <label id="local-password-label" hidden>Previous browser-journal password<input id="local-password" type="password" autocomplete="current-password"></label>
       <button class="text-button restore-trigger">Restore an encrypted JSON backup</button>
       <button id="import-local" class="text-button" hidden>Import journal from this browser</button>
+    </section>
+    <section id="locked-view" class="gate card" aria-labelledby="locked-title" hidden>
+      <span class="eyebrow">YOUR PERSONAL JOURNAL</span>
+      <h1 id="locked-title">Your journal is locked.</h1>
+      <p>Unlock it with the key created from your signed-in account password.</p>
+      <button id="unlock-journal" class="primary wide" type="button">Unlock my journal <span aria-hidden="true">→</span></button>
     </section>
 
     <div id="dashboard" hidden>
       <section class="welcome">
         <div><span class="eyebrow">THE BIG PICTURE</span><h1 id="greeting"></h1><p>One check-in at a time. Every day tells part of your story.</p></div>
-        <label class="unit-control">Display unit<select id="display-unit"><option value="lb">Pounds (lb)</option><option value="kg">Kilograms (kg)</option></select></label>
+        <div class="welcome-actions"><button id="edit-profile" type="button">Edit profile</button><label class="unit-control">Display unit<select id="display-unit"><option value="lb">Pounds (lb)</option><option value="kg">Kilograms (kg)</option></select></label></div>
       </section>
       <section class="stats" aria-label="Weight summary for selected dates">
         <article class="card stat"><span>Latest daily average</span><strong id="latest">—</strong><small id="latest-date">No check-ins yet</small></article>
@@ -104,17 +112,27 @@
         <p id="history-empty" class="empty">Your first check-in is a fresh start. Add it above.</p>
         <button id="show-more" hidden>Show more check-ins</button>
       </section>
-      <section class="backup-bar"><div><h3>Your journal, in your hands.</h3><p>Download an encrypted JSON backup regularly and keep your journal password safe.</p></div><div class="backup-actions"><button class="restore-trigger">Restore backup</button><button id="backup">Download backup</button></div></section>
+      <section class="backup-bar"><div><h3>Your journal, in your hands.</h3><p>Download an encrypted JSON backup regularly. It uses your account password.</p></div><div class="backup-actions"><button class="restore-trigger">Restore backup</button><button id="backup">Download backup</button></div></section>
     </div>
+    <section id="profile-view" class="gate card" aria-labelledby="profile-title" hidden>
+      <span class="eyebrow">YOUR PERSONAL JOURNAL</span>
+      <h1 id="profile-title">Edit your profile.</h1>
+      <p>Update the name and preferred unit saved inside your encrypted journal.</p>
+      <form id="edit-profile-form">
+        <label>Your name<input id="profile-name" maxlength="80" autocomplete="name" required></label>
+        <label>Preferred weight unit<select id="profile-unit"><option value="lb">Pounds (lb)</option><option value="kg">Kilograms (kg)</option></select></label>
+        <div class="dialog-actions"><button id="cancel-profile" type="button">Cancel</button><button class="primary" type="submit">Save profile</button></div>
+      </form>
+    </section>
     <p id="status" role="status" aria-live="polite" hidden></p>
   </main>
   <footer><span>Made for the everyday, not the finish line.</span><div><a href="../index.html">Alphadyn Apps</a><a href="README.md">About &amp; privacy</a></div></footer>
   <dialog id="restore-dialog">
     <form id="restore-form">
       <span class="eyebrow">BRING YOUR JOURNAL BACK</span><h2>Restore a backup</h2>
-      <p>This replaces the journal saved in your account. Download a backup of your current journal first.</p>
+      <p>This replaces the journal saved in your account. Download a backup of your current journal first. New backups use your account password automatically.</p>
       <label>Encrypted JSON file<input id="restore-file" type="file" accept=".json,application/json" required></label>
-      <label>Backup password<input id="restore-password" type="password" autocomplete="current-password" required></label>
+      <label id="restore-legacy-label" hidden>Previous backup password (older backups only)<input id="restore-password" type="password" autocomplete="current-password"></label>
       <label class="confirmation"><input id="restore-confirm" type="checkbox" required> I understand this replaces the current journal.</label>
       <p id="restore-error" role="alert" hidden></p>
       <div class="dialog-actions"><button id="cancel-restore" type="button">Cancel</button><button class="primary" type="submit">Restore journal</button></div>

@@ -1,7 +1,7 @@
 import { STORAGE_KEY, today, validDate, toKg, fromKg, validateData, dailyAverages,
   deriveKey, encryptData, unlockData, chartSvg } from "./model.js";
-import { JournalServer } from "./server.js?v=2";
-import { supabaseConfig } from "./supabase-config.js?v=2";
+import { JournalServer } from "./server.js?v=3";
+import { supabaseConfig } from "./supabase-config.js?v=3";
 
 const $ = selector => document.querySelector(selector);
 const server = new JournalServer(supabaseConfig);

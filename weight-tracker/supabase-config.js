@@ -1,5 +1,5 @@
-// Configure a dedicated project as described in README.md; never use a service-role key.
+// Public project configuration; never use a service-role key.
 export const supabaseConfig = {
-  url: "",
-  key: "",
+  url: "https://vftmcftccahjlxbxcnsf.supabase.co",
+  key: "sb_publishable_I8I-cRDhS60UoUgCvVvwnQ_MyKI9u14",
 };

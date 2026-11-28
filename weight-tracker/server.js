@@ -1,9 +1,13 @@
-export function usernameIdentity(username) {
+export async function usernameIdentity(username) {
   if (typeof username !== "string" || !username.trim() || username.length > 80) {
     throw new Error("Name must be 1–80 characters.");
   }
-  const encoded = Array.from(new TextEncoder().encode(username), byte => byte.toString(16).padStart(2, "0")).join("");
-  return `wt-${encoded}@weight-tracker.invalid`;
+  const bytes = new TextEncoder().encode(username);
+  const hex = data => Array.from(data, byte => byte.toString(16).padStart(2, "0")).join("");
+  const identity = `wt-${hex(bytes)}@weight-tracker.invalid`;
+  if (identity.length <= 254) return identity;
+  const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
+  return `wt-h-${hex(digest)}@weight-tracker.invalid`;
 }
 
 export class JournalServer {
@@ -46,14 +50,18 @@ export class JournalServer {
 
   async signIn(username, password) {
     const result = await this.request("/auth/v1/token?grant_type=password", {
-      method: "POST", body: { email: usernameIdentity(username), password },
+      method: "POST", body: { email: await usernameIdentity(username), password },
     });
     this.setSession(result);
   }
 
   async signUp(username, password) {
     const result = await this.request("/auth/v1/signup", {
-      method: "POST", body: { email: usernameIdentity(username), password },
+      method: "POST", body: {
+        email: await usernameIdentity(username),
+        password,
+        data: { username: `wt-${crypto.randomUUID()}`, name: "Weight Tracker user" },
+      },
     });
     if (!result?.access_token) {
       throw new Error("Account was not activated. The server must have email confirmation disabled; contact the administrator.");

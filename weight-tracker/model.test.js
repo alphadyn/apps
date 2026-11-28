@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { webcrypto } from "node:crypto";
+import { createHash, webcrypto } from "node:crypto";
 import { validDate, toKg, fromKg, validateData, dailyAverages, deriveKey, encryptData,
   unlockData, validateEnvelope, chartSvg } from "./model.js";
 import { JournalServer, usernameIdentity } from "./server.js";
@@ -62,12 +62,20 @@ check("encrypted JSON round-trips and server storage handles authentication and 
 
   const calls = [];
   let row = null;
-  assert.equal(usernameIdentity("José Smith"), "wt-4a6f73c3a920536d697468@weight-tracker.invalid");
-  assert.notEqual(usernameIdentity(" Alex "), usernameIdentity("Alex"));
-  assert.notEqual(usernameIdentity("ALEX"), usernameIdentity("Alex"));
-  assert.notEqual(usernameIdentity("José"), usernameIdentity("Jose"));
+  assert.equal(await usernameIdentity("José Smith"), "wt-4a6f73c3a920536d697468@weight-tracker.invalid");
+  assert.notEqual(await usernameIdentity(" Alex "), await usernameIdentity("Alex"));
+  assert.notEqual(await usernameIdentity("ALEX"), await usernameIdentity("Alex"));
+  assert.notEqual(await usernameIdentity("José"), await usernameIdentity("Jose"));
+  const maxEncodedName = await usernameIdentity("é".repeat(57));
+  assert.equal(maxEncodedName.length, 254);
+  assert.match(maxEncodedName, /^wt-(?:c3a9){57}@weight-tracker\.invalid$/);
+  assert.match(await usernameIdentity("é".repeat(58)), /^wt-h-[0-9a-f]{64}@weight-tracker\.invalid$/);
+  const longName = "é".repeat(80);
+  assert.equal(await usernameIdentity(longName),
+    `wt-h-${createHash("sha256").update(longName).digest("hex")}@weight-tracker.invalid`);
+  assert.notEqual(await usernameIdentity(longName), await usernameIdentity("é".repeat(79)));
   for (const invalid of ["", "   ", "x".repeat(81)]) {
-    assert.throws(() => usernameIdentity(invalid), /Name/);
+    await assert.rejects(usernameIdentity(invalid), /Name/);
   }
   await assert.rejects(new JournalServer({ url: "", key: "" }, async () => {
     throw new Error("Unconfigured server should not be called");
@@ -93,7 +101,10 @@ check("encrypted JSON round-trips and server storage handles authentication and 
   const server = new JournalServer({ url: "https://example.test", key: "public" }, mockFetch);
   await assert.rejects(server.load(), /sign in/);
   await server.signUp("Alex_1", "account-password");
-  assert.equal(JSON.parse(calls.at(-1).options.body).email, "wt-416c65785f31@weight-tracker.invalid");
+  const signup = JSON.parse(calls.at(-1).options.body);
+  assert.equal(signup.email, "wt-416c65785f31@weight-tracker.invalid");
+  assert.match(signup.data.username, /^wt-[0-9a-f-]{36}$/);
+  assert.equal(signup.data.name, "Weight Tracker user");
   await server.signOut();
   await server.signIn("Alex_1", "account-password");
   assert.equal(JSON.parse(calls.at(-1).options.body).email, "wt-416c65785f31@weight-tracker.invalid");

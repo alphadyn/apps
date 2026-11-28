@@ -18,6 +18,25 @@ function notify(message, error = false) {
   if (!error) statusTimer = setTimeout(() => { $("#status").hidden = true; }, 5000);
 }
 
+function clearDashboard() {
+  for (const selector of ["#greeting", "#latest", "#latest-date", "#change", "#day-count", "#entry-count", "#history-count"]) {
+    $(selector).textContent = "";
+  }
+  $("#chart").replaceChildren();
+  $("#history-body").replaceChildren();
+  $("#entry-form").reset();
+  $("#filter-form").reset();
+  $("#edit-profile-form").reset();
+  $("#name").value = "";
+  $("#profile-name").value = "";
+  $("#display-unit").value = "lb";
+  $("#weight-unit").textContent = "";
+  $("#start-date").value = "";
+  $("#end-date").value = "";
+  start = "";
+  end = "";
+}
+
 async function action(operation) {
   if (busy) return;
   busy = true;
@@ -51,17 +70,12 @@ async function persist(next, nextKey = key, nextSalt = salt) {
 
 function showGate() {
   data = null;
+  clearDashboard();
   $("#dashboard").hidden = true;
   $("#profile-view").hidden = true;
   $("#locked-view").hidden = true;
   $("#gate").hidden = false;
   $("#lock").hidden = true;
-  $("#chart").replaceChildren();
-  $("#history-body").replaceChildren();
-  for (const selector of ["#greeting", "#latest", "#latest-date", "#change", "#day-count", "#entry-count", "#history-count"]) {
-    $(selector).textContent = "";
-  }
-  $("#entry-form").reset();
   $("#profile-form").reset();
   $("#legacy-unlock").reset();
   $("#legacy-password").value = "";
@@ -96,6 +110,7 @@ function showAccountGate() {
   revision = null;
   localJournal = null;
   legacyMigration = false;
+  clearDashboard();
   $("#dashboard").hidden = true;
   $("#gate").hidden = true;
   $("#profile-view").hidden = true;
@@ -103,20 +118,10 @@ function showAccountGate() {
   $("#account-gate").hidden = false;
   $("#lock").hidden = true;
   $("#logout").hidden = true;
-  $("#chart").replaceChildren();
-  $("#history-body").replaceChildren();
-  for (const selector of ["#greeting", "#latest", "#latest-date", "#change", "#day-count", "#entry-count", "#history-count"]) {
-    $(selector).textContent = "";
-  }
-  $("#entry-form").reset();
   $("#profile-form").reset();
   $("#legacy-unlock").reset();
   $("#edit-profile-form").reset();
   $("#local-password").value = "";
-  $("#name").value = "";
-  $("#profile-name").value = "";
-  $("#display-unit").value = "lb";
-  $("#weight-unit").textContent = "";
   $("#account-form").reset();
 }
 
@@ -132,6 +137,10 @@ function showDashboard() {
   $("#profile-view").hidden = true;
   $("#dashboard").hidden = false;
   $("#lock").hidden = false;
+  $("#legacy-unlock").reset();
+  $("#legacy-password").value = "";
+  $("#local-password").value = "";
+  $("#local-password-label").hidden = true;
   $("#display-unit").value = data.unit;
   $("#entry-form").reset();
   $("#edit-profile-form").reset();
@@ -149,25 +158,12 @@ function showDashboard() {
 
 function showLocked() {
   data = null;
+  clearDashboard();
   $("#dashboard").hidden = true;
   $("#profile-view").hidden = true;
   $("#gate").hidden = true;
   $("#locked-view").hidden = false;
   $("#lock").hidden = true;
-  $("#chart").replaceChildren();
-  $("#history-body").replaceChildren();
-  for (const selector of ["#greeting", "#latest", "#latest-date", "#change", "#day-count", "#entry-count", "#history-count"]) {
-    $(selector).textContent = "";
-  }
-  $("#entry-form").reset();
-  $("#edit-profile-form").reset();
-  $("#name").value = "";
-  $("#profile-name").value = "";
-  $("#display-unit").value = "lb";
-  $("#weight-unit").textContent = "";
-  $("#filter-form").reset();
-  start = "";
-  end = "";
 }
 
 function formatWeight(value) {
@@ -396,7 +392,6 @@ $("#display-unit").addEventListener("change", () => {
 
 $("#edit-profile").addEventListener("click", () => {
   $("#profile-name").value = data.name;
-  $("#profile-unit").value = data.unit;
   $("#dashboard").hidden = true;
   $("#profile-view").hidden = false;
   $("#profile-name").focus();
@@ -412,8 +407,7 @@ $("#edit-profile-form").addEventListener("submit", event => {
   action(async () => {
     const name = $("#profile-name").value.trim();
     if (!name) throw new Error("Please enter your name.");
-    await persist({ ...data, name, unit: $("#profile-unit").value });
-    $("#weight").value = "";
+    await persist({ ...data, name });
     $("#profile-view").hidden = true;
     $("#dashboard").hidden = false;
     $("#display-unit").value = data.unit;

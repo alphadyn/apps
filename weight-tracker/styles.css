@@ -13,8 +13,9 @@ a:hover { text-decoration: underline; }
 .header { padding: 24px max(24px, calc((100vw - 1200px) / 2)); border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 20px; background: #fafbf7; }
 .brand { display: flex; gap: 12px; align-items: center; color: var(--ink); font-weight: 700; font-size: 18px; letter-spacing: -.5px; }
 .brand-sub { display: block; color: var(--muted); font-size: 11px; font-weight: 400; letter-spacing: .1px; }
-.header-actions { display: flex; align-items: center; gap: 20px; }
-.private-label { font-size: 11px; color: var(--muted); }
+.header-actions { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.header-actions button { min-height: 40px; white-space: nowrap; }
+.private-label { font-size: 11px; color: var(--muted); white-space: nowrap; }
 main { max-width: 1200px; padding: 45px 24px 25px; margin: auto; }
 h1, h2, h3, p { margin-top: 0; }
 h1 { font-size: clamp(30px, 4vw, 40px); line-height: 1.18; font-weight: 600; letter-spacing: -1.6px; margin-bottom: 12px; }
@@ -24,7 +25,8 @@ p { color: var(--muted); }
 .eyebrow { display: block; font-size: 10px; font-weight: 700; letter-spacing: 1.9px; color: #799073; margin-bottom: 12px; }
 .card { background: white; border: 1px solid var(--line); border-radius: 15px; box-shadow: 0 3px 10px #22332203; }
 .welcome { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 30px; }
-.welcome-actions { display: flex; align-items: center; gap: 12px; }
+.welcome-actions { display: flex; align-items: flex-end; gap: 12px; }
+.welcome-actions > button { height: 40px; }
 .welcome p { font-size: 14px; margin-bottom: 0; }
 label { display: block; font-size: 12px; color: #5d6b61; font-weight: 600; }
 input, select { display: block; width: 100%; margin-top: 7px; background: #fff; border: 1px solid #dfe5dc; border-radius: 8px; padding: 11px 12px; color: var(--ink); min-width: 0; }
@@ -91,6 +93,80 @@ dialog p { font-size: 13px; margin-top: 15px; }
 .dialog-actions { justify-content: end; }
 #restore-error { color: #8b3f32; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
-@media (max-width: 900px) { .workspace { grid-template-columns: minmax(0, 1fr) 250px; gap: 16px; } .chart-card, .check-in { padding: 20px; } .chart-footer { flex-direction: column; align-items: start; } }
-@media (max-width: 700px) { .header { padding: 18px; } .private-label { display: none; } main { padding: 28px 16px 20px; } .welcome { align-items: start; } .welcome-actions { align-items: end; flex-direction: column-reverse; gap: 8px; } .welcome h1 { font-size: 29px; } .welcome p { font-size: 12px; } .unit-control { min-width: 105px; font-size: 10px; } .unit-control select { font-size: 11px; } .stats { gap: 8px; } .stat { padding: 15px 12px; } .stat strong { font-size: 24px; } .stat > span, .stat small { font-size: 10px; } .workspace { grid-template-columns: 1fr; } .check-in { grid-row: 1; } .check-in form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } .check-in form button { grid-column: 1 / -1; } .check-in form label { margin-bottom: 0; } .check-in .weight-input input { font-size: 15px; } .weight-input > span { top: 13px; } .check-in p { margin-bottom: 14px; } .save-note { margin-top: 18px; padding-top: 14px; } .chart-footer { flex-direction: row; align-items: center; } .backup-bar { flex-direction: column; align-items: start; } .gate { padding: 28px; } footer { padding: 20px 16px; flex-wrap: wrap; } }
-@media (max-width: 420px) { .chart-footer { flex-direction: column; align-items: start; } .filters { flex-wrap: wrap; } .filters label { min-width: 110px; } .brand { font-size: 16px; } .header button { font-size: 11px; padding: 8px; } .stat strong { font-size: 20px; } }
+@media (max-width: 900px) {
+  .workspace { grid-template-columns: minmax(0, 1fr) 250px; gap: 16px; }
+  .chart-card, .check-in { padding: 20px; }
+  .chart-footer { flex-direction: column; align-items: start; }
+}
+@media (max-width: 800px) {
+  .workspace { grid-template-columns: 1fr; }
+  .check-in { grid-row: 1; }
+  .check-in form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .check-in form button { grid-column: 1 / -1; }
+  .check-in form label { margin-bottom: 0; }
+}
+@media (max-width: 700px) {
+  .header { padding: 16px; gap: 12px; }
+  .header-actions { gap: 8px; }
+  .private-label { display: none; }
+  main { padding: 28px 16px 20px; }
+  .welcome { align-items: start; flex-direction: column; gap: 16px; }
+  .welcome h1 { font-size: 29px; }
+  .welcome p { font-size: 12px; }
+  .welcome-actions { width: 100%; justify-content: space-between; }
+  .unit-control { min-width: 145px; font-size: 11px; }
+  .unit-control select { font-size: 12px; }
+  .stats { grid-template-columns: 1fr; gap: 8px; }
+  .stat { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0 12px; padding: 12px 16px; }
+  .stat > span { grid-column: 1; }
+  .stat strong { grid-column: 2; grid-row: 1 / 3; font-size: 22px; margin: 0; }
+  .stat small { grid-column: 1; }
+  .workspace { grid-template-columns: 1fr; }
+  .check-in { grid-row: 1; }
+  .check-in .weight-input input { font-size: 18px; }
+  .weight-input > span { top: 15px; }
+  .check-in p { margin-bottom: 14px; }
+  .save-note { margin-top: 18px; padding-top: 14px; }
+  .chart-card, .check-in, .history { padding: 20px; }
+  .chart-footer { align-items: stretch; }
+  .export-controls { width: 100%; }
+  .export-controls select { flex: 1; min-width: 0; }
+  .backup-bar { flex-direction: column; align-items: start; }
+  .gate { padding: 28px; }
+  footer { padding: 20px 16px; flex-wrap: wrap; }
+}
+@media (max-width: 500px) {
+  .header { padding: 12px; gap: 8px; }
+  .brand { gap: 8px; font-size: 15px; }
+  .brand img { width: 32px; height: 32px; }
+  .brand-sub { display: none; }
+  .header-actions { gap: 6px; }
+  .header-actions button { min-height: 36px; font-size: 10px; padding: 8px; }
+}
+@media (max-width: 420px) {
+  main { padding-inline: 12px; }
+  .welcome h1 { font-size: 27px; }
+  .welcome-actions { gap: 10px; }
+  .welcome-actions > button { flex: 1; height: 36px; }
+  .unit-control { min-width: 0; flex: 1; }
+  .unit-control select { padding: 9px 8px; }
+  .stat { padding: 11px 13px; }
+  .stat > span, .stat small { font-size: 11px; }
+  .stat strong { font-size: 20px; }
+  .chart-card, .check-in, .history { padding: 16px; }
+  .section-heading { align-items: start; }
+  .section-heading h2 { font-size: 19px; }
+  .pill { font-size: 9px; padding: 5px 8px; }
+  .range-presets { margin-top: 18px; }
+  .range-presets button { flex: 1; padding-inline: 8px; }
+  .filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .filters button { grid-column: 1 / -1; }
+  .filters label { min-width: 0; }
+  .chart-footer { flex-direction: column; align-items: start; }
+  .export-controls { flex-wrap: wrap; }
+  .export-controls button { flex: 1; }
+  .check-in form { gap: 8px; }
+  .backup-actions { width: 100%; }
+  .backup-actions button { flex: 1; padding-inline: 8px; }
+  footer div { gap: 12px; }
+}

@@ -24,7 +24,7 @@ class Metadata(HTMLParser):
 
 
 class SocialPreviewTests(unittest.TestCase):
-    def test_static_crawler_metadata(self):
+    def check_static_crawler_metadata(self):
         metadata = Metadata((HERE / "index.html").read_text())
         self.assertEqual(metadata.canonical, URL)
         self.assertEqual(metadata.meta["og:url"], URL)
@@ -37,7 +37,7 @@ class SocialPreviewTests(unittest.TestCase):
             self.assertEqual(metadata.meta[f"og:{field}"], metadata.meta[f"twitter:{field}"])
         self.assertEqual(metadata.meta["description"], metadata.meta["og:description"])
 
-    def test_preview_asset_matches_declared_dimensions(self):
+    def check_preview_asset_matches_declared_dimensions(self):
         metadata = Metadata((HERE / "index.html").read_text())
         with Image.open(HERE / "social-preview.png") as image:
             self.assertEqual(image.format, "PNG")
@@ -48,6 +48,11 @@ class SocialPreviewTests(unittest.TestCase):
             image.verify()
         self.assertEqual(metadata.meta["og:image:type"], "image/png")
         self.assertLess((HERE / "social-preview.png").stat().st_size, 1_000_000)
+
+    def test_social_preview(self):
+        for check in (self.check_static_crawler_metadata, self.check_preview_asset_matches_declared_dimensions):
+            with self.subTest(check=check.__name__):
+                check()
 
 
 if __name__ == "__main__":

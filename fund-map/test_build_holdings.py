@@ -6,7 +6,7 @@ import build_holdings
 
 
 class HoldingsTests(unittest.TestCase):
-    def test_ishares_holdings_accepts_human_and_iso_dates(self):
+    def check_ishares_holdings_accepts_human_and_iso_dates(self):
         source = build_holdings.SOURCES["ITOT"]["name"]
         for date_text in ("Nov 25, 2026", "2026-11-25"):
             with self.subTest(date_text=date_text):

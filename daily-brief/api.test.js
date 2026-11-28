@@ -1,8 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildDigest, parseRss, resolveGoogleNewsUrl } from '../api/daily-brief.js';
+import { runChecks } from '../scripts/test-checks.js';
 
-test('parseRss decodes headlines and keeps source attribution and safe links', () => {
+const checks = [];
+const check = (name, action) => checks.push([name, action]);
+
+check('parseRss decodes headlines and keeps source attribution and safe links', () => {
   const xml = `<?xml version="1.0"?>
     <rss><channel>
       <item>
@@ -30,7 +34,7 @@ test('parseRss decodes headlines and keeps source attribution and safe links', (
   assert.equal(stories[0].publishedAt, null);
 });
 
-test('buildDigest groups related headlines and never exceeds five paragraphs', () => {
+check('buildDigest groups related headlines and never exceeds five paragraphs', () => {
   const stories = [
     { title: 'Central bank cuts interest rates as inflation cools', source: 'Reuters' },
     { title: 'Inflation cools as central bank cuts rates', source: 'BBC' },
@@ -48,7 +52,7 @@ test('buildDigest groups related headlines and never exceeds five paragraphs', (
   assert.equal(buildDigest(stories, 2).length, 2);
 });
 
-test('resolveGoogleNewsUrl replaces an RSS wrapper URL with its publisher article', async () => {
+check('resolveGoogleNewsUrl replaces an RSS wrapper URL with its publisher article', async () => {
   const id = 'CBMiW0FVX3lxTE1FNVg3ME1zb05FTlVhMmw5SXQ4eGlxRF9hYUo3bGhVNlMyTjEyeFBMT29tMDM1WjY4QUxONVVjSkp4VFVlZFZrNkNxU0ZDR0c1LWU3cmE1c0lDeTQ';
   const calls = [];
   const fetchRequest = async (url, options) => {
@@ -81,7 +85,7 @@ test('resolveGoogleNewsUrl replaces an RSS wrapper URL with its publisher articl
   assert.match(calls[1].options.body.toString(), /garturlreq/);
 });
 
-test('resolveGoogleNewsUrl rejects invalid links and follows direct redirects', async () => {
+check('resolveGoogleNewsUrl rejects invalid links and follows direct redirects', async () => {
   let fetched = false;
   await assert.rejects(
     resolveGoogleNewsUrl('https://publisher.example/article', async () => {
@@ -106,3 +110,6 @@ test('resolveGoogleNewsUrl rejects invalid links and follows direct redirects', 
   assert.equal(resolved, 'https://publisher.example/article');
   assert.equal(requests, 1);
 });
+
+test('RSS parsing and digest generation', () => runChecks(checks.slice(0, 2)));
+test('Google News link resolution', () => runChecks(checks.slice(2)));

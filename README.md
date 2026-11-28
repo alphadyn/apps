@@ -44,7 +44,7 @@ Projects are listed alphabetically, matching the catalog on the landing page. Se
 - [Pulse](pulse/) ([Open app](https://alphadyn.github.io/apps/pulse/)) — Supabase-backed social news with tagged posts, media attachments, voting, threaded comments, public profiles, and Admin moderation.
 - [Signal](signal/) ([Open app](https://alphadyn.github.io/apps/signal/)) — Google News snapshot reader with ranked trending names and phrases, shared removed-keyword preferences, search, and JSON export.
 - [Vault](vault/) ([Open app](https://alphadyn.github.io/apps/vault/)) — Browser-based file and folder encryption; all processing stays on-device.
-- [Weight Tracker](weight-tracker/) ([Open app](https://alphadyn.github.io/apps/weight-tracker/)) — Private daily weight journal with pounds/kilograms, daily means, date filtering, JSON/CSV/SVG/PNG chart exports, and encrypted browser persistence with JSON backup/import. See the [guide](weight-tracker/README.md).
+- [Weight Tracker](weight-tracker/) ([Open app](https://alphadyn.github.io/apps/weight-tracker/)) — Private daily weight journal with pounds/kilograms, daily means, date filtering, JSON/CSV/SVG/PNG chart exports, and encrypted account storage with JSON backup/import. See the [guide](weight-tracker/README.md).
 
 ## Quick start
 
@@ -113,6 +113,8 @@ A convenience wrapper is also included:
 ```
 
 The pytest configuration is defined in [pytest.ini](pytest.ini).
+
+The wrapper enforces at most two tests per top-level project directory, counting Python and JavaScript tests together. Related checks can be grouped within a test; Python parametrized tests are not supported by this limit. Browser-only tests, such as Meetings' two regression groups, must also respect the limit.
 
 Signal, Pulse, Daily Brief, and Market Insights also have focused regression tests (JavaScript tests require Node.js 18 or newer):
 

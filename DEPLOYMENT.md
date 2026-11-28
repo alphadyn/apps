@@ -22,6 +22,8 @@ Set the `ai-orcin-eta-15` Vercel project's Root Directory to the repository root
 
 Market Insights also uses this root project for `/api/market-quotes`, a public Yahoo Finance batch-quote proxy with no API-key requirement. Deploy the API and updated frontend once to enable it. Thereafter the frontend checks quotes every 60 seconds while visible, independently of Pages builds. Successful batches are CDN-cached for up to 60 seconds; upstream failures return explicit errors rather than stale success responses. Quotes may be delayed or rate-limited. Constituents, earnings, historical returns, and chart histories still use the Pages-built snapshot.
 
+Weight Tracker uses Supabase Auth and an encrypted per-user journal table, not a Vercel API. Configure its public project settings and run its schema before deploying the Pages app; see the [Weight Tracker server setup](weight-tracker/README.md#server-setup).
+
 The same endpoint supports `?marketCaps=1` to recover stock valuations directly from the complete Nasdaq screener, cached for up to one hour. Runtime failures remain explicit; quote updates retain their last valuation basis. During Pages builds, Nasdaq outages can use dated, visibly flagged market caps from the existing snapshot instead of erasing valuations. If market-cap coverage is still below 80% of stocks, the build fails before deployment.
 
 ## Local validation
@@ -32,7 +34,7 @@ Before changing deployment settings, run the repository tests and verify the wor
 ./run_tests.sh
 ```
 
-The test suite covers Python and Node.js unit tests and is limited to 54 test cases, including Weight Tracker's aggregation, encryption, and chart exports. The GitHub Pages workflow runs the suite before building data snapshots or uploading the deployment artifact. A failed test run blocks deployment, preventing broken catalog or app updates from reaching GitHub Pages.
+Each top-level project directory (and the repository-root scripts directory) is limited to two test cases, with related checks grouped together. The wrapper checks this limit before running the Python and Node.js suite, including Weight Tracker's aggregation, encryption, and chart exports. The GitHub Pages workflow runs the suite before building data snapshots or uploading the deployment artifact. A failed test run blocks deployment, preventing broken catalog or app updates from reaching GitHub Pages.
 
 GitHub Actions validates the workflow when it runs. The static portfolio can be previewed locally from the repository root with:
 

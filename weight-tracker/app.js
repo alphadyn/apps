@@ -1,10 +1,13 @@
 import { STORAGE_KEY, today, validDate, toKg, fromKg, validateData, dailyAverages,
   deriveKey, encryptData, unlockData, chartSvg } from "./model.js";
+import { JournalServer } from "./server.js?v=2";
+import { supabaseConfig } from "./supabase-config.js?v=2";
 
 const $ = selector => document.querySelector(selector);
+const server = new JournalServer(supabaseConfig);
 let data = null, key = null, salt = null, saved = null;
+let revision = null, localJournal = null;
 let start = "", end = "", visibleRows = 30, busy = false, statusTimer;
-let storageAvailable = true;
 
 function notify(message, error = false) {
   clearTimeout(statusTimer);
@@ -34,21 +37,12 @@ async function action(operation) {
   }
 }
 
-function checkStorage() {
-  if (!storageAvailable) throw new Error("Browser storage is unavailable. Enable local storage and reload to use this journal.");
-  if (localStorage.getItem(STORAGE_KEY) !== saved) {
-    throw new Error("The saved journal changed in another tab. Lock and unlock this journal to load the latest data before making changes.");
-  }
-}
-
 async function persist(next, nextKey = key, nextSalt = salt) {
   const clean = validateData(next);
-  checkStorage();
   const envelope = await encryptData(clean, nextKey, nextSalt);
-  checkStorage();
-  const serialized = JSON.stringify(envelope);
-  localStorage.setItem(STORAGE_KEY, serialized);
-  saved = serialized;
+  const nextRevision = await server.save(envelope, revision);
+  saved = envelope;
+  revision = nextRevision;
   data = clean;
   key = nextKey;
   salt = nextSalt;
@@ -68,13 +62,17 @@ function showGate() {
   }
   $("#entry-form").reset();
   $("#profile-form").reset();
+  $("#account-gate").hidden = true;
+  $("#logout").hidden = false;
+  localJournal = null;
   try {
-    saved = localStorage.getItem(STORAGE_KEY);
+    localJournal = localStorage.getItem(STORAGE_KEY);
   } catch (error) {
-    storageAvailable = false;
-    notify(`Cannot access browser storage: ${error.message}`, true);
+    console.error("Weight Tracker: Cannot access browser journal:", error);
+    notify(`Cannot access the old browser journal: ${error.message}`, true);
   }
   const existing = Boolean(saved);
+  $("#import-local").hidden = existing || !localJournal;
   $("#new-profile").hidden = existing;
   $("#name").required = !existing;
   $("#password").minLength = existing ? 1 : 8;
@@ -82,9 +80,37 @@ function showGate() {
   $("#password").placeholder = existing ? "Your journal password" : "At least 8 characters";
   $("#gate-title").innerHTML = existing ? "Welcome back.<br>Your story continues." : "Small steps.<br>A clearer picture.";
   $("#gate-description").textContent = existing
-    ? "Enter your password to unlock the journal saved in this browser."
-    : "Make space for your daily check-in. Your journal stays encrypted in this browser, just for you.";
+    ? "Enter your journal password to unlock the encrypted journal saved to your account."
+    : "Create an encrypted journal for your account, or restore an existing one.";
   $("#open-journal").textContent = existing ? "Unlock my journal" : "Create my journal";
+}
+
+function showAccountGate() {
+  data = null;
+  key = null;
+  salt = null;
+  saved = null;
+  revision = null;
+  localJournal = null;
+  $("#dashboard").hidden = true;
+  $("#gate").hidden = true;
+  $("#account-gate").hidden = false;
+  $("#lock").hidden = true;
+  $("#logout").hidden = true;
+  $("#chart").replaceChildren();
+  $("#history-body").replaceChildren();
+  for (const selector of ["#greeting", "#latest", "#latest-date", "#change", "#day-count", "#entry-count"]) {
+    $(selector).textContent = "";
+  }
+  $("#entry-form").reset();
+  $("#profile-form").reset();
+  $("#account-form").reset();
+}
+
+async function loadJournal() {
+  const row = await server.load();
+  saved = row?.envelope || null;
+  revision = row?.revision ?? null;
 }
 
 function showDashboard() {
@@ -203,14 +229,39 @@ async function pngBlob(svg) {
   }
 }
 
+async function enterAccount() {
+  $("#logout").hidden = false;
+  await loadJournal();
+  $("#account-password").value = "";
+  showGate();
+}
+
+$("#account-form").addEventListener("submit", event => {
+  event.preventDefault();
+  action(async () => {
+    await server.signIn($("#account-username").value, $("#account-password").value);
+    await enterAccount();
+    notify("Signed in. Unlock your journal to continue.");
+  });
+});
+
+$("#sign-up").addEventListener("click", () => {
+  if (!$("#account-form").reportValidity()) return;
+  action(async () => {
+    await server.signUp($("#account-username").value, $("#account-password").value);
+    $("#account-password").value = "";
+    await enterAccount();
+    notify("Account created. Create or restore your journal.");
+  });
+});
+
 $("#profile-form").addEventListener("submit", event => {
   event.preventDefault();
   action(async () => {
     if (!crypto.subtle) throw new Error("Encryption requires HTTPS or localhost. Serve this app using a local web server.");
-    checkStorage();
+    await loadJournal();
     if (saved) {
-      const unlocked = await unlockData(JSON.parse(saved), $("#password").value);
-      checkStorage();
+      const unlocked = await unlockData(saved, $("#password").value);
       ({ data, key, salt } = unlocked);
     } else {
       const name = $("#name").value.trim();
@@ -220,9 +271,23 @@ $("#profile-form").addEventListener("submit", event => {
       await persist({ version: 1, name, unit: $("#initial-unit").value, entries: [] }, nextKey, nextSalt);
     }
     showDashboard();
-    notify("Journal unlocked. Your data stays on this device.");
+    notify("Journal unlocked. Changes are encrypted and saved to your account.");
   });
 });
+
+$("#import-local").addEventListener("click", () => action(async () => {
+  if (!localJournal) throw new Error("No browser journal is available to import.");
+  if (!$("#password").value) throw new Error("Enter your existing journal password first.");
+  await loadJournal();
+  if (saved) {
+    showGate();
+    throw new Error("This account already has a journal. Unlock it or restore a backup instead.");
+  }
+  const unlocked = await unlockData(JSON.parse(localJournal), $("#password").value);
+  await persist(unlocked.data, unlocked.key, unlocked.salt);
+  showDashboard();
+  notify("Browser journal imported and saved to your account. The original remains in this browser.");
+}));
 
 $("#entry-form").addEventListener("submit", event => {
   event.preventDefault();
@@ -283,6 +348,15 @@ $("#history-body").addEventListener("click", event => {
 
 $("#show-more").addEventListener("click", () => { visibleRows += 30; render(); });
 $("#lock").addEventListener("click", () => { showGate(); notify("Journal locked."); $("#password").focus(); });
+$("#logout").addEventListener("click", () => action(async () => {
+  try {
+    await server.signOut();
+  } finally {
+    showAccountGate();
+  }
+  notify("Logged out.");
+  $("#account-username").focus();
+}));
 
 $("#backup").addEventListener("click", () => action(async () => {
   const envelope = await encryptData(data, key, salt);
@@ -327,13 +401,8 @@ $("#restore-form").addEventListener("submit", event => {
     await persist(unlocked.data, unlocked.key, unlocked.salt);
     $("#restore-dialog").close();
     showDashboard();
-    notify("Backup restored and saved in this browser.");
+    notify("Backup restored and saved to your account.");
   });
 });
 
-window.addEventListener("storage", event => {
-  if (event.key === STORAGE_KEY || event.key === null) {
-    notify("Journal storage changed in another tab. Lock and unlock to load the latest journal.", true);
-  }
-});
-showGate();
+showAccountGate();

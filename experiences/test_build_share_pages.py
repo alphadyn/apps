@@ -29,7 +29,7 @@ def test_build_generates_experience_specific_page_and_cover(tmp_path):
     assert '<script>alert(1)' not in page
 
 
-def test_build_skips_private_experiences_and_removes_stale_pages(tmp_path):
+def check_build_skips_private_experiences_and_removes_stale_pages(tmp_path):
     output = tmp_path / 'share'
     public = {'id': DATABASE_ID, 'public_slug': EXPERIENCE_ID, 'name': 'Public', 'is_public': True}
     private = {'id': 'de2eb71f-b52d-491f-b925-17664f46db92', 'public_slug': 'private-uuid', 'name': 'Private', 'is_public': False}
@@ -42,7 +42,7 @@ def test_build_skips_private_experiences_and_removes_stale_pages(tmp_path):
     assert list(output.iterdir()) == []
 
 
-def test_invalid_experience_id_does_not_replace_existing_pages(tmp_path):
+def check_invalid_experience_id_does_not_replace_existing_pages(tmp_path):
     output = tmp_path / 'share'
     previews.build_pages(output, [{'id': DATABASE_ID, 'public_slug': EXPERIENCE_ID, 'name': 'Safe', 'is_public': True}])
 
@@ -54,3 +54,12 @@ def test_invalid_experience_id_does_not_replace_existing_pages(tmp_path):
         raise AssertionError('Expected invalid Experience ID to fail')
 
     assert (output / EXPERIENCE_ID / 'index.html').exists()
+
+
+def test_private_and_invalid_experiences(tmp_path):
+    private_path = tmp_path / 'private'
+    invalid_path = tmp_path / 'invalid'
+    private_path.mkdir()
+    invalid_path.mkdir()
+    check_build_skips_private_experiences_and_removes_stale_pages(private_path)
+    check_invalid_experience_id_does_not_replace_existing_pages(invalid_path)

@@ -1,10 +1,11 @@
-import test from "node:test";
 import assert from "node:assert/strict";
 import { openingInspectorMarkup, roomElementActionsMarkup, roomBoundaryControlsMarkup } from "./inspector-ui.js";
 
 const icon = () => '<svg aria-hidden="true"></svg>';
+export const checks = [];
+const check = (name, action) => checks.push([name, action]);
 
-test("room element controls stay enabled for standard rooms and explained for custom outlines", () => {
+check("room element controls stay enabled for standard rooms and explained for custom outlines", () => {
   const regular = roomElementActionsMarkup({ customOutline: false, rectangularOutline: true });
   assert.match(regular, /id="room-add-door"/);
   assert.match(regular, /id="room-add-window"/);
@@ -17,7 +18,7 @@ test("room element controls stay enabled for standard rooms and explained for cu
   }
 });
 
-test("boundary controls render checkbox state, ordered options, and collapsed keyboard help", () => {
+check("boundary controls render checkbox state, ordered options, and collapsed keyboard help", () => {
   const markup = roomBoundaryControlsMarkup({
     roomHasFeatures: false, cornerCount: 4, selectedCorner: null,
     keepRightAngles: true, shiftSharedBoundaries: false, icon,
@@ -31,7 +32,7 @@ test("boundary controls render checkbox state, ordered options, and collapsed ke
   assert.doesNotMatch(markup, /<details[^>]* open/);
 });
 
-test("corner restrictions and opening warnings preserve editing availability", () => {
+check("corner restrictions and opening warnings preserve editing availability", () => {
   const options = { roomHasFeatures: false, cornerCount: 12, selectedCorner: 1, keepRightAngles: false, shiftSharedBoundaries: true, icon };
   const maximum = roomBoundaryControlsMarkup(options);
   assert.match(maximum, /id="add-corner" disabled/);

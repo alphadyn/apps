@@ -1,9 +1,11 @@
-import test from "node:test";
 import assert from "node:assert/strict";
 import { createProject } from "./model.js";
 import { openingSchedule, renderDocumentationDrawing, roomSchedule, scheduleCsv } from "./documentation.js";
 
-test("elevations generate valid, escaped drawings for each facade and specified openings", () => {
+export const checks = [];
+const check = (name, action) => checks.push([name, action]);
+
+check("elevations generate valid, escaped drawings for each facade and specified openings", () => {
   const project = createProject();
   project.name = "Courtyard & Co";
   project.features = [{
@@ -29,7 +31,7 @@ test("elevations generate valid, escaped drawings for each facade and specified 
   assert.throws(() => renderDocumentationDrawing(project, { view: "section", axis: "x", offset: -1 }), /between/);
 });
 
-test("room and opening schedules use current project data and CSV safely quotes values", () => {
+check("room and opening schedules use current project data and CSV safely quotes values", () => {
   const project = createProject();
   project.floors[0].rooms[0].name = 'Living, "garden"';
   project.features = [{

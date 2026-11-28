@@ -1,11 +1,13 @@
-import test from "node:test";
 import assert from "node:assert/strict";
 import { SAMPLE_DESIGNS, createSampleDesign } from "./samples.js";
 import { createProject, isOutdoor, projectStats, propertyStats, unionArea, validateProject, parseProject } from "./model.js";
 import { renderPropertyView } from "./property-view.js";
 import { renderFloor3D } from "./floor-view.js";
 
-test("fourteen samples cover different sizes, bedroom counts, levels and footprints", () => {
+export const checks = [];
+const check = (name, action) => checks.push([name, action]);
+
+check("fourteen samples cover different sizes, bedroom counts, levels and footprints", () => {
   assert.equal(SAMPLE_DESIGNS.length, 14);
   assert.equal(new Set(SAMPLE_DESIGNS.map(s => s.id)).size, 14);
   const expected = {
@@ -42,7 +44,7 @@ test("fourteen samples cover different sizes, bedroom counts, levels and footpri
   }
 });
 
-test("single-family rooftop samples include railed terraces, stair access and editable opening specifications", () => {
+check("single-family rooftop samples include railed terraces, stair access and editable opening specifications", () => {
   for (const id of ["roof-garden-family-home", "skyline-family-house"]) {
     const design = createSampleDesign(id), roof = design.floors.at(-1);
     assert.ok(roof.rooms.some(r => r.type === "terrace" && r.railing));
@@ -53,7 +55,7 @@ test("single-family rooftop samples include railed terraces, stair access and ed
     assert.match(renderPropertyView(design, { view: "3d" }).markup, /data-terrace-railing/);
   }
 });
-test("duplexes, maisonettes and mansions have their advertised distinguishing features", () => {
+check("duplexes, maisonettes and mansions have their advertised distinguishing features", () => {
   for (const id of ["urban-duplex", "garden-duplex", "palm-maisonette", "terrace-maisonette"]) {
     const design = createSampleDesign(id);
     assert.equal(design.floors.length, 2);
@@ -75,7 +77,7 @@ test("duplexes, maisonettes and mansions have their advertised distinguishing fe
   assert.ok(unionArea(estate.floors[2].rooms.filter(r => !isOutdoor(r))) < unionArea(ground));
 });
 
-test("sample rooms never overlap on a floor and upper rooms are supported", () => {
+check("sample rooms never overlap on a floor and upper rooms are supported", () => {
   for (const sample of SAMPLE_DESIGNS) {
     const design = sample.create();
     design.floors.forEach((f, index) => {
@@ -97,7 +99,7 @@ test("sample rooms never overlap on a floor and upper rooms are supported", () =
   }
 });
 
-test("each sample opens as a fresh copy without mutating templates or the starter", () => {
+check("each sample opens as a fresh copy without mutating templates or the starter", () => {
   const starter = createProject();
   for (const sample of SAMPLE_DESIGNS) {
     const first = createSampleDesign(sample.id), saved = JSON.stringify(first);
@@ -113,7 +115,7 @@ test("each sample opens as a fresh copy without mutating templates or the starte
   assert.throws(() => createSampleDesign("missing-sample"), /not available/);
 });
 
-test("samples showcase finished roofs and protect elevated outdoor spaces without enclosing garden terraces", () => {
+check("samples showcase finished roofs and protect elevated outdoor spaces without enclosing garden terraces", () => {
   const finishes = new Set(), styles = new Set(), materials = new Set();
   for (const sample of SAMPLE_DESIGNS) {
     const project = sample.create();
@@ -137,7 +139,7 @@ test("samples showcase finished roofs and protect elevated outdoor spaces withou
   assert.deepEqual([...materials].sort(), ["concrete", "deck", "tile"]);
 });
 
-test("all samples render as complete property plans and 3D floor previews", () => {
+check("all samples render as complete property plans and 3D floor previews", () => {
   for (const sample of SAMPLE_DESIGNS) {
     const design = sample.create();
     for (const view of ["2d", "3d"]) {

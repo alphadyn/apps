@@ -28,7 +28,7 @@ def test_web_home_and_capture_status_routes():
     assert isinstance(status.json["news"], list)
 
 
-def test_extract_news_items_normalizes_links_and_deduplicates():
+def check_extract_news_items_normalizes_links_and_deduplicates():
     records = [
         {
             "title": "  Main   headline ",
@@ -59,7 +59,7 @@ def test_extract_news_items_normalizes_links_and_deduplicates():
     ]
 
 
-def test_format_capture_json_is_structured_and_preserves_unicode():
+def check_format_capture_json_is_structured_and_preserves_unicode():
     captured_at = datetime(2025, 1, 2, 3, 4, 5, tzinfo=timezone.utc)
     news = [{"header_title": "Café news", "header_url": "https://example.com", "subtitles": []}]
 
@@ -74,7 +74,7 @@ def test_format_capture_json_is_structured_and_preserves_unicode():
     assert "Café news" in result
 
 
-def test_save_news_json_creates_parent_and_writes_text_file(tmp_path):
+def check_save_news_json_creates_parent_and_writes_text_file(tmp_path):
     destination = tmp_path / "captures" / "google_news.txt"
     news = [{"header_title": "Headline", "header_url": "https://example.com/story", "subtitles": []}]
 
@@ -82,3 +82,9 @@ def test_save_news_json_creates_parent_and_writes_text_file(tmp_path):
 
     assert saved_path == destination.resolve()
     assert json.loads(destination.read_text(encoding="utf-8"))["news"] == news
+
+
+def test_news_capture_and_persistence(tmp_path):
+    check_extract_news_items_normalizes_links_and_deduplicates()
+    check_format_capture_json_is_structured_and_preserves_unicode()
+    check_save_news_json_creates_parent_and_writes_text_file(tmp_path)

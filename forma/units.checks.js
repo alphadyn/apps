@@ -1,8 +1,10 @@
-import test from "node:test";
 import assert from "node:assert/strict";
 import { areaUnit, formatArea, formatLength, fromMeters, inputLength, lengthUnit, toMeters } from "./units.js";
 
-test("unit conversions and formatters preserve metric and imperial values", () => {
+export const checks = [];
+const check = (name, action) => checks.push([name, action]);
+
+check("unit conversions and formatters preserve metric and imperial values", () => {
   assert.equal(fromMeters(1, "imperial"), 1 / 0.3048);
   assert.equal(toMeters(10, "imperial"), 3.048);
   assert.equal(toMeters(fromMeters(4.25, "imperial"), "imperial"), 4.25);

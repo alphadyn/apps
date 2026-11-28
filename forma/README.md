@@ -187,7 +187,7 @@ This is a conceptual planning tool, **not construction or permit documentation**
 ## Validation
 
 ```sh
-node --test forma/model.test.js forma/space-edit.test.js forma/opening-edit.test.js forma/inspector-ui.test.js forma/property-view.test.js forma/camera.test.js forma/samples.test.js forma/architecture.test.js
+node --test forma/project.test.js
 ```
 
 The tests cover all space types, totals, room placement, edits, saved-design file validation, legacy import, lot validation, union footprint area, exterior wall detection, orbit projection and angle limits, surface ordering, and both 3D renderers from every viewing quadrant. Space-edit tests cover expansion and contraction, perpendicular wall movement, corner reshaping, shared and partial-wall junctions, invalid edits, opening constraints, and serialization. Opening-edit tests cover movement and resizing on every wall, fixed opposite endpoints, width and wall limits, shared-wall collisions, unit-aware controls, and saved-design round trips. Sample tests check exact metrics, lot fit, non-overlapping rooms, supported upper-floor rooms, aligned stairs, fresh-copy isolation, project round trips, and preview rendering. Architecture tests cover specification validation, shared-wall overlaps, host geometry, saved features, full-perimeter rooftop railings, boundary fences, gate cutouts, and fence visibility from every quadrant. UI can be previewed with the repository's **Preview apps portfolio** VS Code task.

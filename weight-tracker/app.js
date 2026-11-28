@@ -133,6 +133,7 @@ async function loadJournal() {
 }
 
 function showDashboard() {
+  $("#account-gate").hidden = true;
   $("#gate").hidden = true;
   $("#locked-view").hidden = true;
   $("#profile-view").hidden = true;

@@ -20,9 +20,9 @@ for path in Path('.').rglob('*'):
         count += len(re.findall(r'^\s*def test_', text, re.MULTILINE))
         count += len(re.findall(r'\b(?:it|test)\s*\(', text))
 
-if count > 51:
-    raise SystemExit(f'Test suite has {count} test cases; limit is 51')
-print(f'Test suite: {count}/51 test cases')
+if count > 54:
+    raise SystemExit(f'Test suite has {count} test cases; limit is 54')
+print(f'Test suite: {count}/54 test cases')
 PY
 
 python3 -m pip install -r requirements-dev.txt
@@ -34,5 +34,6 @@ if command -v node >/dev/null 2>&1; then
     forma/documentation.test.js \
     forma/inspector-ui.test.js \
     forma/samples.test.js \
-    forma/units.test.js
+    forma/units.test.js \
+    weight-tracker/model.test.js
 fi

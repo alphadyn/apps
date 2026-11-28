@@ -2,9 +2,9 @@
 
 [Explore the live app catalog](https://alphadyn.github.io/apps/) · [View this repository on GitHub](https://github.com/alphadyn/apps)
 
-This repository is a portfolio-style collection of **19 active, independent projects**: interactive demos, data visualizations, browser apps, and Python utilities. Every project is designed to be explored on its own, with its own README and a live GitHub Pages entry whenever applicable. The collection intentionally mixes dependency-free static experiences with apps that use Supabase, Flask, or Vercel APIs.
+This repository is a portfolio-style collection of **20 active, independent projects**: interactive demos, data visualizations, browser apps, and Python utilities. Every project is designed to be explored on its own, with its own README and a live GitHub Pages entry whenever applicable. The collection intentionally mixes dependency-free static experiences with apps that use Supabase, Flask, or Vercel APIs.
 
-The [landing page](index.html) is the visual launch point for the portfolio. It highlights four featured projects and provides an alphabetical catalog of all 19 apps and experiments, each with a short summary, category, icon, and launch link. Project pages link back to this repository and its catalog documentation.
+The [landing page](index.html) is the visual launch point for the portfolio. It highlights four featured projects and provides an alphabetical catalog of all 20 apps and experiments, each with a short summary, category, icon, and launch link. Project pages link back to this repository and its catalog documentation.
 
 Its social link-preview image is generated from the Signika logo SVGs with `python3 -m scripts.generate_social_preview` (requires Pillow and resvg-py, installable with `python3 -m pip install Pillow resvg-py`). After changing the image, update the version in the landing page's Open Graph and Twitter image URLs to encourage cache refreshes; preview caching is controlled by each sharing platform.
 
@@ -44,6 +44,7 @@ Projects are listed alphabetically, matching the catalog on the landing page. Se
 - [Pulse](pulse/) ([Open app](https://alphadyn.github.io/apps/pulse/)) — Supabase-backed social news with tagged posts, media attachments, voting, threaded comments, public profiles, and Admin moderation.
 - [Signal](signal/) ([Open app](https://alphadyn.github.io/apps/signal/)) — Google News snapshot reader with ranked trending names and phrases, shared removed-keyword preferences, search, and JSON export.
 - [Vault](vault/) ([Open app](https://alphadyn.github.io/apps/vault/)) — Browser-based file and folder encryption; all processing stays on-device.
+- [Weight Tracker](weight-tracker/) ([Open app](https://alphadyn.github.io/apps/weight-tracker/)) — Private daily weight journal with pounds/kilograms, daily means, date filtering, JSON/CSV/SVG/PNG chart exports, and encrypted browser persistence with JSON backup/import. See the [guide](weight-tracker/README.md).
 
 ## Quick start
 

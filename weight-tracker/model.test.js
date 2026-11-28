@@ -62,10 +62,11 @@ check("encrypted JSON round-trips and server storage handles authentication and 
 
   const calls = [];
   let row = null;
-  assert.equal(usernameIdentity("  Alex_1  "), "wt-alex_1@weight-tracker.invalid");
-  assert.equal(usernameIdentity("ALEx-1"), usernameIdentity("alex-1"));
-  for (const invalid of ["ab", "alex@example.com", "-alex", "with spaces", "Ken", "x".repeat(33)]) {
-    assert.throws(() => usernameIdentity(invalid), /Username/);
+  assert.notEqual(usernameIdentity(" Alex "), usernameIdentity("Alex"));
+  assert.notEqual(usernameIdentity("ALEX"), usernameIdentity("Alex"));
+  assert.notEqual(usernameIdentity("José"), usernameIdentity("Jose"));
+  for (const invalid of ["", "   ", "x".repeat(81)]) {
+    assert.throws(() => usernameIdentity(invalid), /Name/);
   }
   await assert.rejects(new JournalServer({ url: "", key: "" }, async () => {
     throw new Error("Unconfigured server should not be called");

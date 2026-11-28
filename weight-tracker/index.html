@@ -38,12 +38,12 @@
       <h1 id="account-title">Welcome to<br>Weight Tracker.</h1>
       <p>Sign in to save your encrypted journal to your account and access it on your devices.</p>
       <form id="account-form">
-        <label>Username<input id="account-username" type="text" autocomplete="username" minlength="3" maxlength="32" pattern="[A-Za-z0-9][A-Za-z0-9_\-]{2,31}" title="Use 3 to 32 letters, numbers, underscores, or hyphens, starting with a letter or number." required></label>
+        <label>Name<input id="account-username" type="text" autocomplete="name" maxlength="80" required></label>
         <label>Account password<input id="account-password" type="password" minlength="8" autocomplete="current-password" required></label>
         <button class="primary wide" type="submit">Sign in <span aria-hidden="true">→</span></button>
         <button id="sign-up" class="text-button" type="button">Create an account</button>
       </form>
-      <p class="hint">Usernames are not case-sensitive. Your account password and journal encryption password are separate; neither can be recovered. Keep both safe.</p>
+      <p class="hint">Enter your name exactly as you want it to identify your account. Names are case-sensitive. Your account password and journal encryption password are separate; neither can be recovered. Keep both safe.</p>
     </section>
     <section id="gate" class="gate card" aria-labelledby="gate-title" hidden>
       <span class="eyebrow">YOUR PERSONAL JOURNAL</span>

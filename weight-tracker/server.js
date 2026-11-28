@@ -1,9 +1,9 @@
 export function usernameIdentity(username) {
-  const trimmed = typeof username === "string" ? username.trim() : "";
-  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]{2,31}$/.test(trimmed)) {
-    throw new Error("Username must be 3–32 letters, numbers, underscores, or hyphens, and start with a letter or number.");
+  if (typeof username !== "string" || !username.trim() || username.length > 80) {
+    throw new Error("Name must be 1–80 characters.");
   }
-  return `wt-${trimmed.toLowerCase()}@weight-tracker.invalid`;
+  const encoded = Array.from(new TextEncoder().encode(username), byte => byte.toString(16).padStart(2, "0")).join("");
+  return `wt-${encoded}@weight-tracker.invalid`;
 }
 
 export class JournalServer {

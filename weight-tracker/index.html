@@ -24,8 +24,8 @@
   <meta name="twitter:image" content="https://alphadyn.github.io/apps/weight-tracker/social-preview.png?v=1">
   <meta name="twitter:image:alt" content="Weight Tracker with a decreasing-trend logo, a daily average chart, and the words Small steps. A clearer picture.">
   <link rel="icon" href="icon.svg?v=2" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=4">
-  <script type="module" src="app.js?v=5"></script>
+  <link rel="stylesheet" href="styles.css?v=6">
+  <script type="module" src="app.js?v=6"></script>
 </head>
 <body>
   <header class="header">
@@ -47,9 +47,9 @@
       <p class="hint">Account names are case-sensitive. Your account password also encrypts your journal and backups.</p>
     </section>
     <section id="gate" class="gate card" aria-labelledby="gate-title" hidden>
-      <span class="eyebrow">YOUR PERSONAL JOURNAL</span>
+      <span id="gate-eyebrow" class="eyebrow">ACCOUNT SIGNED IN</span>
       <h1 id="gate-title">Small steps.<br>A clearer picture.</h1>
-      <p id="gate-description">Your journal is encrypted before it is saved to your account.</p>
+      <p id="gate-description">You are signed in. Set up your journal to continue.</p>
       <form id="profile-form">
         <label>Your name<input id="name" maxlength="80" autocomplete="name" placeholder="What should we call you?" required></label>
         <label>Preferred weight unit<select id="initial-unit"><option value="lb">Pounds (lb)</option><option value="kg">Kilograms (kg)</option></select></label>

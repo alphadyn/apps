@@ -94,10 +94,11 @@ function showGate() {
   $("#local-password-label").hidden = true;
   $("#profile-form").hidden = existing;
   $("#legacy-unlock").hidden = !legacyMigration;
-  $("#gate-title").textContent = legacyMigration ? "One last step." : "Small steps. A clearer picture.";
+  $("#gate-eyebrow").textContent = legacyMigration ? "ONE-TIME MIGRATION" : "ACCOUNT SIGNED IN";
+  $("#gate-title").textContent = legacyMigration ? "Migrate your journal." : "Set up your journal.";
   $("#gate-description").textContent = legacyMigration
-    ? "This journal was encrypted with a separate password. Migrate it once to use your account password from now on."
-    : "Create an encrypted journal for your account, or restore an existing one.";
+    ? "You are signed in. This journal needs its previous password once to migrate to your account password."
+    : "You are signed in. Choose a journal name and preferred unit to continue.";
   $("#open-journal").textContent = "Create my journal";
 }
 

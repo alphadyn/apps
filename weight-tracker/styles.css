@@ -8,7 +8,7 @@ button { background: white; border: 1px solid var(--line); border-radius: 8px; p
 button:hover { border-color: var(--green); background: #f0f5ee; }
 button:disabled { opacity: .5; cursor: wait; }
 a { color: var(--green); text-decoration: none; }
-a:hover { text-decoration: underline; }
+a:not(.brand):hover { text-decoration: underline; }
 :focus-visible { outline: 3px solid #b1cb80; outline-offset: 3px; }
 .header { padding: 24px max(24px, calc((100vw - 1200px) / 2)); border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 20px; background: #fafbf7; }
 .brand { display: flex; gap: 12px; align-items: center; color: var(--ink); font-weight: 700; font-size: 18px; letter-spacing: -.5px; }
